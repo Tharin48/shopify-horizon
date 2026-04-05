@@ -1,0 +1,166 @@
+{% doc %}
+  Primary header: logo row + lower row (centered nav, actions on the right).
+
+  @param {object} section - Parent section object (required)
+
+  @example
+    {% render 'custom-header-main', section: section %}
+{% enddoc %}
+
+{% liquid
+  assign menu = section.settings.menu
+  assign search_style = 'none'
+  if section.settings.show_search
+    assign search_style = 'modal'
+  endif
+  assign nav_id = 'CustomHeaderNav-' | append: section.id
+  assign has_menu = false
+  if menu != blank and menu.links.size > 0
+    assign has_menu = true
+  endif
+  assign logo_alt = shop.name
+  if settings.logo != blank
+    assign logo_alt = settings.logo.alt | default: shop.name
+  endif
+
+  assign show_tea = section.settings.show_tea_club_button
+  assign tea_label = section.settings.tea_club_label | strip
+  assign tea_link = section.settings.tea_club_link
+
+  assign wishlist_href = section.settings.wishlist_link
+  if wishlist_href == blank
+    assign wishlist_href = routes.root_url
+  endif
+%}
+
+<div class="custom-header__primary" data-custom-header-primary>
+  <div class="custom-header__primary-inner{% unless has_menu %} custom-header__primary-inner--no-menu{% endunless %}">
+    {% if has_menu %}
+      <button
+        type="button"
+        class="custom-header__menu-toggle"
+        aria-expanded="false"
+        aria-controls="{{ nav_id }}"
+        data-custom-header-menu-toggle
+      >
+        <span class="svg-wrapper" aria-hidden="true">
+          {{- 'icon-menu.svg' | inline_asset_content -}}
+        </span>
+        <span class="visually-hidden">{{ 'accessibility.menu' | t }}</span>
+      </button>
+    {% endif %}
+
+    <div class="custom-header__logo-row">
+      <div class="custom-header__logo">
+        {%- if request.page_type == 'index' -%}
+          <h1 class="custom-header__logo-heading">
+            <a href="{{ routes.root_url }}" class="custom-header__logo-link">
+              {%- if settings.logo != blank -%}
+                {{
+                  settings.logo
+                  | image_url: width: 144
+                  | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
+                }}
+              {%- else -%}
+                <span class="custom-header__logo-text">{{ shop.name }}</span>
+              {%- endif -%}
+            </a>
+          </h1>
+        {%- else -%}
+          <a href="{{ routes.root_url }}" class="custom-header__logo-link">
+            {%- if settings.logo != blank -%}
+              {{
+                settings.logo
+                | image_url: width: 144
+                | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
+              }}
+            {%- else -%}
+              <span class="custom-header__logo-text">{{ shop.name }}</span>
+            {%- endif -%}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="custom-header__lower">
+      {% if has_menu %}
+        <nav
+          class="custom-header__nav"
+          id="{{ nav_id }}"
+          aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+          data-custom-header-nav
+        >
+          <ul class="custom-header__menu-list list-unstyled" role="list">
+            {% for link in menu.links %}
+              <li class="custom-header__menu-item">
+                <a href="{{ link.url }}" class="custom-header__menu-link">
+                  {{- link.title -}}
+                  {% if link.links != blank and link.links.size > 0 %}
+                    <span class="svg-wrapper custom-header__menu-caret" aria-hidden="true">
+                      {{- 'icon-caret.svg' | inline_asset_content -}}
+                    </span>
+                  {% endif %}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </nav>
+      {% endif %}
+
+      <div class="custom-header__actions" data-custom-header-actions>
+        <div class="custom-header__search-slot" data-custom-header-search>
+          {% if search_style != 'none' %}
+            {% render 'search',
+              style: search_style,
+              display_style: 'icon',
+              class: 'custom-header-search-trigger'
+            %}
+          {% endif %}
+        </div>
+
+        <div class="custom-header__actions-icons">
+          {% if section.settings.show_wishlist %}
+            <a
+              href="{{ wishlist_href }}"
+              class="custom-header__wishlist header-actions__action"
+              aria-label="{{ section.settings.wishlist_label | escape }}"
+            >
+              <span class="svg-wrapper" aria-hidden="true">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="custom-header__wishlist-icon"
+                  focusable="false"
+                >
+                  {% render 'icon', icon: 'heart' %}
+                </svg>
+              </span>
+            </a>
+          {% endif %}
+
+          {% render 'header-actions',
+            section: section,
+            customer_account_menu: section.settings.customer_account_menu,
+            display_style: 'icon'
+          %}
+
+          {% render 'custom-header-localization', section: section %}
+
+          {% if show_tea and tea_label != blank %}
+            <div class="custom-header__tea-club" data-custom-header-tea-club>
+              <a
+                href="{% if tea_link != blank %}{{ tea_link }}{% else %}#{% endif %}"
+                class="custom-header__tea-club-bubble"
+              >
+                <span class="custom-header__tea-club-label">{{ tea_label }}</span>
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
