@@ -1,0 +1,488 @@
+/**
+ * Custom header — mobile drawer (left), search panel (right), overlay, scroll lock.
+ * Desktop: these layers are hidden; header chrome stays in sections/custom-header.liquid base styles.
+ */
+
+@media screen and (max-width: 749px) {
+  /*
+   * Portal wrapper: sibling of <header> in the section; does not participate in layout.
+   * Fixed children attach to the viewport and sit above the header stack (no clipping).
+   */
+  .custom-header__mobile-portals {
+    display: contents;
+    --custom-header-portal-overlay-z: 100000;
+    --custom-header-portal-panel-z: 100001;
+  }
+
+  .custom-header__shell {
+    position: relative;
+  }
+
+  /* Inline desktop nav is never shown on small screens — drawer holds navigation */
+  .custom-header__nav--desktop {
+    display: none !important;
+  }
+
+  /*
+   * Top bar: one grid row [ menu | logo (left) | icons ] — icons come from .lower via display:contents
+   * so they are not absolutely positioned (fixes vertical/horizontal misalignment).
+   */
+  .custom-header__primary-inner {
+    display: grid;
+    grid-template-columns: minmax(44px, auto) 1fr minmax(44px, auto);
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: var(--gap-sm);
+    row-gap: var(--gap-sm);
+  }
+
+  .custom-header__mobile {
+    display: contents;
+  }
+
+  .custom-header__mobile-top {
+    display: contents;
+  }
+
+  .custom-header__lower {
+    display: contents;
+  }
+
+  .custom-header__actions {
+    display: contents;
+  }
+
+  .custom-header__menu-toggle {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    justify-self: start;
+  }
+
+  .custom-header__logo-row {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    align-self: center;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    text-align: start;
+  }
+
+  .custom-header .custom-header__logo {
+    text-align: start;
+  }
+
+  .custom-header .custom-header__logo-link {
+    justify-content: flex-start;
+  }
+
+  /* Override section base 72px — mobile logo art at 42px */
+  .custom-header .custom-header__logo-img {
+    max-width: 42px;
+    max-height: 42px;
+    width: auto;
+    height: auto;
+  }
+
+  .custom-header__actions-icons {
+    position: static;
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    justify-self: end;
+    z-index: 2;
+    width: auto;
+    max-width: min(50vw, 11rem);
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--gap-sm);
+  }
+
+  .custom-header__search-slot--desktop {
+    display: none !important;
+  }
+
+  .custom-header__mobile-bottom {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  /* No hamburger: logo uses first two columns, left-aligned */
+  .custom-header__primary-inner--no-menu .custom-header__logo-row {
+    grid-column: 1 / 3;
+    justify-self: start;
+  }
+
+  .custom-header__primary-inner--no-menu .custom-header__actions-icons {
+    grid-column: 3;
+  }
+
+  .custom-header__mobile-search-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    min-height: 44px;
+    padding-inline: 1rem;
+    border-radius: 9999px;
+    border: 2px solid color-mix(in srgb, currentColor 35%, transparent);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .custom-header__mobile-search-placeholder {
+    flex: 1;
+    font-size: 0.9375rem;
+    opacity: 0.85;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .custom-header__mobile-search-icon {
+    flex-shrink: 0;
+  }
+
+  .custom-header[data-header-state='transparent'] .custom-header__mobile-search-trigger {
+    border-color: #e6c229;
+    background: color-mix(in srgb, currentColor 10%, transparent);
+  }
+
+  .custom-header[data-header-state='solid'] .custom-header__mobile-search-trigger,
+  .custom-header[data-header-state='minimized'] .custom-header__mobile-search-trigger {
+    border-color: color-mix(in srgb, currentColor 42%, transparent);
+    background: color-mix(in srgb, var(--custom-header-bg-solid) 96%, transparent);
+  }
+
+  .custom-header[data-header-state='minimized'] .custom-header__mobile-search-trigger {
+    background: color-mix(in srgb, var(--custom-header-bg-minimized) 96%, transparent);
+  }
+
+  .custom-header__mobile-search-trigger:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  /* Overlay */
+  .custom-header__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--custom-header-portal-overlay-z, 100000);
+    background: rgb(0 0 0 / 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0.3s;
+  }
+
+  .custom-header__overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Left drawer — full screen */
+  .custom-header__mobile-drawer {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    z-index: var(--custom-header-portal-panel-z, 100001);
+    background: var(--color-background, #fff);
+    color: var(--color-foreground, #121212);
+    box-shadow: none;
+    transform: translate3d(-100%, 0, 0);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .custom-header__mobile-drawer.is-open {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  .custom-header__mobile-drawer:not(.is-open) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .custom-header__mobile-drawer-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .custom-header__mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    padding: var(--padding-sm) var(--padding-md);
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+    flex-shrink: 0;
+  }
+
+  .custom-header__mobile-drawer-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .custom-header__mobile-drawer-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--minimum-touch-target, 44px);
+    min-height: var(--minimum-touch-target, 44px);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .custom-header__mobile-drawer-close:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-drawer-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--padding-sm) var(--padding-md) var(--padding-xl);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-header__mobile-drawer-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xs);
+  }
+
+  .custom-header__mobile-drawer-link,
+  .custom-header__mobile-drawer-sublink {
+    display: block;
+    padding-block: var(--padding-sm);
+    padding-inline: var(--padding-2xs);
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--style-border-radius-inputs, 4px);
+  }
+
+  .custom-header__mobile-drawer-link:focus-visible,
+  .custom-header__mobile-drawer-sublink:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-drawer-sub {
+    margin-block-start: var(--gap-2xs);
+    margin-inline-start: var(--padding-md);
+    padding-inline-start: var(--padding-sm);
+    border-inline-start: 2px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+  }
+
+  .custom-header__mobile-drawer-sublink {
+    font-size: 0.9375rem;
+    opacity: 0.92;
+  }
+
+  /* Right search panel — full screen, slides in from the right */
+  .custom-header__mobile-search-panel {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    z-index: var(--custom-header-portal-panel-z, 100001);
+    background: var(--color-background, #fff);
+    color: var(--color-foreground, #121212);
+    box-shadow: none;
+    transform: translate3d(100%, 0, 0);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .custom-header__mobile-search-panel.is-open {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  .custom-header__mobile-search-panel:not(.is-open) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .custom-header__mobile-search-panel-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .custom-header__mobile-search-panel-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-sm);
+    padding: var(--padding-sm) var(--padding-md);
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+    flex-shrink: 0;
+  }
+
+  .custom-header__mobile-search-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    min-width: 0;
+  }
+
+  .custom-header__mobile-search-input {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--padding-sm) var(--padding-md);
+    border: var(--style-border-width-inputs, 1px) solid
+      rgb(var(--color-foreground-rgb, 18 18 18) / 0.2);
+    border-radius: var(--style-border-radius-inputs, 4px);
+    font: inherit;
+    background: var(--color-input-background, #fff);
+    color: inherit;
+  }
+
+  .custom-header__mobile-search-input:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-search-submit {
+    align-self: flex-start;
+  }
+
+  .custom-header__mobile-search-panel-close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--minimum-touch-target, 44px);
+    min-height: var(--minimum-touch-target, 44px);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .custom-header__mobile-search-panel-close:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-search-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--padding-md);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-header__mobile-search-section {
+    margin-block-end: var(--padding-lg);
+  }
+
+  .custom-header__mobile-search-section-title {
+    margin: 0 0 var(--padding-sm);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+
+  .custom-header__mobile-search-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-xs);
+  }
+
+  .custom-header__mobile-search-chip {
+    display: inline-block;
+    padding: var(--padding-2xs) var(--padding-sm);
+    border-radius: 999px;
+    border: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.15);
+    color: inherit;
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  .custom-header__mobile-search-links a {
+    display: block;
+    padding-block: var(--padding-xs);
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .custom-header__mobile-search-hint {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.75;
+    line-height: 1.4;
+  }
+}
+
+@media screen and (min-width: 750px) {
+  .custom-header__mobile-portals,
+  .custom-header__overlay,
+  .custom-header__mobile-drawer,
+  .custom-header__mobile-search-panel {
+    display: none !important;
+  }
+
+  .custom-header__mobile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .custom-header__mobile-bottom {
+    display: none !important;
+  }
+
+  .custom-header__mobile-top {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .custom-header__mobile-top .custom-header__menu-toggle {
+    display: none !important;
+  }
+
+  .custom-header__mobile-top .custom-header__logo-row {
+    flex: 1 1 auto;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Body scroll lock when a mobile panel is open (class on html) */
+html.custom-header-scroll-lock,
+html.custom-header-scroll-lock body {
+  overflow: hidden;
+  touch-action: none;
+}
+
+html.custom-header-scroll-lock {
+  height: 100%;
+}

@@ -14,6 +14,11 @@
   assign sr_b = section.settings.solid_text_color | color_extract: 'blue'
   assign solid_text_rgb = sr_r | append: ' ' | append: sr_g | append: ' ' | append: sr_b
 
+  assign mr_r = section.settings.minimized_text_color | color_extract: 'red'
+  assign mr_g = section.settings.minimized_text_color | color_extract: 'green'
+  assign mr_b = section.settings.minimized_text_color | color_extract: 'blue'
+  assign minimized_text_rgb = mr_r | append: ' ' | append: mr_g | append: ' ' | append: mr_b
+
   assign may_transparent = false
   if is_home and section.settings.enable_homepage_transparent_header
     assign may_transparent = true
@@ -35,6 +40,31 @@
   {% render 'slideshow-styles' %}
 {% endif %}
 
+{% # theme-check-disable MissingAsset %}
+{{ 'custom-header.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'custom-header.js' | asset_url }}" defer></script>
+{% # theme-check-enable MissingAsset %}
+
+{%- if may_transparent -%}
+  <style>
+    /*
+     * Pre-set --header-group-height from Liquid settings so the hero section
+     * has the correct margin-top / min-height on the very first paint — before
+     * the deferred JS file runs and measures the DOM.  Without this, the hero
+     * briefly renders at full 100 vh (--header-group-height fallback = 0) then
+     * jumps to the correct smaller size when JS fires, which the user perceives
+     * as the "loads full then shrinks" flash.
+     *
+     * JS will later update this to include the announcement bar height; that
+     * produces only a small (30–50 px) adjustment rather than the large initial
+     * shift from 0 → default-height.
+     */
+    body {
+      --header-group-height: {{ section.settings.default_header_height }}px;
+    }
+  </style>
+{%- endif -%}
+
 <header
   id="CustomHeader-{{ section.id }}"
   class="custom-header{% if section.settings.enable_sticky_header %} custom-header--sticky{% endif %}"
@@ -45,7 +75,9 @@
   data-may-transparent="{% if may_transparent %}true{% else %}false{% endif %}"
   data-header-state="{{ initial_state }}"
   data-mobile-nav-open="false"
+  data-mobile-search-open="false"
   data-scroll-threshold="{{ section.settings.scroll_threshold }}"
+  data-minimized-nav="{{ section.settings.minimized_nav_alignment | default: 'left' }}"
   style="
     --custom-header-default-height: {{ section.settings.default_header_height }}px;
     --custom-header-minimized-height: {{ section.settings.minimized_header_height }}px;
@@ -56,20 +88,40 @@
     --custom-header-bg-transparent: {{ section.settings.transparent_header_background }};
     --custom-header-bg-solid: {{ section.settings.solid_background }};
     --custom-header-bg-minimized: {{ section.settings.minimized_background }};
+    --custom-header-color-text-minimized: {{ section.settings.minimized_text_color }};
+    --custom-header-foreground-rgb-minimized: {{ minimized_text_rgb }};
+    --custom-header-search-bg: {{ section.settings.search_bar_background | default: '#FFFFFF' }};
+    --custom-header-search-color: {{ section.settings.search_bar_text_color | default: '#121212' }};
+    --custom-header-search-border: {{ section.settings.search_bar_border_color | default: '#D4D4D4' }};
+    --custom-header-search-focus: {{ section.settings.search_bar_focus_color | default: '#BC9407' }};
   "
 >
   {% render 'custom-header-main', section: section %}
 </header>
 
+{% comment %}
+  Mobile overlay + full-screen drawers live outside <header> so position:fixed layers are not clipped by header/shell overflow or stacking.
+{% endcomment %}
+{% render 'custom-header-mobile-portals', section: section %}
+
 {% stylesheet %}
-  /* Measured in JS from the announcement section height; fixed header sits below the banner */
+  /*
+   * Both :root and .custom-header carry the z-index variable.
+   * :root is necessary so the .shopify-section sticky wrapper (a parent of .custom-header)
+   * can read the value — CSS custom properties only cascade DOWN, never up.
+   * Without :root, the .shopify-section fell back to z-index: 10 regardless of what
+   * was set on .custom-header.
+   * Value 400: above all Shopify theme layers (max --layer-temporary: 20) but
+   * well below the Shopify admin editor UI (which uses 999999+).
+   */
   :root {
     --announcement-bar-height: 0px;
+    --custom-header-z: 400;
   }
 
   /* Custom header — transparent / solid / minimized via [data-header-state] */
   .custom-header {
-    --custom-header-z: var(--layer-sticky, 10);
+    --custom-header-z: 400; /* keep in sync with :root above */
     display: block;
     width: 100%;
     overflow: visible;
@@ -80,14 +132,21 @@
       border-color 0.2s ease,
       box-shadow 0.2s ease,
       top 0.2s ease,
-      transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-      visibility 0.35s ease;
+      opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    /*
+     * visibility is intentionally NOT in the transition list.
+     * A delayed visibility transition was causing the "ghost header" artifact:
+     * when state flipped hidden→solid within the transition window the element
+     * remained visible (visibility was mid-transition) while opacity was still 0,
+     * creating a transparent header block that obscured content beneath.
+     * Instant visibility change is safe here because opacity handles the fade.
+     */
   }
 
   /*
-   * Homepage + transparent: fixed overlay so the hero can sit behind (no layout gap).
-   * top matches --announcement-bar-height so the bar sits below the announcement banner.
-   * Other templates: sticky keeps the header in normal flow.
+   * Homepage + transparent: position:fixed so the hero slides under the floating header.
+   * top = announcement-bar-height so the bar sits below the banner.
    */
   .custom-header[data-may-transparent='true'] {
     position: fixed;
@@ -98,10 +157,45 @@
     z-index: var(--custom-header-z);
   }
 
-  .custom-header.custom-header--sticky:not([data-may-transparent='true']) {
+  /*
+   * Once the header is minimized or hidden the announcement bar has already scrolled out
+   * of the viewport — reset top to 0 so the bar doesn't leave a phantom gap above the
+   * minimized header.
+   */
+  .custom-header[data-may-transparent='true'][data-header-state='minimized'],
+  .custom-header[data-may-transparent='true'][data-header-state='hidden'] {
+    top: 0;
+  }
+
+  /*
+   * Other templates (sticky, non-transparent): mirror the theme's own header approach exactly.
+   *
+   * 1. #header-group → display:contents  dissolves its layout box so its child sections
+   *    become direct flow children of <body>. Without this, sticky anchors to #header-group
+   *    (which is only as tall as the header) and the element immediately leaves the viewport
+   *    with its parent — appearing at the "top of the section" not the "top of the screen".
+   *
+   * 2. The .shopify-section wrapping the header gets position:sticky; top:0. Because
+   *    the announcement bar section comes before it in the DOM flow, the header sticks
+   *    naturally below the bar (when bar is visible) and at the viewport top (when bar
+   *    has scrolled off). No CSS variable needed for the top offset.
+   *
+   * 3. The <header> itself is position:static — it fills the sticky section, no independent
+   *    positioning required.
+   */
+  #header-group:has(.custom-header--sticky:not([data-may-transparent='true'])) {
+    display: contents;
+  }
+
+  .shopify-section:has(> * > .custom-header--sticky:not([data-may-transparent='true'])),
+  .shopify-section:has(> .custom-header--sticky:not([data-may-transparent='true'])) {
     position: sticky;
     top: 0;
     z-index: var(--custom-header-z);
+  }
+
+  .custom-header.custom-header--sticky:not([data-may-transparent='true']) {
+    position: static;
   }
 
   /* Pull first main section under the header group (matches theme .header[transparent] pattern) */
@@ -118,18 +212,19 @@
   }
 
   /*
-   * Negative margin on the first .content-for-layout section pulls the hero under the header area.
-   * Without a stacking context on #header-group, <main> paints after the header group and
-   * the hero covers the announcement bar (looks like a thin/covered strip).
+   * Transparent (home): #header-group keeps its normal position:relative stacking context so
+   * the fixed header and announcement bar layer correctly above the hero.
+   * Non-transparent: #header-group is display:contents (see sticky rules above), so
+   * position:relative has no effect there — only applies to the transparent case.
    */
-  body:has([data-custom-header]) #header-group {
+  body:has([data-custom-header][data-may-transparent='true']) #header-group {
     position: relative;
     z-index: var(--layer-sticky, 10);
   }
 
   /*
-   * Separate header-announcements section must stack above the fixed/sticky custom header
-   * (otherwise the custom header layer covers the announcement).
+   * Announcement bar section should stack above the custom header on both cases.
+   * The selector is DOM-based so it still matches even when #header-group is display:contents.
    */
   body:has([data-custom-header]) #header-group > .shopify-section:has(.announcement-bar) {
     position: relative;
@@ -153,6 +248,7 @@
     background: var(--custom-header-bg-transparent);
     border-block-end: none;
     box-shadow: none;
+    opacity: 1;
     transform: translate3d(0, 0, 0);
     visibility: visible;
   }
@@ -165,31 +261,45 @@
     background: var(--custom-header-bg-solid);
     border-block-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
     box-shadow: none;
+    opacity: 1;
     transform: translate3d(0, 0, 0);
     visibility: visible;
   }
 
   .custom-header[data-header-state='minimized'] {
-    --color-foreground: var(--custom-header-color-text-solid);
-    --color-foreground-rgb: var(--custom-header-foreground-rgb-solid);
-    --color-account-icon: var(--custom-header-color-text-solid);
-    color: var(--custom-header-color-text-solid);
-    background: var(--custom-header-bg-minimized);
+    --color-foreground: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-minimized, var(--custom-header-foreground-rgb-solid));
+    --color-account-icon: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    color: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    background: var(--custom-header-bg-minimized, #ffffff);
     border-block-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
     box-shadow: 0 1px 0 rgb(var(--color-foreground-rgb) / 0.06);
+    opacity: 1;
     transform: translate3d(0, 0, 0);
     visibility: visible;
   }
 
+  /*
+   * Hidden while scrolling down: match theme header (opacity idle) instead of translateY(-100%),
+   * which fought fixed positioning + scroll anchoring and caused flicker. Bar stays in the
+   * minimized-height box at the viewport top; only opacity hides it.
+   */
   .custom-header[data-header-state='hidden'] {
-    --color-foreground: var(--custom-header-color-text-solid);
-    --color-foreground-rgb: var(--custom-header-foreground-rgb-solid);
-    --color-account-icon: var(--custom-header-color-text-solid);
-    color: var(--custom-header-color-text-solid);
-    background: var(--custom-header-bg-minimized);
-    transform: translate3d(0, -100%, 0);
+    --color-foreground: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-minimized, var(--custom-header-foreground-rgb-solid));
+    --color-account-icon: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    color: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    background: var(--custom-header-bg-minimized, #ffffff);
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
     visibility: hidden;
     pointer-events: none;
+  }
+
+  .custom-header[data-header-state='hidden'] .custom-header__primary {
+    min-height: var(--custom-header-minimized-height);
+    max-height: var(--custom-header-minimized-height);
+    overflow: hidden;
   }
 
   /* Popover color scheme on .account-button redefines --color-foreground; override per header state */
@@ -199,12 +309,17 @@
     --color-account-icon: var(--custom-header-color-text-transparent);
   }
 
-  .custom-header[data-header-state='solid'] .account-button,
-  .custom-header[data-header-state='minimized'] .account-button,
-  .custom-header[data-header-state='hidden'] .account-button {
+  .custom-header[data-header-state='solid'] .account-button {
     --color-foreground: var(--custom-header-color-text-solid);
     --color-foreground-rgb: var(--custom-header-foreground-rgb-solid);
     --color-account-icon: var(--custom-header-color-text-solid);
+  }
+
+  .custom-header[data-header-state='minimized'] .account-button,
+  .custom-header[data-header-state='hidden'] .account-button {
+    --color-foreground: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-minimized, var(--custom-header-foreground-rgb-solid));
+    --color-account-icon: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
   }
 
   .custom-header__actions cart-icon.header-actions__cart-icon {
@@ -281,7 +396,17 @@
 
   .custom-header__primary {
     min-height: var(--custom-header-default-height);
-    transition: min-height 0.2s ease;
+    /*
+     * min-height is intentionally NOT transitioned.
+     * A min-height transition means getBoundingClientRect() — called synchronously
+     * inside applyHeaderState to update --header-group-height — captures the
+     * start-of-animation value (minimized ≈ 48px) rather than the final value
+     * (default ≈ 200px).  That sets --header-group-height too small, giving the
+     * hero section the wrong margin-top / min-height and making it appear to
+     * shrink whenever the user scrolls down then back to the top.
+     * Visual smoothness is already provided by the opacity / transform transitions
+     * on .custom-header itself.
+     */
   }
 
   .custom-header[data-header-state='minimized'] .custom-header__primary {
@@ -454,95 +579,10 @@
   }
 
   @media screen and (max-width: 749px) {
-    .custom-header__primary-inner {
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .custom-header__menu-toggle {
-      order: 1;
-    }
-
-    .custom-header__logo-row {
-      order: 2;
-      flex: 1 1 auto;
-      min-width: 0;
-      text-align: center;
-    }
-
-    .custom-header__lower {
-      order: 3;
-      flex: 1 1 100%;
-      width: 100%;
-      padding-block-start: 0;
-      gap: var(--gap-sm);
-    }
-
-    /* Anchor icon cluster to header bar; search stays in-flow in .custom-header__lower */
-    .custom-header__actions {
-      position: static;
-      width: 100%;
-      max-width: none;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-    }
-
-    .custom-header__actions-icons {
-      position: absolute;
-      top: var(--padding-sm);
-      right: var(--page-margin);
-      z-index: 2;
-      width: auto;
-      max-width: calc(100% - 120px);
-      justify-content: flex-end;
-      order: unset;
-    }
-
-    .custom-header__search-slot {
-      width: 100%;
-      max-width: none;
-    }
-
-    .custom-header__search-slot .custom-header-search-trigger {
-      width: 100%;
-    }
-
-    .custom-header__search-slot .custom-header-search-trigger .button-unstyled {
-      display: flex;
-      width: 100%;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--gap-sm);
-      min-height: 44px;
-      padding-inline: 1rem;
-      border-radius: 9999px;
-      border: 2px solid color-mix(in srgb, currentColor 35%, transparent);
-      background: transparent;
-      color: inherit;
-    }
-
-    .custom-header__search-slot .custom-header-search-trigger .button-unstyled span.hidden {
-      display: inline !important;
-      flex: 1;
-      text-align: start;
-      font-size: 0.9375rem;
-    }
-
-    .custom-header[data-header-state='transparent'] .custom-header__search-slot .custom-header-search-trigger .button-unstyled {
-      border-color: #e6c229;
-      background: color-mix(in srgb, currentColor 10%, transparent);
-    }
-
-    .custom-header[data-header-state='solid'] .custom-header__search-slot .custom-header-search-trigger .button-unstyled,
-    .custom-header[data-header-state='minimized'] .custom-header__search-slot .custom-header-search-trigger .button-unstyled {
-      border-color: color-mix(in srgb, currentColor 42%, transparent);
-      background: color-mix(in srgb, var(--custom-header-bg-solid) 96%, transparent);
-    }
-
-    .custom-header[data-header-state='minimized'] .custom-header__search-slot .custom-header-search-trigger .button-unstyled {
-      background: color-mix(in srgb, var(--custom-header-bg-minimized) 96%, transparent);
-    }
+    /*
+     * Mobile top bar layout (menu | logo | icons) lives in assets/custom-header.css
+     * using grid + display:contents so icons align in-flow with the logo row.
+     */
 
     .custom-header__tea-club {
       display: none !important;
@@ -554,28 +594,6 @@
       display: flex !important;
       align-items: center;
     }
-
-    .custom-header[data-mobile-nav-open='false'] .custom-header__nav:not(.is-open) {
-      display: none;
-    }
-
-    .custom-header[data-mobile-nav-open='true'] .custom-header__nav,
-    .custom-header__nav.is-open {
-      display: block;
-      padding-block-end: var(--padding-xs);
-    }
-
-    .custom-header__menu-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--gap-xs);
-      align-items: stretch;
-      text-align: start;
-    }
-
-    .custom-header__menu-link {
-      padding-block: var(--padding-2xs);
-    }
   }
 
   @media screen and (min-width: 750px) {
@@ -585,12 +603,7 @@
       align-items: stretch;
     }
 
-    .custom-header[data-header-state='minimized'] .custom-header__primary-inner {
-      flex-direction: row;
-      align-items: center;
-      flex-wrap: nowrap;
-      gap: var(--gap-lg);
-    }
+    /* ── Default (solid/transparent) desktop layout ─────────────────────────────── */
 
     .custom-header__menu-toggle {
       display: none;
@@ -602,21 +615,11 @@
       text-align: center;
     }
 
-    .custom-header[data-header-state='minimized'] .custom-header__logo-row {
-      flex: 0 0 auto;
-      width: auto;
-      text-align: left;
-    }
-
-    .custom-header[data-header-state='minimized'] .custom-header__logo-img {
-      max-width: 72px;
-      max-height: 72px;
-    }
-
     .custom-header__lower {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
-      align-items: center;
+      /* Top-align so wrapped nav + utility icons share one baseline row */
+      align-items: start;
       gap: var(--gap-md);
       position: relative;
       width: 100%;
@@ -627,6 +630,7 @@
       display: block !important;
       grid-column: 2;
       justify-self: center;
+      align-self: start;
       width: auto;
       margin-inline: auto;
     }
@@ -635,39 +639,10 @@
       position: relative;
       grid-column: 3;
       justify-self: end;
+      align-self: start;
       flex: 0 0 auto;
       margin-inline-start: auto;
       max-width: none;
-    }
-
-    .custom-header[data-header-state='minimized'] .custom-header__primary-inner {
-      position: relative;
-    }
-
-    .custom-header[data-header-state='minimized'] .custom-header__lower {
-      display: flex;
-      flex: 1 1 auto;
-      min-width: 0;
-      justify-content: flex-end;
-    }
-
-    .custom-header[data-header-state='minimized'] .custom-header__nav {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: min(60vw, 720px);
-      pointer-events: none;
-    }
-
-    .custom-header[data-header-state='minimized'] .custom-header__nav .custom-header__menu-link,
-    .custom-header[data-header-state='minimized'] .custom-header__nav a {
-      pointer-events: auto;
-    }
-
-    .custom-header[data-header-state='minimized'] .custom-header__actions {
-      position: relative;
-      z-index: 1;
-      padding-block-start: 0;
     }
 
     .custom-header__menu-list {
@@ -685,314 +660,539 @@
     .custom-header__menu-link:hover {
       text-decoration: underline;
     }
+
+    /* ── Minimized (+ hidden) desktop layout ──────────────────────────────────────
+     *
+     * Single row: [Logo][Nav items]──────────────────[Icons]
+     *  or with right alignment: [Logo]──────────────[Nav items][Icons]
+     *
+     * Logo has no vertical padding — it stretches to fill the full minimized height.
+     * Menu items and icons are vertically centered in the row.
+     * ──────────────────────────────────────────────────────────────────────────── */
+
+    .custom-header[data-header-state='minimized'] .custom-header__primary-inner,
+    .custom-header[data-header-state='hidden'] .custom-header__primary-inner {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: stretch; /* logo, lower all stretch to full height */
+      padding-block: 0;     /* logo fills the entire minimized-height — no dead space */
+      gap: 0;               /* logo flush against nav; spacing handled inside lower */
+      min-height: var(--custom-header-minimized-height);
+    }
+
+    /*
+     * Dissolve the mobile wrapper divs so .custom-header__logo-row participates
+     * directly as a flex child of .custom-header__primary-inner.
+     * On mobile these already use display:contents (set in custom-header.css).
+     * On desktop they default to display:block which made the logo-row a block
+     * inside a full-width box — causing the big gap between logo and nav items.
+     */
+    .custom-header[data-header-state='minimized'] .custom-header__mobile,
+    .custom-header[data-header-state='hidden'] .custom-header__mobile,
+    .custom-header[data-header-state='minimized'] .custom-header__mobile-top,
+    .custom-header[data-header-state='hidden'] .custom-header__mobile-top {
+      display: contents;
+    }
+
+    /* Logo column stretches to full height so the image fills edge-to-edge */
+    .custom-header[data-header-state='minimized'] .custom-header__logo-row,
+    .custom-header[data-header-state='hidden'] .custom-header__logo-row {
+      flex: 0 0 auto;
+      width: auto;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      padding-inline-end: var(--gap-md); /* breathing room before the nav */
+    }
+
+    .custom-header[data-header-state='minimized'] .custom-header__logo,
+    .custom-header[data-header-state='hidden'] .custom-header__logo {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      text-align: left;
+    }
+
+    /* Logo link fills the full minimized height */
+    .custom-header[data-header-state='minimized'] .custom-header__logo-link,
+    .custom-header[data-header-state='hidden'] .custom-header__logo-link {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-start;
+    }
+
+    /* Image fills the available height — no square cap, purely height-driven */
+    .custom-header[data-header-state='minimized'] .custom-header__logo-img,
+    .custom-header[data-header-state='hidden'] .custom-header__logo-img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+      max-height: var(--custom-header-minimized-height);
+      object-fit: contain;
+    }
+
+    /* Lower becomes a single flex row (nav + actions side by side) */
+    .custom-header[data-header-state='minimized'] .custom-header__lower,
+    .custom-header[data-header-state='hidden'] .custom-header__lower {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex: 1 1 auto;
+      min-width: 0;
+      gap: var(--gap-md);
+    }
+
+    /* Nav in minimized/hidden */
+    .custom-header[data-header-state='minimized'] .custom-header__nav,
+    .custom-header[data-header-state='hidden'] .custom-header__nav {
+      flex: 0 0 auto;
+      position: relative;
+      left: auto;
+      transform: none;
+      margin-inline: 0;
+      justify-self: unset;
+      align-self: center;
+      max-width: min(55vw, 680px);
+      pointer-events: auto;
+    }
+
+    /* Actions in minimized/hidden */
+    .custom-header[data-header-state='minimized'] .custom-header__actions,
+    .custom-header[data-header-state='hidden'] .custom-header__actions {
+      position: relative;
+      flex: 0 0 auto;
+      grid-column: unset;
+      justify-self: unset;
+      align-self: center;
+      padding-block-start: 0;
+      z-index: 1;
+    }
+
+    /* ── Menu alignment: LEFT (default) ─────────────────────────────────────────
+     * [Logo] [Nav] ────────────────────── [Icons]
+     * ─────────────────────────────────────────────────────────────────────────── */
+    .custom-header[data-minimized-nav='left'][data-header-state='minimized'] .custom-header__nav,
+    .custom-header[data-minimized-nav='left'][data-header-state='hidden'] .custom-header__nav {
+      order: 1;
+      margin-inline-start: 0;
+    }
+
+    .custom-header[data-minimized-nav='left'][data-header-state='minimized'] .custom-header__actions,
+    .custom-header[data-minimized-nav='left'][data-header-state='hidden'] .custom-header__actions {
+      order: 2;
+      margin-inline-start: auto; /* push icons to the far right */
+    }
+
+    /* ── Menu alignment: RIGHT ───────────────────────────────────────────────────
+     * [Logo] ────────────────────── [Nav] [Icons]
+     * ─────────────────────────────────────────────────────────────────────────── */
+    .custom-header[data-minimized-nav='right'][data-header-state='minimized'] .custom-header__nav,
+    .custom-header[data-minimized-nav='right'][data-header-state='hidden'] .custom-header__nav {
+      order: 2;
+      margin-inline-start: auto; /* push nav to the right */
+    }
+
+    .custom-header[data-minimized-nav='right'][data-header-state='minimized'] .custom-header__actions,
+    .custom-header[data-minimized-nav='right'][data-header-state='hidden'] .custom-header__actions {
+      order: 3;
+      margin-inline-start: 0;
+    }
+
+    /* Menu list horizontal in minimized */
+    .custom-header[data-header-state='minimized'] .custom-header__menu-list,
+    .custom-header[data-header-state='hidden'] .custom-header__menu-list {
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+    }
   }
 
   .custom-header__menu-link:focus-visible {
     outline: 2px solid currentcolor;
     outline-offset: 2px;
   }
+
+  /* ── Desktop search bar row ──────────────────────────────────────────────────
+   * Pill-shaped search bar rendered as a third row below the nav.
+   * Always white background + dark text so it reads clearly on any hero image.
+   * Only visible in transparent state (homepage hero) on desktop (≥750px).
+   * Focus state: gold border (#BC9407) matching brand accent.
+   * ─────────────────────────────────────────────────────────────────────────── */
+
+  .custom-header__desktop-search-row {
+    display: none; /* hidden by default for all states and screen sizes */
+    width: 100%;
+    order: 3; /* appears after logo row and lower row in the column flex */
+  }
+
+  @media screen and (min-width: 750px) {
+    /* Only reveal in the transparent (homepage hero) state */
+    .custom-header[data-header-state='transparent'] .custom-header__desktop-search-row {
+      display: block;
+      padding-block: var(--gap-sm) var(--padding-sm);
+    }
+
+    /* Wrapper anchors the absolutely-positioned dropdown to the search bar */
+    .custom-header__desktop-search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 680px;
+      margin-inline: auto;
+    }
+
+    /*
+     * "Default search" mode: a pill-shaped button that mimics the form visually
+     * but opens the theme's predictive search modal when clicked.
+     * Shares all base styles with .custom-header__desktop-search-form.
+     */
+    .custom-header__desktop-search-default-btn {
+      max-width: 680px;
+      margin-inline: auto;
+      cursor: pointer;
+      text-align: start;
+      justify-content: space-between;
+    }
+
+    .custom-header__desktop-search-placeholder-text {
+      flex: 1;
+      font-size: 0.9375rem;
+      color: var(--custom-header-search-color, #121212);
+      opacity: 0.55;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .custom-header__desktop-search-default-btn:hover {
+      border-color: var(--custom-header-search-focus, #bc9407);
+    }
+
+    .custom-header__desktop-search-default-btn:focus-visible {
+      border-color: var(--custom-header-search-focus, #bc9407);
+      border-width: 2px;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--custom-header-search-focus, #bc9407) 22%, transparent);
+      outline: none;
+    }
+
+    .custom-header__desktop-search-form {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 48px;
+      padding-inline-start: 1.375rem;
+      padding-inline-end: 0.5rem;
+      border-radius: 9999px;
+      /*
+       * Uses theme-controlled CSS variables — NOT currentColor.
+       * The transparent header sets currentColor to white, so inheriting it
+       * would produce invisible white text on white background.
+       */
+      background: var(--custom-header-search-bg, #ffffff);
+      color: var(--custom-header-search-color, #121212);
+      border: 1.5px solid var(--custom-header-search-border, #d4d4d4);
+      gap: var(--gap-sm);
+      transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    /* Active/focus state — themed accent border + soft glow */
+    .custom-header__desktop-search-form:focus-within {
+      border-color: var(--custom-header-search-focus, #bc9407);
+      border-width: 2px;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--custom-header-search-focus, #bc9407) 22%, transparent);
+    }
+
+    .custom-header__desktop-search-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      /*
+       * The Shopify theme's base.css applies `background: var(--color-input-background)`
+       * to every input element. That rule wins over a plain `background: transparent`
+       * regardless of -webkit-appearance. `!important` is the only reliable override
+       * here — we are intentionally fighting the theme base stylesheet.
+       */
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent !important;
+      background-color: transparent !important;
+      color: var(--custom-header-search-color, #121212);
+      font: inherit;
+      font-size: 0.9375rem;
+      outline: none;
+      padding: 0;
+    }
+
+    /* Autofill background override — browsers force a blue/yellow tint on autofilled inputs */
+    .custom-header__desktop-search-input:-webkit-autofill,
+    .custom-header__desktop-search-input:-webkit-autofill:hover,
+    .custom-header__desktop-search-input:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 1000px var(--custom-header-search-bg, #ffffff) inset;
+      -webkit-text-fill-color: var(--custom-header-search-color, #121212);
+      caret-color: var(--custom-header-search-color, #121212);
+    }
+
+    .custom-header__desktop-search-input::placeholder {
+      color: var(--custom-header-search-color, #121212);
+      opacity: 0.5;
+    }
+
+    /* Show the native browser clear (×) button — matches style guide active state */
+    .custom-header__desktop-search-input::-webkit-search-decoration {
+      display: none;
+    }
+
+    /* Search submit (icon) button */
+    .custom-header__desktop-search-submit {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      background: transparent;
+      border: none;
+      border-radius: 9999px;
+      color: var(--custom-header-search-color, #121212);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .custom-header__desktop-search-submit:focus-visible {
+      outline: 2px solid var(--custom-header-search-focus, #bc9407);
+      outline-offset: 2px;
+    }
+
+    .custom-header__desktop-search-submit .svg-wrapper {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .custom-header__desktop-search-submit .svg-wrapper svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  /* ── Search dropdown ──────────────────────────────────────────────────────
+   * Google-style autocomplete panel: recent searches, recently viewed, and
+   * live predictive results (query suggestions + product cards).
+   * Always white background + dark text — independent of header color state.
+   * ─────────────────────────────────────────────────────────────────────── */
+
+  .custom-header__search-dropdown {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(100% + 6px);
+    background: #ffffff;
+    color: #121212;
+    border-radius: 16px;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      0 16px 48px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    z-index: 20;
+    max-height: 74vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .custom-header__search-dropdown[hidden] {
+    display: none;
+  }
+
+  /* Section dividers */
+  .ch-search-section {
+    padding: 14px 16px 10px;
+  }
+
+  .ch-search-section + .ch-search-section {
+    border-top: 1px solid rgba(18, 18, 18, 0.07);
+  }
+
+  .ch-search-section__title {
+    margin: 0 0 10px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(18, 18, 18, 0.42);
+  }
+
+  /* Query / recent suggestion rows */
+  .ch-search-queries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ch-search-suggestion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #121212;
+    font: inherit;
+    font-size: 0.9375rem;
+    text-align: start;
+    transition: background 0.12s;
+    line-height: 1.3;
+  }
+
+  .ch-search-suggestion:hover,
+  .ch-search-suggestion[data-focused='true'] {
+    background: rgba(18, 18, 18, 0.055);
+    outline: none;
+  }
+
+  .ch-search-suggestion__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    color: rgba(18, 18, 18, 0.38);
+  }
+
+  .ch-search-suggestion__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Bold the typed portion in suggestions (Shopify wraps it in <em>) */
+  .ch-search-suggestion__text em {
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .ch-search-suggestion__remove {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin-inline-start: auto;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    color: rgba(18, 18, 18, 0.38);
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: background 0.12s, color 0.12s;
+  }
+
+  .ch-search-suggestion__remove:hover {
+    background: rgba(18, 18, 18, 0.08);
+    color: #121212;
+  }
+
+  /* Product grid */
+  .ch-search-products {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .ch-search-product-link {
+    display: block;
+    text-decoration: none;
+    color: #121212;
+    border-radius: 10px;
+    padding: 4px;
+    transition: background 0.12s;
+  }
+
+  .ch-search-product-link:hover {
+    background: rgba(18, 18, 18, 0.045);
+  }
+
+  .ch-search-product-img-wrap {
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(18, 18, 18, 0.05);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ch-search-product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ch-search-product-info {
+    padding: 6px 2px 2px;
+  }
+
+  .ch-search-product-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.35;
+    margin: 0 0 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #121212;
+  }
+
+  .ch-search-product-price {
+    font-size: 0.6875rem;
+    color: rgba(18, 18, 18, 0.55);
+    display: block;
+  }
+
+  /* Footer — "See all results" */
+  .ch-search-footer {
+    padding: 10px 16px 14px;
+    border-top: 1px solid rgba(18, 18, 18, 0.07);
+    text-align: center;
+  }
+
+  .ch-search-footer__link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(18, 18, 18, 0.62);
+    text-decoration: none;
+  }
+
+  .ch-search-footer__link:hover {
+    color: #121212;
+    text-decoration: underline;
+  }
+
+  /* Loading / empty states */
+  .ch-search-loading,
+  .ch-search-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: rgba(18, 18, 18, 0.4);
+    font-size: 0.875rem;
+  }
 {% endstylesheet %}
-
-{% javascript %}
-  (function () {
-    var SCROLL_EPS = 2;
-    var DIR_EPS = 1;
-
-    function topState(root) {
-      var mayTransparent = root.dataset.mayTransparent === 'true';
-      var isHome = root.dataset.isHomepage === 'true';
-      return mayTransparent && isHome ? 'transparent' : 'solid';
-    }
-
-    function computeNextState(root, y, prevY, prevState) {
-      var threshold = parseInt(root.dataset.scrollThreshold, 10) || 0;
-      var mayTransparent = root.dataset.mayTransparent === 'true';
-      var isHome = root.dataset.isHomepage === 'true';
-      var atTop = y <= SCROLL_EPS;
-      var dy = y - prevY;
-      var scrollDown = dy > DIR_EPS;
-      var scrollUp = dy < -DIR_EPS;
-
-      if (atTop) {
-        return mayTransparent && isHome ? 'transparent' : 'solid';
-      }
-
-      if (y > threshold && scrollDown) {
-        return 'hidden';
-      }
-
-      if (y > 0 && scrollUp) {
-        return 'minimized';
-      }
-
-      if (y > threshold && !scrollDown && !scrollUp) {
-        return prevState === 'hidden' ? 'hidden' : 'minimized';
-      }
-
-      if (y > 0 && y <= threshold && !scrollDown && !scrollUp) {
-        if (prevState === 'minimized' || prevState === 'hidden') {
-          return 'minimized';
-        }
-        return mayTransparent && isHome ? 'transparent' : 'solid';
-      }
-
-      if (y > 0 && y <= threshold && scrollUp) {
-        return 'minimized';
-      }
-
-      if (y > 0 && y <= threshold && scrollDown) {
-        return mayTransparent && isHome ? 'transparent' : 'solid';
-      }
-
-      return mayTransparent && isHome ? 'transparent' : 'solid';
-    }
-
-    function updateAnnouncementBarHeight() {
-      var hg = document.querySelector('#header-group');
-      var h = 0;
-      if (hg) {
-        var annSection = hg.querySelector('.shopify-section:has(.announcement-bar)');
-        if (!annSection) {
-          var bar = hg.querySelector('.announcement-bar');
-          annSection = bar && bar.closest('.shopify-section');
-        }
-        if (annSection) {
-          h = Math.round(annSection.getBoundingClientRect().height);
-        }
-      }
-      document.documentElement.style.setProperty(
-        '--announcement-bar-height',
-        h + 'px'
-      );
-    }
-
-    function updateHeaderGroupHeight(root) {
-      var hg = document.querySelector('#header-group');
-      if (!hg) {
-        return;
-      }
-      var mayTransparent = root.dataset.mayTransparent === 'true';
-      var total = 0;
-      var i;
-      for (i = 0; i < hg.children.length; i++) {
-        var section = hg.children[i];
-        var customRoot = section.querySelector('[data-custom-header]');
-        if (customRoot && customRoot === root) {
-          if (root.dataset.headerState === 'hidden') {
-            continue;
-          }
-          if (mayTransparent) {
-            total += Math.round(root.getBoundingClientRect().height);
-          } else {
-            total += section.offsetHeight;
-          }
-        } else {
-          total += section.offsetHeight;
-        }
-      }
-      document.body.style.setProperty('--header-group-height', total + 'px');
-    }
-
-    function updateBodyHeaderHeight(root) {
-      var state = root.dataset.headerState;
-      if (state === 'hidden') {
-        document.body.style.setProperty('--header-height', '0px');
-        updateHeaderGroupHeight(root);
-        return;
-      }
-      var h = Math.round(root.getBoundingClientRect().height);
-      document.body.style.setProperty('--header-height', h + 'px');
-      updateHeaderGroupHeight(root);
-    }
-
-    function applyHeaderState(root, state) {
-      if (root.dataset.headerState === state) {
-        updateBodyHeaderHeight(root);
-        return;
-      }
-      root.dataset.headerState = state;
-      updateBodyHeaderHeight(root);
-    }
-
-    function initCustomHeader(root) {
-      if (!root || root.dataset.customHeaderJs === 'initialized') {
-        return;
-      }
-
-      var nav = root.querySelector('[data-custom-header-nav]');
-      var toggle = root.querySelector('[data-custom-header-menu-toggle]');
-
-      var prevScrollY =
-        window.scrollY || document.documentElement.scrollTop || 0;
-
-      var setMobileNavOpen = function (open) {
-        root.dataset.mobileNavOpen = open ? 'true' : 'false';
-        if (nav) {
-          nav.classList.toggle('is-open', open);
-        }
-        if (toggle) {
-          toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        }
-      };
-
-      var onToggleClick = function () {
-        var isOpen = root.dataset.mobileNavOpen === 'true';
-        setMobileNavOpen(!isOpen);
-      };
-
-      if (nav && toggle) {
-        toggle.addEventListener('click', onToggleClick);
-      }
-
-      var scrollRaf = null;
-
-      var onScrollFrame = function () {
-        var y = window.scrollY || document.documentElement.scrollTop || 0;
-        var prevState = root.dataset.headerState || topState(root);
-        var next = computeNextState(root, y, prevScrollY, prevState);
-        applyHeaderState(root, next);
-        prevScrollY = y;
-      };
-
-      var onScroll = function () {
-        if (scrollRaf !== null) {
-          return;
-        }
-        scrollRaf = requestAnimationFrame(function () {
-          scrollRaf = null;
-          onScrollFrame();
-        });
-      };
-
-      var onScrollListener = onScroll;
-      window.addEventListener('scroll', onScrollListener, { passive: true });
-
-      var resizeObserver = new ResizeObserver(function () {
-        updateBodyHeaderHeight(root);
-      });
-      resizeObserver.observe(root);
-
-      var media = window.matchMedia('(min-width: 750px)');
-      var onMediaChange = function () {
-        if (!media.matches) {
-          return;
-        }
-        setMobileNavOpen(false);
-      };
-      media.addEventListener('change', onMediaChange);
-
-      onScrollFrame();
-
-      root.dataset.customHeaderJs = 'initialized';
-
-      root._customHeaderCleanup = function () {
-        if (scrollRaf !== null) {
-          cancelAnimationFrame(scrollRaf);
-          scrollRaf = null;
-        }
-        window.removeEventListener('scroll', onScrollListener);
-        resizeObserver.disconnect();
-        media.removeEventListener('change', onMediaChange);
-        if (nav && toggle) {
-          toggle.removeEventListener('click', onToggleClick);
-        }
-        root.dataset.customHeaderJs = '';
-        delete root._customHeaderCleanup;
-      };
-    }
-
-    var headerGroupResizeObserver = null;
-
-    function initAll() {
-      updateAnnouncementBarHeight();
-      document.querySelectorAll('[data-custom-header]').forEach(function (root) {
-        initCustomHeader(root);
-      });
-      var hg = document.querySelector('#header-group');
-      if (hg && !headerGroupResizeObserver) {
-        headerGroupResizeObserver = new ResizeObserver(function () {
-          updateAnnouncementBarHeight();
-          document.querySelectorAll('[data-custom-header]').forEach(function (r) {
-            if (r.dataset.customHeaderJs === 'initialized') {
-              updateBodyHeaderHeight(r);
-            }
-          });
-        });
-        headerGroupResizeObserver.observe(hg);
-      }
-    }
-
-    function onDomReady() {
-      initAll();
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', onDomReady);
-    } else {
-      onDomReady();
-    }
-
-    function findCustomHeaderRoot(sectionId) {
-      var byAttr = document.querySelector(
-        '[data-custom-header][data-section-id="' + sectionId + '"]'
-      );
-      if (byAttr) {
-        return byAttr;
-      }
-      var section = document.getElementById('shopify-section-' + sectionId);
-      return section ? section.querySelector('[data-custom-header]') : null;
-    }
-
-    document.addEventListener('shopify:section:load', function (event) {
-      var id = event.detail && event.detail.sectionId;
-      requestAnimationFrame(function () {
-        updateAnnouncementBarHeight();
-        if (!id) {
-          return;
-        }
-        var root = findCustomHeaderRoot(id);
-        if (!root) {
-          return;
-        }
-        if (typeof root._customHeaderCleanup === 'function') {
-          root._customHeaderCleanup();
-        }
-        initCustomHeader(root);
-      });
-    });
-
-    document.addEventListener('shopify:section:unload', function (event) {
-      var id = event.detail && event.detail.sectionId;
-      if (!id) {
-        return;
-      }
-      var root = findCustomHeaderRoot(id);
-      if (root && typeof root._customHeaderCleanup === 'function') {
-        root._customHeaderCleanup();
-      }
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key !== 'Escape') {
-        return;
-      }
-      document.querySelectorAll('[data-custom-header]').forEach(function (el) {
-        if (el.dataset.mobileNavOpen !== 'true') {
-          return;
-        }
-        el.dataset.mobileNavOpen = 'false';
-        var n = el.querySelector('[data-custom-header-nav]');
-        var t = el.querySelector('[data-custom-header-menu-toggle]');
-        if (n) {
-          n.classList.remove('is-open');
-        }
-        if (t) {
-          t.setAttribute('aria-expanded', 'false');
-        }
-      });
-    });
-  })();
-{% endjavascript %}
 
 {% schema %}
 {
@@ -1155,6 +1355,12 @@
       "default": "#FFFFFF"
     },
     {
+      "type": "color",
+      "id": "minimized_text_color",
+      "label": "t:settings.minimized_text_color",
+      "default": "#121212"
+    },
+    {
       "type": "header",
       "content": "t:content.menu"
     },
@@ -1165,6 +1371,17 @@
       "default": "main-menu"
     },
     {
+      "type": "select",
+      "id": "minimized_nav_alignment",
+      "label": "t:settings.minimized_nav_alignment",
+      "info": "t:settings.minimized_nav_alignment_info",
+      "options": [
+        { "value": "left",  "label": "t:options.left"  },
+        { "value": "right", "label": "t:options.right" }
+      ],
+      "default": "left"
+    },
+    {
       "type": "header",
       "content": "t:content.search"
     },
@@ -1173,6 +1390,67 @@
       "id": "show_search",
       "label": "t:settings.show_search",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_desktop_search_bar",
+      "label": "t:settings.show_desktop_search_bar",
+      "info": "t:settings.show_desktop_search_bar_info",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "desktop_search_style",
+      "label": "t:settings.desktop_search_style",
+      "info": "t:settings.desktop_search_style_info",
+      "options": [
+        { "value": "custom", "label": "t:settings.desktop_search_style_custom" },
+        { "value": "default", "label": "t:settings.desktop_search_style_default" }
+      ],
+      "default": "custom",
+      "visible_if": "{{ section.settings.show_desktop_search_bar }}"
+    },
+    {
+      "type": "text",
+      "id": "desktop_search_placeholder",
+      "label": "t:settings.desktop_search_placeholder",
+      "default": "Search a tea...",
+      "visible_if": "{{ section.settings.show_desktop_search_bar }}"
+    },
+    {
+      "type": "header",
+      "content": "t:settings.search_bar_colors_header",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color_background",
+      "id": "search_bar_background",
+      "label": "t:settings.search_bar_background",
+      "default": "rgba(255, 255, 255, 1)",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "search_bar_text_color",
+      "label": "t:settings.search_bar_text_color",
+      "default": "#121212",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "search_bar_border_color",
+      "label": "t:settings.search_bar_border_color",
+      "info": "t:settings.search_bar_border_color_info",
+      "default": "#D4D4D4",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "search_bar_focus_color",
+      "label": "t:settings.search_bar_focus_color",
+      "info": "t:settings.search_bar_focus_color_info",
+      "default": "#BC9407",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
     },
     {
       "type": "header",

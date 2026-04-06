@@ -66,3 +66,5 @@ locales/
 **Schema Translations:**
 
 Use the rules outlined in our [typescript schema](schemas/schema.d.ts) to determine the appropriate key structure for schema translations.
+
+**Theme Check (`MatchingTranslations`):** Every `t:names.*` / `t:settings.*` key used in section schemas must exist in **all** `locales/*.schema.json` files, not only `en.default.schema.json`. If you add new schema translation keys, copy them into every locale schema file or run `node scripts/sync-custom-header-schema-translations.mjs` after updating that script’s key list (it fills missing custom-header keys with English strings so CI passes; translate later in the Shopify language editor if needed).

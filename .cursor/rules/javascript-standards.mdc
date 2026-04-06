@@ -483,6 +483,8 @@ const fetchData = async (url) => {
 
 ## Type Safety with JSDoc
 
+**Plain `.js` assets and `checkJs`:** When the editor/TS checks JavaScript, vanilla theme scripts (IIFEs, `document.addEventListener('shopify:section:load', …)`) often error on `event.detail` (typed as `Event`, not `CustomEvent`), implicit `any` parameters, and `Element` vs `HTMLElement`. For a whole file that is intentionally untyped, put **`// @ts-nocheck`** on line 1. For a narrow fix only, use **`@param {CustomEvent<{ sectionId?: string }>} event`** on the listener (or `/** @type {CustomEvent} */ (event)` before reading `.detail`).
+
 **Always annotate function parameters, return types, and complex objects:**
 
 ```javascript
