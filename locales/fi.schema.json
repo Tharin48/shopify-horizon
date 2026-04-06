@@ -199,7 +199,8 @@
     "product_sku": "SKU-koodi",
     "layered_slideshow": "Kerroksittainen diaesitys",
     "custom_header": "Custom header",
-    "tea_club": "Tea Club"
+    "tea_club": "Tea Club",
+    "leaf_story": "Leaf story"
   },
   "settings": {
     "alignment": "Tasaus",
@@ -620,7 +621,35 @@
     "search_bar_border_color": "Border color",
     "search_bar_border_color_info": "Subtle border in the default (unfocused) state",
     "search_bar_focus_color": "Focus accent color",
-    "search_bar_focus_color_info": "Border and glow color when the search bar is active"
+    "search_bar_focus_color_info": "Border and glow color when the search bar is active",
+    "leaf_image_bottom_right": "Bottom-right leaf image",
+    "leaf_image_top_left": "Top-left leaf image",
+    "leaf_opacity": "Leaf opacity",
+    "show_leaf_bottom_right": "Show bottom-right leaf",
+    "show_leaf_top_left": "Show top-left leaf",
+    "mobile_vision_text_size": "Vision text size (mobile)",
+    "mobile_vision_text_size_info": "Applies to Paragraph, Custom, and Default blocks in the vision column except the first block (that one uses Vision heading (eyebrow)). Heading presets H1–H4 use block/theme sizing. Icon row uses Icon row settings.",
+    "enable_custom_leaf_background": "Custom section background",
+    "icon_row_text_size": "Icon row text size (desktop)",
+    "icon_row_text_size_mobile": "Icon row text size (mobile)",
+    "leaf_section_background": "Background color",
+    "leaf_section_background_info": "Overrides the color scheme background for this section. Foreground, links, and buttons still follow the color scheme above.",
+    "vision_text_padding_top": "Padding above vision text",
+    "vision_text_padding_bottom": "Padding below vision text",
+    "vision_padding_inline_start_mobile": "Vision text padding left (mobile)",
+    "vision_padding_inline_end_mobile": "Vision text padding right (mobile)",
+    "vision_padding_inline_mobile_info": "On screens under 750px, replaces left/right padding from text blocks (e.g. Heading) inside column vision stacks. Does not affect the horizontal icon row.",
+    "vision_heading_text_size": "Heading size (desktop)",
+    "vision_heading_text_size_info": "Eyebrow / kicker in the vision column: H5 and H6 blocks, or the first Paragraph/Custom/Default block when it is the first block in that column. Main vision copy should be the next block (e.g. Heading or Paragraph). Does not affect icon row.",
+    "vision_heading_text_size_mobile": "Heading size (mobile)",
+    "vision_heading_text_size_mobile_info": "Same as desktop, on screens under 750px.",
+    "icon_row_cell_flex_basis_percent": "Cell flex basis (mobile)",
+    "icon_row_cell_layout_mobile_info": "Under 750px, these settings control each icon group in the horizontal row and override the block's mobile width.",
+    "icon_row_cell_max_width_mobile": "Cell max width (mobile)",
+    "icon_row_cell_min_width_mobile": "Cell min width (mobile)",
+    "leaf_mobile_max_width_info": "Under 750px, leaf size is the smaller of these two caps (viewport % and pixels). Raise both for a larger corner graphic.",
+    "leaf_mobile_max_width_px": "Leaf max width cap (mobile, px)",
+    "leaf_mobile_max_width_vw": "Leaf max width cap (mobile, viewport)"
   },
   "options": {
     "apple": "Omena",
@@ -1012,7 +1041,12 @@
     "resource_reference_product_sku": "Näyttää SKU-koodin päätuotteesta",
     "content_layout": "Sisällön asettelu",
     "mobile_media_1": "Mobiilimedia 1",
-    "utilities": "Aputoiminnot"
+    "utilities": "Aputoiminnot",
+    "leaf_decorations": "Leaf decorations",
+    "leaf_icon_row": "Icon row text",
+    "leaf_vision_text": "Vision text spacing",
+    "leaf_vision_heading": "Vision heading (eyebrow)",
+    "leaf_icon_row_layout": "Icon row blocks (mobile)"
   },
   "html_defaults": {
     "share_information_about_your": "<p>Jaa tietoja brändistäsi asiakkaillesi. Kuvaile tuotetta, tee ilmoituksia tai toivota asiakkaat tervetulleiksi kauppaasi.</p>",
