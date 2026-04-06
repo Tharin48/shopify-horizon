@@ -1,0 +1,195 @@
+{% doc %}
+  Full-screen mobile overlay + menu drawer + search panel.
+  Rendered from sections/custom-header.liquid as a sibling of <header> so fixed layers are not clipped by header overflow.
+
+  @param {object} section - Parent section object (required)
+{% enddoc %}
+
+{% liquid
+  assign menu = section.settings.menu
+  assign search_style = 'none'
+  if section.settings.show_search
+    assign search_style = 'modal'
+  endif
+  assign drawer_id = 'CustomHeaderMobileDrawer-' | append: section.id
+  assign search_panel_id = 'CustomHeaderMobileSearch-' | append: section.id
+  assign overlay_id = 'CustomHeaderOverlay-' | append: section.id
+  assign drawer_title_id = 'CustomHeaderDrawerTitle-' | append: section.id
+  assign search_title_id = 'CustomHeaderSearchTitle-' | append: section.id
+  assign has_menu = false
+  if menu != blank and menu.links.size > 0
+    assign has_menu = true
+  endif
+  assign show_portals = false
+  if has_menu or search_style != 'none'
+    assign show_portals = true
+  endif
+%}
+
+{% if show_portals %}
+  <div
+    class="custom-header__mobile-portals"
+    data-custom-header-portals
+    data-section-id="{{ section.id }}"
+  >
+    <div
+      id="{{ overlay_id }}"
+      class="custom-header__overlay"
+      data-custom-header-overlay
+      aria-hidden="true"
+    ></div>
+
+    {% if has_menu %}
+      <div
+        id="{{ drawer_id }}"
+        class="custom-header__mobile-drawer"
+        data-custom-header-mobile-drawer
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="{{ drawer_title_id }}"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <div class="custom-header__mobile-drawer-inner">
+          <div class="custom-header__mobile-drawer-header">
+            <h2 id="{{ drawer_title_id }}" class="custom-header__mobile-drawer-title">
+              {{ 'accessibility.menu' | t }}
+            </h2>
+            <button
+              type="button"
+              class="custom-header__mobile-drawer-close button-unstyled"
+              data-custom-header-drawer-close
+              aria-label="{{ 'accessibility.close_dialog' | t }}"
+            >
+              <span class="svg-wrapper" aria-hidden="true">
+                {{- 'icon-close.svg' | inline_asset_content -}}
+              </span>
+            </button>
+          </div>
+          <nav
+            class="custom-header__mobile-drawer-nav"
+            aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+          >
+            <ul class="custom-header__mobile-drawer-list list-unstyled" role="list">
+              {% for link in menu.links %}
+                <li class="custom-header__mobile-drawer-item">
+                  <a href="{{ link.url }}" class="custom-header__mobile-drawer-link">
+                    {{- link.title -}}
+                  </a>
+                  {% if link.links != blank and link.links.size > 0 %}
+                    <ul class="custom-header__mobile-drawer-sub list-unstyled" role="list">
+                      {% for child in link.links %}
+                        <li class="custom-header__mobile-drawer-subitem">
+                          <a href="{{ child.url }}" class="custom-header__mobile-drawer-sublink">
+                            {{- child.title -}}
+                          </a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if search_style != 'none' %}
+      <div
+        id="{{ search_panel_id }}"
+        class="custom-header__mobile-search-panel"
+        data-custom-header-mobile-search-panel
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="{{ search_title_id }}"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <div class="custom-header__mobile-search-panel-inner">
+          <div class="custom-header__mobile-search-panel-header">
+            <h2 id="{{ search_title_id }}" class="visually-hidden">
+              {{ 'content.search' | t }}
+            </h2>
+            <form
+              class="custom-header__mobile-search-form"
+              action="{{ routes.search_url }}"
+              method="get"
+              role="search"
+            >
+              <label class="visually-hidden" for="CustomHeaderSearchQ-{{ section.id }}">
+                {{- 'content.search_input_label' | t -}}
+              </label>
+              <input
+                id="CustomHeaderSearchQ-{{ section.id }}"
+                class="custom-header__mobile-search-input"
+                type="search"
+                name="q"
+                autocomplete="off"
+                placeholder="{{ 'content.search_input_placeholder' | t }}"
+                data-custom-header-mobile-search-input
+              >
+              <input type="hidden" name="options[prefix]" value="last">
+              <button type="submit" class="button custom-header__mobile-search-submit">
+                {{ 'content.search' | t }}
+              </button>
+            </form>
+            <button
+              type="button"
+              class="custom-header__mobile-search-panel-close button-unstyled"
+              data-custom-header-search-close
+              aria-label="{{ 'accessibility.close_dialog' | t }}"
+            >
+              <span class="svg-wrapper" aria-hidden="true">
+                {{- 'icon-close.svg' | inline_asset_content -}}
+              </span>
+            </button>
+          </div>
+
+          <div class="custom-header__mobile-search-panel-body">
+            {% if has_menu %}
+              <section class="custom-header__mobile-search-section" aria-labelledby="PopularSearches-{{ section.id }}">
+                <h3 id="PopularSearches-{{ section.id }}" class="custom-header__mobile-search-section-title">
+                  Popular searches
+                </h3>
+                <ul class="custom-header__mobile-search-chips list-unstyled" role="list">
+                  {% for link in menu.links limit: 6 %}
+                    <li>
+                      <a class="custom-header__mobile-search-chip" href="{{ link.url }}">{{ link.title }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </section>
+            {% endif %}
+
+            <section class="custom-header__mobile-search-section" aria-labelledby="QuickLinks-{{ section.id }}">
+              <h3 id="QuickLinks-{{ section.id }}" class="custom-header__mobile-search-section-title">
+                Quick links
+              </h3>
+              <ul class="custom-header__mobile-search-links list-unstyled" role="list">
+                <li>
+                  <a href="{{ routes.all_products_collection_url }}">{{ 'content.search_results_resource_products' | t }}</a>
+                </li>
+                <li>
+                  <a href="{{ routes.collections_url }}">{{ 'content.search_results_resource_collections' | t }}</a>
+                </li>
+                <li>
+                  <a href="{{ routes.cart_url }}">{{ 'accessibility.cart' | t }}</a>
+                </li>
+              </ul>
+            </section>
+
+            <section class="custom-header__mobile-search-section" aria-labelledby="Trending-{{ section.id }}">
+              <h3 id="Trending-{{ section.id }}" class="custom-header__mobile-search-section-title">
+                Trending
+              </h3>
+              <p class="custom-header__mobile-search-hint">
+                Product suggestions can be wired to predictive search later.
+              </p>
+            </section>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}

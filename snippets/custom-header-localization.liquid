@@ -1,0 +1,99 @@
+{% doc %}
+  Country / language dropdown for the custom header (matches main header localization pattern).
+
+  @param {object} section - Parent section object (required)
+{% enddoc %}
+
+{% liquid
+  assign enabled = section.settings.show_localization
+  assign show_language = false
+  assign show_country = false
+  if enabled and localization.available_countries.size > 1
+    assign show_country = true
+  endif
+  if enabled and section.settings.localization_show_language and localization.available_languages.size > 1
+    assign show_language = true
+  endif
+
+  assign localization_font = '--menu-localization-font: var(--font-body--family); '
+  assign localization_font_size = '--menu-localization-font-size: 0.875rem; '
+  assign color_shadow = '--color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));'
+  assign form_style = localization_font | append: localization_font_size | append: color_shadow
+%}
+
+{% if show_language and show_country == false %}
+  <div class="custom-header__localization dropdown-localization mobile:hidden">
+    {% render 'localization-form',
+      show_country: show_country,
+      show_language: show_language,
+      localization_style: 'dropdown',
+      form_style: form_style,
+      form_id: section.id
+    %}
+  </div>
+{% elsif show_country %}
+  <dropdown-localization-component class="custom-header__localization dropdown-localization mobile:hidden">
+    <button
+      type="button"
+      class="button dropdown-localization__button localization-selector header-actions__action"
+      aria-expanded="false"
+      aria-controls="dropdown-localization-results-{{ section.id }}"
+      ref="button"
+      on:click="/toggleSelector"
+      style="{{ localization_font }} {{ localization_font_size }}"
+    >
+      {% if section.settings.localization_show_flag %}
+        {% liquid
+          assign background_brightness = section.settings.solid_background | color_brightness
+          if background_brightness < 64
+            assign shadow_size = 4
+          else
+            assign shadow_size = 2
+          endif
+        %}
+        <span
+          class="icon-flag"
+          style="
+            background-image: url({{- localization.country | image_url: width: 32 }});
+            --size-shadow: {{ shadow_size }}px;
+            --color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-30-60));
+          "
+        ></span>
+      {% endif %}
+      <span class="currency-code" data-testid="localization-currency-code">
+        {{- localization.country.currency.iso_code -}}
+      </span>
+      <span class="visually-hidden" data-testid="localization-visually-hidden">
+        {{- 'accessibility.localization_region_and_language' | t -}}
+      </span>
+
+      {%- if show_country and show_language -%}
+        <span>/</span>
+      {%- endif -%}
+
+      {%- if show_language -%}
+        <span>
+          {{ localization.language.iso_code | upcase }}
+        </span>
+      {%- endif -%}
+      <span class="svg-wrapper icon-caret" aria-hidden="true">
+        {{- 'icon-caret.svg' | inline_asset_content -}}
+      </span>
+    </button>
+
+    <div
+      class="localization-wrapper right-bound color-{{ settings.popover_color_scheme }}"
+      hidden
+      ref="panel"
+      id="dropdown-localization-results-{{ section.id }}"
+    >
+      {% render 'localization-form',
+        show_country: show_country,
+        show_language: show_language,
+        localization_style: 'dropdown',
+        form_style: form_style,
+        form_id: section.id
+      %}
+    </div>
+  </dropdown-localization-component>
+{% endif %}

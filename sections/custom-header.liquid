@@ -1,0 +1,1472 @@
+{% liquid
+  assign is_home = false
+  if template.name == 'index'
+    assign is_home = true
+  endif
+
+  assign tr_r = section.settings.transparent_text_color | color_extract: 'red'
+  assign tr_g = section.settings.transparent_text_color | color_extract: 'green'
+  assign tr_b = section.settings.transparent_text_color | color_extract: 'blue'
+  assign transparent_text_rgb = tr_r | append: ' ' | append: tr_g | append: ' ' | append: tr_b
+
+  assign sr_r = section.settings.solid_text_color | color_extract: 'red'
+  assign sr_g = section.settings.solid_text_color | color_extract: 'green'
+  assign sr_b = section.settings.solid_text_color | color_extract: 'blue'
+  assign solid_text_rgb = sr_r | append: ' ' | append: sr_g | append: ' ' | append: sr_b
+
+  assign mr_r = section.settings.minimized_text_color | color_extract: 'red'
+  assign mr_g = section.settings.minimized_text_color | color_extract: 'green'
+  assign mr_b = section.settings.minimized_text_color | color_extract: 'blue'
+  assign minimized_text_rgb = mr_r | append: ' ' | append: mr_g | append: ' ' | append: mr_b
+
+  assign may_transparent = false
+  if is_home and section.settings.enable_homepage_transparent_header
+    assign may_transparent = true
+  endif
+
+  assign initial_state = 'solid'
+  if may_transparent
+    assign initial_state = 'transparent'
+  endif
+
+  assign load_search_assets = false
+  if section.settings.show_search
+    assign load_search_assets = true
+  endif
+%}
+
+{% if load_search_assets %}
+  {% render 'predictive-search-styles' %}
+  {% render 'slideshow-styles' %}
+{% endif %}
+
+{% # theme-check-disable MissingAsset %}
+{{ 'custom-header.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'custom-header.js' | asset_url }}" defer></script>
+{% # theme-check-enable MissingAsset %}
+
+{%- if may_transparent -%}
+  <style>
+    /*
+     * Pre-set --header-group-height from Liquid settings so the hero section
+     * has the correct margin-top / min-height on the very first paint — before
+     * the deferred JS file runs and measures the DOM.  Without this, the hero
+     * briefly renders at full 100 vh (--header-group-height fallback = 0) then
+     * jumps to the correct smaller size when JS fires, which the user perceives
+     * as the "loads full then shrinks" flash.
+     *
+     * JS will later update this to include the announcement bar height; that
+     * produces only a small (30–50 px) adjustment rather than the large initial
+     * shift from 0 → default-height.
+     */
+    body {
+      --header-group-height: {{ section.settings.default_header_height }}px;
+    }
+  </style>
+{%- endif -%}
+
+<header
+  id="CustomHeader-{{ section.id }}"
+  class="custom-header{% if section.settings.enable_sticky_header %} custom-header--sticky{% endif %}"
+  role="banner"
+  data-custom-header
+  data-section-id="{{ section.id }}"
+  data-is-homepage="{% if is_home %}true{% else %}false{% endif %}"
+  data-may-transparent="{% if may_transparent %}true{% else %}false{% endif %}"
+  data-header-state="{{ initial_state }}"
+  data-mobile-nav-open="false"
+  data-mobile-search-open="false"
+  data-scroll-threshold="{{ section.settings.scroll_threshold }}"
+  data-minimized-nav="{{ section.settings.minimized_nav_alignment | default: 'left' }}"
+  style="
+    --custom-header-default-height: {{ section.settings.default_header_height }}px;
+    --custom-header-minimized-height: {{ section.settings.minimized_header_height }}px;
+    --custom-header-color-text-transparent: {{ section.settings.transparent_text_color }};
+    --custom-header-color-text-solid: {{ section.settings.solid_text_color }};
+    --custom-header-foreground-rgb-transparent: {{ transparent_text_rgb }};
+    --custom-header-foreground-rgb-solid: {{ solid_text_rgb }};
+    --custom-header-bg-transparent: {{ section.settings.transparent_header_background }};
+    --custom-header-bg-solid: {{ section.settings.solid_background }};
+    --custom-header-bg-minimized: {{ section.settings.minimized_background }};
+    --custom-header-color-text-minimized: {{ section.settings.minimized_text_color }};
+    --custom-header-foreground-rgb-minimized: {{ minimized_text_rgb }};
+    --custom-header-search-bg: {{ section.settings.search_bar_background | default: '#FFFFFF' }};
+    --custom-header-search-color: {{ section.settings.search_bar_text_color | default: '#121212' }};
+    --custom-header-search-border: {{ section.settings.search_bar_border_color | default: '#D4D4D4' }};
+    --custom-header-search-focus: {{ section.settings.search_bar_focus_color | default: '#BC9407' }};
+  "
+>
+  {% render 'custom-header-main', section: section %}
+</header>
+
+{% comment %}
+  Mobile overlay + full-screen drawers live outside <header> so position:fixed layers are not clipped by header/shell overflow or stacking.
+{% endcomment %}
+{% render 'custom-header-mobile-portals', section: section %}
+
+{% stylesheet %}
+  /*
+   * Both :root and .custom-header carry the z-index variable.
+   * :root is necessary so the .shopify-section sticky wrapper (a parent of .custom-header)
+   * can read the value — CSS custom properties only cascade DOWN, never up.
+   * Without :root, the .shopify-section fell back to z-index: 10 regardless of what
+   * was set on .custom-header.
+   * Value 400: above all Shopify theme layers (max --layer-temporary: 20) but
+   * well below the Shopify admin editor UI (which uses 999999+).
+   */
+  :root {
+    --announcement-bar-height: 0px;
+    --custom-header-z: 400;
+  }
+
+  /* Custom header — transparent / solid / minimized via [data-header-state] */
+  .custom-header {
+    --custom-header-z: 400; /* keep in sync with :root above */
+    display: block;
+    width: 100%;
+    overflow: visible;
+    will-change: transform;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      top 0.2s ease,
+      opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    /*
+     * visibility is intentionally NOT in the transition list.
+     * A delayed visibility transition was causing the "ghost header" artifact:
+     * when state flipped hidden→solid within the transition window the element
+     * remained visible (visibility was mid-transition) while opacity was still 0,
+     * creating a transparent header block that obscured content beneath.
+     * Instant visibility change is safe here because opacity handles the fade.
+     */
+  }
+
+  /*
+   * Homepage + transparent: position:fixed so the hero slides under the floating header.
+   * top = announcement-bar-height so the bar sits below the banner.
+   */
+  .custom-header[data-may-transparent='true'] {
+    position: fixed;
+    top: var(--announcement-bar-height, 0px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: var(--custom-header-z);
+  }
+
+  /*
+   * Once the header is minimized or hidden the announcement bar has already scrolled out
+   * of the viewport — reset top to 0 so the bar doesn't leave a phantom gap above the
+   * minimized header.
+   */
+  .custom-header[data-may-transparent='true'][data-header-state='minimized'],
+  .custom-header[data-may-transparent='true'][data-header-state='hidden'] {
+    top: 0;
+  }
+
+  /*
+   * Other templates (sticky, non-transparent): mirror the theme's own header approach exactly.
+   *
+   * 1. #header-group → display:contents  dissolves its layout box so its child sections
+   *    become direct flow children of <body>. Without this, sticky anchors to #header-group
+   *    (which is only as tall as the header) and the element immediately leaves the viewport
+   *    with its parent — appearing at the "top of the section" not the "top of the screen".
+   *
+   * 2. The .shopify-section wrapping the header gets position:sticky; top:0. Because
+   *    the announcement bar section comes before it in the DOM flow, the header sticks
+   *    naturally below the bar (when bar is visible) and at the viewport top (when bar
+   *    has scrolled off). No CSS variable needed for the top offset.
+   *
+   * 3. The <header> itself is position:static — it fills the sticky section, no independent
+   *    positioning required.
+   */
+  #header-group:has(.custom-header--sticky:not([data-may-transparent='true'])) {
+    display: contents;
+  }
+
+  .shopify-section:has(> * > .custom-header--sticky:not([data-may-transparent='true'])),
+  .shopify-section:has(> .custom-header--sticky:not([data-may-transparent='true'])) {
+    position: sticky;
+    top: 0;
+    z-index: var(--custom-header-z);
+  }
+
+  .custom-header.custom-header--sticky:not([data-may-transparent='true']) {
+    position: static;
+  }
+
+  /* Pull first main section under the header group (matches theme .header[transparent] pattern) */
+  body:has([data-custom-header][data-may-transparent='true'])
+    .content-for-layout
+    > .shopify-section:first-child {
+    margin-top: calc(var(--header-group-height, var(--header-height)) * -1);
+  }
+
+  /* Hero min-height uses header offset (theme only targets #header-component) */
+  body:has(> #header-group > .shopify-section:has([data-custom-header]))
+    .hero-wrapper:first-child {
+    --hero-height-offset: var(--header-group-height, 0);
+  }
+
+  /*
+   * Transparent (home): #header-group keeps its normal position:relative stacking context so
+   * the fixed header and announcement bar layer correctly above the hero.
+   * Non-transparent: #header-group is display:contents (see sticky rules above), so
+   * position:relative has no effect there — only applies to the transparent case.
+   */
+  body:has([data-custom-header][data-may-transparent='true']) #header-group {
+    position: relative;
+    z-index: var(--layer-sticky, 10);
+  }
+
+  /*
+   * Announcement bar section should stack above the custom header on both cases.
+   * The selector is DOM-based so it still matches even when #header-group is display:contents.
+   */
+  body:has([data-custom-header]) #header-group > .shopify-section:has(.announcement-bar) {
+    position: relative;
+    z-index: calc(var(--custom-header-z) + 1);
+  }
+
+  body:has([data-custom-header]) #header-group > .shopify-section:has([data-custom-header]) {
+    z-index: var(--custom-header-z);
+  }
+
+  /*
+   * Theme header chrome (account, cart, search) reads --color-account-icon and
+   * --color-foreground from the color scheme, not inherited color — set them here
+   * so icons and labels match the section color pickers.
+   */
+  .custom-header[data-header-state='transparent'] {
+    --color-foreground: var(--custom-header-color-text-transparent);
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-transparent);
+    --color-account-icon: var(--custom-header-color-text-transparent);
+    color: var(--custom-header-color-text-transparent);
+    background: var(--custom-header-bg-transparent);
+    border-block-end: none;
+    box-shadow: none;
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  .custom-header[data-header-state='solid'] {
+    --color-foreground: var(--custom-header-color-text-solid);
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-solid);
+    --color-account-icon: var(--custom-header-color-text-solid);
+    color: var(--custom-header-color-text-solid);
+    background: var(--custom-header-bg-solid);
+    border-block-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    box-shadow: none;
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  .custom-header[data-header-state='minimized'] {
+    --color-foreground: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-minimized, var(--custom-header-foreground-rgb-solid));
+    --color-account-icon: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    color: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    background: var(--custom-header-bg-minimized, #ffffff);
+    border-block-end: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    box-shadow: 0 1px 0 rgb(var(--color-foreground-rgb) / 0.06);
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  /*
+   * Hidden while scrolling down: match theme header (opacity idle) instead of translateY(-100%),
+   * which fought fixed positioning + scroll anchoring and caused flicker. Bar stays in the
+   * minimized-height box at the viewport top; only opacity hides it.
+   */
+  .custom-header[data-header-state='hidden'] {
+    --color-foreground: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-minimized, var(--custom-header-foreground-rgb-solid));
+    --color-account-icon: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    color: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    background: var(--custom-header-bg-minimized, #ffffff);
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .custom-header[data-header-state='hidden'] .custom-header__primary {
+    min-height: var(--custom-header-minimized-height);
+    max-height: var(--custom-header-minimized-height);
+    overflow: hidden;
+  }
+
+  /* Popover color scheme on .account-button redefines --color-foreground; override per header state */
+  .custom-header[data-header-state='transparent'] .account-button {
+    --color-foreground: var(--custom-header-color-text-transparent);
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-transparent);
+    --color-account-icon: var(--custom-header-color-text-transparent);
+  }
+
+  .custom-header[data-header-state='solid'] .account-button {
+    --color-foreground: var(--custom-header-color-text-solid);
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-solid);
+    --color-account-icon: var(--custom-header-color-text-solid);
+  }
+
+  .custom-header[data-header-state='minimized'] .account-button,
+  .custom-header[data-header-state='hidden'] .account-button {
+    --color-foreground: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-minimized, var(--custom-header-foreground-rgb-solid));
+    --color-account-icon: var(--custom-header-color-text-minimized, var(--custom-header-color-text-solid));
+  }
+
+  .custom-header__actions cart-icon.header-actions__cart-icon {
+    color: inherit;
+  }
+
+  /* Transparent homepage: hide search on desktop only (mobile shows full-width pill like design) */
+  @media screen and (min-width: 750px) {
+    .custom-header[data-header-state='transparent'] .custom-header__search-slot {
+      display: none !important;
+    }
+  }
+
+  .custom-header[data-header-state='minimized'] .custom-header__tea-club {
+    display: none !important;
+  }
+
+  /*
+   * Tea Club: absolutely positioned to the actions column so it never affects
+   * header height (no reserved padding). Sits above the row, aligned to the
+   * trailing edge where the account icon lives.
+   */
+  .custom-header__tea-club {
+    position: absolute;
+    left: auto;
+    right: 0;
+    top: auto;
+    bottom: calc(100% + 0.35rem);
+    z-index: 5;
+    width: max-content;
+    max-width: min(200px, 45vw);
+    margin: 0;
+    pointer-events: auto;
+  }
+
+  .custom-header__tea-club-bubble {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #121212;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.12);
+  }
+
+  .custom-header__tea-club-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    right: 1rem;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #ffffff;
+    filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.06));
+  }
+
+  .custom-header__tea-club-bubble:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header[data-header-state='solid'] .custom-header__tea-club-bubble {
+    color: var(--custom-header-color-text-solid);
+  }
+
+  .custom-header__primary {
+    min-height: var(--custom-header-default-height);
+    /*
+     * min-height is intentionally NOT transitioned.
+     * A min-height transition means getBoundingClientRect() — called synchronously
+     * inside applyHeaderState to update --header-group-height — captures the
+     * start-of-animation value (minimized ≈ 48px) rather than the final value
+     * (default ≈ 200px).  That sets --header-group-height too small, giving the
+     * hero section the wrong margin-top / min-height and making it appear to
+     * shrink whenever the user scrolls down then back to the top.
+     * Visual smoothness is already provided by the opacity / transform transitions
+     * on .custom-header itself.
+     */
+  }
+
+  .custom-header[data-header-state='minimized'] .custom-header__primary {
+    min-height: var(--custom-header-minimized-height);
+  }
+
+  .custom-header__primary-inner {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap-md);
+    padding-block: var(--padding-sm);
+    padding-inline: var(--page-margin);
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .custom-header__logo-row {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .custom-header__lower {
+    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--gap-sm);
+    width: 100%;
+    overflow: visible;
+  }
+
+  .custom-header__logo-heading {
+    margin: 0;
+    font: inherit;
+  }
+
+  .custom-header__menu-toggle {
+    order: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--padding-2xs);
+    margin-inline: calc(-1 * var(--padding-2xs));
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .custom-header__menu-toggle:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__logo {
+    text-align: center;
+  }
+
+  .custom-header__primary-inner--no-menu .custom-header__logo {
+    text-align: start;
+  }
+
+  .custom-header__logo-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .custom-header__menu-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .custom-header__logo-img {
+    display: block;
+    width: auto;
+    max-width: 72px;
+    max-height: 72px;
+    height: auto;
+    object-fit: contain;
+    transition: max-width 0.2s ease, max-height 0.2s ease;
+  }
+
+  .custom-header__logo-text {
+    margin: 0;
+  }
+
+  .custom-header__nav {
+    width: 100%;
+  }
+
+  .custom-header__menu-caret {
+    display: inline-flex;
+    width: 0.65rem;
+    height: 0.65rem;
+    margin-inline-start: 0.2rem;
+    vertical-align: middle;
+  }
+
+  .custom-header__menu-caret svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-header__menu-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+  }
+
+  .custom-header__actions {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap-sm);
+    overflow: visible;
+  }
+
+  .custom-header__actions-icons > header-actions {
+    display: contents;
+  }
+
+  .custom-header__actions-icons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap-sm);
+    order: 2;
+  }
+
+  .custom-header__search-slot {
+    order: 1;
+  }
+
+  .custom-header__wishlist {
+    order: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .custom-header__wishlist-icon {
+    fill: currentColor;
+  }
+
+  .custom-header__actions .header-actions__action,
+  .custom-header__actions search-button .button-unstyled {
+    color: inherit;
+  }
+
+  .custom-header__actions-icons cart-drawer-component,
+  .custom-header__actions-icons > a.action__cart {
+    order: 3;
+  }
+
+  .custom-header__actions-icons .custom-header__localization {
+    order: 4;
+  }
+
+  .custom-header__actions-icons .account-button {
+    order: 6;
+  }
+
+  @media screen and (max-width: 749px) {
+    /*
+     * Mobile top bar layout (menu | logo | icons) lives in assets/custom-header.css
+     * using grid + display:contents so icons align in-flow with the logo row.
+     */
+
+    .custom-header__tea-club {
+      display: none !important;
+    }
+
+    /* Main header hides localization on small screens; custom header design shows currency in the icon row */
+    .custom-header .custom-header__localization.mobile\:hidden,
+    .custom-header dropdown-localization-component.mobile\:hidden {
+      display: flex !important;
+      align-items: center;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-header__primary-inner {
+      flex-wrap: nowrap;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    /* ── Default (solid/transparent) desktop layout ─────────────────────────────── */
+
+    .custom-header__menu-toggle {
+      display: none;
+    }
+
+    .custom-header__logo-row {
+      flex: 0 0 auto;
+      width: 100%;
+      text-align: center;
+    }
+
+    .custom-header__lower {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      /* Top-align so wrapped nav + utility icons share one baseline row */
+      align-items: start;
+      gap: var(--gap-md);
+      position: relative;
+      width: 100%;
+      min-height: 2.5rem;
+    }
+
+    .custom-header__nav {
+      display: block !important;
+      grid-column: 2;
+      justify-self: center;
+      align-self: start;
+      width: auto;
+      margin-inline: auto;
+    }
+
+    .custom-header__actions {
+      position: relative;
+      grid-column: 3;
+      justify-self: end;
+      align-self: start;
+      flex: 0 0 auto;
+      margin-inline-start: auto;
+      max-width: none;
+    }
+
+    .custom-header__menu-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--gap-lg);
+    }
+
+    .custom-header__menu-link {
+      padding-block: var(--padding-2xs);
+      white-space: nowrap;
+    }
+
+    .custom-header__menu-link:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Minimized (+ hidden) desktop layout ──────────────────────────────────────
+     *
+     * Single row: [Logo][Nav items]──────────────────[Icons]
+     *  or with right alignment: [Logo]──────────────[Nav items][Icons]
+     *
+     * Logo has no vertical padding — it stretches to fill the full minimized height.
+     * Menu items and icons are vertically centered in the row.
+     * ──────────────────────────────────────────────────────────────────────────── */
+
+    .custom-header[data-header-state='minimized'] .custom-header__primary-inner,
+    .custom-header[data-header-state='hidden'] .custom-header__primary-inner {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: stretch; /* logo, lower all stretch to full height */
+      padding-block: 0;     /* logo fills the entire minimized-height — no dead space */
+      gap: 0;               /* logo flush against nav; spacing handled inside lower */
+      min-height: var(--custom-header-minimized-height);
+    }
+
+    /*
+     * Dissolve the mobile wrapper divs so .custom-header__logo-row participates
+     * directly as a flex child of .custom-header__primary-inner.
+     * On mobile these already use display:contents (set in custom-header.css).
+     * On desktop they default to display:block which made the logo-row a block
+     * inside a full-width box — causing the big gap between logo and nav items.
+     */
+    .custom-header[data-header-state='minimized'] .custom-header__mobile,
+    .custom-header[data-header-state='hidden'] .custom-header__mobile,
+    .custom-header[data-header-state='minimized'] .custom-header__mobile-top,
+    .custom-header[data-header-state='hidden'] .custom-header__mobile-top {
+      display: contents;
+    }
+
+    /* Logo column stretches to full height so the image fills edge-to-edge */
+    .custom-header[data-header-state='minimized'] .custom-header__logo-row,
+    .custom-header[data-header-state='hidden'] .custom-header__logo-row {
+      flex: 0 0 auto;
+      width: auto;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      padding-inline-end: var(--gap-md); /* breathing room before the nav */
+    }
+
+    .custom-header[data-header-state='minimized'] .custom-header__logo,
+    .custom-header[data-header-state='hidden'] .custom-header__logo {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      text-align: left;
+    }
+
+    /* Logo link fills the full minimized height */
+    .custom-header[data-header-state='minimized'] .custom-header__logo-link,
+    .custom-header[data-header-state='hidden'] .custom-header__logo-link {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-start;
+    }
+
+    /* Image fills the available height — no square cap, purely height-driven */
+    .custom-header[data-header-state='minimized'] .custom-header__logo-img,
+    .custom-header[data-header-state='hidden'] .custom-header__logo-img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+      max-height: var(--custom-header-minimized-height);
+      object-fit: contain;
+    }
+
+    /* Lower becomes a single flex row (nav + actions side by side) */
+    .custom-header[data-header-state='minimized'] .custom-header__lower,
+    .custom-header[data-header-state='hidden'] .custom-header__lower {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex: 1 1 auto;
+      min-width: 0;
+      gap: var(--gap-md);
+    }
+
+    /* Nav in minimized/hidden */
+    .custom-header[data-header-state='minimized'] .custom-header__nav,
+    .custom-header[data-header-state='hidden'] .custom-header__nav {
+      flex: 0 0 auto;
+      position: relative;
+      left: auto;
+      transform: none;
+      margin-inline: 0;
+      justify-self: unset;
+      align-self: center;
+      max-width: min(55vw, 680px);
+      pointer-events: auto;
+    }
+
+    /* Actions in minimized/hidden */
+    .custom-header[data-header-state='minimized'] .custom-header__actions,
+    .custom-header[data-header-state='hidden'] .custom-header__actions {
+      position: relative;
+      flex: 0 0 auto;
+      grid-column: unset;
+      justify-self: unset;
+      align-self: center;
+      padding-block-start: 0;
+      z-index: 1;
+    }
+
+    /* ── Menu alignment: LEFT (default) ─────────────────────────────────────────
+     * [Logo] [Nav] ────────────────────── [Icons]
+     * ─────────────────────────────────────────────────────────────────────────── */
+    .custom-header[data-minimized-nav='left'][data-header-state='minimized'] .custom-header__nav,
+    .custom-header[data-minimized-nav='left'][data-header-state='hidden'] .custom-header__nav {
+      order: 1;
+      margin-inline-start: 0;
+    }
+
+    .custom-header[data-minimized-nav='left'][data-header-state='minimized'] .custom-header__actions,
+    .custom-header[data-minimized-nav='left'][data-header-state='hidden'] .custom-header__actions {
+      order: 2;
+      margin-inline-start: auto; /* push icons to the far right */
+    }
+
+    /* ── Menu alignment: RIGHT ───────────────────────────────────────────────────
+     * [Logo] ────────────────────── [Nav] [Icons]
+     * ─────────────────────────────────────────────────────────────────────────── */
+    .custom-header[data-minimized-nav='right'][data-header-state='minimized'] .custom-header__nav,
+    .custom-header[data-minimized-nav='right'][data-header-state='hidden'] .custom-header__nav {
+      order: 2;
+      margin-inline-start: auto; /* push nav to the right */
+    }
+
+    .custom-header[data-minimized-nav='right'][data-header-state='minimized'] .custom-header__actions,
+    .custom-header[data-minimized-nav='right'][data-header-state='hidden'] .custom-header__actions {
+      order: 3;
+      margin-inline-start: 0;
+    }
+
+    /* Menu list horizontal in minimized */
+    .custom-header[data-header-state='minimized'] .custom-header__menu-list,
+    .custom-header[data-header-state='hidden'] .custom-header__menu-list {
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+    }
+  }
+
+  .custom-header__menu-link:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  /* ── Desktop search bar row ──────────────────────────────────────────────────
+   * Pill-shaped search bar rendered as a third row below the nav.
+   * Always white background + dark text so it reads clearly on any hero image.
+   * Only visible in transparent state (homepage hero) on desktop (≥750px).
+   * Focus state: gold border (#BC9407) matching brand accent.
+   * ─────────────────────────────────────────────────────────────────────────── */
+
+  .custom-header__desktop-search-row {
+    display: none; /* hidden by default for all states and screen sizes */
+    width: 100%;
+    order: 3; /* appears after logo row and lower row in the column flex */
+  }
+
+  @media screen and (min-width: 750px) {
+    /* Only reveal in the transparent (homepage hero) state */
+    .custom-header[data-header-state='transparent'] .custom-header__desktop-search-row {
+      display: block;
+      padding-block: var(--gap-sm) var(--padding-sm);
+    }
+
+    /* Wrapper anchors the absolutely-positioned dropdown to the search bar */
+    .custom-header__desktop-search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 680px;
+      margin-inline: auto;
+    }
+
+    /*
+     * "Default search" mode: a pill-shaped button that mimics the form visually
+     * but opens the theme's predictive search modal when clicked.
+     * Shares all base styles with .custom-header__desktop-search-form.
+     */
+    .custom-header__desktop-search-default-btn {
+      max-width: 680px;
+      margin-inline: auto;
+      cursor: pointer;
+      text-align: start;
+      justify-content: space-between;
+    }
+
+    .custom-header__desktop-search-placeholder-text {
+      flex: 1;
+      font-size: 0.9375rem;
+      color: var(--custom-header-search-color, #121212);
+      opacity: 0.55;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .custom-header__desktop-search-default-btn:hover {
+      border-color: var(--custom-header-search-focus, #bc9407);
+    }
+
+    .custom-header__desktop-search-default-btn:focus-visible {
+      border-color: var(--custom-header-search-focus, #bc9407);
+      border-width: 2px;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--custom-header-search-focus, #bc9407) 22%, transparent);
+      outline: none;
+    }
+
+    .custom-header__desktop-search-form {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 48px;
+      padding-inline-start: 1.375rem;
+      padding-inline-end: 0.5rem;
+      border-radius: 9999px;
+      /*
+       * Uses theme-controlled CSS variables — NOT currentColor.
+       * The transparent header sets currentColor to white, so inheriting it
+       * would produce invisible white text on white background.
+       */
+      background: var(--custom-header-search-bg, #ffffff);
+      color: var(--custom-header-search-color, #121212);
+      border: 1.5px solid var(--custom-header-search-border, #d4d4d4);
+      gap: var(--gap-sm);
+      transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    /* Active/focus state — themed accent border + soft glow */
+    .custom-header__desktop-search-form:focus-within {
+      border-color: var(--custom-header-search-focus, #bc9407);
+      border-width: 2px;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--custom-header-search-focus, #bc9407) 22%, transparent);
+    }
+
+    .custom-header__desktop-search-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      /*
+       * The Shopify theme's base.css applies `background: var(--color-input-background)`
+       * to every input element. That rule wins over a plain `background: transparent`
+       * regardless of -webkit-appearance. `!important` is the only reliable override
+       * here — we are intentionally fighting the theme base stylesheet.
+       */
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent !important;
+      background-color: transparent !important;
+      color: var(--custom-header-search-color, #121212);
+      font: inherit;
+      font-size: 0.9375rem;
+      outline: none;
+      padding: 0;
+    }
+
+    /* Autofill background override — browsers force a blue/yellow tint on autofilled inputs */
+    .custom-header__desktop-search-input:-webkit-autofill,
+    .custom-header__desktop-search-input:-webkit-autofill:hover,
+    .custom-header__desktop-search-input:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 1000px var(--custom-header-search-bg, #ffffff) inset;
+      -webkit-text-fill-color: var(--custom-header-search-color, #121212);
+      caret-color: var(--custom-header-search-color, #121212);
+    }
+
+    .custom-header__desktop-search-input::placeholder {
+      color: var(--custom-header-search-color, #121212);
+      opacity: 0.5;
+    }
+
+    /* Show the native browser clear (×) button — matches style guide active state */
+    .custom-header__desktop-search-input::-webkit-search-decoration {
+      display: none;
+    }
+
+    /* Search submit (icon) button */
+    .custom-header__desktop-search-submit {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      background: transparent;
+      border: none;
+      border-radius: 9999px;
+      color: var(--custom-header-search-color, #121212);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .custom-header__desktop-search-submit:focus-visible {
+      outline: 2px solid var(--custom-header-search-focus, #bc9407);
+      outline-offset: 2px;
+    }
+
+    .custom-header__desktop-search-submit .svg-wrapper {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .custom-header__desktop-search-submit .svg-wrapper svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  /* ── Search dropdown ──────────────────────────────────────────────────────
+   * Google-style autocomplete panel: recent searches, recently viewed, and
+   * live predictive results (query suggestions + product cards).
+   * Always white background + dark text — independent of header color state.
+   * ─────────────────────────────────────────────────────────────────────── */
+
+  .custom-header__search-dropdown {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(100% + 6px);
+    background: #ffffff;
+    color: #121212;
+    border-radius: 16px;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      0 16px 48px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    z-index: 20;
+    max-height: 74vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .custom-header__search-dropdown[hidden] {
+    display: none;
+  }
+
+  /* Section dividers */
+  .ch-search-section {
+    padding: 14px 16px 10px;
+  }
+
+  .ch-search-section + .ch-search-section {
+    border-top: 1px solid rgba(18, 18, 18, 0.07);
+  }
+
+  .ch-search-section__title {
+    margin: 0 0 10px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(18, 18, 18, 0.42);
+  }
+
+  /* Query / recent suggestion rows */
+  .ch-search-queries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ch-search-suggestion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #121212;
+    font: inherit;
+    font-size: 0.9375rem;
+    text-align: start;
+    transition: background 0.12s;
+    line-height: 1.3;
+  }
+
+  .ch-search-suggestion:hover,
+  .ch-search-suggestion[data-focused='true'] {
+    background: rgba(18, 18, 18, 0.055);
+    outline: none;
+  }
+
+  .ch-search-suggestion__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    color: rgba(18, 18, 18, 0.38);
+  }
+
+  .ch-search-suggestion__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Bold the typed portion in suggestions (Shopify wraps it in <em>) */
+  .ch-search-suggestion__text em {
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  .ch-search-suggestion__remove {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin-inline-start: auto;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    color: rgba(18, 18, 18, 0.38);
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: background 0.12s, color 0.12s;
+  }
+
+  .ch-search-suggestion__remove:hover {
+    background: rgba(18, 18, 18, 0.08);
+    color: #121212;
+  }
+
+  /* Product grid */
+  .ch-search-products {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .ch-search-product-link {
+    display: block;
+    text-decoration: none;
+    color: #121212;
+    border-radius: 10px;
+    padding: 4px;
+    transition: background 0.12s;
+  }
+
+  .ch-search-product-link:hover {
+    background: rgba(18, 18, 18, 0.045);
+  }
+
+  .ch-search-product-img-wrap {
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(18, 18, 18, 0.05);
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ch-search-product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ch-search-product-info {
+    padding: 6px 2px 2px;
+  }
+
+  .ch-search-product-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.35;
+    margin: 0 0 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: #121212;
+  }
+
+  .ch-search-product-price {
+    font-size: 0.6875rem;
+    color: rgba(18, 18, 18, 0.55);
+    display: block;
+  }
+
+  /* Footer — "See all results" */
+  .ch-search-footer {
+    padding: 10px 16px 14px;
+    border-top: 1px solid rgba(18, 18, 18, 0.07);
+    text-align: center;
+  }
+
+  .ch-search-footer__link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(18, 18, 18, 0.62);
+    text-decoration: none;
+  }
+
+  .ch-search-footer__link:hover {
+    color: #121212;
+    text-decoration: underline;
+  }
+
+  /* Loading / empty states */
+  .ch-search-loading,
+  .ch-search-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: rgba(18, 18, 18, 0.4);
+    font-size: 0.875rem;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.custom_header",
+  "tag": "div",
+  "class": "custom-header-section",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:names.tea_club"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tea_club_button",
+      "label": "t:settings.show_tea_club_button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "tea_club_label",
+      "label": "t:settings.tea_club_label",
+      "default": "Tea Club",
+      "visible_if": "{{ section.settings.show_tea_club_button }}"
+    },
+    {
+      "type": "url",
+      "id": "tea_club_link",
+      "label": "t:settings.tea_club_link",
+      "visible_if": "{{ section.settings.show_tea_club_button }}"
+    },
+    {
+      "type": "header",
+      "content": "Wishlist"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wishlist",
+      "label": "Show wishlist icon",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "wishlist_label",
+      "label": "Wishlist accessibility label",
+      "default": "Wishlist",
+      "visible_if": "{{ section.settings.show_wishlist }}"
+    },
+    {
+      "type": "url",
+      "id": "wishlist_link",
+      "label": "Wishlist link",
+      "visible_if": "{{ section.settings.show_wishlist }}"
+    },
+    {
+      "type": "header",
+      "content": "Country & language"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_localization",
+      "label": "Show country / currency selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "localization_show_language",
+      "label": "Show language code in selector",
+      "default": false,
+      "visible_if": "{{ section.settings.show_localization }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "localization_show_flag",
+      "label": "Show country flag",
+      "default": true,
+      "visible_if": "{{ section.settings.show_localization }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky_header",
+      "label": "t:settings.enable_sticky_header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_homepage_transparent_header",
+      "label": "t:settings.enable_homepage_transparent_header",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "scroll_threshold",
+      "label": "t:settings.scroll_threshold",
+      "min": 0,
+      "max": 500,
+      "step": 5,
+      "unit": "px",
+      "default": 75
+    },
+    {
+      "type": "range",
+      "id": "default_header_height",
+      "label": "t:settings.default_header_height",
+      "min": 48,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "minimized_header_height",
+      "label": "t:settings.minimized_header_height",
+      "min": 40,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color",
+      "id": "transparent_text_color",
+      "label": "t:settings.transparent_text_color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "transparent_header_background",
+      "label": "t:settings.transparent_header_background",
+      "info": "t:settings.transparent_header_background_info",
+      "default": "#00000000"
+    },
+    {
+      "type": "color",
+      "id": "solid_text_color",
+      "label": "t:settings.solid_text_color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "solid_background",
+      "label": "t:settings.solid_background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "minimized_background",
+      "label": "t:settings.minimized_background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "minimized_text_color",
+      "label": "t:settings.minimized_text_color",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "t:content.menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:settings.menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "select",
+      "id": "minimized_nav_alignment",
+      "label": "t:settings.minimized_nav_alignment",
+      "info": "t:settings.minimized_nav_alignment_info",
+      "options": [
+        { "value": "left",  "label": "t:options.left"  },
+        { "value": "right", "label": "t:options.right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "t:content.search"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "t:settings.show_search",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_desktop_search_bar",
+      "label": "t:settings.show_desktop_search_bar",
+      "info": "t:settings.show_desktop_search_bar_info",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "desktop_search_style",
+      "label": "t:settings.desktop_search_style",
+      "info": "t:settings.desktop_search_style_info",
+      "options": [
+        { "value": "custom", "label": "t:settings.desktop_search_style_custom" },
+        { "value": "default", "label": "t:settings.desktop_search_style_default" }
+      ],
+      "default": "custom",
+      "visible_if": "{{ section.settings.show_desktop_search_bar }}"
+    },
+    {
+      "type": "text",
+      "id": "desktop_search_placeholder",
+      "label": "t:settings.desktop_search_placeholder",
+      "default": "Search a tea...",
+      "visible_if": "{{ section.settings.show_desktop_search_bar }}"
+    },
+    {
+      "type": "header",
+      "content": "t:settings.search_bar_colors_header",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color_background",
+      "id": "search_bar_background",
+      "label": "t:settings.search_bar_background",
+      "default": "rgba(255, 255, 255, 1)",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "search_bar_text_color",
+      "label": "t:settings.search_bar_text_color",
+      "default": "#121212",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "search_bar_border_color",
+      "label": "t:settings.search_bar_border_color",
+      "info": "t:settings.search_bar_border_color_info",
+      "default": "#D4D4D4",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "search_bar_focus_color",
+      "label": "t:settings.search_bar_focus_color",
+      "info": "t:settings.search_bar_focus_color_info",
+      "default": "#BC9407",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.customer_account"
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "t:settings.menu",
+      "default": "customer-account-main-menu"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.custom_header"
+    }
+  ]
+}
+{% endschema %}

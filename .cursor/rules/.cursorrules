@@ -1,0 +1,52 @@
+---
+description: Shopify Horizon-based development rules
+---
+
+## 🔧 Shopify Liquid Rules
+- Always use Liquid for rendering data
+- Avoid client-side rendering for core content
+- Use Shopify filters (money, image_url, etc.)
+- Do not move business logic to JS unnecessarily
+
+## 🧱 Theme Architecture
+- Follow Online Store 2.0 structure strictly
+- Use sections for layout
+- Use blocks for reusable UI
+- Use snippets for small reusable components
+
+## 🎯 Component Design
+- Components must be modular and reusable
+- Avoid hardcoded layouts
+- Ensure components work inside Shopify editor
+
+## ♿ Accessibility (Horizon inspired)
+- Use semantic HTML (header, nav, button, etc.)
+- Add aria-labels for interactive elements
+- Ensure keyboard navigation works
+- Avoid div-only clickable elements
+
+## ⚡ Performance (Horizon principle)
+- Prefer server-rendered content
+- Minimize JavaScript usage
+- Lazy load images
+- Avoid unnecessary DOM manipulation
+
+## 🎨 Styling
+- Use Tailwind CSS
+- Avoid inline styles
+- Maintain consistent spacing system
+
+## 🔁 Editor Compatibility
+- JS must reinitialize on section reload
+- Avoid global DOM assumptions
+- Use Shopify section events
+
+## 🚫 Avoid
+- Editing core Horizon logic directly
+- Hardcoding content
+- Breaking section/block system
+
+## 🤖 Cursor Behavior
+- Always follow Shopify schema format
+- Generate minimal and clean code
+- Ask before generating large components
