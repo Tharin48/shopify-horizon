@@ -35,7 +35,7 @@
       "settings": {
         "speed": 5,
         "section_width": "page-width",
-        "color_scheme": "scheme-1",
+        "color_scheme": "scheme-5",
         "divider_width": 1,
         "padding-block-start": 15,
         "padding-block-end": 15
@@ -77,6 +77,7 @@
           "blocks": {}
         }
       },
+      "disabled": true,
       "settings": {
         "logo_position": "center",
         "menu_position": "center",
@@ -112,10 +113,48 @@
         "enable_transparent_header_collection": false,
         "collection_color_scheme": "default"
       }
+    },
+    "custom_header_AHeHdt": {
+      "type": "custom-header",
+      "name": "t:names.custom_header",
+      "settings": {
+        "show_tea_club_button": true,
+        "tea_club_label": "Tea Club",
+        "tea_club_link": "",
+        "show_wishlist": false,
+        "wishlist_label": "Wishlist",
+        "wishlist_link": "",
+        "show_localization": true,
+        "localization_show_language": false,
+        "localization_show_flag": true,
+        "enable_sticky_header": true,
+        "enable_homepage_transparent_header": true,
+        "scroll_threshold": 75,
+        "default_header_height": 72,
+        "minimized_header_height": 56,
+        "transparent_text_color": "#FFFFFF",
+        "transparent_header_background": "#00000000",
+        "solid_text_color": "#121212",
+        "solid_background": "#FFFFFF",
+        "minimized_background": "#FFFFFF",
+        "minimized_text_color": "#121212",
+        "menu": "new-menu",
+        "minimized_nav_alignment": "left",
+        "show_search": true,
+        "show_desktop_search_bar": true,
+        "desktop_search_style": "custom",
+        "desktop_search_placeholder": "Search a tea...",
+        "search_bar_background": "rgba(255, 255, 255, 0.5)",
+        "search_bar_text_color": "#121212",
+        "search_bar_border_color": "#D4D4D4",
+        "search_bar_focus_color": "#BC9407",
+        "customer_account_menu": "customer-account-main-menu"
+      }
     }
   },
   "order": [
     "header_announcements_9jGBFp",
-    "header_section"
+    "header_section",
+    "custom_header_AHeHdt"
   ]
 }
