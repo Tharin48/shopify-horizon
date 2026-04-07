@@ -48,5 +48,6 @@ description: Shopify Horizon-based development rules
 
 ## 🤖 Cursor Behavior
 - Always follow Shopify schema format
+- Keep `range` setting `default` values within `min/max` and aligned to `step` to avoid upload failures
 - Generate minimal and clean code
 - Ask before generating large components

@@ -1,0 +1,636 @@
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="
+    section
+    {% if section.settings.section_width == 'full-width' %}
+      section--full-width
+    {% else %}
+      page-width-content
+    {% endif %}
+    color-{{ section.settings.color_scheme }}
+    category-explore
+    {% if section.settings.section_height_desktop > 0 %}category-explore--has-height{% endif %}
+  "
+  style="
+    --category-explore-gap: {{ section.settings.grid_gap }}px;
+    --category-explore-radius: {{ section.settings.card_corner_radius }}px;
+    --category-explore-radius-mobile: {{ section.settings.card_corner_radius_mobile | default: 4 }}px;
+    --ce-gap-x-mobile: {{ section.settings.grid_gap_horizontal_mobile | default: 12 }}px;
+    --ce-gap-y-mobile: {{ section.settings.grid_gap_vertical_mobile | default: 12 }}px;
+    --ce-mobile-row-tall-min: {{ section.settings.mobile_grid_row_tall_min | default: 196 }}px;
+    --ce-mobile-row-square-min: {{ section.settings.mobile_grid_row_square_min | default: 168 }}px;
+    --ce-mobile-row-wide-min: {{ section.settings.mobile_grid_row_wide_min | default: 96 }}px;
+    --ce-p-bs-m: {{ section.settings.padding_block_start_mobile }}px;
+    --ce-p-be-m: {{ section.settings.padding_block_end_mobile }}px;
+    --ce-p-is-m: {{ section.settings.padding_inline_start_mobile }}px;
+    --ce-p-ie-m: {{ section.settings.padding_inline_end_mobile }}px;
+    --ce-p-bs-d: {{ section.settings.padding_block_start_desktop }}px;
+    --ce-p-be-d: {{ section.settings.padding_block_end_desktop }}px;
+    --ce-p-is-d: {{ section.settings.padding_inline_start_desktop }}px;
+    --ce-p-ie-d: {{ section.settings.padding_inline_end_desktop }}px;
+    {% if section.settings.section_min_height_mobile > 0 %}--ce-section-min-h-mobile: {{ section.settings.section_min_height_mobile }}px;{% endif %}
+    {% if section.settings.section_height_desktop > 0 %}--ce-section-h-desktop: {{ section.settings.section_height_desktop }}px;{% endif %}
+  "
+>
+  <div
+    class="
+      spacing-style
+      layout-panel-flex
+      layout-panel-flex--column
+      section-content-wrapper
+      mobile-column
+      category-explore__inner
+    "
+    style="{% render 'layout-panel-style', settings: section.settings %}"
+  >
+    <div class="category-explore__grid">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .category-explore__inner {
+    width: 100%;
+    --padding-block-start: var(--ce-p-bs-m);
+    --padding-block-end: var(--ce-p-be-m);
+    --padding-inline-start: var(--ce-p-is-m);
+    --padding-inline-end: var(--ce-p-ie-m);
+  }
+
+  @media screen and (min-width: 750px) {
+    .category-explore__inner {
+      --padding-block-start: var(--ce-p-bs-d);
+      --padding-block-end: var(--ce-p-be-d);
+      --padding-inline-start: var(--ce-p-is-d);
+      --padding-inline-end: var(--ce-p-ie-d);
+    }
+  }
+
+  .category-explore__grid {
+    display: grid;
+    gap: var(--category-explore-gap, 1rem);
+    width: 100%;
+    min-height: var(--ce-section-min-h-mobile, 0px);
+  }
+
+  .category-explore__grid > .category-explore-card {
+    border-radius: var(--category-explore-radius, 12px);
+  }
+
+  /*
+   * Mobile + tablet (matches Horizon large-screen breakpoint at 990px):
+   * Row 1: non-card blocks (headings) — auto, collapses when empty.
+   * Row 2: two tall portrait cells (featured | wide).
+   * Row 3: two shorter “square” cells (compact_1 | compact_2).
+   * Row 4: one full-width landscape strip (compact_3).
+   */
+  @media screen and (max-width: 989px) {
+    .category-explore__grid {
+      gap: unset;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--ce-gap-x-mobile, var(--category-explore-gap, 1rem));
+      row-gap: var(--ce-gap-y-mobile, var(--category-explore-gap, 1rem));
+      /* Fixed row heights from sliders. */
+      grid-template-rows:
+        auto
+        var(--ce-mobile-row-tall-min, 196px)
+        var(--ce-mobile-row-square-min, 168px)
+        var(--ce-mobile-row-wide-min, 96px);
+      align-items: stretch;
+    }
+
+    .category-explore__grid > .category-explore-card {
+      border-radius: var(--category-explore-radius-mobile, 4px);
+    }
+
+    .category-explore__grid > :not(.category-explore-card) {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      /* Override section layout-panel flex-start for this grid cell */
+      --horizontal-alignment: center;
+    }
+
+    /*
+     * Heading / text blocks: must set vars on .text-block — it uses them for flex + inner width.
+     * Fit-content width + inherited flex-start from section was keeping headings left.
+     */
+    .category-explore__grid > :not(.category-explore-card) .text-block,
+    .category-explore__grid > :not(.category-explore-card) rte-formatter.text-block {
+      --horizontal-alignment: center;
+      --text-align: center;
+      --width: 100%;
+      max-width: 100%;
+      align-self: center;
+    }
+
+    /*
+     * Heading block sets --text-align inline (left); override on the text node, not only the variable.
+     */
+    .category-explore__grid > :not(.category-explore-card) .text-block > *,
+    .category-explore__grid > :not(.category-explore-card) rte-formatter.text-block > * {
+      max-inline-size: 100%;
+      text-align: center;
+    }
+
+    .category-explore-card--featured {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .category-explore-card--wide {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .category-explore-card--compact_1 {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .category-explore-card--compact_2 {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    .category-explore-card--compact_3 {
+      grid-column: 1 / -1;
+      grid-row: 4;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .category-explore__grid {
+      column-gap: unset;
+      row-gap: unset;
+      gap: var(--category-explore-gap, 1rem);
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      /*
+       * Row 1: auto — reserved for non-card blocks (headings, text, etc.).
+       *         Collapses to 0px when empty.
+       * Rows 2-3: the card rows.
+       */
+      grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.88fr);
+      align-items: stretch;
+    }
+
+    /*
+     * Non-card blocks (headings, text…) span all columns.
+     * They have no explicit grid-row so the auto-placer puts them in
+     * row 1 — which cards never occupy.
+     */
+    .category-explore__grid > :not(.category-explore-card) {
+      grid-column: 1 / -1;
+      display: block;
+      align-items: initial;
+      justify-content: initial;
+      width: auto;
+      --horizontal-alignment: flex-start;
+    }
+
+    .category-explore__grid > :not(.category-explore-card) .text-block,
+    .category-explore__grid > :not(.category-explore-card) rte-formatter.text-block {
+      --horizontal-alignment: flex-start;
+      --text-align: left;
+      max-width: revert;
+      align-self: auto;
+    }
+
+    /* Card rows shifted by 1 to make room for the header row above */
+    .category-explore-card--featured {
+      grid-column: 1;
+      grid-row: 2 / 4;
+    }
+
+    .category-explore-card--wide {
+      grid-column: 2 / -1;
+      grid-row: 2;
+    }
+
+    .category-explore-card--compact_1 {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    .category-explore-card--compact_2 {
+      grid-column: 3;
+      grid-row: 3;
+    }
+
+    .category-explore-card--compact_3 {
+      grid-column: 4;
+      grid-row: 3;
+    }
+
+    /*
+     * When a fixed desktop height is set: give the grid exactly that height so the
+     * fr-unit card rows distribute the space, and clear card min-heights so cards
+     * fill their rows rather than being driven by content.
+     */
+    .category-explore--has-height .category-explore__grid {
+      height: var(--ce-section-h-desktop);
+    }
+
+    .category-explore--has-height .category-explore-card__media {
+      min-height: 0 !important;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.category_explore",
+  "class": "section-wrapper",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    },
+    {
+      "type": "_category-explore-card"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:settings.category_explore_blocks_info"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "t:settings.category_explore_grid_gap",
+      "info": "t:settings.category_explore_grid_gap_info",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_corner_radius",
+      "label": "t:settings.category_explore_card_radius",
+      "info": "t:settings.category_explore_card_radius_info",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "t:content.category_explore_grid_mobile"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap_horizontal_mobile",
+      "label": "t:settings.category_explore_grid_gap_horizontal_mobile",
+      "info": "t:settings.category_explore_grid_gap_mobile_info",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "grid_gap_vertical_mobile",
+      "label": "t:settings.category_explore_grid_gap_vertical_mobile",
+      "info": "t:settings.category_explore_grid_gap_mobile_info",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "card_corner_radius_mobile",
+      "label": "t:settings.category_explore_card_radius_mobile",
+      "info": "t:settings.category_explore_card_radius_mobile_info",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "mobile_grid_row_tall_min",
+      "label": "t:settings.category_explore_mobile_row_tall_min",
+      "info": "t:settings.category_explore_mobile_row_min_info",
+      "min": 80,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 196
+    },
+    {
+      "type": "range",
+      "id": "mobile_grid_row_square_min",
+      "label": "t:settings.category_explore_mobile_row_square_min",
+      "info": "t:settings.category_explore_mobile_row_min_info",
+      "min": 80,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 168
+    },
+    {
+      "type": "range",
+      "id": "mobile_grid_row_wide_min",
+      "label": "t:settings.category_explore_mobile_row_wide_min",
+      "info": "t:settings.category_explore_mobile_row_wide_info",
+      "min": 64,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "header",
+      "content": "t:content.category_explore_section_height"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:settings.category_explore_section_height_info"
+    },
+    {
+      "type": "range",
+      "id": "section_min_height_mobile",
+      "label": "t:settings.category_explore_section_min_height_mobile",
+      "info": "t:settings.category_explore_section_height_mobile_info",
+      "min": 0,
+      "max": 800,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "section_height_desktop",
+      "label": "t:settings.category_explore_section_height_desktop",
+      "info": "t:settings.category_explore_section_height_desktop_info",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "content_direction",
+      "label": "t:settings.direction",
+      "options": [
+        {
+          "value": "column",
+          "label": "t:options.vertical"
+        }
+      ],
+      "default": "column"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_alignment_flex_direction_column",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.right"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment_flex_direction_column",
+      "label": "t:settings.position",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.top"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.bottom"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.category_explore_padding_mobile"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start_mobile",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end_mobile",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_start_mobile",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_end_mobile",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:content.category_explore_padding_desktop"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start_desktop",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end_desktop",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_start_desktop",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_end_desktop",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.category_explore",
+      "category": "t:categories.collections",
+      "settings": {
+        "section_width": "page-width",
+        "grid_gap": 16,
+        "card_corner_radius": 16,
+        "grid_gap_horizontal_mobile": 12,
+        "grid_gap_vertical_mobile": 12,
+        "card_corner_radius_mobile": 4,
+        "mobile_grid_row_tall_min": 196,
+        "mobile_grid_row_square_min": 168,
+        "mobile_grid_row_wide_min": 96,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "gap": 24,
+        "padding_block_start_mobile": 40,
+        "padding_block_end_mobile": 40,
+        "padding_inline_start_mobile": 0,
+        "padding_inline_end_mobile": 0,
+        "padding_block_start_desktop": 56,
+        "padding_block_end_desktop": 56,
+        "padding_inline_start_desktop": 0,
+        "padding_inline_end_desktop": 0
+      },
+      "blocks": [
+        {
+          "type": "_category-explore-card",
+          "settings": {
+            "grid_position": "featured",
+            "title": "Wellness"
+          }
+        },
+        {
+          "type": "_category-explore-card",
+          "settings": {
+            "grid_position": "wide",
+            "title": "Ice Tea"
+          }
+        },
+        {
+          "type": "_category-explore-card",
+          "settings": {
+            "grid_position": "compact_1",
+            "title": "Single garden tea"
+          }
+        },
+        {
+          "type": "_category-explore-card",
+          "settings": {
+            "grid_position": "compact_2",
+            "title": "Gift of tea"
+          }
+        },
+        {
+          "type": "_category-explore-card",
+          "settings": {
+            "grid_position": "compact_3",
+            "title": "Luxury tea"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
