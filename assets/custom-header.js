@@ -14,6 +14,9 @@
    */
   var HIDE_REQUIRE_PX = 40;
   var SHOW_REQUIRE_PX = 20;
+  var LOCK_RELEASE_GRACE_MS = 220;
+  var lastLockedScrollTop = 0;
+  var lastLockSeenAt = 0;
   /**
    * Once in minimized/hidden state, do NOT revert to full just because scrollTop dipped
    * slightly below scroll_threshold. Only revert when scrollTop is this many px below the
@@ -30,11 +33,41 @@
   var MOBILE_MQ = '(max-width: 749px)';
 
   function getScrollTop() {
-    var se = document.scrollingElement;
-    if (se) {
-      return se.scrollTop;
+    /*
+     * When dialog drawers open, DialogComponent locks the page by setting:
+     * body { position: fixed; top: -<scrollY>px; }
+     * In that state, scrollingElement.scrollTop often reports 0 even though
+     * the user is visually mid-page. Read body.style.top first to preserve
+     * the real scroll position for header state logic.
+     */
+    var body = document.body;
+    if (body && body.style && body.style.position === 'fixed' && body.style.top) {
+      var lockedTop = parseFloat(body.style.top);
+      if (!isNaN(lockedTop)) {
+        lastLockedScrollTop = Math.abs(lockedTop);
+        lastLockSeenAt = Date.now();
+        return lastLockedScrollTop;
+      }
     }
-    return window.scrollY || document.documentElement.scrollTop || 0;
+
+    var se = document.scrollingElement;
+    var liveScrollTop = se ? se.scrollTop : (window.scrollY || document.documentElement.scrollTop || 0);
+
+    /*
+     * Immediately after unlocking a fixed-body dialog, some browsers can report
+     * transient scrollTop=0 for a frame before restoring the real position.
+     * Reuse the last locked value for a brief grace window to avoid false
+     * "at top" detection (which would switch header to transparent).
+     */
+    if (
+      liveScrollTop <= SCROLL_EPS &&
+      lastLockedScrollTop > SCROLL_EPS &&
+      Date.now() - lastLockSeenAt < LOCK_RELEASE_GRACE_MS
+    ) {
+      return lastLockedScrollTop;
+    }
+
+    return liveScrollTop;
   }
 
   function topState(root) {
@@ -321,6 +354,16 @@
       var delta = scrollTop - prevScrollTop;
       prevScrollTop = scrollTop;
 
+      /*
+       * While a modal/drawer with [scroll-lock] is open, freeze header state.
+       * DialogComponent locks body positioning, which can create transient
+       * scroll readings during open/close animations.
+       */
+      if (document.documentElement.hasAttribute('scroll-lock')) {
+        scrollAccum = 0;
+        return;
+      }
+
       var full = topState(root);
       var curState = root.dataset.headerState || full;
 
@@ -333,11 +376,27 @@
         return;
       }
 
+      /*
+       * Invariant: transparent is allowed only at true top.
+       * If we're below top for any reason (reload restore, drawer close, etc.),
+       * immediately demote transparent to minimized before normal threshold logic.
+       */
+      if (full === 'transparent' && curState === 'transparent') {
+        applyHeaderState(root, 'minimized');
+        curState = 'minimized';
+      }
+
       /* ── Case 2: Below the scroll_threshold zone ──────────────────────────────────── */
       if (!isPastThreshold(root, scrollTop)) {
         if (curState === full) {
-          /* Already in full — just keep accumulator reset, nothing to do */
+          /*
+           * On homepage "full" can be transparent. Transparent must exist only
+           * at true top (Case 1). If we're below top, force minimized immediately.
+           */
           scrollAccum = 0;
+          if (full === 'transparent') {
+            applyHeaderState(root, 'minimized');
+          }
           return;
         }
 
@@ -441,6 +500,44 @@
     };
     document.addEventListener('keydown', onGlobalKeydown);
 
+    var onDialogOpen = function () {
+      prevScrollTop = getScrollTop();
+      scrollAccum = 0;
+    };
+    var onDialogClose = function () {
+      prevScrollTop = getScrollTop();
+      scrollAccum = 0;
+      scheduleScrollUpdate();
+      requestAnimationFrame(scheduleScrollUpdate);
+      window.setTimeout(scheduleScrollUpdate, 80);
+    };
+    document.addEventListener('dialog:open', onDialogOpen);
+    document.addEventListener('dialog:close', onDialogClose);
+
+    /*
+     * Browser scroll restoration can happen after initial script execution
+     * (especially on reload / bfcache). Re-run the state calculation once
+     * those lifecycle points fire so transparent state is only at true top.
+     */
+    var onWindowLoad = function () {
+      scheduleScrollUpdate();
+    };
+    var onPageShow = function () {
+      scheduleScrollUpdate();
+    };
+    window.addEventListener('load', onWindowLoad, { once: true });
+    window.addEventListener('pageshow', onPageShow);
+    var delayedRestoreCheck = window.setTimeout(function () {
+      scheduleScrollUpdate();
+    }, 90);
+
+    /*
+     * Guard against deferred script timing + restored scroll position:
+     * never start transparent when page is already scrolled.
+     */
+    if (topState(root) === 'transparent' && getScrollTop() > SCROLL_EPS) {
+      applyHeaderState(root, 'minimized');
+    }
     onScrollFrame();
 
     root.dataset.customHeaderJs = 'initialized';
@@ -452,8 +549,12 @@
       }
       window.removeEventListener('scroll', scheduleScrollUpdate);
       window.removeEventListener('resize', scheduleScrollUpdate);
+      window.removeEventListener('pageshow', onPageShow);
       mediaMobile.removeEventListener('change', onMediaChange);
       document.removeEventListener('keydown', onGlobalKeydown);
+      document.removeEventListener('dialog:open', onDialogOpen);
+      document.removeEventListener('dialog:close', onDialogClose);
+      window.clearTimeout(delayedRestoreCheck);
       if (toggle) {
         toggle.removeEventListener('click', onToggleClick);
       }

@@ -929,15 +929,152 @@
         "padding_inline_start_mobile": 12,
         "padding_inline_end_mobile": 12,
         "padding_block_start_desktop": 48,
-        "padding_block_end_desktop": 96,
+        "padding_block_end_desktop": 48,
         "padding_inline_start_desktop": 80,
         "padding_inline_end_desktop": 80
+      }
+    },
+    "teamakers_pick_wTax67": {
+      "type": "teamakers-pick",
+      "blocks": {
+        "teamakers_pick_tab_pdaBDj": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "Best Sellers",
+            "collection": "best-sellers",
+            "badge_text": "",
+            "default_active": true
+          }
+        },
+        "teamakers_pick_tab_N3aURA": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "New Arrivals",
+            "collection": "new-arrivals",
+            "badge_text": "",
+            "default_active": false
+          }
+        },
+        "teamakers_pick_tab_R6MbrU": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "Favourites",
+            "collection": "founders-favorites",
+            "badge_text": "",
+            "default_active": false
+          }
+        },
+        "teamakers_pick_tab_9X3F7J": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "Teawares",
+            "collection": "teaware",
+            "badge_text": "",
+            "default_active": false
+          }
+        }
+      },
+      "block_order": [
+        "teamakers_pick_tab_pdaBDj",
+        "teamakers_pick_tab_N3aURA",
+        "teamakers_pick_tab_R6MbrU",
+        "teamakers_pick_tab_9X3F7J"
+      ],
+      "name": "Teamaker's pick",
+      "settings": {
+        "heading": "Teamaker's Pick",
+        "background_color": "#faf8f5",
+        "heading_color": "#1a1a1a",
+        "active_tab_color": "#b08a2f",
+        "inactive_tab_color": "#3f3f3f",
+        "card_text_color": "#222829",
+        "product_label_color": "#b08a2f",
+        "product_title_color": "#222829",
+        "product_price_color": "#222829",
+        "rating_star_color": "#ffc700",
+        "review_text_color": "#6b6b6b",
+        "sale_badge_color": "#cd9e2d",
+        "products_limit": 5,
+        "products_per_row_desktop": 5,
+        "products_per_row_mobile": "2",
+        "mobile_tab_divider_color": "#c4c4c4",
+        "image_border_radius": 10,
+        "product_image_border_width": 1,
+        "product_image_border_color": "#e5e5e5",
+        "image_ratio": "4 / 5",
+        "show_ratings": true,
+        "show_vendor": true,
+        "show_quick_add": true,
+        "show_sale_badge": true,
+        "show_decorative_artwork": true,
+        "decorative_artwork": "shopify://shop_images/Group_1.png",
+        "decorative_artwork_position": "center-right",
+        "decorative_artwork_opacity": 100,
+        "decorative_artwork_max_width": 140,
+        "section_width": "full-width",
+        "padding-block-start": 48,
+        "padding-block-end": 16,
+        "padding_x_desktop": 80,
+        "padding_x_mobile": 20
+      }
+    },
+    "section_xnXwAH": {
+      "type": "section",
+      "blocks": {
+        "button_7EcU3K": {
+          "type": "button",
+          "name": "t:names.button",
+          "settings": {
+            "label": "Shop now",
+            "link": "shopify://collections/all",
+            "open_in_new_tab": false,
+            "style_class": "button",
+            "width": "fit-content",
+            "custom_width": 100,
+            "width_mobile": "fit-content",
+            "custom_width_mobile": 100
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "button_7EcU3K"
+      ],
+      "name": "t:names.custom_section",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "center",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 0,
+        "padding-block-end": 0
       }
     }
   },
   "order": [
     "custom_hero_DNMLjC",
     "leaf_story_3R7cwY",
-    "category_explore_pX9DGc"
+    "category_explore_pX9DGc",
+    "teamakers_pick_wTax67",
+    "section_xnXwAH"
   ]
 }

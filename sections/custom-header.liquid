@@ -25,9 +25,6 @@
   endif
 
   assign initial_state = 'solid'
-  if may_transparent
-    assign initial_state = 'transparent'
-  endif
 
   assign load_search_assets = false
   if section.settings.show_search
