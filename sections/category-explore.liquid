@@ -58,7 +58,8 @@
     --padding-inline-end: var(--ce-p-ie-m);
   }
 
-  @media screen and (min-width: 750px) {
+  /* Desktop padding from 990px — same breakpoint as grid (mobile + tablet share compact layout ≤989px). */
+  @media screen and (min-width: 990px) {
     .category-explore__inner {
       --padding-block-start: var(--ce-p-bs-d);
       --padding-block-end: var(--ce-p-be-d);

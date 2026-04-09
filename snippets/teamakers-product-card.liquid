@@ -1,0 +1,115 @@
+{% doc %}
+  Reusable Teamaker-style product card.
+
+  @param {object} [product] - Shopify product object (optional for placeholder)
+  @param {string} [eyebrow] - Optional eyebrow text. Falls back to vendor when enabled.
+  @param {boolean} [show_vendor]
+  @param {boolean} [show_review]
+  @param {boolean} [show_quick_add]
+  @param {string} [image_sizes]
+  @param {boolean} [placeholder]
+{% enddoc %}
+
+{% liquid
+  assign is_placeholder = placeholder | default: false
+  assign card_product = product
+  assign first_variant = blank
+
+  if is_placeholder == false and card_product != blank
+    assign first_variant = card_product.selected_or_first_available_variant
+  endif
+
+  assign eyebrow_text = eyebrow
+  if eyebrow_text == blank and show_vendor and card_product != blank and card_product.vendor != blank
+    assign eyebrow_text = card_product.vendor
+  endif
+%}
+
+<article class="teamakers-pick__card">
+  {% if is_placeholder == false and card_product != blank %}
+    <a class="teamakers-pick__card-link" href="{{ card_product.url }}">
+      <div class="teamakers-pick__image-wrap">
+        {% if card_product.available == false %}
+          <span class="teamakers-pick__pill teamakers-pick__pill--oos">Out of stock</span>
+        {% elsif card_product.compare_at_price > card_product.price %}
+          <span class="teamakers-pick__pill teamakers-pick__pill--sale">Sale</span>
+        {% endif %}
+
+        {% if card_product.featured_media != blank %}
+          {{
+            card_product.featured_media
+            | image_url: width: 900
+            | image_tag:
+              loading: 'lazy',
+              widths: '320,480,640,800,900',
+              sizes: image_sizes,
+              class: 'teamakers-pick__image',
+              alt: card_product.title
+          }}
+        {% else %}
+          {{ 'product-apparel-1' | placeholder_svg_tag: 'teamakers-pick__image teamakers-pick__image-placeholder' }}
+        {% endif %}
+
+        {% if show_quick_add and first_variant != blank %}
+          <form method="post" action="{{ routes.cart_add_url }}" class="teamakers-pick__quick-add-form">
+            <input type="hidden" name="id" value="{{ first_variant.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="teamakers-pick__quick-add" aria-label="Add {{ card_product.title | escape }} to cart">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6.5 7.5h11l-1.2 10.2a1 1 0 0 1-1 .8H8.7a1 1 0 0 1-1-.8L6.5 7.5Z" stroke="currentColor" stroke-width="1.5" />
+                <path d="M9 7.5V6a3 3 0 1 1 6 0v1.5" stroke="currentColor" stroke-width="1.5" />
+              </svg>
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </a>
+
+    <div class="teamakers-pick__meta">
+      {% if eyebrow_text != blank %}
+        <p class="teamakers-pick__vendor">{{ eyebrow_text | escape }}</p>
+      {% endif %}
+
+      <h3 class="teamakers-pick__name">
+        <a href="{{ card_product.url }}">{{ card_product.title }}</a>
+      </h3>
+
+      {% if show_review %}
+        {% assign rating_value = card_product.metafields.reviews.rating.value %}
+        {% assign rating_count = card_product.metafields.reviews.rating_count %}
+        {% if rating_value != blank %}
+          <p class="teamakers-pick__rating">
+            <span class="teamakers-pick__rating-stars" aria-hidden="true">★★★★★</span>
+            <span class="teamakers-pick__rating-value">{{ rating_value }}</span>
+            {% if rating_count != blank %}
+              <span class="teamakers-pick__rating-count">({{ rating_count }})</span>
+            {% endif %}
+          </p>
+        {% endif %}
+      {% endif %}
+
+      <p class="teamakers-pick__price">
+        {{ card_product.price | money }}
+        {% if card_product.compare_at_price > card_product.price %}
+          <s class="teamakers-pick__compare">{{ card_product.compare_at_price | money }}</s>
+        {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <div class="teamakers-pick__image-wrap">
+      {{ 'product-apparel-1' | placeholder_svg_tag: 'teamakers-pick__image teamakers-pick__image-placeholder' }}
+    </div>
+    <div class="teamakers-pick__meta">
+      <p class="teamakers-pick__vendor">Tea label</p>
+      <p class="teamakers-pick__name">Product title</p>
+      {% if show_review %}
+        <p class="teamakers-pick__rating">
+          <span class="teamakers-pick__rating-stars" aria-hidden="true">★★★★★</span>
+          <span class="teamakers-pick__rating-value">4.5</span>
+          <span class="teamakers-pick__rating-count">(0)</span>
+        </p>
+      {% endif %}
+      <p class="teamakers-pick__price">{{ 5000 | money }}</p>
+    </div>
+  {% endif %}
+</article>
