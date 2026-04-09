@@ -1,0 +1,537 @@
+{% liquid
+  assign s = block.settings
+
+  assign w_desktop = '100%'
+  case s.width
+    when 'fit-content'
+      assign w_desktop = 'fit-content'
+    when 'fill'
+      assign w_desktop = '100%'
+    when 'custom'
+      assign w_desktop = s.custom_width_px | append: 'px'
+  endcase
+
+  assign w_mobile = w_desktop
+  case s.width_mobile
+    when 'fit-content'
+      assign w_mobile = 'fit-content'
+    when 'fill'
+      assign w_mobile = '100%'
+    when 'custom'
+      assign w_mobile = s.custom_width_px_mobile | append: 'px'
+  endcase
+
+  assign icon_bg_mobile = s.icon_container_size_mobile | default: s.icon_container_size
+  assign icon_inner_mobile = s.icon_graphic_size_mobile | default: s.icon_graphic_size
+
+%}
+
+<div
+  class="impact-counter spacing-style"
+  {{ block.shopify_attributes }}
+  style="
+    {% render 'spacing-style', settings: s %}
+    --impact-counter-card-bg: {{ s.card_background }};
+    --impact-counter-card-radius: {{ s.card_corner_radius }}px;
+    --impact-counter-icon-bg: {{ s.icon_background }};
+    --impact-counter-icon-radius: {{ s.icon_background_radius }}%;
+    --impact-counter-icon-color: {{ s.icon_graphic_color }};
+    --impact-counter-icon-size: {{ s.icon_container_size }}px;
+    --impact-counter-icon-inner: {{ s.icon_graphic_size }}px;
+    --impact-counter-icon-size-mobile: {{ icon_bg_mobile }}px;
+    --impact-counter-icon-inner-mobile: {{ icon_inner_mobile }}px;
+    --impact-counter-gap: {{ s.content_gap }}px;
+    --impact-counter-sub-color: {{ s.sub_text_color }};
+    --impact-counter-count-color: {{ s.count_text_color }};
+    --impact-counter-shadow: {{ s.card_shadow_opacity | divided_by: 100.0 }};
+    --impact-counter-w-desktop: {{ w_desktop }};
+    --impact-counter-w-mobile: {{ w_mobile }};
+    --impact-counter-sub-size-desktop: {{ s.sub_text_size_desktop }}px;
+    --impact-counter-sub-size-mobile: {{ s.sub_text_size_mobile }}px;
+    --impact-counter-count-size-desktop: {{ s.count_text_size_desktop }}px;
+    --impact-counter-count-size-mobile: {{ s.count_text_size_mobile }}px;
+  "
+  role="group"
+  aria-label="{{ s.sub_text | escape }} {{ s.count_text | escape }}"
+>
+  <div class="impact-counter__inner">
+    {% if s.show_icon %}
+      {% liquid
+        assign has_icon_graphic = false
+        if s.icon_image != blank
+          assign has_icon_graphic = true
+        elsif s.icon != 'none' and s.icon != blank
+          assign has_icon_graphic = true
+        endif
+      %}
+      {% if has_icon_graphic %}
+        <div class="impact-counter__icon-wrap">
+          {% render 'icon-or-image',
+            icon: s.icon,
+            image_upload: s.icon_image,
+            width: s.icon_graphic_size,
+            class_name: 'impact-counter__icon-graphic',
+            css_controlled_size: true
+          %}
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <div class="impact-counter__copy">
+      {% if s.sub_text != blank %}
+        <p class="impact-counter__subtext">{{ s.sub_text | escape }}</p>
+      {% endif %}
+      {% if s.count_text != blank %}
+        <p class="impact-counter__count">{{ s.count_text | escape }}</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .impact-counter {
+    box-sizing: border-box;
+    width: var(--impact-counter-w-desktop, 100%);
+    max-width: 100%;
+    background-color: var(--impact-counter-card-bg, #ffffff);
+    border-radius: var(--impact-counter-card-radius, 1.75rem);
+    box-shadow: 0 0.25rem 1.5rem rgb(0 0 0 / var(--impact-counter-shadow, 0.08));
+  }
+
+  .impact-counter__inner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--impact-counter-gap, 1.25rem);
+    padding: 0;
+  }
+
+  .impact-counter__icon-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--impact-counter-icon-size, 4.5rem);
+    height: var(--impact-counter-icon-size, 4.5rem);
+    background-color: var(--impact-counter-icon-bg, #e8f4f0);
+    border-radius: var(--impact-counter-icon-radius, 50%);
+    color: var(--impact-counter-icon-color, #1a6b5c);
+  }
+
+  .impact-counter__icon-wrap .impact-counter__icon-graphic {
+    width: var(--impact-counter-icon-inner, 1.75rem);
+    height: var(--impact-counter-icon-inner, 1.75rem);
+    object-fit: contain;
+  }
+
+  .impact-counter__icon-wrap .impact-counter__icon-graphic.icon-default {
+    color: inherit;
+  }
+
+  .impact-counter__copy {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: start;
+  }
+
+  .impact-counter__subtext {
+    margin: 0;
+    font-size: var(--impact-counter-sub-size-desktop, 0.9375rem);
+    line-height: 1.35;
+    font-weight: 500;
+    color: var(--impact-counter-sub-color, rgb(var(--color-foreground-rgb) / 0.65));
+  }
+
+  .impact-counter__count {
+    margin: 0;
+    font-size: var(--impact-counter-count-size-desktop, 1.75rem);
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--impact-counter-count-color, rgb(var(--color-foreground-rgb)));
+  }
+
+  @media screen and (max-width: 749px) {
+    .impact-counter {
+      width: var(--impact-counter-w-mobile, var(--impact-counter-w-desktop, 100%));
+    }
+
+    .impact-counter__subtext {
+      font-size: var(--impact-counter-sub-size-mobile, var(--impact-counter-sub-size-desktop, 0.875rem));
+    }
+
+    .impact-counter__count {
+      font-size: var(--impact-counter-count-size-mobile, var(--impact-counter-count-size-desktop, 1.375rem));
+    }
+
+    .impact-counter__icon-wrap {
+      width: var(
+        --impact-counter-icon-size-mobile,
+        var(--impact-counter-icon-size, 4.5rem)
+      );
+      height: var(
+        --impact-counter-icon-size-mobile,
+        var(--impact-counter-icon-size, 4.5rem)
+      );
+    }
+
+    .impact-counter__icon-wrap .impact-counter__icon-graphic {
+      width: var(
+        --impact-counter-icon-inner-mobile,
+        var(--impact-counter-icon-inner, 1.75rem)
+      );
+      height: var(
+        --impact-counter-icon-inner-mobile,
+        var(--impact-counter-icon-inner, 1.75rem)
+      );
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Impact counter",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show icon",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "recycle", "label": "Recycle" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "star", "label": "Star" },
+        { "value": "check_box", "label": "Check" },
+        { "value": "price_tag", "label": "Tag" },
+        { "value": "truck", "label": "Truck" },
+        { "value": "box", "label": "Box" },
+        { "value": "fire", "label": "Fire" },
+        { "value": "plant", "label": "Plant" }
+      ],
+      "default": "recycle",
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_image",
+      "label": "Custom icon image",
+      "info": "Replaces the theme icon when an image is set.",
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "range",
+      "id": "icon_container_size",
+      "label": "Icon background size (desktop)",
+      "min": 48,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 72,
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "range",
+      "id": "icon_graphic_size",
+      "label": "Icon graphic size (desktop)",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 32,
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "range",
+      "id": "icon_container_size_mobile",
+      "label": "Icon background size (mobile)",
+      "min": 40,
+      "max": 112,
+      "step": 2,
+      "unit": "px",
+      "default": 56,
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "range",
+      "id": "icon_graphic_size_mobile",
+      "label": "Icon graphic size (mobile)",
+      "min": 14,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 26,
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "text",
+      "id": "sub_text",
+      "label": "Sub text",
+      "default": "Plastic eliminated"
+    },
+    {
+      "type": "text",
+      "id": "count_text",
+      "label": "Count text",
+      "default": "421,052 kg+"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "icon_background",
+      "label": "Icon area background",
+      "default": "#e6f2ef"
+    },
+    {
+      "type": "color",
+      "id": "icon_graphic_color",
+      "label": "Icon color",
+      "default": "#1a6b5c",
+      "info": "Applies to theme icons (SVG). Images keep their own colors.",
+      "visible_if": "{{ block.settings.show_icon }}"
+    },
+    {
+      "type": "color",
+      "id": "sub_text_color",
+      "label": "Sub text color",
+      "default": "#5c6d68"
+    },
+    {
+      "type": "color",
+      "id": "count_text_color",
+      "label": "Count text color",
+      "default": "#1a1f1c"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "sub_text_size_desktop",
+      "label": "Sub text size (desktop)",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "sub_text_size_mobile",
+      "label": "Sub text size (mobile)",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "count_text_size_desktop",
+      "label": "Count text size (desktop)",
+      "min": 16,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "count_text_size_mobile",
+      "label": "Count text size (mobile)",
+      "min": 14,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "header",
+      "content": "Shape"
+    },
+    {
+      "type": "range",
+      "id": "card_corner_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "icon_background_radius",
+      "label": "Icon area roundness",
+      "info": "50% = circle on a square icon area.",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "card_shadow_opacity",
+      "label": "Card shadow strength",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "%",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "label": "Space between icon and text",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Width"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "Width (desktop)",
+      "options": [
+        { "value": "fit-content", "label": "Fit content" },
+        { "value": "fill", "label": "Fill (100%)" },
+        { "value": "custom", "label": "Custom (px)" }
+      ],
+      "default": "fit-content"
+    },
+    {
+      "type": "range",
+      "id": "custom_width_px",
+      "label": "Custom width",
+      "min": 200,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "default": 420,
+      "visible_if": "{{ block.settings.width == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "width_mobile",
+      "label": "Width (mobile)",
+      "options": [
+        { "value": "fit-content", "label": "Fit content" },
+        { "value": "fill", "label": "Fill (100%)" },
+        { "value": "custom", "label": "Custom (px)" }
+      ],
+      "default": "fill"
+    },
+    {
+      "type": "range",
+      "id": "custom_width_px_mobile",
+      "label": "Custom width (mobile)",
+      "min": 200,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "default": 360,
+      "visible_if": "{{ block.settings.width_mobile == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "Impact counter",
+      "category": "Custom",
+      "settings": {
+        "icon": "recycle",
+        "icon_container_size": 72,
+        "icon_graphic_size": 32,
+        "icon_container_size_mobile": 56,
+        "icon_graphic_size_mobile": 26,
+        "sub_text": "Plastic eliminated",
+        "count_text": "421,052 kg+",
+        "sub_text_size_desktop": 15,
+        "sub_text_size_mobile": 14,
+        "count_text_size_desktop": 28,
+        "count_text_size_mobile": 22,
+        "card_background": "#ffffff",
+        "icon_background": "#e6f2ef",
+        "sub_text_color": "#5c6d68",
+        "count_text_color": "#1a1f1c",
+        "card_corner_radius": 28,
+        "icon_background_radius": 50,
+        "width": "fit-content"
+      }
+    }
+  ]
+}
+{% endschema %}

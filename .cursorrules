@@ -1,0 +1,191 @@
+# Shopify Horizon Development Rules
+
+## Core objective
+Build custom UI/UX on top of Horizon while keeping the theme update-safe, modular, editor-friendly, and easy to maintain.
+
+## Architecture rules
+- Treat Horizon as the upstream base theme, not as a blank custom theme.
+- Prefer additive customization over invasive modification.
+- Build UI as reusable:
+  - sections
+  - blocks
+  - theme blocks
+  - snippets
+- Do not hardcode page-specific layouts when the same pattern can be reused across templates.
+- Do not duplicate markup for similar UI patterns; extract shared snippets or theme blocks.
+- Keep business logic minimal in sections. Reusable rendering logic should live in snippets/helpers where possible.
+- Preserve compatibility with Shopify theme editor behavior and Horizon conventions.
+
+## Horizon-specific rules
+- Assume Horizon already provides core primitives for:
+  - header
+  - sticky behavior
+  - mega menu
+  - search
+  - predictive search
+  - filtering/sorting
+- Extend existing Horizon primitives before replacing them.
+- Reuse existing Horizon patterns for:
+  - product grid
+  - product cards
+  - search results
+  - predictive search
+  - section/block rendering
+- Before creating a new section/snippet/block, search the Horizon codebase for an existing equivalent and adapt it.
+- Do not rewrite Horizon core files unless there is no safe extension path.
+
+## Update-safe customization rules
+- Minimize long-lived diffs against upstream Horizon.
+- Prefer creating new custom sections/blocks/snippets over editing core Horizon files.
+- If a core Horizon file must be changed:
+  - keep the change minimal
+  - document why it was necessary
+  - avoid unrelated refactors
+  - preserve existing schema/settings behavior where possible
+- Never scatter one feature across many unrelated files unless required.
+- Keep custom code namespaced and easy to locate.
+- Favor schema-driven controls over hardcoded values.
+
+## Theme editor compatibility rules
+- All sections and blocks must work correctly inside the Shopify theme editor.
+- JavaScript must support section re-rendering in the editor.
+- Re-initialize interactive behavior on Shopify editor events such as section load/select when needed.
+- Do not rely only on initial page load for JS behavior.
+- Include `{{ block.shopify_attributes }}` on rendered blocks where applicable.
+- Avoid DOM patterns that break when Shopify swaps section HTML dynamically.
+- Do not add code that interferes with native Shopify editor/admin behavior. :contentReference[oaicite:2]{index=2} :contentReference[oaicite:3]{index=3}
+
+## Section and block design rules
+- Use theme blocks for repeatable UI atoms/molecules used across multiple sections.
+- Use section-local blocks only when the block is meaningful only inside one section.
+- Use static blocks when structure must not be removable/reorderable by merchants.
+- Use dynamic blocks when merchants should be able to reorder content.
+- Expose layout/content options through schema:
+  - spacing
+  - alignment
+  - colors when appropriate
+  - visibility toggles
+  - collection/product/content source selection
+- Merchant-editable content must come from settings, metafields, metaobjects, or dynamic sources when appropriate.
+- Avoid hardcoded content in Liquid unless it is truly structural/developer-only.
+
+## Header and footer rules
+- Header and footer must follow section-group architecture.
+- Do not hardcode header/footer structure directly into layout when it should be editor-managed.
+- For header customization:
+  - keep primary header group intact
+  - extend it with modular sections/blocks
+  - preserve existing accessibility and sticky behavior
+- Expose brand/header variations via schema instead of branching templates unnecessarily. :contentReference[oaicite:4]{index=4}
+
+## Search and filtering rules
+- Search UI must build on Shopify search primitives, not custom unsupported search logic.
+- Reuse product-grid/product-card rendering between collection pages and search result pages wherever possible.
+- Predictive search should use Shopify’s predictive search pattern, not a custom fake implementation.
+- Filtering must rely on Shopify storefront filtering and Search & Discovery-compatible data.
+- Do not implement tag-hack filtering if proper metafield/storefront filtering is available.
+- Filter UI may be custom visually, but must sit on top of Shopify’s real filtering objects/data.
+- Gracefully handle cases where filtering data is unavailable or limited.
+
+## Data modeling rules
+- Use:
+  - metafields for per-resource structured fields
+  - metaobjects for reusable structured content across many pages/resources
+  - dynamic sources for merchant-friendly binding in the editor
+- For rich editorial or reusable content, prefer metaobjects over hardcoded repeated section settings.
+- Use multiple templates per resource type when different layouts are genuinely needed.
+- Do not hardcode data that belongs in admin-managed content structures.
+
+## JavaScript rules
+- Use JavaScript only where enhancement is needed.
+- Follow progressive enhancement:
+  - core content and navigation should render server-side in Liquid
+  - JS should enhance, not gate core functionality
+- Keep JS modular and section-aware.
+- Avoid heavy global scripts.
+- Avoid unnecessary dependencies when native JS is sufficient.
+- Preserve performance and avoid layout-shift-heavy patterns.
+
+## CSS rules
+- Prefer existing Horizon styling patterns and tokens before inventing new ones.
+- Scope styles to the component/section namespace.
+- Do not write overly broad selectors that can leak across templates.
+- Preserve responsiveness across desktop, tablet, and mobile.
+- Match existing design system spacing and behavior where possible.
+- Do not change unrelated existing styles while implementing a feature.
+
+## Liquid rules
+- Write clear, explicit Liquid.
+- Use descriptive variable names.
+- Keep conditions readable and shallow where possible.
+- Avoid duplicated logic.
+- Prefer snippets for repeated rendering fragments.
+- Preserve Shopify schema validity.
+- Do not break editor configurability by hardcoding values that should remain configurable.
+- Use `content_for` / block rendering patterns consistent with Horizon when applicable. :contentReference[oaicite:5]{index=5}
+
+## Accessibility rules
+- Preserve semantic HTML.
+- Buttons must be buttons; links must be links.
+- Maintain keyboard accessibility for menus, drawers, modals, tabs, and carousels.
+- Preserve or improve ARIA labels, focus management, and visible states.
+- Do not introduce interactions that work only on hover.
+- Mobile interactions must be tap-friendly.
+
+## Performance rules
+- Default to lightweight implementations.
+- Avoid unnecessary JS for static presentation.
+- Reuse existing Horizon snippets/components before adding new assets.
+- Lazy-load non-critical media/features where appropriate.
+- Do not introduce oversized libraries for small UI behavior.
+- Optimize for progressive rendering and maintainable storefront performance. Horizon emphasizes progressive enhancement and performance-first delivery. :contentReference[oaicite:6]{index=6} :contentReference[oaicite:7]{index=7}
+
+## App / extension boundary rules
+- Keep storefront presentation in the theme unless backend/app capability is truly required.
+- Use theme app extensions or app embeds only when the feature belongs outside direct theme code ownership.
+- Do not propose checkout theme customizations for Information/Shipping/Payment steps.
+- Checkout customization must be treated as Checkout Extensibility work, and some surfaces require Shopify Plus. :contentReference[oaicite:8]{index=8} :contentReference[oaicite:9]{index=9}
+
+## Git and workflow rules
+- Treat the project as:
+  - Horizon upstream
+  - local customization layer
+- Keep feature branches short-lived.
+- Avoid mixing refactors with feature work.
+- Keep commits scoped and descriptive.
+- When editing upstream-like files, make changes easy to diff and rebase later.
+- Document any unavoidable divergence from Horizon core behavior.
+
+## What Cursor should do before coding
+Before generating code, Cursor must:
+1. search the existing theme for similar patterns
+2. identify whether the feature should be:
+   - a new section
+   - a new block
+   - a theme block
+   - a snippet extension
+   - a minimal patch to an existing Horizon component
+3. prefer the most update-safe option
+4. preserve editor configurability
+5. avoid replacing core Horizon behavior unless necessary
+
+## What Cursor should not do
+- Do not rebuild Horizon from scratch.
+- Do not hardcode content that merchants need to edit.
+- Do not replace Shopify-native filtering/search with custom ad hoc logic.
+- Do not create giant all-in-one sections when smaller reusable parts are better.
+- Do not write JS that only works after full page load.
+- Do not introduce breaking changes to theme editor behavior.
+- Do not make unrelated style or structural changes while solving a focused task.
+- Do not modify checkout behavior through theme code.
+- Do not remove existing schema/settings unless explicitly requested.
+
+## Output expectations for every task
+For each implementation, provide:
+- files to create/update
+- why this approach is update-safe
+- what existing Horizon pattern is being reused
+- what settings/schema are added
+- how editor compatibility is preserved
+- mobile behavior notes
+- any known Shopify platform constraints

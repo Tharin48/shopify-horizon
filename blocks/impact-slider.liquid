@@ -1,0 +1,571 @@
+{% liquid
+  assign controls = ''
+  assign show_arrows = false
+  if block.settings.icons_style != 'none'
+    assign show_arrows = true
+  endif
+
+  assign autoplay = false
+  if block.settings.autoplay and block.blocks.size > 1
+    assign autoplay = true
+  endif
+
+  assign adapt_preview = blank
+  if block.blocks.size > 0
+    assign first_slide = block.blocks | first
+    assign adapt_preview = first_slide.settings.image
+  endif
+
+  assign impact_slider_slideshow_size = block.settings.slide_height
+  if block.settings.slide_height == 'auto' or block.settings.slide_height == 'custom'
+    assign impact_slider_slideshow_size = ''
+  endif
+
+  assign impact_slider_classes = 'impact-slider'
+  if block.settings.slide_height == 'auto'
+    assign impact_slider_classes = 'impact-slider impact-slider--height-auto'
+  endif
+
+  assign pagination_inset = block.settings.pagination_inset | default: 24
+  assign pagination_placement = block.settings.pagination_placement | default: 'bottom_left'
+  assign pct_top = 'auto'
+  assign pct_bottom = 'auto'
+  assign pct_left = 'auto'
+  assign pct_right = 'auto'
+  assign pct_transform = 'none'
+  assign pct_justify = 'center'
+  case pagination_placement
+    when 'bottom_left'
+      assign pct_bottom = pagination_inset | append: 'px'
+      assign pct_left = pagination_inset | append: 'px'
+      assign pct_justify = 'flex-start'
+    when 'bottom_center'
+      assign pct_bottom = pagination_inset | append: 'px'
+      assign pct_left = '50%'
+      assign pct_transform = 'translateX(-50%)'
+      assign pct_justify = 'center'
+    when 'bottom_right'
+      assign pct_bottom = pagination_inset | append: 'px'
+      assign pct_right = pagination_inset | append: 'px'
+      assign pct_justify = 'flex-end'
+    when 'top_left'
+      assign pct_top = pagination_inset | append: 'px'
+      assign pct_left = pagination_inset | append: 'px'
+      assign pct_justify = 'flex-start'
+    when 'top_center'
+      assign pct_top = pagination_inset | append: 'px'
+      assign pct_left = '50%'
+      assign pct_transform = 'translateX(-50%)'
+      assign pct_justify = 'center'
+    when 'top_right'
+      assign pct_top = pagination_inset | append: 'px'
+      assign pct_right = pagination_inset | append: 'px'
+      assign pct_justify = 'flex-end'
+    when 'middle_center'
+      assign pct_top = '50%'
+      assign pct_left = '50%'
+      assign pct_transform = 'translate(-50%, -50%)'
+      assign pct_justify = 'center'
+  endcase
+
+  assign horizon_pagination = 'center'
+  case pagination_placement
+    when 'bottom_left'
+      assign horizon_pagination = 'left'
+    when 'top_left'
+      assign horizon_pagination = 'left'
+    when 'bottom_right'
+      assign horizon_pagination = 'right'
+    when 'top_right'
+      assign horizon_pagination = 'right'
+    else
+      assign horizon_pagination = 'center'
+  endcase
+%}
+{% if block.settings.slide_height == 'adapt_image' and adapt_preview != blank %}
+  {% style %}
+    #ImpactSlider-{{ block.id }} slideshow-slides,
+    #ImpactSlider-{{ block.id }} slideshow-slide {
+      min-height: {{ 1 | divided_by: adapt_preview.aspect_ratio | times: 100 }}vw;
+    }
+  {% endstyle %}
+{% endif %}
+
+{% capture raw_slides %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% assign slide_parts = raw_slides | strip | split: '<!--IMPACT_SLIDE_BOUNDARY-->' %}
+{% assign slide_count = 0 %}
+{% for part in slide_parts %}
+  {% assign trimmed = part | strip %}
+  {% if trimmed != blank %}
+    {% assign slide_count = slide_count | plus: 1 %}
+  {% endif %}
+{% endfor %}
+
+{% if slide_count > 1 %}
+  {% capture controls %}
+    {% render 'slideshow-controls',
+      style: block.settings.controls_style,
+      autoplay: autoplay,
+      item_count: slide_count,
+      show_arrows: false,
+      arrows_on_media: true,
+      controls_on_media: true,
+      pagination_position: horizon_pagination,
+      icon_style: block.settings.icons_style,
+      class: 'impact-slider__controls'
+    %}
+  {% endcapture %}
+{% endif %}
+
+{% capture slides %}
+  {% assign slide_idx = 0 %}
+  {% for part in slide_parts %}
+    {% assign trimmed = part | strip %}
+    {% if trimmed != blank %}
+      {% render 'slideshow-slide',
+        index: slide_idx,
+        children: trimmed,
+        slide_size: impact_slider_slideshow_size,
+        navigate_to_slide: true
+      %}
+      {% assign slide_idx = slide_idx | plus: 1 %}
+    {% endif %}
+  {% endfor %}
+{% endcapture %}
+
+{% liquid
+  assign slide_position = block.settings.slide_position
+  if block.settings.slide_height == 'adapt_image'
+    assign slide_position = 'stretch'
+  endif
+%}
+
+<div
+  id="ImpactSlider-{{ block.id }}"
+  class="impact-slider-wrapper"
+  {{ block.shopify_attributes }}
+>
+  {% if slide_count == 0 %}
+    {% if request.design_mode %}
+      <div class="impact-slider-wrapper__empty">
+        Add one or more <strong>Impact slide</strong> blocks to this slider.
+      </div>
+    {% endif %}
+  {% else %}
+    <h2 class="visually-hidden">{{ 'accessibility.slideshow' | t }}</h2>
+    {% render 'slideshow',
+      class: impact_slider_classes,
+      slides: slides,
+      controls: controls,
+      show_arrows: show_arrows,
+      icon_style: block.settings.icons_style,
+      icon_shape: block.settings.icons_shape,
+      auto_hide_controls: false,
+      infinite: block.settings.infinite,
+      initial_slide: 0,
+      slide_count: slide_count,
+      slide_position: slide_position,
+      slide_size: impact_slider_slideshow_size,
+      autoplay: autoplay,
+      autoplay_speed: block.settings.autoplay_speed,
+      attributes: ''
+    %}
+  {% endif %}
+</div>
+
+{% if slide_count > 0 %}
+  {% style %}
+    #ImpactSlider-{{ block.id }} slideshow-slide {
+      border-radius: {{ block.settings.slide_corner_radius }}px;
+      {% if block.settings.slide_border_width > 0 %}
+        border: {{ block.settings.slide_border_width }}px solid {{ block.settings.slide_border_color }};
+      {% endif %}
+    }
+
+    {% if block.settings.slide_height == 'custom' %}
+      #ImpactSlider-{{ block.id }} slideshow-slides,
+      #ImpactSlider-{{ block.id }} slideshow-slide {
+        min-height: {{ block.settings.slide_height_custom }}px;
+      }
+
+      @media screen and (max-width: 749px) {
+        #ImpactSlider-{{ block.id }} slideshow-slides,
+        #ImpactSlider-{{ block.id }} slideshow-slide {
+          min-height: {{ block.settings.slide_height_custom_mobile }}px;
+        }
+      }
+    {% endif %}
+
+    {% if slide_count > 1 and block.settings.controls_style == 'dots' %}
+      #ImpactSlider-{{ block.id }} slideshow-controls.impact-slider__controls[controls-on-media] {
+        top: {{ pct_top }};
+        right: {{ pct_right }};
+        bottom: {{ pct_bottom }};
+        left: {{ pct_left }};
+        transform: {{ pct_transform }};
+        width: max-content;
+        max-width: calc(100% - {{ pagination_inset | times: 2 }}px);
+        justify-content: {{ pct_justify }};
+        mix-blend-mode: normal;
+      }
+
+      #ImpactSlider-{{ block.id }} slideshow-controls.impact-slider__controls[controls-on-media] .slideshow-controls__dots {
+        --color: {{ block.settings.pagination_color_inactive }};
+        --color-active: {{ block.settings.pagination_color_active }};
+        --color-hover: color-mix(in srgb, {{ block.settings.pagination_color_inactive }} 75%, #ffffff);
+        mix-blend-mode: normal;
+        margin: 0;
+        padding: 0.35rem 0.5rem;
+        background: transparent;
+      }
+
+      #ImpactSlider-{{ block.id }} slideshow-controls.impact-slider__controls[controls-on-media] .slideshow-controls__dots button {
+        --color: {{ block.settings.pagination_color_inactive }};
+        --color-active: {{ block.settings.pagination_color_active }};
+        --color-hover: color-mix(in srgb, {{ block.settings.pagination_color_inactive }} 75%, #ffffff);
+      }
+    {% endif %}
+  {% endstyle %}
+{% endif %}
+
+{% stylesheet %}
+  .impact-slider-wrapper {
+    width: 100%;
+  }
+
+  .impact-slider-wrapper__empty {
+    padding: 1.5rem;
+    border: 1px dashed rgb(var(--color-foreground) / 0.25);
+    border-radius: var(--border-radius, 0.5rem);
+    text-align: center;
+    color: rgb(var(--color-foreground) / 0.75);
+  }
+
+  .impact-slider.slideshow--single-media slideshow-slides {
+    cursor: default;
+  }
+
+  /**
+   * Auto height: no fixed min-height from slideshow snippet; image is in-flow so
+   * slide height follows media aspect ratio while copy stays overlaid.
+   */
+  .impact-slider--height-auto slideshow-slide {
+    max-height: none;
+    height: auto;
+    align-self: stretch;
+  }
+
+  .impact-slider--height-auto slideshow-slide > .impact-slide {
+    height: auto;
+    min-height: 0;
+  }
+
+  .impact-slider--height-auto slideshow-slide > .impact-slide > .slide__image-container {
+    position: relative;
+    inset: auto;
+    height: auto;
+    flex: 0 0 auto;
+  }
+
+  .impact-slider--height-auto .impact-slide .slide__image-container > .slide__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  .impact-slider--height-auto .impact-slide .slide__content {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    box-sizing: border-box;
+  }
+
+  .impact-slider--height-auto .impact-slide:has(svg.slide__image) {
+    min-height: 14rem;
+  }
+
+  /* In-media pagination: custom dots (no theme mix-blend on this slider) */
+  .impact-slider slideshow-controls.impact-slider__controls[controls-on-media] {
+    z-index: calc(var(--layer-flat) + 2);
+  }
+
+  .impact-slider slideshow-controls.impact-slider__controls[controls-on-media]:has(.slideshow-controls__dots) {
+    mix-blend-mode: normal;
+  }
+
+  .impact-slider slideshow-controls.impact-slider__controls .slideshow-controls__dots button[aria-selected='true']::after {
+    width: 1.625rem;
+    border-radius: 624.9375rem;
+  }
+
+  .impact-slider slideshow-controls.impact-slider__controls .slideshow-controls__dots button:focus-visible {
+    outline: 0.2rem solid rgb(var(--color-foreground-rgb) / 0.5);
+    outline-offset: 0.2rem;
+  }
+
+  @media (forced-colors: active) {
+    .impact-slider slideshow-controls.impact-slider__controls .slideshow-controls__dots button:focus-visible {
+      outline: 0.2rem solid transparent;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Impact slider",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_impact-slide"
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Slides"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "paragraph",
+      "content": "Heading, text, and button placement are set on each Impact slide: separate horizontal and vertical position for desktop and for mobile (screens up to 749px wide)."
+    },
+    {
+      "type": "select",
+      "id": "slide_height",
+      "label": "Slide height",
+      "options": [
+        { "value": "auto", "label": "Auto (fit content)" },
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "custom", "label": "Custom height" },
+        { "value": "adapt_image", "label": "Adapt to image" }
+      ],
+      "default": "auto"
+    },
+    {
+      "type": "range",
+      "id": "slide_height_custom",
+      "label": "Custom min height (desktop)",
+      "info": "Minimum height of the slide (image and overlay) in pixels.",
+      "min": 200,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "default": 600,
+      "visible_if": "{{ block.settings.slide_height == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "slide_height_custom_mobile",
+      "label": "Custom min height (mobile)",
+      "info": "Minimum slide height on screens under 750px wide.",
+      "min": 200,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "default": 420,
+      "visible_if": "{{ block.settings.slide_height == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "slide_position",
+      "label": "Slide track alignment",
+      "info": "Aligns slides vertically in the track when using fixed heights. Does not move text; use each slide’s layout for that.",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" },
+        { "value": "stretch", "label": "Stretch" }
+      ],
+      "default": "center",
+      "visible_if": "{{ block.settings.slide_height != 'adapt_image' }}"
+    },
+    {
+      "type": "header",
+      "content": "Slide frame"
+    },
+    {
+      "type": "range",
+      "id": "slide_corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "slide_border_width",
+      "label": "Border thickness",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "slide_border_color",
+      "label": "Border color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "Arrow icons",
+      "options": [
+        { "value": "arrow", "label": "Arrows" },
+        { "value": "chevron", "label": "Chevrons" },
+        { "value": "arrows_large", "label": "Large arrows" },
+        { "value": "chevron_large", "label": "Large chevrons" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "arrows_large"
+    },
+    {
+      "type": "select",
+      "id": "icons_shape",
+      "label": "Icon background",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "square", "label": "Square" }
+      ],
+      "default": "none",
+      "visible_if": "{{ block.settings.icons_style != 'none' }}"
+    },
+    {
+      "type": "select",
+      "id": "controls_style",
+      "label": "Pagination",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "dots", "label": "Dots" },
+        { "value": "counter", "label": "Counter" }
+      ],
+      "default": "dots"
+    },
+    {
+      "type": "select",
+      "id": "pagination_placement",
+      "label": "Dot position",
+      "info": "Dots are shown over the slide image.",
+      "options": [
+        { "value": "bottom_left", "label": "Bottom left" },
+        { "value": "bottom_center", "label": "Bottom center" },
+        { "value": "bottom_right", "label": "Bottom right" },
+        { "value": "top_left", "label": "Top left" },
+        { "value": "top_center", "label": "Top center" },
+        { "value": "top_right", "label": "Top right" },
+        { "value": "middle_center", "label": "Center" }
+      ],
+      "default": "bottom_left",
+      "visible_if": "{{ block.settings.controls_style == 'dots' }}"
+    },
+    {
+      "type": "range",
+      "id": "pagination_inset",
+      "label": "Dot offset from edges",
+      "min": 8,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ block.settings.controls_style == 'dots' }}"
+    },
+    {
+      "type": "color",
+      "id": "pagination_color_inactive",
+      "label": "Inactive dot color",
+      "default": "#f5f0e8",
+      "visible_if": "{{ block.settings.controls_style == 'dots' }}"
+    },
+    {
+      "type": "color",
+      "id": "pagination_color_active",
+      "label": "Active dot color",
+      "default": "#c9a227",
+      "visible_if": "{{ block.settings.controls_style == 'dots' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Rotation interval",
+      "min": 3,
+      "max": 7,
+      "step": 1,
+      "unit": "s",
+      "default": 5,
+      "visible_if": "{{ block.settings.autoplay }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "infinite",
+      "label": "Loop slides",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Impact slider",
+      "category": "Custom",
+      "blocks": {
+        "impact_slide_1": {
+          "type": "_impact-slide",
+          "settings": {
+            "heading": "First slide",
+            "subheading": "Use the block settings for image and text.",
+            "show_heading": true,
+            "show_subheading": true,
+            "show_button": true,
+            "button_label": "Shop now",
+            "content_horizontal_alignment": "flex-start",
+            "content_vertical_position": "flex-end",
+            "toggle_overlay": true,
+            "overlay_color": "#00000059"
+          }
+        },
+        "impact_slide_2": {
+          "type": "_impact-slide",
+          "settings": {
+            "heading": "Second slide",
+            "subheading": "Add or reorder slides in the sidebar.",
+            "show_heading": true,
+            "show_subheading": true,
+            "show_button": true,
+            "button_label": "Learn more",
+            "content_horizontal_alignment": "flex-start",
+            "content_vertical_position": "flex-end",
+            "toggle_overlay": true,
+            "overlay_color": "#00000059"
+          }
+        }
+      },
+      "block_order": ["impact_slide_1", "impact_slide_2"]
+    }
+  ]
+}
+{% endschema %}

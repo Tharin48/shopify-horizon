@@ -1,0 +1,490 @@
+{% liquid
+  assign max_items = section.settings.post_limit
+%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+<div
+  class="
+    section
+    section--{{ section.settings.section_width }}
+    color-{{ section.settings.color_scheme }}
+    section-resource-list
+    editorial-blog-carousel
+    spacing-style
+    gap-style
+    {% if section.settings.carousel_slide_width_desktop == 'fill' %} editorial-blog-carousel--slides-fill-desktop{% endif %}
+    {% if section.settings.carousel_slide_width_mobile == 'fill' %} editorial-blog-carousel--slides-fill-mobile{% endif %}
+  "
+  data-carousel-peek="{% if section.settings.show_next_slide_peek %}true{% else %}false{% endif %}"
+  style="
+    {%- render 'spacing-style', settings: section.settings -%}
+    {%- render 'gap-style', value: section.settings.gap -%}
+    --ebc-section-max-width: {{ section.settings.section_max_width }}px;
+    --ebc-pad-x-desktop: {{ section.settings.padding_inline_desktop }}px;
+    --ebc-pad-x-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --ebc-carousel-justify-desktop: {{ section.settings.carousel_row_justify_desktop }};
+    --ebc-carousel-justify-mobile: {{ section.settings.carousel_row_justify_mobile }};
+  "
+>
+  <div class="editorial-blog-carousel__inner">
+  {% content_for 'block', id: 'static-blog-title', type: '_featured-blog-posts-title' %}
+
+  {% if section.settings.blog != blank and section.settings.blog.articles_count > 0 %}
+    {% paginate section.settings.blog.articles by max_items %}
+      {% assign section_articles = section.settings.blog.articles %}
+    {% endpaginate %}
+  {% else %}
+    {% assign section_articles = '' %}
+    {% for i in (1..max_items) %}
+      {% assign section_articles = section_articles | append: ', ' %}
+    {% endfor %}
+    {% assign section_articles = section_articles | split: ',' %}
+  {% endif %}
+
+  {% capture list_items %}
+    {% for article in section_articles limit: max_items %}
+      <div class="resource-list__item">
+        {% content_for 'block',
+          id: 'static-editorial-blog-post-card',
+          type: 'editorial-blog-post-card',
+          article: article,
+          closest.article: article
+        %}
+      </div>
+      {% unless forloop.last %}
+        <!--@list/split-->
+      {% endunless %}
+    {% endfor %}
+  {% endcapture %}
+
+  {% liquid
+    assign list_items_array = list_items | strip | split: '<!--@list/split-->'
+  %}
+
+  {% render 'resource-list',
+    list_items: list_items,
+    list_items_array: list_items_array,
+    settings: section.settings,
+    carousel_ref: 'editorialBlogCarousel',
+    slide_count: max_items,
+    content_type: 'articles',
+    test_id: 'editorial-blog-carousel'
+  %}
+  </div>
+</div>
+
+{% stylesheet %}
+  /*
+   * Max width + horizontal padding live on an inner wrapper so Horizon’s section
+   * grid (page-width / full-width) is unchanged on the outer .section.
+   */
+  .editorial-blog-carousel__inner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: min(var(--ebc-section-max-width, 1920px), 100%);
+    margin-inline: auto;
+    padding-inline: var(--ebc-pad-x-desktop, 0px);
+  }
+
+  @media screen and (max-width: 749px) {
+    .editorial-blog-carousel__inner {
+      padding-inline: var(--ebc-pad-x-mobile, var(--ebc-pad-x-desktop, 0px));
+    }
+  }
+
+  /*
+   * Horizon reserves --peek-next-slide-size in slide width math; that often leaves empty
+   * space on the right. This section defaults peek off; enable in settings to match stock carousel.
+   */
+  .editorial-blog-carousel[data-carousel-peek='false'] .resource-list__carousel {
+    --peek-next-slide-size: 0px;
+  }
+
+  /*
+   * Row alignment for slideshow track (extra space when slides are narrower than the track).
+   * Desktop / mobile use separate CSS variables from section settings.
+   */
+  .editorial-blog-carousel .resource-list__carousel slideshow-slides {
+    justify-content: var(--ebc-carousel-justify-desktop, flex-start);
+  }
+
+  @media screen and (max-width: 749px) {
+    .editorial-blog-carousel .resource-list__carousel slideshow-slides {
+      justify-content: var(
+        --ebc-carousel-justify-mobile,
+        var(--ebc-carousel-justify-desktop, flex-start)
+      );
+    }
+  }
+
+  /*
+   * Fill row: equal-width slides (best when post count ≈ columns; more posts still scroll).
+   */
+  @media screen and (min-width: 750px) {
+    .editorial-blog-carousel--slides-fill-desktop .resource-list__carousel .resource-list__slide {
+      flex: 1 1 0;
+      width: auto;
+      min-width: 0;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .editorial-blog-carousel--slides-fill-mobile .resource-list__carousel .resource-list__slide {
+      flex: 1 1 0;
+      width: auto;
+      min-width: 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial blog carousel",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "class": "editorial-blog-carousel",
+  "blocks": [
+    {
+      "type": "_featured-blog-posts-title"
+    },
+    {
+      "type": "editorial-blog-post-card"
+    }
+  ],
+  "settings": [
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "t:settings.blog"
+    },
+    {
+      "type": "header",
+      "content": "t:content.cards_layout"
+    },
+    {
+      "type": "paragraph",
+      "content": "Carousel layout matches Horizon’s Featured blog posts carousel. Slides use the Editorial blog post card (same article data: image, tags, title, excerpt, URL)."
+    },
+    {
+      "type": "select",
+      "id": "layout_type",
+      "label": "t:settings.layout_type",
+      "options": [
+        {
+          "value": "carousel",
+          "label": "t:options.carousel"
+        }
+      ],
+      "default": "carousel"
+    },
+    {
+      "type": "range",
+      "id": "post_limit",
+      "label": "t:settings.post_count",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:settings.columns",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "mobile_card_size",
+      "label": "t:settings.mobile_card_size",
+      "options": [
+        {
+          "value": "60cqw",
+          "label": "t:options.one_number"
+        },
+        {
+          "value": "44cqw",
+          "label": "t:options.two_number"
+        }
+      ],
+      "default": "60cqw"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "t:settings.horizontal_gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "show_next_slide_peek",
+      "label": "Show peek of next slide",
+      "default": false,
+      "info": "Stock Horizon carousels reserve space so the next card peeks in. Turn on for that behavior; leave off so slide widths use the full track (less empty space on the right with default slide widths)."
+    },
+    {
+      "type": "header",
+      "content": "Carousel row — desktop"
+    },
+    {
+      "type": "select",
+      "id": "carousel_row_justify_desktop",
+      "label": "Row alignment (desktop)",
+      "options": [
+        { "value": "flex-start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "space-between", "label": "Space between" },
+        { "value": "space-evenly", "label": "Space evenly" },
+        { "value": "flex-end", "label": "End" }
+      ],
+      "default": "flex-start",
+      "info": "How extra space is distributed when slides are shorter than the track (750px+ viewports). “Space between” spreads gaps between cards."
+    },
+    {
+      "type": "select",
+      "id": "carousel_slide_width_desktop",
+      "label": "Slide width (desktop)",
+      "options": [
+        { "value": "default", "label": "Default (fixed slide width)" },
+        { "value": "fill", "label": "Fill row (equal-width columns)" }
+      ],
+      "default": "default",
+      "info": "Fill row expands each card to share the row evenly. Best when visible posts match or are fewer than columns; more posts become a scrolling row of narrower slides."
+    },
+    {
+      "type": "header",
+      "content": "Carousel row — mobile"
+    },
+    {
+      "type": "select",
+      "id": "carousel_row_justify_mobile",
+      "label": "Row alignment (mobile)",
+      "options": [
+        { "value": "flex-start", "label": "Start" },
+        { "value": "center", "label": "Center" },
+        { "value": "space-between", "label": "Space between" },
+        { "value": "space-evenly", "label": "Space evenly" },
+        { "value": "flex-end", "label": "End" }
+      ],
+      "default": "flex-start",
+      "info": "Same as desktop, for viewports under 750px."
+    },
+    {
+      "type": "select",
+      "id": "carousel_slide_width_mobile",
+      "label": "Slide width (mobile)",
+      "options": [
+        { "value": "default", "label": "Default (fixed slide width)" },
+        { "value": "fill", "label": "Fill row (equal-width columns)" }
+      ],
+      "default": "default",
+      "info": "Fill row on mobile splits width across all slides in the strip; use only when you have few posts or accept narrower slides while scrolling."
+    },
+    {
+      "type": "header",
+      "content": "t:content.carousel_navigation"
+    },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "t:settings.icon",
+      "options": [
+        {
+          "value": "arrow",
+          "label": "t:options.arrows"
+        },
+        {
+          "value": "chevron",
+          "label": "t:options.chevrons"
+        },
+        {
+          "value": "arrows_large",
+          "label": "t:options.arrows_large"
+        },
+        {
+          "value": "chevron_large",
+          "label": "t:options.chevron_large"
+        },
+        {
+          "value": "none",
+          "label": "t:options.none"
+        }
+      ],
+      "default": "arrow"
+    },
+    {
+      "type": "select",
+      "id": "icons_shape",
+      "label": "t:settings.icon_background",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "circle",
+          "label": "t:options.circle"
+        },
+        {
+          "value": "square",
+          "label": "t:options.square"
+        }
+      ],
+      "default": "circle"
+    },
+    {
+      "type": "header",
+      "content": "t:content.section_layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Section max width",
+      "min": 960,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1920,
+      "info": "Caps content width on large screens (centered). Up to 1920px."
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_desktop",
+      "label": "Horizontal padding (desktop)",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 24,
+      "info": "Left and right padding from 750px viewport and up."
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Horizontal padding (mobile)",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 16,
+      "info": "Left and right padding below 750px width."
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial blog carousel",
+      "category": "t:categories.storytelling",
+      "blocks": {
+        "static-blog-title": {
+          "type": "_featured-blog-posts-title",
+          "name": "t:names.title",
+          "static": true,
+          "settings": {
+            "text": "<h3>{{ closest.blog.title }}</h3>",
+            "type_preset": "rte"
+          }
+        },
+        "static-editorial-blog-post-card": {
+          "type": "editorial-blog-post-card",
+          "name": "Editorial blog post card",
+          "static": true,
+          "settings": {
+            "show_category": true,
+            "category_fallback": "none",
+            "excerpt_lines": "3",
+            "image_aspect_ratio": "4/3",
+            "card_corner_radius": 10,
+            "card_border_opacity": 12,
+            "card_shadow_opacity": 6
+          }
+        }
+      },
+      "settings": {
+        "layout_type": "carousel",
+        "post_limit": 5,
+        "columns": 3,
+        "columns_gap": 8,
+        "show_next_slide_peek": false,
+        "carousel_row_justify_desktop": "space-between",
+        "carousel_slide_width_desktop": "default",
+        "carousel_row_justify_mobile": "flex-start",
+        "carousel_slide_width_mobile": "default",
+        "mobile_card_size": "60cqw",
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "gap": 12,
+        "section_max_width": 1920,
+        "padding_inline_desktop": 24,
+        "padding_inline_mobile": 16,
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    }
+  ]
+}
+{% endschema %}
