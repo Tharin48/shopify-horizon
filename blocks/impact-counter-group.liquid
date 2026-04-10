@@ -1,0 +1,175 @@
+<div
+  class="impact-counter-group spacing-style"
+  {{ block.shopify_attributes }}
+  style="
+    {% render 'spacing-style', settings: block.settings %}
+    --icg-cols-mobile: {{ block.settings.columns_mobile }};
+    --icg-cols-desktop: {{ block.settings.columns_desktop }};
+    --icg-gap: {{ block.settings.grid_gap }}px;
+  "
+>
+  {% content_for 'blocks' %}
+</div>
+
+{% stylesheet %}
+  .impact-counter-group {
+    display: grid;
+    width: 100%;
+    box-sizing: border-box;
+    gap: var(--icg-gap, 0.75rem);
+    grid-template-columns: repeat(var(--icg-cols-mobile, 2), minmax(0, 1fr));
+  }
+
+  .impact-counter-group .impact-counter {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  @media screen and (min-width: 750px) {
+    .impact-counter-group {
+      grid-template-columns: repeat(var(--icg-cols-desktop, 4), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Impact counter grid",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "impact-counter"
+    }
+  ],
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Add Impact counter blocks inside this grid. Use 2 columns on mobile for a 2×2 layout with four counters."
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns (mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap between counters",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Impact counter grid",
+      "category": "Custom",
+      "blocks": {
+        "counter_1": {
+          "type": "impact-counter",
+          "settings": {
+            "sub_text": "People educated",
+            "count_text": "15,000+",
+            "icon": "plant",
+            "width": "fill",
+            "width_mobile": "fill"
+          }
+        },
+        "counter_2": {
+          "type": "impact-counter",
+          "settings": {
+            "sub_text": "Trees impact equivalent",
+            "count_text": "43,000+",
+            "icon": "leaf",
+            "width": "fill",
+            "width_mobile": "fill"
+          }
+        },
+        "counter_3": {
+          "type": "impact-counter",
+          "settings": {
+            "sub_text": "CO2 emissions reduced",
+            "count_text": "2,137 tons+",
+            "icon": "fire",
+            "width": "fill",
+            "width_mobile": "fill"
+          }
+        },
+        "counter_4": {
+          "type": "impact-counter",
+          "settings": {
+            "sub_text": "Plastic eliminated",
+            "count_text": "421,052 kg+",
+            "icon": "recycle",
+            "width": "fill",
+            "width_mobile": "fill"
+          }
+        }
+      },
+      "block_order": ["counter_1", "counter_2", "counter_3", "counter_4"]
+    }
+  ]
+}
+{% endschema %}
