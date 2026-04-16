@@ -53,6 +53,7 @@
       "few": "{{ count }} filtre aplicate"
     },
     "account": "Cont",
+    "breadcrumb": "Firimituri",
     "cart": "Coș",
     "cart_count": "Total articole în coș",
     "menu": "Meniu",
@@ -326,6 +327,9 @@
   },
   "fields": {
     "separator": "la"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Stele substitut \u2014 Yotpo va afi\u0219a evalu\u0103ri reale dup\u0103 instalarea aplica\u021biei."
   },
   "placeholders": {
     "password": "Parolă",

@@ -48,6 +48,7 @@
     "search_results_no_results": "未找到“{{ query }}”的相关结果",
     "filters": "筛选条件",
     "account": "账户",
+    "breadcrumb": "面包屑导航",
     "cart": "购物车",
     "cart_count": "购物车中的商品总数",
     "filter_count": {
@@ -296,6 +297,9 @@
       "copy_code_success": "已成功复制代码",
       "expired": "已过期"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "\u5360\u4f4d\u661f\u661f \u2014 \u5b89\u88c5 Yotpo \u5e94\u7528\u5e76\u542f\u7528\u661f\u7ea7\u540e\uff0c\u5c06\u663e\u793a\u771f\u5b9e\u8bc4\u5206\u3002"
   },
   "placeholders": {
     "password": "密码",

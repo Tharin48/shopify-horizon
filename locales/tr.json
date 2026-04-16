@@ -48,6 +48,7 @@
     "search_results_no_results": "\"{{ query }}\" için sonuç bulunamadı",
     "filters": "Filtreler",
     "account": "Hesap",
+    "breadcrumb": "Sayfa yolu",
     "cart": "Sepet",
     "cart_count": "Sepetteki toplam ürün sayısı",
     "filter_count": {
@@ -319,6 +320,9 @@
   },
   "fields": {
     "separator": "-"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Yer tutucu y\u0131ld\u0131zlar \u2014 Yotpo uygulamas\u0131 y\u00fcklendikten sonra ger\u00e7ek puanlar burada g\u00f6r\u00fcn\u00fcr."
   },
   "placeholders": {
     "password": "Parola",

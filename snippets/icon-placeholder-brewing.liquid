@@ -1,0 +1,30 @@
+{%- comment -%}
+  Minimal line placeholders for brewing instruction cards; replace with theme assets later.
+  @param {string} name - kettle | spoon | clock | ice
+{%- endcomment -%}
+{%- case name -%}
+  {%- when 'kettle' -%}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+      <path d="M8 22h14a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3Z"/>
+      <path d="M25 13h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2"/>
+      <path d="M11 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      <path d="M12 6h6"/>
+    </svg>
+  {%- when 'spoon' -%}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+      <ellipse cx="22" cy="10" rx="4" ry="5"/>
+      <path d="M18 14L8 26"/>
+    </svg>
+  {%- when 'clock' -%}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+      <circle cx="16" cy="17" r="9"/>
+      <path d="M16 17V12"/>
+      <path d="M16 17h4"/>
+    </svg>
+  {%- when 'ice' -%}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+      <path d="M10 24h12v4H10z"/>
+      <path d="M12 24V14a4 4 0 0 1 8 0v10"/>
+      <path d="M14 18h4M14 21h4"/>
+    </svg>
+{%- endcase -%}

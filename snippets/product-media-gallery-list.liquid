@@ -1,0 +1,305 @@
+{%- doc -%}
+  Stacked product media with a thumbnail rail (list presentation). Desktop-first: vertical
+  thumbnails and full-width stacked media; thumbnail click scrolls to the matching item.
+  Thumbnail rail is not sticky (scrolls with the page). Radius uses block --thumbnail-radius.
+
+  @param {object[]} sorted_media - Ordered product media array
+  @param {object} block_settings - Media gallery block settings
+  @param {string} block_id - Block id for unique anchors
+  @param {string} sizes - Default sizes attribute for images
+  @param {boolean} needs_both_sizes - Large-first grid sizing (unused for list; pass through)
+  @param {string} sizes_single - Alternate sizes for first image when needed
+  @param {string} product_media_container_class - Container classes from parent
+  @param {number} lowest_aspect_ratio_index - Tallest media index when aspect adapt
+  @param {string} pagination_position - left | right | bottom (thumbnail rail position)
+{%- enddoc -%}
+
+{%- liquid
+  assign thumb_pos = pagination_position | default: 'left'
+  if thumb_pos == 'bottom'
+    assign list_modifiers = 'media-gallery__list-layout--thumbs-bottom'
+  elsif thumb_pos == 'right'
+    assign list_modifiers = 'media-gallery__list-layout--thumbs-right'
+  else
+    assign list_modifiers = ''
+  endif
+-%}
+
+<div
+  class="media-gallery__list-layout {{ list_modifiers }}"
+  data-product-media-list
+  data-block-id="{{ block_id }}"
+  data-thumbnail-position="{{ thumb_pos }}"
+>
+  <nav class="media-gallery__list-thumbs" aria-label="Product media thumbnails">
+    <ul class="media-gallery__list-thumbs-list list-unstyled" role="list">
+      {%- for media in sorted_media -%}
+        <li>
+          <button
+            type="button"
+            class="media-gallery__list-thumb{% if forloop.first %} is-active{% endif %}"
+            data-media-list-index="{{ forloop.index0 }}"
+            aria-controls="ProductMediaList-{{ block_id }}-{{ forloop.index0 }}"
+            aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+          >
+            {%- if media.media_type == 'image' and media.preview_image -%}
+              {{
+                media.preview_image
+                | image_url: width: 200
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '80, 120, 200',
+                  sizes: '80px',
+                  alt: media.alt,
+                  class: 'media-gallery__list-thumb-img'
+              }}
+            {%- else -%}
+              <span class="media-gallery__list-thumb-fallback">
+                {{- media.media_type | capitalize -}}
+              </span>
+            {%- endif -%}
+          </button>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </nav>
+
+  <div class="media-gallery__list-stack">
+    {%- for media in sorted_media -%}
+      {%- liquid
+        if needs_both_sizes and forloop.first
+          assign media_sizes = sizes_single
+        else
+          assign media_sizes = sizes
+        endif
+      -%}
+      <div
+        id="ProductMediaList-{{ block_id }}-{{ forloop.index0 }}"
+        ref="media[]"
+        class="{{ product_media_container_class }} product-media-container--{{ media.media_type }}{% if block_settings.zoom %} product-media-container--zoomable{% endif %}{% if forloop.index0 == lowest_aspect_ratio_index and block_settings.aspect_ratio == 'adapt' %} product-media-container--tallest{% endif %}"
+        style="{% if block_settings.aspect_ratio == 'adapt' %} --media-preview-ratio: {{ media.preview_image.aspect_ratio | default: 1.0 }};{% endif %} --media-radius: {{ block_settings.media_radius }}px;"
+        data-media-index="{{ forloop.index0 }}"
+        {% if settings.transition_to_main_product and forloop.first %}
+          data-view-transition-type="product-image-transition"
+        {% endif %}
+        {% if media.presentation.focal_point != blank %}
+          data-focal-point="{{ media.presentation.focal_point }}"
+        {% endif %}
+      >
+        {%- if block_settings.zoom and media.media_type == 'image' -%}
+          <button
+            type="button"
+            class="button button-unstyled product-media-container__zoom-button"
+            aria-label="{{ 'actions.zoom_media' | t: index: forloop.index }}"
+            on:click="/zoom/{{ forloop.index0 }}"
+            {% if block_settings.zoom %}
+              on:pointerenter="/preloadImage/{{ forloop.index0 }}"
+            {% endif %}
+          >
+          </button>
+        {%- endif -%}
+        {% if block_settings.aspect_ratio != 'adapt' and block_settings.constrain_to_viewport %}
+          <div class="product-media-constraint-wrapper">
+            {%- render 'product-media', media: media, sizes: media_sizes, is_main_product_media: forloop.first -%}
+          </div>
+        {% else %}
+          {%- render 'product-media', media: media, sizes: media_sizes, is_main_product_media: forloop.first -%}
+        {% endif %}
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+{% stylesheet %}
+  .media-gallery__list-layout {
+    display: grid;
+    align-items: start;
+    
+    /* Inherited from .product-information --gallery-thumb-stack-gap (default 20px) */
+    column-gap: var(--gallery-thumb-stack-gap, 20px);
+    row-gap: var(--image-gap, var(--padding-sm));
+    width: 100%;
+    /* Width comes from block setting --thumbnail-width (px on media-gallery) */
+    --list-thumb-size: var(--thumbnail-width);
+    /* Theme editor: media gallery block thumbnail radius (--thumbnail-radius on .media-gallery) */
+    --list-thumb-radius: var(--thumbnail-radius, 0px);
+    --list-thumb-gap: 12px;
+    --list-thumb-border-active: #c5a059;
+  }
+
+  @media screen and (min-width: 750px) {
+    /* max-content: first track is only as wide as thumbnails — avoids blank space beside the rail */
+    .media-gallery__list-layout:not(.media-gallery__list-layout--thumbs-bottom) {
+      grid-template-columns: max-content minmax(0, 1fr);
+    }
+
+    .media-gallery__list-layout--thumbs-right:not(.media-gallery__list-layout--thumbs-bottom) {
+      grid-template-columns: minmax(0, 1fr) max-content;
+    }
+  }
+
+  .media-gallery__list-layout--thumbs-bottom {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .media-gallery__list-thumbs {
+    position: relative;
+    align-self: start;
+  }
+
+  .media-gallery__list-layout--thumbs-bottom .media-gallery__list-thumbs {
+    position: relative;
+    top: auto;
+    order: 2;
+  }
+
+  .media-gallery__list-layout--thumbs-bottom .media-gallery__list-stack {
+    order: 1;
+  }
+
+  .media-gallery__list-thumbs-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: var(--list-thumb-gap);
+    overflow-x: auto;
+    padding: var(--list-thumb-gap) 0 0;
+    margin: 0;
+    max-width: 100%;
+    scrollbar-width: thin;
+  }
+
+  @media screen and (min-width: 750px) {
+    .media-gallery__list-layout:not(.media-gallery__list-layout--thumbs-bottom) .media-gallery__list-thumbs-list {
+      flex-direction: column;
+      overflow-x: visible;
+      overflow-y: auto;
+      max-height: min(70vh, 720px);
+      gap: var(--list-thumb-gap);
+    }
+  }
+
+  .media-gallery__list-thumb {
+    display: block;
+    position: relative;
+    width: var(--list-thumb-size, 96px);
+    aspect-ratio: 4 / 5;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--list-thumb-radius);
+    background: rgb(var(--color-background-rgb));
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    transition: border-color var(--animation-speed) var(--animation-easing);
+  }
+
+  .media-gallery__list-thumb.is-active {
+    border-color: var(--list-thumb-border-active);
+    outline: none;
+  }
+
+  .media-gallery__list-thumb:focus-visible {
+    outline: var(--focus-outline-width) solid var(--list-thumb-border-active);
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  @media (prefers-contrast: more) {
+    .media-gallery__list-thumb.is-active {
+      border-color: CanvasText;
+    }
+  }
+
+  .media-gallery__list-thumb-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: inherit;
+  }
+
+  .media-gallery__list-thumb-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    font-size: var(--font-size--xs);
+    padding: var(--padding-3xs);
+    text-align: center;
+    word-break: break-word;
+    border-radius: inherit;
+    background: rgb(var(--color-background-rgb));
+    color: rgb(var(--color-foreground-rgb));
+  }
+
+  .media-gallery__list-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--image-gap, var(--padding-sm));
+    min-width: 0;
+    width: 100%;
+  }
+
+  .media-gallery__list-stack .product-media-container--video,
+  .media-gallery__list-stack .product-media-container--external_video,
+  .media-gallery__list-stack .product-media-container--model {
+    width: 100%;
+  }
+
+  @media screen and (max-width: 749px) {
+    .media-gallery__list-layout:not(.media-gallery__list-layout--thumbs-bottom) {
+      grid-template-columns: 1fr;
+    }
+
+    .media-gallery__list-layout:not(.media-gallery__list-layout--thumbs-bottom) .media-gallery__list-thumbs {
+      position: relative;
+      top: auto;
+      order: 1;
+    }
+
+    .media-gallery__list-layout:not(.media-gallery__list-layout--thumbs-bottom) .media-gallery__list-stack {
+      order: 2;
+    }
+
+    .media-gallery__list-layout:not(.media-gallery__list-layout--thumbs-bottom) .media-gallery__list-thumbs-list {
+      flex-direction: row;
+      overflow-x: auto;
+      max-height: none;
+    }
+  }
+
+  /*
+    Viewport-constrained media is globally centered (margin auto + justify-content: center).
+    In the list layout that leaves a wide empty band between the thumb column and the image — looks like a “gap”.
+    Align constrained media to the start of the stack column instead.
+    Use header-group height for vh math when available (matches announcement + custom header; slightly smoother than --header-height alone).
+  */
+  @media screen and (min-width: 750px) {
+    .media-gallery--list .media-gallery__list-stack > .product-media-container.constrain-height {
+      margin-left: 0;
+      margin-right: auto;
+    }
+
+    .media-gallery--list
+      .media-gallery__list-stack
+      .product-media-container.constrain-height:has(.product-media-constraint-wrapper) {
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    /*
+      Custom header updates --header-height on scroll (state changes) → unstable --constrained-height.
+      custom-header.js sets --product-gallery-viewport-offset from announcement + max(default, minimized).
+    */
+    .media-gallery--list .product-media-container.constrain-height {
+      --viewport-offset: var(
+        --product-gallery-viewport-offset,
+        var(--header-group-height, var(--header-height))
+      );
+    }
+  }
+{% endstylesheet %}

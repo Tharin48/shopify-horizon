@@ -52,6 +52,7 @@
       "other": "{{ count }} szűrő alkalmazva"
     },
     "account": "Fiók",
+    "breadcrumb": "Útvonal",
     "cart": "Kosár",
     "cart_count": "Összes termék a kosárban",
     "menu": "Menü",
@@ -319,6 +320,9 @@
   },
   "fields": {
     "separator": "–"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Helyettes\u00edt\u0151 csillagok \u2014 a Yotpo az alkalmaz\u00e1s telep\u00edt\u00e9se ut\u00e1n mutatja az \u00e9rt\u00e9kel\u00e9seket."
   },
   "placeholders": {
     "password": "Jelszó",

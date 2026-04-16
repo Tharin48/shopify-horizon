@@ -53,6 +53,7 @@
       "many": "{{ count }} filtros aplicados"
     },
     "account": "Conta",
+    "breadcrumb": "Navegação estrutural",
     "cart": "Carrinho",
     "cart_count": "Total de itens no carrinho",
     "menu": "Menu",
@@ -302,6 +303,9 @@
       "copy_code_success": "Código copiado",
       "expired": "Vencido"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Estrelas de exemplo \u2014 o Yotpo mostrar\u00e1 avalia\u00e7\u00f5es reais ap\u00f3s instalar o app."
   },
   "placeholders": {
     "password": "Senha",

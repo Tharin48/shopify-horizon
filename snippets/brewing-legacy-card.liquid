@@ -1,0 +1,27 @@
+{%- doc -%}
+  Fallback brewing card (no nested block): optional theme media + text.
+  @param {object} [media] - Image from settings
+  @param {string} text - Card body copy
+{%- enddoc -%}
+<li class="custom-brewing-tabs__card{% if media == blank %} custom-brewing-tabs__card--no-media{% endif %}">
+  {%- if media != blank -%}
+    <span class="custom-brewing-tabs__card-icon">
+      {%- liquid
+        assign alt = media.alt | default: text | default: 'Brewing step'
+        assign w = media.width | default: 96
+        assign h = w | divided_by: media.aspect_ratio | round
+      -%}
+      {{
+        media
+        | image_url: width: 240
+        | image_tag:
+          loading: 'lazy',
+          width: w,
+          height: h,
+          class: 'custom-brewing-tabs__card-image',
+          alt: alt
+      }}
+    </span>
+  {%- endif -%}
+  <span class="custom-brewing-tabs__card-text">{{ text | escape }}</span>
+</li>

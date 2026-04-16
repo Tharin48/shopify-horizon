@@ -52,6 +52,7 @@
       "other": "{{ count }} filter tillämpas"
     },
     "account": "Konto",
+    "breadcrumb": "Brödsmulor",
     "cart": "Varukorg",
     "cart_count": "Totalt antal artiklar i varukorgen",
     "menu": "Meny",
@@ -319,6 +320,9 @@
   },
   "fields": {
     "separator": "till"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Platsh\u00e5llarstj\u00e4rnor \u2014 Yotpo visar riktiga betyg h\u00e4r n\u00e4r appen \u00e4r installerad."
   },
   "placeholders": {
     "password": "Lösenord",

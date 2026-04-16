@@ -3,7 +3,7 @@
 
   Renders product media gallery for the closest product.
 
-  @param {string} media_presentation - Either 'grid' or 'carousel'
+  @param {string} media_presentation - 'grid', 'carousel', or 'list' (thumbnails + vertical stack)
   @param {object} block_settings - Block settings object
   @param {string} block_id - Block ID for unique element IDs
   @param {string} block_shopify_attributes - Block shopify attributes
@@ -47,13 +47,15 @@
 
   assign render_slideshow_controls = false
 
-  if media_presentation == 'carousel' or block_settings.slideshow_controls_style == block_settings.slideshow_mobile_controls_style
-    assign render_slideshow_controls = true
+  if media_presentation != 'list'
+    if media_presentation == 'carousel' or block_settings.slideshow_controls_style == block_settings.slideshow_mobile_controls_style
+      assign render_slideshow_controls = true
+    endif
   endif
 
   assign render_mobile_slideshow_controls = false
 
-  if block_settings.slideshow_controls_style != block_settings.slideshow_mobile_controls_style
+  if media_presentation != 'list' and block_settings.slideshow_controls_style != block_settings.slideshow_mobile_controls_style
     assign slideshow_controls_class = 'mobile:hidden'
 
     if block_settings.slideshow_mobile_controls_style != 'hint'
@@ -80,6 +82,8 @@
   endif
 
   if slideshow_controls_style == 'thumbnails'
+    assign pagination_position = block_settings.thumbnail_position
+  elsif media_presentation == 'list'
     assign pagination_position = block_settings.thumbnail_position
   else
     assign pagination_position = 'center'
@@ -120,9 +124,9 @@
   endif
   assign has_image_drop = sorted_media | has: 'media_type', 'image'
 
-  # Determine if we're in single column mode (carousel or grid with one column)
+  # Determine if we're in single column mode (carousel, list stack, or grid with one column)
   assign is_single_column = false
-  if media_presentation == 'carousel' or sorted_media.size == 1 or media_presentation == 'grid' and block_settings.media_columns == 'one'
+  if media_presentation == 'carousel' or media_presentation == 'list' or sorted_media.size == 1 or media_presentation == 'grid' and block_settings.media_columns == 'one'
     assign is_single_column = true
   endif
 
@@ -206,11 +210,17 @@
         flex-shrink: 0;
       }
 
-      /* Desktop constraint wrapper sizing */
+      /* Desktop constraint wrapper sizing (vh-based — keeps hero within viewport on carousel/grid) */
       @media screen and (min-width: 750px) {
         .product-media-constraint-wrapper {
           width: min(100%, calc(var(--constrained-height) * {{ block_settings.aspect_ratio }}));
         }
+        {% if media_presentation == 'list' %}
+          /* List: width from column only; max-height override below (avoids shrinking when window height drops) */
+          .media-gallery--list .product-media-constraint-wrapper {
+            width: 100%;
+          }
+        {% endif %}
       }
     {% endif %}
 
@@ -319,6 +329,18 @@
     {{ view_transition_styles_cover }}
   {% endif %}
 
+  {% if block_settings.constrain_to_viewport and media_presentation == 'list' %}
+    {% comment %}
+      Adapt + constrain: no constraint-wrapper, but base.css still applies max-height via .constrain-height.
+      List stack should follow column width, not viewport height.
+    {% endcomment %}
+    @media screen and (min-width: 750px) {
+      .media-gallery--list .product-media-container.constrain-height {
+        max-height: none;
+      }
+    }
+  {% endif %}
+
   :root { --gallery-media-border-radius: {{ block_settings.media_radius }}px; }
 {% endstyle %}
 
@@ -337,7 +359,7 @@
   <media-gallery
     class="
       spacing-style
-      sticky-content
+      {% unless media_presentation == 'list' %}sticky-content{% endunless %}
       {% if media_presentation == 'grid' %}
         media-gallery--{{ block_settings.media_columns }}-column
         {% if block_settings.media_columns == "two" and block_settings.large_first_image%}media-gallery--large-first-image{% endif %}
@@ -350,10 +372,23 @@
         media-gallery--extend
       {% endif %}
     "
-    style="{% render 'spacing-style', settings: block_settings %} --thumbnail-width: {{ block_settings.thumbnail_width }}px; --media-radius: {{ block_settings.media_radius }}px;{% if block_settings.icons_style contains 'large' %} --slideshow-icon-padding: 0px;{% endif %}--image-gap: {{ block_settings.image_gap }}px;{% unless block_settings.aspect_ratio == 'adapt' %} --gallery-aspect-ratio: {{ block_settings.aspect_ratio }};{% endunless %}"
+    style="{% render 'spacing-style', settings: block_settings %} --thumbnail-width: {{ block_settings.thumbnail_width }}px; --thumbnail-radius: {{ block_settings.thumbnail_radius }}px; --media-radius: {{ block_settings.media_radius }}px;{% if block_settings.icons_style contains 'large' %} --slideshow-icon-padding: 0px;{% endif %}--image-gap: {{ block_settings.image_gap }}px;{% unless block_settings.aspect_ratio == 'adapt' %} --gallery-aspect-ratio: {{ block_settings.aspect_ratio }};{% endunless %}"
     data-presentation="{{ media_presentation }}"
     {{ block_shopify_attributes }}
   >
+    {% if media_presentation == 'list' %}
+      {% render 'product-media-gallery-list',
+        sorted_media: sorted_media,
+        block_settings: block_settings,
+        block_id: block_id,
+        sizes: sizes,
+        needs_both_sizes: needs_both_sizes,
+        sizes_single: sizes_single,
+        product_media_container_class: product_media_container_class,
+        lowest_aspect_ratio_index: lowest_aspect_ratio_index,
+        pagination_position: pagination_position
+      %}
+    {% else %}
     {% capture slides %}
       {% for media in sorted_media %}
         {% capture children %}
@@ -490,6 +525,7 @@
           </li>
         {% endfor %}
       </ul>
+    {% endif %}
     {% endif %}
 
     {%- if block_settings.zoom -%}

@@ -1,0 +1,180 @@
+{% liquid
+  assign block_settings = block.settings
+  assign product_resource = closest.product
+  assign suit_icons = product_resource.metafields.editorial.suit_icons.value
+  assign has_content = false
+
+  if suit_icons != blank and suit_icons.size > 0
+    assign has_content = true
+  endif
+%}
+
+{% if has_content or request.visual_preview_mode %}
+  <div
+    class="editorial-suit-icons spacing-style"
+    style="{% render 'spacing-style', settings: block_settings %}"
+    {{ block.shopify_attributes }}
+  >
+    {% if block_settings.heading != blank %}
+      <p class="editorial-suit-icons__heading">{{ block_settings.heading | escape }}</p>
+    {% endif %}
+
+    <ul class="editorial-suit-icons__list list-unstyled" role="list">
+      {% if has_content %}
+        {% for suit_icon in suit_icons %}
+          {% liquid
+            assign label = suit_icon.label.value | default: suit_icon.label
+            assign short_note = suit_icon.short_note.value | default: suit_icon.short_note
+            assign icon_media = suit_icon.icon.value | default: suit_icon.icon
+          %}
+          <li class="editorial-suit-icons__item">
+            {% if icon_media != blank %}
+              {{
+                icon_media
+                | image_url: width: 64
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '32, 64',
+                  class: 'editorial-suit-icons__image',
+                  alt: label
+              }}
+            {% endif %}
+            <div class="editorial-suit-icons__text">
+              {% if label != blank %}
+                <p class="editorial-suit-icons__label">{{ label }}</p>
+              {% endif %}
+              {% if short_note != blank %}
+                <p class="editorial-suit-icons__note">{{ short_note }}</p>
+              {% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li class="editorial-suit-icons__item">
+          <div class="editorial-suit-icons__text">
+            <p class="editorial-suit-icons__label">Suit icon</p>
+            <p class="editorial-suit-icons__note">Placeholder metaobject content</p>
+          </div>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .editorial-suit-icons {
+    width: 100%;
+  }
+
+  .editorial-suit-icons__heading {
+    margin: 0 0 var(--padding-sm);
+    font-size: var(--font-paragraph-small--size);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .editorial-suit-icons__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-sm);
+    margin: 0;
+    padding: 0;
+  }
+
+  .editorial-suit-icons__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-xs);
+    min-width: 0;
+  }
+
+  .editorial-suit-icons__image {
+    width: 1.5rem;
+    height: 1.5rem;
+    object-fit: contain;
+  }
+
+  .editorial-suit-icons__text {
+    min-width: 0;
+  }
+
+  .editorial-suit-icons__label,
+  .editorial-suit-icons__note {
+    margin: 0;
+  }
+
+  .editorial-suit-icons__note {
+    color: rgb(var(--color-foreground-rgb) / var(--opacity-subdued-text));
+    font-size: var(--font-paragraph-small--size);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial Suit Icons",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Uses the editorial.suit_icons product metafield with Suit Icon metaobjects."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Best for"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial Suit Icons",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

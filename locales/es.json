@@ -53,6 +53,7 @@
       "many": "{{ count }} filtros aplicados"
     },
     "account": "Cuenta",
+    "breadcrumb": "Migas de pan",
     "cart": "Carrito",
     "cart_count": "Total de artículos en el carrito",
     "menu": "Menú",
@@ -302,6 +303,9 @@
       "copy_code_success": "El código se copió correctamente",
       "expired": "Vencida"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Estrellas de ejemplo \u2014 Yotpo mostrar\u00e1 valoraciones reales aqu\u00ed tras instalar la app."
   },
   "placeholders": {
     "password": "Contraseña",

@@ -48,6 +48,7 @@
     "search_results_no_results": "Nerasta jokių rezultatų pagal užklausą „{{ query }}“",
     "filters": "Filtrai",
     "account": "Paskyra",
+    "breadcrumb": "Naršymo kelias",
     "cart": "Krepšelis",
     "cart_count": "Iš viso prekių krepšelyje",
     "filter_count": {
@@ -333,6 +334,9 @@
   },
   "fields": {
     "separator": "iki"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "\u017dvaig\u017ed\u017ei\u0173 rodinys \u2014 \u012fdiegus Yotpo program\u0105, bus rodomi tikri \u012fvertinimai."
   },
   "placeholders": {
     "password": "Slaptažodis",

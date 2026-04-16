@@ -32,20 +32,21 @@
   "
 >
   {%- if section.settings.show_leaf_background and section.settings.leaf_background_image != blank -%}
-    <div
-      class="custom-leaf-background-content__leaf{% if section.settings.hide_leaf_on_mobile %} custom-leaf-background-content__leaf--hide-mobile{% endif %}"
-      aria-hidden="true"
-    >
-      {{
-        section.settings.leaf_background_image
-        | image_url: width: 1200
-        | image_tag:
-          loading: 'lazy',
-          widths: '240,400,600,800,1000,1200',
-          sizes: '(min-width: 990px) 20vw, 40vw',
-          class: 'custom-leaf-background-content__leaf-image',
-          alt: ''
-      }}
+    <div class="custom-leaf-background-content__decor" aria-hidden="true">
+      <div
+        class="custom-leaf-background-content__leaf{% if section.settings.hide_leaf_on_mobile %} custom-leaf-background-content__leaf--hide-mobile{% endif %}"
+      >
+        {{
+          section.settings.leaf_background_image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '240,400,600,800,1000,1200',
+            sizes: '(min-width: 990px) 20vw, 40vw',
+            class: 'custom-leaf-background-content__leaf-image',
+            alt: ''
+        }}
+      </div>
     </div>
   {%- endif -%}
 
@@ -70,15 +71,19 @@
 {% stylesheet %}
   .custom-leaf-background-content {
     position: relative;
-    overflow: clip;
+    /* Root overflow visible: clip only the decorative leaf inside __decor (Theme Editor) */
+    overflow: visible;
   }
 
-  .custom-leaf-background-content > * {
-    grid-row: 1;
+  .custom-leaf-background-content__decor {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
 
   .custom-leaf-background-content__leaf {
-    grid-column: 1 / -1;
     position: absolute;
     inset-inline-start: var(--clbc-leaf-offset-x, 0px);
     top: var(--clbc-leaf-offset-y, 0px);

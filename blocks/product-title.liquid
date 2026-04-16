@@ -1,19 +1,119 @@
 
+{% liquid
+  assign show_collection_link = block.settings.show_collection_link
+  assign collection_target = block.settings.collection_link_target
+  if show_collection_link and collection_target == blank and closest.product != blank and closest.product.collections.size > 0
+    assign collection_target = closest.product.collections | first
+  endif
+%}
 
-{% if closest.product == blank %}
-  {% assign text = 'placeholders.product_title' | t %}
-  {% assign product_title = '<p role="heading" aria-level="3">' | append: text | append: '</p>' %}
-  {% render 'text', fallback_text: product_title, block: block %}
-{% else %}
-  {% assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title | append: '</p>' %}
-  <a
-    class="contents user-select-text"
-    ref="productTitleLink"
-    href="{{ closest.product.selected_or_first_available_variant.url }}"
-  >
+<div class="product-title-block">
+  {% if closest.product == blank %}
+    {% assign text = 'placeholders.product_title' | t %}
+    {% assign product_title = '<p role="heading" aria-level="3">' | append: text | append: '</p>' %}
     {% render 'text', fallback_text: product_title, block: block %}
-  </a>
-{% endif %}
+    {%- if show_collection_link and request.design_mode -%}
+      <p
+        class="product-title__collection-link product-title__collection-link--placeholder"
+        style="
+          --pcl-color: {{ block.settings.collection_link_text_color }};
+          --pcl-font-size: {{ block.settings.collection_link_font_size }}px;
+          padding-top: {{ block.settings.collection_link_padding_top }}px;
+          padding-bottom: {{ block.settings.collection_link_padding_bottom }}px;
+        "
+      >
+        {{- 'placeholders.collection_title' | t -}}
+      </p>
+    {%- endif -%}
+  {% else %}
+    {% assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title | append: '</p>' %}
+    <a
+      class="contents user-select-text"
+      ref="productTitleLink"
+      href="{{ closest.product.selected_or_first_available_variant.url }}"
+    >
+      {% render 'text', fallback_text: product_title, block: block %}
+    </a>
+    {%- if show_collection_link -%}
+      {%- if collection_target != blank -%}
+        <div
+          class="product-title__collection-link"
+          style="
+            --pcl-color: {{ block.settings.collection_link_text_color }};
+            --pcl-font-size: {{ block.settings.collection_link_font_size }}px;
+            padding-top: {{ block.settings.collection_link_padding_top }}px;
+            padding-bottom: {{ block.settings.collection_link_padding_bottom }}px;
+          "
+        >
+          <a href="{{ collection_target.url }}" class="product-title__collection-link-anchor">
+            {{- collection_target.title | escape -}}
+          </a>
+        </div>
+      {%- elsif request.design_mode -%}
+        <p
+          class="product-title__collection-link product-title__collection-link--placeholder"
+          style="
+            --pcl-color: {{ block.settings.collection_link_text_color }};
+            --pcl-font-size: {{ block.settings.collection_link_font_size }}px;
+            padding-top: {{ block.settings.collection_link_padding_top }}px;
+            padding-bottom: {{ block.settings.collection_link_padding_bottom }}px;
+          "
+        >
+          {{- 'placeholders.collection_title' | t -}}
+        </p>
+      {%- endif -%}
+    {%- endif -%}
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  .product-title-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .product-title__collection-link {
+    width: 100%;
+    font-family: var(--font-body--family);
+    font-size: var(--pcl-font-size, 0.875rem);
+    line-height: 1.4;
+  }
+
+  .product-title__collection-link-anchor {
+    color: var(--pcl-color, rgb(var(--color-foreground-rgb) / 0.62));
+    text-decoration: none;
+    transition: color var(--animation-speed) var(--animation-easing);
+  }
+
+  .product-title__collection-link-anchor:hover {
+    color: rgb(var(--color-foreground-rgb));
+    text-decoration: underline;
+  }
+
+  .product-title__collection-link-anchor:focus-visible {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+    border-radius: 2px;
+  }
+
+  .product-title__collection-link--placeholder {
+    margin: 0;
+    width: 100%;
+    color: var(--pcl-color, rgb(var(--color-foreground-rgb) / 0.45));
+    font-family: var(--font-body--family);
+    font-size: var(--pcl-font-size, 0.875rem);
+    line-height: 1.4;
+    opacity: 0.85;
+  }
+
+  @media (prefers-contrast: more) {
+    .product-title__collection-link-anchor {
+      text-decoration: underline;
+    }
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
@@ -393,6 +493,63 @@
       "step": 1,
       "unit": "px",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Collection link",
+      "info": "Optional line under the title linking to a collection (e.g. Paradise Collection)."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_link",
+      "label": "Show collection link below title",
+      "default": false
+    },
+    {
+      "type": "collection",
+      "id": "collection_link_target",
+      "label": "Collection",
+      "info": "Shown when “Show collection link below title” is on. If empty, uses the product’s first collection."
+    },
+    {
+      "type": "range",
+      "id": "collection_link_font_size",
+      "label": "Collection link font size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14,
+      "visible_if": "{{ block.settings.show_collection_link }}"
+    },
+    {
+      "type": "color",
+      "id": "collection_link_text_color",
+      "label": "Collection link color",
+      "default": "#6b6b6b",
+      "visible_if": "{{ block.settings.show_collection_link }}"
+    },
+    {
+      "type": "range",
+      "id": "collection_link_padding_top",
+      "label": "Collection link spacing top",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 12,
+      "visible_if": "{{ block.settings.show_collection_link }}"
+    },
+    {
+      "type": "range",
+      "id": "collection_link_padding_bottom",
+      "label": "Collection link spacing bottom",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ block.settings.show_collection_link }}"
     }
   ],
   "presets": [

@@ -52,6 +52,7 @@
       "other": "{{ count }} suodatinta käytössä"
     },
     "account": "Tili",
+    "breadcrumb": "Murupolku",
     "cart": "Ostoskori",
     "cart_count": "Tuotteita ostoskorissa yhteensä",
     "menu": "Valikko",
@@ -296,6 +297,9 @@
       "copy_code_success": "Koodin kopioiminen onnistui",
       "expired": "Vanhentunut"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "T\u00e4htien paikkamerkki \u2014 Yotpo n\u00e4ytt\u00e4\u00e4 oikeat arvostelut, kun sovellus on asennettu."
   },
   "placeholders": {
     "password": "Salasana",

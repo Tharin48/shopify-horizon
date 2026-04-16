@@ -54,6 +54,7 @@
       "many": "Je použito více filtrů ({{ count }})"
     },
     "account": "Účet",
+    "breadcrumb": "Drobečková navigace",
     "cart": "Košík",
     "cart_count": "Celkem položek v košíku",
     "menu": "Nabídka",
@@ -308,6 +309,9 @@
       "copy_code_success": "Kód byl úspěšně zkopírován",
       "expired": "Po konci platnosti"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Z\u00e1stupn\u00e9 hv\u011bzdy \u2014 po instalaci Yotpo se zde zobraz\u00ed skute\u010dn\u00e9 hodnocen\u00ed."
   },
   "placeholders": {
     "password": "Heslo",

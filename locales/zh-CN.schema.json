@@ -392,6 +392,8 @@
     "left": "左",
     "letter_spacing": "字间距",
     "limit_product_details_width": "限制产品详细信息宽度",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "链接预设",
     "links": "链接",
     "logo_font": "logo 字体",

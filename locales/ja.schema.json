@@ -394,6 +394,8 @@
     "left": "左",
     "letter_spacing": "文字間隔",
     "limit_product_details_width": "商品詳細の幅を制限する",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "リンクのプリセット",
     "links": "リンク",
     "logo": "ロゴ",

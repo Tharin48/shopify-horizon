@@ -1,0 +1,33 @@
+{%- doc -%}
+  Placeholder line icons for Custom Suited For (replace with assets later).
+  @param {string} period - morning | afternoon | evening | night
+{%- enddoc -%}
+{%- assign p = period | default: 'morning' -%}
+<span class="custom-suited-for-icon" aria-hidden="true">
+  {%- case p -%}
+    {%- when 'morning' -%}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="40" height="40" focusable="false">
+        <circle cx="24" cy="18" r="6"/>
+        <path d="M8 32h32"/>
+        <path d="M12 36h24"/>
+        <path d="M16 40h16"/>
+        <path d="M24 6v4M34 10l-3 3M14 10l3 3"/>
+      </svg>
+    {%- when 'afternoon' -%}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="40" height="40" focusable="false">
+        <circle cx="24" cy="24" r="8"/>
+        <path d="M24 8v4M24 36v4M8 24h4M36 24h4M12.5 12.5l2.8 2.8M32.7 32.7l2.8 2.8M35.5 12.5l-2.8 2.8M15.3 32.7l-2.8 2.8"/>
+      </svg>
+    {%- when 'evening' -%}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="40" height="40" focusable="false">
+        <path d="M28 14a10 10 0 1 1-12 16 12 12 0 0 0 12-16z"/>
+        <path d="M8 34h32"/>
+        <path d="M12 38h24"/>
+        <path d="M16 42h16"/>
+      </svg>
+    {%- else -%}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="40" height="40" focusable="false">
+        <path d="M30 12a12 12 0 1 1-18 18 12 12 0 0 1 18-18z"/>
+      </svg>
+  {%- endcase -%}
+</span>

@@ -1,0 +1,257 @@
+{%- liquid
+  assign product = closest.product
+  assign mode = block.settings.integration_mode
+  assign show_count = block.settings.show_review_count
+  assign star_c = block.settings.star_color
+  assign empty_c = block.settings.star_empty_color
+  assign text_c = block.settings.count_text_color
+
+  if request.visual_preview_mode and product == blank
+    assign product = collections.all.products.first
+  endif
+
+  assign rating_val = nil
+  assign scale_max = 5
+  assign rating_count_val = nil
+
+  if mode == 'shopify_reviews' and product != blank
+    assign rating_val = product.metafields.reviews.rating.value.rating
+    assign scale_max = product.metafields.reviews.rating.value.scale_max | default: 5
+    assign rating_count_val = product.metafields.reviews.rating_count
+  endif
+
+  assign show_shopify_stars = false
+  if mode == 'shopify_reviews' and rating_val != blank
+    assign show_shopify_stars = true
+  endif
+
+  assign yotpo_editor_preview = false
+  if mode == 'yotpo_star_rating' and request.design_mode and block.settings.yotpo_show_placeholder_in_editor
+    assign yotpo_editor_preview = true
+  endif
+
+  assign show_placeholder_stars = false
+  if mode == 'placeholder'
+    assign show_placeholder_stars = true
+  elsif mode == 'shopify_reviews' and show_shopify_stars == false and block.settings.shopify_fallback_to_placeholder
+    assign show_placeholder_stars = true
+  elsif yotpo_editor_preview
+    assign show_placeholder_stars = true
+  endif
+
+  assign show_yotpo_mount = false
+  if mode == 'yotpo_star_rating' and product != blank and yotpo_editor_preview == false
+    assign show_yotpo_mount = true
+  endif
+
+  assign placeholder_rating = block.settings.placeholder_rating
+  assign placeholder_count = block.settings.placeholder_review_count
+-%}
+
+<div
+  class="product-rating-summary-block"
+  style="
+    padding-bottom: {{ block.settings.padding_bottom }}px;
+    --prs-star-fill: {{ star_c }};
+    --prs-star-empty: {{ empty_c }};
+    --prs-count: {{ text_c }};
+  "
+  {{ block.shopify_attributes }}
+>
+  {%- if show_yotpo_mount -%}
+    {%- comment -%}
+      Yotpo Reviews & Photos injects into `.yotpo.bottomLine` when the app is installed (enable Star Ratings / widget in Yotpo).
+      Product ID and URL are standard attributes for Yotpo widgets on PDPs.
+    {%- endcomment -%}
+    <div class="product-rating-summary-block__yotpo-mount" data-yotpo-product-id="{{ product.id }}">
+      <div
+        class="yotpo bottomLine"
+        data-product-id="{{ product.id }}"
+        data-url="{{ shop.url }}{{ product.url }}"
+      ></div>
+    </div>
+  {%- endif -%}
+
+  {%- if show_shopify_stars -%}
+    <div class="product-rating-summary-block__inner product-rating-summary-block__inner--shopify">
+      {% render 'product-rating-summary-display',
+        rating: rating_val,
+        scale_max: scale_max,
+        rating_count: rating_count_val,
+        star_color: star_c,
+        star_empty_color: empty_c,
+        show_count: show_count,
+        unique_suffix: block.id
+      %}
+    </div>
+  {%- elsif show_placeholder_stars -%}
+    <div class="product-rating-summary-block__inner product-rating-summary-block__inner--placeholder">
+      {% render 'product-rating-summary-display',
+        rating: placeholder_rating,
+        scale_max: 5,
+        rating_count: placeholder_count,
+        star_color: star_c,
+        star_empty_color: empty_c,
+        show_count: show_count,
+        unique_suffix: block.id | append: '-ph'
+      %}
+      {%- if yotpo_editor_preview -%}
+        <p class="product-rating-summary-block__hint">
+          {{ 'product_rating_summary.yotpo_editor_hint' | t }}
+        </p>
+      {%- endif -%}
+    </div>
+  {%- elsif product == blank -%}
+    <div class="product-rating-summary-block__inner product-rating-summary-block__inner--placeholder">
+      {% render 'product-rating-summary-display',
+        rating: placeholder_rating,
+        scale_max: 5,
+        rating_count: placeholder_count,
+        star_color: star_c,
+        star_empty_color: empty_c,
+        show_count: show_count,
+        unique_suffix: block.id | append: '-ed'
+      %}
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .product-rating-summary-block__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .product-rating-summary-block__inner .product-rating-summary-display__star.is-filled {
+    fill: var(--prs-star-fill, #c5a059);
+  }
+
+  .product-rating-summary-block__inner .product-rating-summary-display__star:not(.is-filled) {
+    fill: var(--prs-star-empty, rgb(var(--color-foreground-rgb) / 0.22));
+  }
+
+  .product-rating-summary-block__inner .product-rating-summary-display__count {
+    color: var(--prs-count, rgb(var(--color-foreground-rgb) / 0.62));
+  }
+
+  .product-rating-summary-block__hint {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: rgb(var(--color-foreground-rgb) / 0.55);
+    max-width: 28rem;
+  }
+
+  .product-rating-summary-block__yotpo-mount:empty {
+    min-height: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product rating summary",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "integration_mode",
+      "label": "Rating source",
+      "options": [
+        {
+          "value": "placeholder",
+          "label": "Design placeholder (development)"
+        },
+        {
+          "value": "shopify_reviews",
+          "label": "Shopify product reviews (metafields)"
+        },
+        {
+          "value": "yotpo_star_rating",
+          "label": "Yotpo star rating (app widget)"
+        }
+      ],
+      "default": "placeholder",
+      "info": "Use Placeholder until reviews are connected. Shopify metafields are filled by compatible review apps (including Yotpo when configured). Yotpo mode outputs the standard star-rating mount for the Yotpo Reviews app."
+    },
+    {
+      "type": "header",
+      "content": "Placeholder (development / fallback)"
+    },
+    {
+      "type": "range",
+      "id": "placeholder_rating",
+      "label": "Placeholder average rating",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "default": 4.5
+    },
+    {
+      "type": "number",
+      "id": "placeholder_review_count",
+      "label": "Placeholder review count",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "shopify_fallback_to_placeholder",
+      "label": "Show placeholder when metafields are empty",
+      "default": true,
+      "info": "Applies when source is Shopify product reviews."
+    },
+    {
+      "type": "checkbox",
+      "id": "yotpo_show_placeholder_in_editor",
+      "label": "Show placeholder in theme editor (Yotpo mode)",
+      "default": true,
+      "info": "Helps layout the PDP before the Yotpo app is installed. Hidden on the live store when Yotpo mode is selected."
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_review_count",
+      "label": "Show review count",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#c5a059"
+    },
+    {
+      "type": "color",
+      "id": "star_empty_color",
+      "label": "Empty star color",
+      "default": "#d4d4d4"
+    },
+    {
+      "type": "color",
+      "id": "count_text_color",
+      "label": "Review count text",
+      "default": "#6b6b6b"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Space below",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product rating summary",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

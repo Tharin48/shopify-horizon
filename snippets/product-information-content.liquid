@@ -74,12 +74,45 @@
     when 'content-full-width'
       assign content_width = 'full-width'
   endcase
+
+  comment
+    Custom frame: merchant checkbox OR editorial product template (templates/product.editorial.json).
+    Editor DB often overrides JSON, so suffix-based fallback keeps layout without relying on the toggle.
+  endcomment
+  assign pi_editorial_product_template = false
+  if request.page_type == 'product' and template.suffix == 'editorial'
+    assign pi_editorial_product_template = true
+  endif
+
+  assign pi_use_custom_product_frame = false
+  if settings.enable_custom_product_page_frame or pi_editorial_product_template
+    assign pi_use_custom_product_frame = true
+  endif
+
+  assign pi_custom_frame_class = ''
+  assign pi_custom_frame_style = ''
+  if pi_use_custom_product_frame
+    assign pi_custom_frame_class = ' product-information--custom-page-frame'
+    assign pi_max_w = settings.custom_frame_max_width | default: 1920
+    assign pi_inset_start = settings.custom_frame_inset_start_desktop | default: 20
+    assign pi_inset_end = settings.custom_frame_inset_end_desktop | default: 80
+    assign pi_inset_m = settings.custom_frame_inset_mobile | default: 16
+    assign pi_custom_frame_style = ' --pi-custom-max-width: '
+    assign pi_custom_frame_style = pi_custom_frame_style | append: pi_max_w
+    assign pi_custom_frame_style = pi_custom_frame_style | append: 'px; --pi-custom-inset-start-lg: '
+    assign pi_custom_frame_style = pi_custom_frame_style | append: pi_inset_start
+    assign pi_custom_frame_style = pi_custom_frame_style | append: 'px; --pi-custom-inset-end-lg: '
+    assign pi_custom_frame_style = pi_custom_frame_style | append: pi_inset_end
+    assign pi_custom_frame_style = pi_custom_frame_style | append: 'px; --pi-custom-inset-mobile: '
+    assign pi_custom_frame_style = pi_custom_frame_style | append: pi_inset_m
+    assign pi_custom_frame_style = pi_custom_frame_style | append: 'px;'
+  endif
 %}
 
 <div class="section-background color-{{ settings.color_scheme }}"></div>
 <div
-  class="product-information section section--{{ content_width }} spacing-style color-{{ settings.color_scheme }} relative"
-  style="{% render 'spacing-style', settings: settings %} --gap: {{ settings.gap }}px;"
+  class="product-information section section--{{ content_width }} spacing-style color-{{ settings.color_scheme }} relative{{ pi_custom_frame_class }}"
+  style="{% render 'spacing-style', settings: settings %} --gap: {{ settings.gap }}px;{{ pi_custom_frame_style }}"
   data-testid="product-information"
 >
   {% if settings.desktop_media_position == 'left' and product_has_media and request.page_type == 'product' %}
@@ -115,6 +148,62 @@
 {% stylesheet %}
   .product-information {
     gap: var(--gap) 0;
+    /*
+      Product page column spacing (desktop). Override in theme CSS on .product-information if needed.
+      --gallery-thumb-stack-gap: horizontal space between thumbnail rail and main gallery (list layout).
+      --media-details-column-gutter: total space between media column and product details (split ½ + ½).
+    */
+    --gallery-thumb-stack-gap: 20px;
+    --media-details-column-gutter: 20px;
+  }
+
+  /*
+    Custom product page frame: max width + horizontal insets (editorial templates).
+    Collapses the section to a single grid column so asymmetric padding is accurate.
+  */
+  .product-information.product-information--custom-page-frame.section {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: min(var(--pi-custom-max-width, 1920px), 100%);
+    margin-inline: auto;
+    padding-inline-start: var(--pi-custom-inset-mobile, 16px);
+    padding-inline-end: var(--pi-custom-inset-mobile, 16px);
+    box-sizing: border-box;
+  }
+
+  .product-information.product-information--custom-page-frame.section > * {
+    grid-column: 1;
+  }
+
+  @media screen and (min-width: 750px) {
+    .product-information.product-information--custom-page-frame.section {
+      padding-inline-start: var(--pi-custom-inset-start-lg, 20px);
+      padding-inline-end: var(--pi-custom-inset-end-lg, 80px);
+    }
+
+    .product-information.product-information--custom-page-frame .product-information__grid {
+      grid-column: 1 / -1;
+    }
+
+    .product-information.product-information--custom-page-frame
+      .product-information__grid:not(.product-information--media-none).product-information--media-left:has(.media-gallery--extend) {
+      grid-column: 1 / -1;
+    }
+
+    .product-information.product-information--custom-page-frame
+      .product-information__grid:not(.product-information--media-none).product-information--media-right:has(.media-gallery--extend) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-information.product-information--custom-page-frame .product-information__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .product-information.product-information--custom-page-frame .product-details {
+      grid-column: 1 / -1;
+    }
   }
 
   /* Base grid layout */
@@ -167,16 +256,16 @@
 
     /* Position when there is media */
     .product-information__grid:not(.product-information--media-none) {
-      /* Media on the left side */
+      /* Media on the left side — slightly narrower media column (~10%) so details have more room */
       &.product-information--media-left {
-        grid-template-columns: 1fr min(50vw, var(--sidebar-width));
+        grid-template-columns: 0.9fr min(50vw, var(--sidebar-width));
 
         .product-information__media {
-          padding-right: calc(var(--gap, 0) / 2);
+          padding-right: calc(var(--media-details-column-gutter, 20px) / 2);
         }
 
         .product-details {
-          padding-left: calc(var(--gap, 0) / 2);
+          padding-left: calc(var(--media-details-column-gutter, 20px) / 2);
         }
 
         &:has(.media-gallery--extend) {
@@ -186,15 +275,15 @@
 
       /* Media on the right side */
       &.product-information--media-right {
-        grid-template-columns: min(50vw, var(--sidebar-width)) 1fr;
+        grid-template-columns: min(50vw, var(--sidebar-width)) 0.9fr;
 
         .product-information__media {
-          padding-left: calc(var(--gap, 0) / 2);
+          padding-left: calc(var(--media-details-column-gutter, 20px) / 2);
           order: 1;
         }
 
         .product-details {
-          padding-right: calc(var(--gap, 0) / 2);
+          padding-right: calc(var(--media-details-column-gutter, 20px) / 2);
           order: 0;
         }
 
@@ -282,20 +371,20 @@
     }
   }
 
-  /* Wider sidebar for large screens */
+  /* Large screens: favor product details (~60/40 split vs previous ~67/33) */
   @media screen and (min-width: 1200px) {
     .product-information__grid:not(
         .product-information__grid--half,
         .product-information--media-none
       ).product-information--media-left {
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 1.5fr 1fr;
     }
 
     .product-information__grid:not(
         .product-information__grid--half,
         .product-information--media-none
       ).product-information--media-right {
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: 1fr 1.5fr;
     }
   }
 
@@ -310,8 +399,13 @@
     }
   }
 
-  /* If the header is sticky, make product details content stick underneath the header */
-  body:has(#header-group #header-component[data-sticky-state='active']) .product-details.sticky-content--desktop {
+  /*
+    Sticky header offset for the whole product information row (media + details).
+    - Horizon header: only while #header-component is sticky-active.
+    - Custom header: no header-component / data-sticky-state — still set offset so gallery + details match.
+  */
+  body:has(#header-group #header-component[data-sticky-state='active']) .product-information,
+  body:has(#header-group [data-custom-header]) .product-information {
     --sticky-header-offset: var(--header-height);
   }
 {% endstylesheet %}

@@ -100,6 +100,31 @@
       }
     }
     document.documentElement.style.setProperty('--announcement-bar-height', h + 'px');
+    syncProductGalleryViewportOffset();
+  }
+
+  /**
+   * Product gallery max-height uses --viewport-offset → calc(100vh - offset). Live --header-height
+   * changes on every transparent/solid/minimized/hidden transition, which makes images resize while scrolling.
+   * Reserve a stable offset: announcement bar + max(default, minimized) heights from theme CSS variables.
+   */
+  function syncProductGalleryViewportOffset() {
+    var root = document.querySelector('[data-custom-header]');
+    if (!root) {
+      return;
+    }
+    var cs = getComputedStyle(root);
+    var def = parseFloat(cs.getPropertyValue('--custom-header-default-height'));
+    var min = parseFloat(cs.getPropertyValue('--custom-header-minimized-height'));
+    if (isNaN(def)) def = 72;
+    if (isNaN(min)) min = 56;
+    var ann = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announcement-bar-height'));
+    if (isNaN(ann)) ann = 0;
+    var reserve = Math.max(def, min);
+    document.documentElement.style.setProperty(
+      '--product-gallery-viewport-offset',
+      ann + reserve + 'px'
+    );
   }
 
   function updateHeaderGroupHeight(root) {
@@ -140,6 +165,7 @@
     var h = Math.round(root.getBoundingClientRect().height);
     document.body.style.setProperty('--header-height', h + 'px');
     updateHeaderGroupHeight(root);
+    syncProductGalleryViewportOffset();
   }
 
   function applyHeaderState(root, state) {

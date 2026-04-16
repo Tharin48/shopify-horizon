@@ -52,6 +52,7 @@
       "other": "{{ count }} filtre anvendt"
     },
     "account": "Konto",
+    "breadcrumb": "Brødkrumme",
     "cart": "Indkøbskurv",
     "cart_count": "Varer i alt i indkøbskurven",
     "menu": "Menu",
@@ -296,6 +297,9 @@
       "copy_code_success": "Koden er blevet kopieret",
       "expired": "Udløbet"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Pladsholderstjerner \u2014 Yotpo viser rigtige bed\u00f8mmelser her, n\u00e5r appen er installeret."
   },
   "placeholders": {
     "password": "Adgangskode",

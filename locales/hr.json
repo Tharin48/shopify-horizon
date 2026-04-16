@@ -53,6 +53,7 @@
       "few": "Primijenjen je sljedeći broj filtara: {{ count }}"
     },
     "account": "Račun",
+    "breadcrumb": "Putanja",
     "cart": "Košarica",
     "cart_count": "Ukupan broj stavki u košarici",
     "menu": "Izbornik",
@@ -302,6 +303,9 @@
       "copy_code_success": "Kod je uspješno kopiran",
       "expired": "Isteklo"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Zamjenske zvjezdice \u2014 Yotpo \u0107e ovdje prikazati stvarne ocjene nakon instalacije aplikacije."
   },
   "placeholders": {
     "password": "Lozinka",

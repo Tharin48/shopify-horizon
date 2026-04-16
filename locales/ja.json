@@ -52,6 +52,7 @@
       "other": "{{ count }}フィルターを適用しました"
     },
     "account": "アカウント",
+    "breadcrumb": "パンくずリスト",
     "cart": "カート",
     "cart_count": "カート内の合計アイテム数",
     "menu": "メニュー",
@@ -296,6 +297,9 @@
       "copy_code_success": "コードは正常にコピーされました",
       "expired": "期限切れ"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "\u30d7\u30ec\u30fc\u30b9\u30db\u30eb\u30c0\u30fc\u306e\u661f \u2014 Yotpo\u30a2\u30d7\u30ea\u3092\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3059\u308b\u3068\u5b9f\u969b\u306e\u8a55\u4fa1\u304c\u8868\u793a\u3055\u308c\u307e\u3059\u3002"
   },
   "placeholders": {
     "password": "パスワード",

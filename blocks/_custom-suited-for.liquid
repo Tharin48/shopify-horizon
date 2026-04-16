@@ -1,0 +1,410 @@
+{%- liquid
+  assign block_settings = block.settings
+  assign product = closest.product
+  assign preview = false
+  if request.design_mode or request.visual_preview_mode
+    assign preview = true
+  endif
+
+  comment
+    Metafields (namespace custom):
+    - suited_for OR suit_for — list of choices, or single line text like "Afternoon • Evening"
+    - Legacy booleans suited_morning, etc. if neither list/text has data
+    Storefront: hidden when no metafield data. Theme editor: placeholder / fallbacks when previewing.
+  endcomment
+
+  assign show_morning = false
+  assign show_afternoon = false
+  assign show_evening = false
+  assign show_night = false
+  assign editor_placeholder = false
+
+  if product != blank
+    assign suited_primary = product.metafields.custom.suited_for
+    assign suited_alt = product.metafields.custom.suit_for
+
+    if suited_primary != blank and suited_primary.value != blank
+      assign suited_mf_type = suited_primary.type | default: ''
+      if suited_mf_type contains 'list'
+        for slot in suited_primary.value
+          assign token = slot | strip | downcase
+          if token == 'morning'
+            assign show_morning = true
+          elsif token == 'afternoon'
+            assign show_afternoon = true
+          elsif token == 'evening'
+            assign show_evening = true
+          elsif token == 'night'
+            assign show_night = true
+          endif
+        endfor
+      else
+        assign raw_primary = suited_primary.value | strip
+        assign norm_primary = raw_primary | replace: '•', ',' | replace: '·', ',' | replace: '|', ','
+        assign segs_primary = norm_primary | split: ','
+        for part in segs_primary
+          assign token = part | strip | downcase
+          if token == 'morning'
+            assign show_morning = true
+          elsif token == 'afternoon'
+            assign show_afternoon = true
+          elsif token == 'evening'
+            assign show_evening = true
+          elsif token == 'night'
+            assign show_night = true
+          endif
+        endfor
+      endif
+    elsif suited_alt != blank and suited_alt.value != blank
+      assign suited_mf_type = suited_alt.type | default: ''
+      if suited_mf_type contains 'list'
+        for slot in suited_alt.value
+          assign token = slot | strip | downcase
+          if token == 'morning'
+            assign show_morning = true
+          elsif token == 'afternoon'
+            assign show_afternoon = true
+          elsif token == 'evening'
+            assign show_evening = true
+          elsif token == 'night'
+            assign show_night = true
+          endif
+        endfor
+      else
+        assign raw_alt = suited_alt.value | strip
+        assign norm_alt = raw_alt | replace: '•', ',' | replace: '·', ',' | replace: '|', ','
+        assign segs_alt = norm_alt | split: ','
+        for part in segs_alt
+          assign token = part | strip | downcase
+          if token == 'morning'
+            assign show_morning = true
+          elsif token == 'afternoon'
+            assign show_afternoon = true
+          elsif token == 'evening'
+            assign show_evening = true
+          elsif token == 'night'
+            assign show_night = true
+          endif
+        endfor
+      endif
+    else
+      assign mf_m = product.metafields.custom.suited_morning
+      assign mf_a = product.metafields.custom.suited_afternoon
+      assign mf_e = product.metafields.custom.suited_evening
+      assign mf_n = product.metafields.custom.suited_night
+      if mf_m != blank
+        assign show_morning = mf_m.value
+      endif
+      if mf_a != blank
+        assign show_afternoon = mf_a.value
+      endif
+      if mf_e != blank
+        assign show_evening = mf_e.value
+      endif
+      if mf_n != blank
+        assign show_night = mf_n.value
+      endif
+    endif
+  endif
+
+  assign visible_count = 0
+  if show_morning
+    assign visible_count = visible_count | plus: 1
+  endif
+  if show_afternoon
+    assign visible_count = visible_count | plus: 1
+  endif
+  if show_evening
+    assign visible_count = visible_count | plus: 1
+  endif
+  if show_night
+    assign visible_count = visible_count | plus: 1
+  endif
+
+  if preview and product == blank
+    assign show_morning = block_settings.fallback_morning
+    assign show_afternoon = block_settings.fallback_afternoon
+    assign show_evening = block_settings.fallback_evening
+    assign show_night = block_settings.fallback_night
+    assign visible_count = 0
+    if show_morning
+      assign visible_count = visible_count | plus: 1
+    endif
+    if show_afternoon
+      assign visible_count = visible_count | plus: 1
+    endif
+    if show_evening
+      assign visible_count = visible_count | plus: 1
+    endif
+    if show_night
+      assign visible_count = visible_count | plus: 1
+    endif
+  elsif preview and product != blank and visible_count == 0
+    assign editor_placeholder = true
+    assign show_morning = true
+    assign show_afternoon = true
+    assign show_evening = true
+    assign show_night = true
+    assign visible_count = 4
+  endif
+
+  assign render_block = false
+  if visible_count > 0
+    assign render_block = true
+  endif
+  if product == blank and preview == false
+    assign render_block = false
+  endif
+-%}
+
+{%- if render_block -%}
+  <div
+    class="custom-suited-for spacing-style"
+    style="{% render 'spacing-style', settings: block_settings %}"
+    {{ block.shopify_attributes }}
+  >
+    {%- if block_settings.heading != blank -%}
+      <h3 class="custom-suited-for__heading">{{ block_settings.heading | escape }}</h3>
+    {%- endif -%}
+
+    <ul class="custom-suited-for__list list-unstyled" role="list">
+      {%- if show_morning -%}
+        <li class="custom-suited-for__item">
+          <div class="custom-suited-for__icon-wrap">
+            {% render 'custom-suited-for-icon', period: 'morning' %}
+          </div>
+          <span class="custom-suited-for__label">{{ block_settings.label_morning | escape }}</span>
+        </li>
+      {%- endif -%}
+      {%- if show_afternoon -%}
+        <li class="custom-suited-for__item">
+          <div class="custom-suited-for__icon-wrap">
+            {% render 'custom-suited-for-icon', period: 'afternoon' %}
+          </div>
+          <span class="custom-suited-for__label">{{ block_settings.label_afternoon | escape }}</span>
+        </li>
+      {%- endif -%}
+      {%- if show_evening -%}
+        <li class="custom-suited-for__item">
+          <div class="custom-suited-for__icon-wrap">
+            {% render 'custom-suited-for-icon', period: 'evening' %}
+          </div>
+          <span class="custom-suited-for__label">{{ block_settings.label_evening | escape }}</span>
+        </li>
+      {%- endif -%}
+      {%- if show_night -%}
+        <li class="custom-suited-for__item">
+          <div class="custom-suited-for__icon-wrap">
+            {% render 'custom-suited-for-icon', period: 'night' %}
+          </div>
+          <span class="custom-suited-for__label">{{ block_settings.label_night | escape }}</span>
+        </li>
+      {%- endif -%}
+    </ul>
+
+    {%- if preview and product == blank -%}
+      <p class="custom-suited-for__hint">{{ 'products.product.suited_for_editor_hint' | t }}</p>
+    {%- elsif editor_placeholder -%}
+      <p class="custom-suited-for__hint">{{ 'products.product.suited_for_editor_placeholder' | t }}</p>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .custom-suited-for {
+    width: 100%;
+  }
+
+  .custom-suited-for__heading {
+    margin: 0 0 var(--padding-md);
+    font-family: var(--font-body--family);
+    font-size: 18px;
+    font-weight: 500;
+    color: rgb(var(--color-foreground-rgb));
+    letter-spacing: 0.02em;
+  }
+
+  .custom-suited-for__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--gap-md) var(--gap-lg);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-suited-for__list {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      column-gap: clamp(1.5rem, 5vw, 3rem);
+    }
+  }
+
+  .custom-suited-for__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-sm);
+    flex: 1 1 40%;
+    min-width: 5rem;
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-suited-for__item {
+      flex: 0 1 auto;
+    }
+  }
+
+  .custom-suited-for__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--color-foreground-rgb));
+  }
+
+  .custom-suited-for__icon-wrap .custom-suited-for-icon svg {
+    display: block;
+  }
+
+  .custom-suited-for__label {
+    font-family: var(--font-body--family);
+    font-size: var(--font-paragraph-small--size, 0.875rem);
+    font-weight: 500;
+    color: rgb(var(--color-foreground-rgb));
+    line-height: 1.3;
+  }
+
+  .custom-suited-for__hint {
+    margin: var(--padding-sm) 0 0;
+    font-size: var(--font-paragraph-small--size);
+    color: rgb(var(--color-foreground-rgb) / 0.55);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom suited for",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Uses product metafields custom.suited_for or custom.suit_for (same labels: Suited for / Suit for). Supports list fields or one line of text with values such as Afternoon • Evening (words must match morning, afternoon, evening, night). Legacy booleans suited_morning, etc. if those are empty. Storefront hides the block when no data is set."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Suited for"
+    },
+    {
+      "type": "header",
+      "content": "Labels"
+    },
+    {
+      "type": "text",
+      "id": "label_morning",
+      "label": "Morning label",
+      "default": "Morning"
+    },
+    {
+      "type": "text",
+      "id": "label_afternoon",
+      "label": "Afternoon label",
+      "default": "Afternoon"
+    },
+    {
+      "type": "text",
+      "id": "label_evening",
+      "label": "Evening label",
+      "default": "Evening"
+    },
+    {
+      "type": "text",
+      "id": "label_night",
+      "label": "Night label",
+      "default": "Night"
+    },
+    {
+      "type": "header",
+      "content": "Editor-only fallbacks (no product in preview)"
+    },
+    {
+      "type": "checkbox",
+      "id": "fallback_morning",
+      "label": "Show Morning (fallback)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "fallback_afternoon",
+      "label": "Show Afternoon (fallback)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "fallback_evening",
+      "label": "Show Evening (fallback)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "fallback_night",
+      "label": "Show Night (fallback)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom suited for",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

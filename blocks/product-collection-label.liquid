@@ -1,0 +1,158 @@
+{%- liquid
+  assign product = closest.product
+  assign collection_target = block.settings.collection
+
+  if collection_target == blank and product != blank and product.collections.size > 0
+    assign collection_target = product.collections | first
+  endif
+
+  assign show_placeholder = false
+  if collection_target == blank and request.design_mode
+    assign show_placeholder = true
+  endif
+-%}
+
+<div
+  class="product-collection-label spacing-style"
+  style="{% render 'spacing-padding', settings: block.settings %}{% if block.settings.text_color != blank %} --pcl-color: {{ block.settings.text_color }};{% endif %} --pcl-font-size: {{ block.settings.font_size }}px;"
+  {{ block.shopify_attributes }}
+>
+  {%- if collection_target != blank -%}
+    <a
+      href="{{ collection_target.url }}"
+      class="product-collection-label__link"
+    >
+      {{- collection_target.title | escape -}}
+    </a>
+  {%- elsif show_placeholder -%}
+    <span class="product-collection-label__placeholder">
+      {{- 'placeholders.collection_title' | t -}}
+    </span>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .product-collection-label {
+    width: 100%;
+    font-family: var(--font-body--family);
+    font-size: var(--pcl-font-size, 0.875rem);
+    line-height: 1.4;
+  }
+
+  .product-collection-label__link {
+    color: var(--pcl-color, rgb(var(--color-foreground-rgb) / 0.62));
+    text-decoration: none;
+    transition: color var(--animation-speed) var(--animation-easing), opacity var(--animation-speed) var(--animation-easing);
+  }
+
+  .product-collection-label__link:hover {
+    color: rgb(var(--color-foreground-rgb));
+    text-decoration: underline;
+  }
+
+  .product-collection-label__link:focus-visible {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+    border-radius: 2px;
+  }
+
+  .product-collection-label__placeholder {
+    color: var(--pcl-color, rgb(var(--color-foreground-rgb) / 0.45));
+    opacity: 0.85;
+  }
+
+  @media (prefers-contrast: more) {
+    .product-collection-label__link {
+      text-decoration: underline;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection link",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows a collection name below the title. Links to that collection. If none is chosen, uses the product’s first collection when available."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Optional. Leave empty to use the product’s first collection."
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#6b6b6b"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection link",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

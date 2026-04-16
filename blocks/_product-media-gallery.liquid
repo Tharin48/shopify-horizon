@@ -26,6 +26,10 @@
         {
           "value": "carousel",
           "label": "t:options.carousel"
+        },
+        {
+          "value": "list",
+          "label": "List (thumbnails + stacked images)"
         }
       ],
       "default": "grid",
@@ -73,7 +77,8 @@
     },
     {
       "type": "header",
-      "content": "t:content.carousel"
+      "content": "t:content.carousel",
+      "visible_if": "{{ block.settings.media_presentation == 'carousel' }}"
     },
     {
       "type": "select",
@@ -141,12 +146,13 @@
           "value": "thumbnails",
           "label": "t:options.thumbnails"
         }
-      ]
+      ],
+      "visible_if": "{{ block.settings.media_presentation == 'grid' or block.settings.media_presentation == 'carousel' }}"
     },
     {
       "type": "header",
       "content": "t:content.thumbnails",
-      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' or block.settings.slideshow_mobile_controls_style == 'thumbnails' }}"
+      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' or block.settings.slideshow_mobile_controls_style == 'thumbnails' or block.settings.media_presentation == 'list' }}"
     },
     {
       "type": "select",
@@ -167,18 +173,18 @@
         }
       ],
       "default": "bottom",
-      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' }}"
+      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' or block.settings.media_presentation == 'list' }}"
     },
     {
       "type": "range",
       "id": "thumbnail_width",
       "label": "t:settings.width_desktop",
       "min": 44,
-      "max": 72,
+      "max": 120,
       "step": 1,
       "unit": "px",
       "default": 64,
-      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' }}"
+      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' or block.settings.media_presentation == 'list' }}"
     },
     {
       "type": "range",
@@ -189,7 +195,7 @@
       "step": 1,
       "unit": "px",
       "default": 0,
-      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' or block.settings.slideshow_mobile_controls_style == 'thumbnails' }}"
+      "visible_if": "{{ block.settings.slideshow_controls_style == 'thumbnails' or block.settings.slideshow_mobile_controls_style == 'thumbnails' or block.settings.media_presentation == 'list' }}"
     },
     {
       "type": "header",

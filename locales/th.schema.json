@@ -376,6 +376,8 @@
     "letter_spacing": "ระยะห่างระหว่างตัวอักษร",
     "limit_media_to_screen_height": "จำกัดความสูงตามหน้าจอ",
     "limit_product_details_width": "จำกัดความกว้างของรายละเอียดสินค้า",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "ค่าที่ตั้งไว้ล่วงหน้าสำหรับลิงก์",
     "links": "ลิงก์",
     "logo": "โลโก้",

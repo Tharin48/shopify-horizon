@@ -48,6 +48,7 @@
     "search_results_no_results": "Nie znaleziono wyników dla „{{ query }}”",
     "filters": "Filtry",
     "account": "Konto",
+    "breadcrumb": "Okruszki nawigacyjne",
     "cart": "Koszyk",
     "cart_count": "Łączna liczba pozycji w koszyku",
     "filter_count": {
@@ -333,6 +334,9 @@
   },
   "fields": {
     "separator": "do"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Gwiazdki zast\u0119pcze \u2014 Yotpo poka\u017ce tu prawdziwe oceny po zainstalowaniu aplikacji."
   },
   "placeholders": {
     "password": "Hasło",

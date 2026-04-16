@@ -93,3 +93,47 @@ export class MediaGallery extends Component {
 if (!customElements.get('media-gallery')) {
   customElements.define('media-gallery', MediaGallery);
 }
+
+/**
+ * Thumbnail clicks scroll to stacked media items (list presentation).
+ * Re-initializes on Theme Editor section loads.
+ */
+function initProductMediaListLayouts(root) {
+  const scope = root && root.nodeType ? root : document;
+
+  for (const layout of scope.querySelectorAll('[data-product-media-list]')) {
+    if (layout.dataset.listInit === '1') continue;
+    layout.dataset.listInit = '1';
+
+    const blockId = layout.dataset.blockId;
+    if (!blockId) continue;
+
+    layout.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-media-list-index]');
+      if (!button || !layout.contains(button)) return;
+
+      const index = button.getAttribute('data-media-list-index');
+      const target = document.getElementById(`ProductMediaList-${blockId}-${index}`);
+      if (!target) return;
+
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      for (const btn of layout.querySelectorAll('[data-media-list-index]')) {
+        const active = btn === button;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-current', active ? 'true' : 'false');
+      }
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => initProductMediaListLayouts(document));
+
+document.addEventListener('shopify:section:load', (event) => {
+  if (event.target instanceof HTMLElement) {
+    for (const el of event.target.querySelectorAll('[data-product-media-list]')) {
+      el.dataset.listInit = '';
+    }
+    initProductMediaListLayouts(event.target);
+  }
+});

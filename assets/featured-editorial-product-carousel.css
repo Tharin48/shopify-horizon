@@ -3,7 +3,9 @@
   padding-top: var(--fepc-pad-top);
   padding-bottom: var(--fepc-pad-bottom);
   background: var(--fepc-background);
-  overflow: clip;
+  /* Do not use overflow: clip/hidden on the section root — it breaks Theme Editor overlay
+     positioning. Decorative leaves are clipped inside .fepc__decor instead. */
+  overflow: visible;
   /* Map carousel palette into Teamaker card token names */
   --tp-tab-active: var(--fepc-subheading);
   --tp-card-text: var(--fepc-card-text);
@@ -11,6 +13,15 @@
   --tp-review-color: var(--fepc-card-muted);
   --tp-star-color: var(--fepc-subheading);
   --tp-price-color: var(--fepc-price);
+}
+
+/* Clips leaf artwork only; main content (.fepc__wrap) stays outside this subtree */
+.featured-editorial-carousel .fepc__decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .featured-editorial-carousel .fepc__wrap {
@@ -145,7 +156,7 @@
   border-radius: var(--fepc-radius);
   background: #f3eee6;
   min-height: var(--fepc-banner-height-desktop);
-  isolation: isolate;
+  /* Avoid isolation: isolate — extra stacking contexts can confuse Theme Editor chrome */
 }
 
 .featured-editorial-carousel .fepc__banner-card--mobile {
@@ -502,18 +513,14 @@
   block-size: auto;
 }
 
-.featured-editorial-carousel .fepc__wrap,
-.featured-editorial-carousel .fepc__leaf {
+.featured-editorial-carousel .fepc__wrap {
+  position: relative;
   z-index: 1;
 }
 
 @media (max-width: 989px) {
   .featured-editorial-carousel .fepc__wrap {
     width: min(1760px, calc(100% - 40px));
-  }
-
-  .featured-editorial-carousel {
-    overflow: hidden;
   }
 
   .featured-editorial-carousel .fepc__intro {

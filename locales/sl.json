@@ -54,6 +54,7 @@
       "two": "Št. uporabljenih filtrov: {{ count }}"
     },
     "account": "Račun",
+    "breadcrumb": "Drobtine",
     "cart": "Košarica",
     "cart_count": "Skupno število izdelkov v košarici",
     "menu": "Meni",
@@ -308,6 +309,9 @@
       "copy_code_success": "Koda je uspešno kopirana",
       "expired": "Poteklo"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Zvezdice za prikaz \u2014 Yotpo bo po namestitvi aplikacije prikazal prave ocene."
   },
   "placeholders": {
     "password": "Geslo",

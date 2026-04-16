@@ -393,6 +393,8 @@
     "left": "Esquerda",
     "letter_spacing": "Espaçamento entre letras",
     "limit_product_details_width": "Limitar largura dos detalhes do produto",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "Predefinição de ligação",
     "links": "Ligações",
     "logo": "Logótipo",

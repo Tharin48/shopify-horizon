@@ -52,6 +52,7 @@
       "other": "{{ count }} filtre brukt"
     },
     "account": "Konto",
+    "breadcrumb": "Brødsmuler",
     "cart": "Handlekurv",
     "cart_count": "Totalt antall varer i handlekurven",
     "menu": "Meny",
@@ -319,6 +320,9 @@
   },
   "fields": {
     "separator": "til"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Plassholderstjerner \u2014 Yotpo viser ekte vurderinger her etter at appen er installert."
   },
   "placeholders": {
     "password": "Passord",

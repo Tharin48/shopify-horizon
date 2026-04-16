@@ -1,0 +1,127 @@
+{%- doc -%}
+  Renders PDP breadcrumb: home (or catalog) link, optional collection link, current product title.
+
+  @param {product} product - Product (`closest.product` on PDP; may be blank in editor)
+  @param {object} block - Block with settings
+{%- enddoc -%}
+
+{%- liquid
+  assign collection_crumb = block.settings.collection
+  if collection_crumb == blank and product != blank and product.collections.size > 0
+    assign collection_crumb = product.collections | first
+  endif
+
+  if block.settings.home_url_type == 'all_products_collection'
+    assign home_href = routes.all_products_collection_url | default: routes.root_url
+  else
+    assign home_href = routes.root_url
+  endif
+-%}
+
+{%- if product == blank -%}
+  <nav class="product-breadcrumb product-breadcrumb--placeholder" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+    <ol class="product-breadcrumb__list list-unstyled">
+      {%- if block.settings.show_home_link -%}
+        <li class="product-breadcrumb__item">
+          <span class="product-breadcrumb__link">{{ block.settings.home_label | escape }}</span>
+        </li>
+      {%- endif -%}
+      {%- if block.settings.show_collection_link -%}
+        <li class="product-breadcrumb__item">
+          <span class="product-breadcrumb__link">{{ 'placeholders.collection_title' | t }}</span>
+        </li>
+      {%- endif -%}
+      <li class="product-breadcrumb__item product-breadcrumb__item--current" aria-current="page">
+        <span>{{ 'placeholders.product_title' | t }}</span>
+      </li>
+    </ol>
+  </nav>
+{%- else -%}
+  <nav class="product-breadcrumb" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+    <ol class="product-breadcrumb__list list-unstyled">
+      {%- if block.settings.show_home_link -%}
+        <li class="product-breadcrumb__item">
+          <a class="product-breadcrumb__link" href="{{ home_href }}">{{ block.settings.home_label | escape }}</a>
+        </li>
+      {%- endif -%}
+
+      {%- if block.settings.show_collection_link and collection_crumb != blank -%}
+        <li class="product-breadcrumb__item">
+          <a class="product-breadcrumb__link" href="{{ collection_crumb.url }}">{{ collection_crumb.title | escape }}</a>
+        </li>
+      {%- endif -%}
+
+      <li class="product-breadcrumb__item product-breadcrumb__item--current" aria-current="page">
+        <span>{{ product.title | escape }}</span>
+      </li>
+    </ol>
+  </nav>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-breadcrumb {
+    width: 100%;
+    font-family: var(--font-body--family);
+    font-size: var(--product-breadcrumb-font, 0.8125rem);
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  .product-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--product-breadcrumb-gap, 6px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .product-breadcrumb__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--product-breadcrumb-gap, 6px);
+    color: var(--product-breadcrumb-current, rgb(var(--color-foreground-rgb)));
+  }
+
+  .product-breadcrumb__item + .product-breadcrumb__item::before {
+    content: '/';
+    color: rgb(var(--color-foreground-rgb));
+    font-weight: 400;
+    opacity: 0.85;
+  }
+
+  .product-breadcrumb__link {
+    color: var(--product-breadcrumb-link, rgb(var(--color-link)));
+    text-decoration: none;
+    transition: opacity var(--animation-speed) var(--animation-easing);
+  }
+
+  .product-breadcrumb__link:hover {
+    opacity: 0.85;
+    text-decoration: underline;
+  }
+
+  .product-breadcrumb__link:focus-visible {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+    border-radius: 2px;
+  }
+
+  .product-breadcrumb__item--current {
+    font-weight: 500;
+    color: var(--product-breadcrumb-current, rgb(var(--color-foreground-rgb)));
+    max-width: 100%;
+    word-break: break-word;
+  }
+
+  .product-breadcrumb--placeholder {
+    opacity: 0.6;
+  }
+
+  @media (prefers-contrast: more) {
+    .product-breadcrumb__link {
+      text-decoration: underline;
+    }
+  }
+{% endstylesheet %}

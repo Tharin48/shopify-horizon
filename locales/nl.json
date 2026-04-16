@@ -52,6 +52,7 @@
       "other": "{{ count }} filters toegepast"
     },
     "account": "Account",
+    "breadcrumb": "Broodkruimelpad",
     "cart": "Winkelwagen",
     "cart_count": "Totaal aantal artikelen in winkelwagen",
     "menu": "Menu",
@@ -319,6 +320,9 @@
   },
   "fields": {
     "separator": "aan"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Tijdelijke sterren \u2014 Yotpo toont hier echte beoordelingen na installatie van de app."
   },
   "placeholders": {
     "password": "Wachtwoord",

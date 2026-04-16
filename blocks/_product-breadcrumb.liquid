@@ -1,0 +1,126 @@
+<div
+  class="product-breadcrumb-block"
+  style="
+    padding-bottom: {{ block.settings.padding_bottom }}px;
+    --product-breadcrumb-font: {{ block.settings.font_size }}px;
+    --product-breadcrumb-gap: {{ block.settings.item_gap }}px;
+    {% if block.settings.link_color != blank %}--product-breadcrumb-link: {{ block.settings.link_color }};{% endif %}
+    {% if block.settings.current_color != blank %}--product-breadcrumb-current: {{ block.settings.current_color }};{% endif %}
+  "
+  {{ block.shopify_attributes }}
+>
+  {% render 'product-breadcrumb', product: closest.product, block: block %}
+</div>
+
+{% schema %}
+{
+  "name": "Product breadcrumb",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows Shop (or home), an optional collection, then the product title. Collection defaults to the product’s first collection (alphabetical) unless you pick one below."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_home_link",
+      "label": "Show first link",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "home_url_type",
+      "label": "First link goes to",
+      "options": [
+        {
+          "value": "root",
+          "label": "Homepage"
+        },
+        {
+          "value": "all_products_collection",
+          "label": "All products collection"
+        }
+      ],
+      "default": "root"
+    },
+    {
+      "type": "text",
+      "id": "home_label",
+      "label": "First link label",
+      "default": "Shop"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_link",
+      "label": "Show collection link",
+      "default": true
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Optional. If empty, uses the product’s first collection when available."
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font size",
+      "min": 11,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "label": "Space between items",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#c5a059"
+    },
+    {
+      "type": "color",
+      "id": "current_color",
+      "label": "Current page text",
+      "default": "#121212"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Space below breadcrumb",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product breadcrumb",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

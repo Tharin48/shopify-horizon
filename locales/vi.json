@@ -52,6 +52,7 @@
       "other": "Đã áp dụng {{ count }} bộ lọc"
     },
     "account": "Tài khoản",
+    "breadcrumb": "Đường dẫn",
     "cart": "Giỏ hàng",
     "cart_count": "Tổng mặt hàng trong giỏ hàng",
     "menu": "Menu",
@@ -319,6 +320,9 @@
   },
   "fields": {
     "separator": "đến"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Ng\u00f4i sao gi\u1eef ch\u1ed7 \u2014 Yotpo s\u1ebd hi\u1ec3n th\u1ecb \u0111\u00e1nh gi\u00e1 th\u1eadt sau khi c\u00e0i \u1ee9ng d\u1ee5ng."
   },
   "placeholders": {
     "password": "Mật khẩu",

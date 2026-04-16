@@ -1,0 +1,116 @@
+{%- doc -%}
+  Editorial PDP price row: current price, compare-at (when on sale), optional “(X% Off)”.
+  Outputs a single [ref="priceContainer"] for assets/product-price.js.
+
+  @param {object} product_resource - Product (closest.product)
+  @param {object} block_settings - Block settings (colors, show_discount_percentage, show_unit_price)
+{%- enddoc -%}
+
+{%- liquid
+  assign show_unit_price = block_settings.show_unit_price | default: true
+  assign show_discount_pct = block_settings.show_discount_percentage | default: true
+  assign selected_variant = nil
+  if product_resource != blank
+    assign selected_variant = product_resource.selected_or_first_available_variant
+  endif
+
+  assign price_cents = 0
+  assign compare_cents = 0
+  if selected_variant != blank
+    assign price_cents = selected_variant.price
+    assign compare_cents = selected_variant.compare_at_price | default: 0
+  endif
+
+  assign show_sale = false
+  if compare_cents > price_cents
+    assign show_sale = true
+  endif
+
+  assign discount_percent = nil
+  if show_sale and compare_cents > 0
+    assign savings_cents = compare_cents | minus: price_cents
+    assign discount_percent = savings_cents | times: 100 | divided_by: compare_cents
+  endif
+
+  assign use_currency = false
+  if settings.currency_code_enabled_product_pages
+    assign use_currency = true
+  endif
+
+  if use_currency
+    assign price_money = price_cents | money_with_currency
+    assign compare_money = compare_cents | money_with_currency
+  else
+    assign price_money = price_cents | money
+    assign compare_money = compare_cents | money
+  endif
+
+  assign group_label = 'products.product.price_display_group' | t
+-%}
+
+<div
+  ref="priceContainer"
+  class="product-price-editorial"
+  style="
+    --epp-current: {{ block_settings.current_price_color }};
+    --epp-current-regular: {{ block_settings.regular_only_price_color }};
+    --epp-compare: {{ block_settings.compare_at_color }};
+    --epp-discount: {{ block_settings.discount_label_color }};
+  "
+>
+  {%- if product_resource == blank -%}
+    {%- if request.design_mode -%}
+      <div
+        class="product-price-editorial__row product-price-editorial__row--sale"
+        role="group"
+        aria-label="{{ group_label | escape }}"
+      >
+        <span class="product-price-editorial__current product-price-editorial__sale">{{ 2500 | money }}</span>
+        <s class="product-price-editorial__compare">{{ 3200 | money }}</s>
+        <span class="product-price-editorial__discount">{{ 'products.product.discount_percent_off' | t: percent: 20 }}</span>
+      </div>
+    {%- else -%}
+      <div class="product-price-editorial__row">
+        <span class="product-price-editorial__current product-price-editorial__regular-only">{{ 1999 | money }}</span>
+      </div>
+    {%- endif -%}
+  {%- elsif show_sale -%}
+    <div
+      class="product-price-editorial__row product-price-editorial__row--sale"
+      role="group"
+      aria-label="{{ group_label | escape }}"
+    >
+      <span class="visually-hidden">{{ 'content.price_sale' | t }}&nbsp;</span>
+      <span class="product-price-editorial__current product-price-editorial__sale price">{{ price_money }}</span>
+      <span class="product-price-editorial__compare-wrap">
+        <span class="visually-hidden">{{ 'content.price_regular' | t }}&nbsp;</span>
+        <s class="product-price-editorial__compare compare-at-price">{{- compare_money -}}</s>
+      </span>
+      {%- if show_discount_pct and discount_percent != nil and discount_percent > 0 -%}
+        <span class="product-price-editorial__discount">
+          {{ 'products.product.discount_percent_off' | t: percent: discount_percent }}
+        </span>
+      {%- endif -%}
+    </div>
+  {%- else -%}
+    <div
+      class="product-price-editorial__row"
+      role="group"
+      aria-label="{{ group_label | escape }}"
+    >
+      <span class="visually-hidden">{{ 'content.price' | t }}&nbsp;</span>
+      <span class="product-price-editorial__current product-price-editorial__regular-only price">{{ price_money }}</span>
+    </div>
+  {%- endif -%}
+
+  {%- if selected_variant and selected_variant.unit_price and show_unit_price -%}
+    {%- liquid
+      if use_currency
+        assign unit_price = selected_variant.unit_price | money_with_currency
+      else
+        assign unit_price = selected_variant.unit_price | money
+      endif
+    -%}
+    {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
+  {%- endif -%}
+</div>

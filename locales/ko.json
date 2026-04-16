@@ -52,6 +52,7 @@
       "other": "{{ count }}개 필터 적용됨"
     },
     "account": "계정",
+    "breadcrumb": "이동 경로",
     "cart": "카트",
     "cart_count": "카트에 있는 총 품목 수",
     "menu": "메뉴",
@@ -296,6 +297,9 @@
       "copy_code_success": "코드 복사 완료",
       "expired": "만료됨"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "\ud50c\ub808\uc774\uc2a4\ud640\ub354 \ubcc4\uc810 \u2014 Yotpo \uc571 \uc124\uce58 \ud6c4 \uc2e4\uc81c \ud3c9\uc810\uc774 \uc5ec\uae30\uc5d0 \ud45c\uc2dc\ub429\ub2c8\ub2e4."
   },
   "placeholders": {
     "password": "비밀번호",

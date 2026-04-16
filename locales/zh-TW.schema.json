@@ -384,6 +384,8 @@
     "letter_spacing": "字距",
     "limit_media_to_screen_height": "限制為螢幕高度",
     "limit_product_details_width": "限制產品詳細資訊寬度",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "連結預設",
     "links": "連結",
     "logo_font": "標誌字型",

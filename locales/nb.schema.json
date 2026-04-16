@@ -386,6 +386,8 @@
     "letter_spacing": "Bokstavavstand",
     "limit_media_to_screen_height": "Begrens til skjermhøyde",
     "limit_product_details_width": "Begrens bredden på produktopplysninger",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "Forhåndsinnstilling for kobling",
     "links": "Koblinger",
     "logo_font": "Skrifttype for logo",

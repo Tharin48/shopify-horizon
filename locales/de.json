@@ -48,6 +48,7 @@
     "search_results_no_results": "Keine Ergebnisse für „{{ query }}“ gefunden",
     "filters": "Filter",
     "account": "Konto",
+    "breadcrumb": "Brotkrumen",
     "cart": "Warenkorb",
     "cart_count": "Artikel im Warenkorb insgesamt",
     "filter_count": {
@@ -296,6 +297,9 @@
       "copy_code_success": "Code erfolgreich kopiert",
       "expired": "Abgelaufen"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Platzhalter-Sterne \u2014 Yotpo zeigt hier echte Bewertungen, sobald die App installiert ist."
   },
   "placeholders": {
     "password": "Passwort",

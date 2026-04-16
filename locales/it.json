@@ -53,6 +53,7 @@
       "many": "{{ count }} filtri applicati"
     },
     "account": "Account",
+    "breadcrumb": "Percorso",
     "cart": "Carrello",
     "cart_count": "Totale articoli nel carrello",
     "menu": "Menu",
@@ -326,6 +327,9 @@
   },
   "fields": {
     "separator": "a"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Stelle segnaposto \u2014 Yotpo mostrer\u00e0 le valutazioni reali dopo l\u2019installazione dell\u2019app."
   },
   "placeholders": {
     "password": "Password",

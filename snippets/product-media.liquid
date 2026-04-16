@@ -5,7 +5,7 @@
   @param {boolean} [preview_image_only] - Renders only the preview image without controls.
   @param {string} [widths] - Image widths for responsive images.
   @param {string} [sizes] - Image sizes for responsive images.
-  @param {string} [loading] - The loading attribute for the image.
+  @param {string} [loading] - The loading attribute for the image. When blank: eager + fetchpriority high for main (LCP); lazy + low for others.
   @param {object} [block] - The block object.
   @param {object} [selected_product] - The currently selected product.
   @param {boolean} [first_3d_model] - Indicates if this is the first 3D model.
@@ -17,10 +17,43 @@
 {%- enddoc -%}
 
 {% liquid
-  assign widths = widths | default: '240, 352, 832, 1200, 1600, 1920, 2560, 3840'
   assign ref_image_to_transition = ''
   if settings.transition_to_main_product
     assign ref_image_to_transition = 'imagesToTransition[]'
+  endif
+
+  # LCP: eager+high fetch for hero; lazy+low for stacked media. Tighter srcset for hero (no 3840 bucket).
+  if widths == blank
+    if is_main_product_media
+      assign widths = '375, 550, 750, 1100, 1400, 1920, 2560'
+    else
+      assign widths = '240, 352, 832, 1200, 1600, 1920, 2560, 3840'
+    endif
+  endif
+
+  if loading == blank
+    if is_main_product_media
+      assign loading = 'eager'
+    else
+      assign loading = 'lazy'
+    endif
+  endif
+
+  assign fetch_priority = 'auto'
+  if is_main_product_media and loading != 'lazy'
+    assign fetch_priority = 'high'
+  elsif loading == 'lazy'
+    assign fetch_priority = 'low'
+  endif
+
+  assign image_decoding = 'async'
+  if is_main_product_media and loading != 'lazy'
+    assign image_decoding = 'sync'
+  endif
+
+  assign use_image_preload = false
+  if is_main_product_media and loading != 'lazy' and template.name == 'product'
+    assign use_image_preload = true
   endif
 %}
 
@@ -31,20 +64,18 @@
 >
   {% liquid
     assign high_res_url = media.preview_image | image_url: width: 3840
-    assign fetch_priority = 'auto'
-    if is_main_product_media
-      assign fetch_priority = 'high'
-    endif
     assign focal_point_style = '--focal-point: ' | append: media.presentation.focal_point | append: ';'
   %}
   {{
     media.preview_image
     | image_url: width: 3840
     | image_tag:
+      preload: use_image_preload,
       widths: widths,
       alt: media.alt,
       sizes: sizes,
       loading: loading,
+      decoding: image_decoding,
       class: 'product-media__image',
       ref: ref_image_to_transition,
       data_max_resolution: high_res_url,

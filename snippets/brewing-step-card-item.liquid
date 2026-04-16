@@ -1,0 +1,60 @@
+{%- doc -%}
+  Renders one brewing step card (nested block or equivalent settings).
+  @param {object} step_block - Nested theme block with settings: brewing_tab, step_text, custom_image
+  @param {boolean} [preview] - Theme editor / visual preview
+{%- enddoc -%}
+{%- liquid
+  assign bs = step_block.settings
+  assign tab = bs.brewing_tab | default: 'hot' | strip | downcase
+  if tab != 'cold'
+    assign tab = 'hot'
+  endif
+  assign step_text = bs.step_text
+  assign icon_media = bs.custom_image
+  assign show_placeholder = false
+  if preview and step_text == blank and icon_media == blank
+    assign show_placeholder = true
+  endif
+  assign show_icon_row = false
+  if icon_media != blank or show_placeholder
+    assign show_icon_row = true
+  endif
+-%}
+{%- if step_text != blank or icon_media != blank or show_placeholder -%}
+  <li
+    class="custom-brewing-tabs__card{% if show_icon_row == false %} custom-brewing-tabs__card--no-media{% endif %}"
+    data-brewing-step-tab="{{ tab }}"
+    {{ step_block.shopify_attributes }}
+  >
+    {%- if show_icon_row -%}
+      <span class="custom-brewing-tabs__card-icon">
+        {%- if icon_media != blank -%}
+          {%- liquid
+            assign alt = icon_media.alt | default: step_text | default: 'Brewing step'
+            assign w = icon_media.width | default: 96
+            assign h = w | divided_by: icon_media.aspect_ratio | round
+          -%}
+          {{
+            icon_media
+            | image_url: width: 240
+            | image_tag:
+              loading: 'lazy',
+              width: w,
+              height: h,
+              class: 'custom-brewing-tabs__card-image',
+              alt: alt
+          }}
+        {%- else -%}
+          <span class="custom-brewing-tabs__card-icon-placeholder">Icon image</span>
+        {%- endif -%}
+      </span>
+    {%- endif -%}
+    <span class="custom-brewing-tabs__card-text">
+      {%- if step_text != blank -%}
+        {{ step_text | escape }}
+      {%- elsif show_placeholder -%}
+        Add an icon image and step text in this block.
+      {%- endif -%}
+    </span>
+  </li>
+{%- endif -%}

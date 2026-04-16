@@ -53,6 +53,7 @@
       "many": "{{ count }} filtres appliqués"
     },
     "account": "Compte",
+    "breadcrumb": "Fil d'Ariane",
     "cart": "Panier",
     "cart_count": "Nombre total d’articles dans le panier",
     "menu": "Menu",
@@ -302,6 +303,9 @@
       "copy_code_success": "Le code a bien été copié",
       "expired": "Expirée"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "\u00c9toiles de substitution \u2014 Yotpo affichera les vraies notes ici apr\u00e8s installation de l\u2019application."
   },
   "placeholders": {
     "password": "Mot de passe",

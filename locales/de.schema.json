@@ -379,6 +379,8 @@
     "letter_spacing": "Zeichenabstand",
     "limit_media_to_screen_height": "Auf Bildschirmhöhe beschränken",
     "limit_product_details_width": "Breite der Produktdetails begrenzen",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "Link-Voreinstellung",
     "links": "Links",
     "logo": "Logo",

@@ -48,6 +48,7 @@
     "slideshow_previous": "Slide sebelumnya",
     "filters": "Filter",
     "account": "Akun",
+    "breadcrumb": "Jejak navigasi",
     "cart": "Keranjang",
     "cart_count": "Total item di keranjang",
     "filter_count": {
@@ -296,6 +297,9 @@
       "copy_code_success": "Kode berhasil disalin",
       "expired": "Kedaluwarsa"
     }
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Bintang placeholder \u2014 Yotpo akan menampilkan rating di sini setelah aplikasi terpasang."
   },
   "placeholders": {
     "password": "Sandi",

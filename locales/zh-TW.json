@@ -48,6 +48,7 @@
     "search_results_no_results": "找不到「{{ query }}」的相關結果",
     "filters": "篩選條件",
     "account": "帳號",
+    "breadcrumb": "導覽路徑",
     "cart": "購物車",
     "cart_count": "購物車內品項總數",
     "filter_count": {
@@ -319,6 +320,9 @@
   },
   "fields": {
     "separator": "至"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "\u9810\u7559\u661f\u7b49 \u2014 \u5b89\u88dd Yotpo \u61c9\u7528\u7a0b\u5f0f\u4e26\u555f\u7528\u661f\u7d1a\u5f8c\uff0c\u5c07\u986f\u793a\u771f\u5be6\u8a55\u5206\u3002"
   },
   "placeholders": {
     "password": "密碼",

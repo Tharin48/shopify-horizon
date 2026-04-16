@@ -39,6 +39,14 @@
   if section.settings.use_custom_eyebrow_label and section.settings.custom_eyebrow_label != blank
     assign show_custom_eyebrow = true
   endif
+
+  assign fepc_show_decor = false
+  if section.settings.show_left_leaf and section.settings.left_leaf_image != blank
+    assign fepc_show_decor = true
+  endif
+  if section.settings.show_right_leaf and section.settings.right_leaf_image != blank
+    assign fepc_show_decor = true
+  endif
 %}
 
 {% # theme-check-disable MissingAsset %}
@@ -175,33 +183,37 @@
     --fepc-right-leaf-y: {{ section.settings.right_leaf_offset_y }}px;
   "
 >
-  {% if section.settings.show_left_leaf and section.settings.left_leaf_image != blank %}
-    <div class="fepc__leaf fepc__leaf--left{% if section.settings.hide_decorations_on_mobile %} fepc__leaf--hide-mobile{% endif %}" aria-hidden="true">
-      {{
-        section.settings.left_leaf_image
-        | image_url: width: 420
-        | image_tag:
-          class: 'fepc__leaf-image',
-          loading: 'lazy',
-          widths: '140,220,320,420',
-          sizes: '(max-width: 749px) 20vw, 12vw',
-          alt: ''
-      }}
-    </div>
-  {% endif %}
+  {% if fepc_show_decor %}
+    <div class="fepc__decor" aria-hidden="true">
+      {% if section.settings.show_left_leaf and section.settings.left_leaf_image != blank %}
+        <div class="fepc__leaf fepc__leaf--left{% if section.settings.hide_decorations_on_mobile %} fepc__leaf--hide-mobile{% endif %}">
+          {{
+            section.settings.left_leaf_image
+            | image_url: width: 420
+            | image_tag:
+              class: 'fepc__leaf-image',
+              loading: 'lazy',
+              widths: '140,220,320,420',
+              sizes: '(max-width: 749px) 20vw, 12vw',
+              alt: ''
+          }}
+        </div>
+      {% endif %}
 
-  {% if section.settings.show_right_leaf and section.settings.right_leaf_image != blank %}
-    <div class="fepc__leaf fepc__leaf--right{% if section.settings.hide_decorations_on_mobile %} fepc__leaf--hide-mobile{% endif %}" aria-hidden="true">
-      {{
-        section.settings.right_leaf_image
-        | image_url: width: 420
-        | image_tag:
-          class: 'fepc__leaf-image',
-          loading: 'lazy',
-          widths: '140,220,320,420',
-          sizes: '(max-width: 749px) 20vw, 12vw',
-          alt: ''
-      }}
+      {% if section.settings.show_right_leaf and section.settings.right_leaf_image != blank %}
+        <div class="fepc__leaf fepc__leaf--right{% if section.settings.hide_decorations_on_mobile %} fepc__leaf--hide-mobile{% endif %}">
+          {{
+            section.settings.right_leaf_image
+            | image_url: width: 420
+            | image_tag:
+              class: 'fepc__leaf-image',
+              loading: 'lazy',
+              widths: '140,220,320,420',
+              sizes: '(max-width: 749px) 20vw, 12vw',
+              alt: ''
+          }}
+        </div>
+      {% endif %}
     </div>
   {% endif %}
 

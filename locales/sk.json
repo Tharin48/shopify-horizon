@@ -54,6 +54,7 @@
       "many": "Použité filtre: {{ count }}"
     },
     "account": "Konto",
+    "breadcrumb": "Drobečková navigácia",
     "cart": "Košík",
     "cart_count": "Celkový počet položiek v košíku",
     "menu": "Ponuka",
@@ -333,6 +334,9 @@
   },
   "fields": {
     "separator": "k"
+  },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Z\u00e1stupn\u00e9 hviezdy \u2014 po in\u0161tal\u00e1cii Yotpo sa tu zobrazia skuto\u010dn\u00e9 hodnotenia."
   },
   "placeholders": {
     "password": "Heslo",

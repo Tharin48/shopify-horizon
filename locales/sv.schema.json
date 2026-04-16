@@ -387,6 +387,8 @@
     "letter_spacing": "Teckenavstånd",
     "limit_media_to_screen_height": "Begränsa till skärmhöjd",
     "limit_product_details_width": "Begränsa produktinformationsbredd",
+    "desktop_gallery_max_width": "Desktop gallery max width",
+    "desktop_gallery_max_width_info": "Caps the product images column on desktop. The product details column keeps the same max width as before.",
     "link_preset": "Förinställning för länk",
     "links": "Länkar",
     "logo_font": "Teckensnitt för logotyp",
