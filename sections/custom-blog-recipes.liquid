@@ -1,0 +1,533 @@
+{{ 'section-custom-blog-recipes.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'section-custom-blog-recipes.js' | asset_url }}" defer></script>
+
+{% liquid
+  assign section_heading = section.settings.heading | default: 'Our Tea Inspired Recipes'
+  assign section_button_label = section.settings.button_label | strip
+  assign section_button_link = section.settings.button_link
+  assign mobile_end_card_url = blank
+  assign card_block = section.blocks.first
+  assign related_recipes_metaobject = blank
+  assign metafield_articles = blank
+  assign slide_count = 0
+  assign has_mobile_end_card = false
+
+  if card_block != blank
+    assign card_settings = card_block.settings
+  endif
+
+  assign cta_label = 'View Recipe'
+  assign inherit_card_scheme = true
+  assign card_scheme = ''
+
+  if card_settings != blank
+    assign cta_label = card_settings.cta_label | default: 'View Recipe'
+    assign inherit_card_scheme = card_settings.inherit_color_scheme
+    assign card_scheme = card_settings.color_scheme
+  endif
+
+  if product != blank
+    assign related_recipes_metafield = product.metafields.custom.related_recipes
+    if related_recipes_metafield != blank and related_recipes_metafield.value != blank
+      assign related_recipes_metaobject = related_recipes_metafield.value
+    endif
+  endif
+
+  if related_recipes_metaobject != blank
+    assign metafield_articles = related_recipes_metaobject.recipes.value | default: related_recipes_metaobject.recipes
+  endif
+
+  if metafield_articles != blank
+    assign section_articles = metafield_articles
+  elsif section.settings.blog != blank and section.settings.blog.articles_count > 0
+    paginate section.settings.blog.articles by section.settings.post_limit
+      assign section_articles = section.settings.blog.articles
+    endpaginate
+  else
+    assign section_articles = blank
+  endif
+
+  if section_articles != blank
+    assign slide_count = section_articles.size
+    if slide_count > section.settings.post_limit
+      assign slide_count = section.settings.post_limit
+    endif
+  else
+    assign slide_count = section.settings.post_limit
+  endif
+
+  if section_button_label != blank and section_button_link != blank
+    assign has_mobile_end_card = true
+  endif
+
+  if section_button_link != blank
+    assign mobile_end_card_url = section_button_link
+  elsif section.settings.blog != blank
+    assign mobile_end_card_url = section.settings.blog.url
+  endif
+
+  if section_button_label != blank and mobile_end_card_url != blank
+    assign has_mobile_end_card = true
+  endif
+
+  assign indicator_count = slide_count
+  if has_mobile_end_card
+    assign indicator_count = indicator_count | plus: 1
+  endif
+%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+<section
+  class="section section--full-width custom-blog-recipes color-{{ section.settings.color_scheme }}"
+  data-custom-blog-recipes
+  style="
+    --custom-blog-recipes-max-width: {{ section.settings.section_max_width | default: 1600 }}px;
+    --custom-blog-recipes-pad-x-desktop: {{ section.settings.padding_inline_desktop | default: 32 }}px;
+    --custom-blog-recipes-pad-x-mobile: {{ section.settings.padding_inline_mobile | default: 16 }}px;
+    --custom-blog-recipes-gap: {{ section.settings.cards_gap | default: 32 }}px;
+    --custom-blog-recipes-heading-size-desktop: {{ section.settings.heading_size_desktop | default: 56 }}px;
+    --custom-blog-recipes-heading-size-mobile: {{ section.settings.heading_size_mobile | default: 32 }}px;
+    --custom-blog-recipes-eyebrow-size-desktop: {{ section.settings.eyebrow_size_desktop | default: 18 }}px;
+    --custom-blog-recipes-eyebrow-size-mobile: {{ section.settings.eyebrow_size_mobile | default: 16 }}px;
+    --custom-blog-recipes-title-size-desktop: {{ section.settings.title_size_desktop | default: 38 }}px;
+    --custom-blog-recipes-title-size-mobile: {{ section.settings.title_size_mobile | default: 30 }}px;
+    --custom-blog-recipes-body-size-desktop: {{ section.settings.body_size_desktop | default: 16 }}px;
+    --custom-blog-recipes-body-size-mobile: {{ section.settings.body_size_mobile | default: 15 }}px;
+    --custom-blog-recipes-meta-size-desktop: {{ section.settings.meta_size_desktop | default: 16 }}px;
+    --custom-blog-recipes-meta-size-mobile: {{ section.settings.meta_size_mobile | default: 15 }}px;
+    --custom-blog-recipes-cta-size-desktop: {{ section.settings.cta_size_desktop | default: 17 }}px;
+    --custom-blog-recipes-cta-size-mobile: {{ section.settings.cta_size_mobile | default: 16 }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-blog-recipes__inner">
+    {% if section_heading != blank %}
+      <h2 class="custom-blog-recipes__heading">{{ section_heading | escape }}</h2>
+    {% endif %}
+
+    <div class="custom-blog-recipes__viewport" data-custom-blog-recipes-viewport>
+      <div class="custom-blog-recipes__track" role="list" data-custom-blog-recipes-track>
+        {% if section_articles != blank %}
+          {% for article in section_articles limit: section.settings.post_limit %}
+            {% liquid
+              assign article_title = article.title
+              assign article_url = article.url
+              assign article_excerpt = article.excerpt | default: article.content | strip_html | truncate: 170
+              assign article_image = article.image
+              assign article_image_alt = article_title | escape
+              if article_image != blank
+                assign article_image_alt = article.image.alt | default: article.title | escape
+              endif
+
+              assign eyebrow = blank
+              if article.tags.size > 0
+                assign eyebrow = article.tags.first
+              elsif section.settings.blog != blank
+                assign eyebrow = section.settings.blog.title
+              endif
+            %}
+
+            <article class="custom-blog-recipes__slide" role="listitem">
+              <div class="custom-blog-recipes__card{% if inherit_card_scheme == false and card_scheme != blank %} color-{{ card_scheme }}{% endif %}">
+                <a
+                  href="{{ article_url }}"
+                  class="custom-blog-recipes__image-link"
+                  aria-label="{{ article_title | escape }}"
+                >
+                  <div class="custom-blog-recipes__image-wrap">
+                    {% if article_image != blank %}
+                      {{
+                        article_image
+                        | image_url: width: 1200
+                        | image_tag:
+                          widths: '375, 550, 750, 900, 1200',
+                          sizes: '(max-width: 749px) calc(100vw - 32px), (max-width: 1199px) 50vw, 33vw',
+                          loading: 'lazy',
+                          alt: article_image_alt,
+                          class: 'custom-blog-recipes__image'
+                      }}
+                    {% else %}
+                      {{ 'hero-apparel-1' | placeholder_svg_tag: 'custom-blog-recipes__placeholder' }}
+                    {% endif %}
+                  </div>
+                </a>
+
+                <div class="custom-blog-recipes__body">
+                  {% if eyebrow != blank %}
+                    <p class="custom-blog-recipes__eyebrow">{{ eyebrow | escape }}</p>
+                  {% endif %}
+
+                  <a href="{{ article_url }}" class="custom-blog-recipes__title-row">
+                    <h3 class="custom-blog-recipes__title">{{ article_title | escape }}</h3>
+                    <span class="custom-blog-recipes__arrow" aria-hidden="true">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        focusable="false"
+                      >
+                        <path d="M7 17 17 7M17 7H9M17 7v8" />
+                      </svg>
+                    </span>
+                  </a>
+
+                  {% if article_excerpt != blank %}
+                    <p class="custom-blog-recipes__excerpt">{{ article_excerpt }}</p>
+                  {% endif %}
+
+                  {% if article.tags.size > 0 %}
+                    <p class="custom-blog-recipes__meta">
+                      {{ article.tags | join: ' · ' | escape }}
+                    </p>
+                  {% endif %}
+
+                  <a href="{{ article_url }}" class="custom-blog-recipes__cta">
+                    {{ cta_label | escape }} <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        {% else %}
+          {% for index in (1..section.settings.post_limit) %}
+            <article class="custom-blog-recipes__slide" role="listitem">
+              <div class="custom-blog-recipes__card{% if inherit_card_scheme == false and card_scheme != blank %} color-{{ card_scheme }}{% endif %}">
+                <div class="custom-blog-recipes__image-wrap">
+                  {{ 'hero-apparel-1' | placeholder_svg_tag: 'custom-blog-recipes__placeholder' }}
+                </div>
+
+                <div class="custom-blog-recipes__body">
+                  <p class="custom-blog-recipes__eyebrow">Recipe</p>
+                  <div class="custom-blog-recipes__title-row">
+                    <h3 class="custom-blog-recipes__title">Recipe title</h3>
+                    <span class="custom-blog-recipes__arrow" aria-hidden="true">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        focusable="false"
+                      >
+                        <path d="M7 17 17 7M17 7H9M17 7v8" />
+                      </svg>
+                    </span>
+                  </div>
+                  <p class="custom-blog-recipes__excerpt">
+                    {% if product != blank %}
+                      Add recipes to the product’s <code>custom.related_recipes</code> metafield to populate this section.
+                    {% else %}
+                      Choose a blog in the section settings or connect a product with <code>custom.related_recipes</code> to populate recipe articles here.
+                    {% endif %}
+                  </p>
+                  <a href="#" class="custom-blog-recipes__cta">
+                    {{ cta_label | escape }} <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        {% endif %}
+
+        {% if has_mobile_end_card %}
+          <article class="custom-blog-recipes__slide custom-blog-recipes__slide--end" role="listitem">
+            <div class="custom-blog-recipes__card custom-blog-recipes__card--end{% if inherit_card_scheme == false and card_scheme != blank %} color-{{ card_scheme }}{% endif %}">
+              <div class="custom-blog-recipes__end-card">
+                <p class="custom-blog-recipes__end-label">More recipes</p>
+                <a href="{{ mobile_end_card_url }}" class="custom-blog-recipes__end-button button button--secondary">
+                  {{ section_button_label | escape }}
+                </a>
+              </div>
+            </div>
+          </article>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if indicator_count > 1 %}
+      <div class="custom-blog-recipes__indicators" aria-label="Recipe slides" data-custom-blog-recipes-indicators>
+        {% for index in (1..indicator_count) %}
+          <button
+            type="button"
+            class="custom-blog-recipes__indicator{% if forloop.first %} is-active{% endif %}"
+            aria-label="Go to slide {{ forloop.index }}"
+            aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+            data-custom-blog-recipes-indicator
+            data-slide-index="{{ forloop.index0 }}"
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if section_button_label != blank and mobile_end_card_url != blank %}
+      <div class="custom-blog-recipes__footer">
+        <a href="{{ mobile_end_card_url }}" class="custom-blog-recipes__button button button--secondary">
+          {{ section_button_label | escape }}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Custom blog recipes",
+  "tag": "section",
+  "class": "custom-blog-recipes-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our Tea Inspired Recipes"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    },
+    {
+      "type": "range",
+      "id": "post_limit",
+      "label": "Posts to show",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Bottom button label",
+      "default": "View More Recipes"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Bottom button link"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Section color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Max width",
+      "min": 1200,
+      "max": 2400,
+      "step": 40,
+      "unit": "px",
+      "default": 1600
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_desktop",
+      "label": "Desktop side padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Mobile side padding",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "cards_gap",
+      "label": "Card gap",
+      "min": 12,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "Heading size desktop",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 20,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size_desktop",
+      "label": "Eyebrow size desktop",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size_mobile",
+      "label": "Eyebrow size mobile",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "title_size_desktop",
+      "label": "Title size desktop",
+      "min": 20,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "title_size_mobile",
+      "label": "Title size mobile",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "body_size_desktop",
+      "label": "Body size desktop",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "body_size_mobile",
+      "label": "Body size mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "meta_size_desktop",
+      "label": "Meta size desktop",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "meta_size_mobile",
+      "label": "Meta size mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "cta_size_desktop",
+      "label": "CTA size desktop",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "cta_size_mobile",
+      "label": "CTA size mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "blocks": [
+    {
+      "type": "recipe_card",
+      "name": "Recipe card style",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "CTA label",
+          "default": "View Recipe"
+        },
+        {
+          "type": "checkbox",
+          "id": "inherit_color_scheme",
+          "label": "Inherit section color scheme",
+          "default": true
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "Card color scheme",
+          "default": "scheme-1",
+          "visible_if": "{{ block.settings.inherit_color_scheme == false }}"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom blog recipes",
+      "blocks": [
+        {
+          "type": "recipe_card"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -12,6 +12,14 @@
   {% render 'product-breadcrumb', product: closest.product, block: block %}
 </div>
 
+{% stylesheet %}
+  @media screen and (max-width: 749px) {
+    .product-breadcrumb-block {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "Product breadcrumb",

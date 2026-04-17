@@ -1,0 +1,262 @@
+{{ 'section-tea-origin-map.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tea-origin-map.js' | asset_url }}" defer></script>
+
+{% liquid
+  assign origin = blank
+  if product != blank
+    assign origin_metafield = product.metafields.custom.tea_origin
+    if origin_metafield != blank and origin_metafield.value != blank
+      assign origin = origin_metafield.value
+    endif
+  endif
+
+  assign section_heading = section.settings.heading | default: 'Where Our Tea Comes From'
+  assign mapbox_url = section.settings.mapbox_url | strip
+
+  assign eyebrow = blank
+  assign origin_title = blank
+  assign subtitle = blank
+  assign description = blank
+  assign description_field = blank
+  assign pin_image = blank
+  assign pin_alt = blank
+  assign map_x = blank
+  assign map_y = blank
+
+  if origin != blank
+    assign eyebrow = origin.eyebrow.value | default: origin.eyebrow
+    assign origin_title = origin.title.value | default: origin.title
+    assign subtitle = origin.subtitle.value | default: origin.subtitle
+    assign description_field = origin.description
+    assign description = origin.description.value | default: origin.description
+    assign pin_image = origin.pin_image.value | default: origin.pin_image
+    assign pin_alt = origin.pin_alt.value | default: origin.pin_alt | default: origin_title
+    assign map_x = origin.map_x.value | default: origin.map_x
+    assign map_y = origin.map_y.value | default: origin.map_y
+  endif
+
+  assign pin_alt_escaped = pin_alt | escape
+%}
+
+<section
+  class="section section--full-width tea-origin-map"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="tea-origin-map__inner"
+    style="
+      --tea-origin-map-eyebrow-color: {{ section.settings.eyebrow_color }};
+      --tea-origin-map-eyebrow-size: {{ section.settings.eyebrow_font_size | default: 14 }}px;
+      --tea-origin-map-title-color: {{ section.settings.title_color }};
+      --tea-origin-map-title-size: {{ section.settings.title_font_size | default: 48 }}px;
+      --tea-origin-map-subtitle-color: {{ section.settings.subtitle_color }};
+      --tea-origin-map-subtitle-size: {{ section.settings.subtitle_font_size | default: 16 }}px;
+      --tea-origin-map-description-color: {{ section.settings.description_color }};
+      --tea-origin-map-description-size: {{ section.settings.description_font_size | default: 16 }}px;
+    "
+  >
+    {% if section_heading != blank %}
+      <h2>{{ section_heading | escape }}</h2>
+    {% endif %}
+
+    <div class="tea-origin-map__surface">
+      {% if mapbox_url != blank %}
+        <div class="tea-origin-map__map-layer" aria-hidden="true">
+          <img
+            src="{{ mapbox_url | escape }}"
+            alt=""
+            width="1280"
+            height="800"
+            class="tea-origin-map__map-image"
+            loading="lazy"
+          >
+        </div>
+      {% endif %}
+
+      <div
+        class="tea-origin-map__stage{% if pin_image != blank and map_x != blank and map_y != blank %} tea-origin-map__stage--with-pin{% endif %}"
+      >
+        <div class="tea-origin-map__card">
+          {% if origin != blank %}
+            {% if eyebrow != blank %}
+              <p class="tea-origin-map__eyebrow">{{ eyebrow | escape }}</p>
+            {% endif %}
+
+            {% if origin_title != blank %}
+              <h3 class="tea-origin-map__title">{{ origin_title | escape }}</h3>
+            {% endif %}
+
+            {% if subtitle != blank %}
+              <p class="tea-origin-map__subtitle">{{ subtitle | escape }}</p>
+            {% endif %}
+
+            {% if description != blank %}
+              <div
+                class="tea-origin-map__description-wrap"
+                data-tea-origin-read-more
+              >
+                <div
+                  class="tea-origin-map__description rte"
+                  id="TeaOriginDesc-{{ section.id }}"
+                >
+                  {% if description_field != blank %}
+                    {{ description_field | metafield_tag }}
+                  {% else %}
+                    {{ description }}
+                  {% endif %}
+                </div>
+                <button
+                  type="button"
+                  class="tea-origin-map__read-more"
+                  aria-expanded="false"
+                  aria-controls="TeaOriginDesc-{{ section.id }}"
+                  data-label-more="{{ section.settings.read_more_label | default: 'View more' | escape }}"
+                  data-label-less="{{ section.settings.read_less_label | default: 'View less' | escape }}"
+                >
+                  {{ section.settings.read_more_label | default: 'View more' | escape }}
+                </button>
+              </div>
+            {% endif %}
+          {% elsif mapbox_url == blank %}
+            <div class="tea-origin-map__placeholder">
+              <p>Add a Mapbox static image URL in the section settings.</p>
+              <p>Then connect a `custom.tea_origin` metaobject on the product to show the origin details and pin.</p>
+            </div>
+          {% else %}
+            <div class="tea-origin-map__placeholder">
+              <p>Add a `custom.tea_origin` metaobject reference to this product to show the origin content and map pin.</p>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if pin_image != blank and map_x != blank and map_y != blank %}
+          <div
+            class="tea-origin-map__pin"
+            style="left: {{ map_x }}%; top: {{ map_y }}%;"
+          >
+            <div class="tea-origin-map__pin-bubble">
+              {{
+                pin_image
+                | image_url: width: 720
+                | image_tag:
+                  widths: '240, 360, 520, 720',
+                  sizes: '(max-width: 989px) min(68vw, 17rem), min(32vw, 22rem)',
+                  loading: 'lazy',
+                  alt: pin_alt_escaped,
+                  class: 'tea-origin-map__pin-image'
+              }}
+            </div>
+            <span class="tea-origin-map__pin-tail" aria-hidden="true"></span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Tea origin map",
+  "tag": "section",
+  "class": "tea-origin-map-section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Where Our Tea Comes From"
+    },
+    {
+      "type": "text",
+      "id": "mapbox_url",
+      "label": "Mapbox URL",
+      "info": "Paste the full Mapbox Static Image URL."
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Eyebrow color",
+      "default": "#1b1b1b"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_font_size",
+      "label": "Eyebrow font size",
+      "min": 10,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#1b1b1b"
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title font size",
+      "min": 20,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle color",
+      "default": "#3a3a3a"
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size",
+      "label": "Subtitle font size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Description color",
+      "default": "#1b1b1b"
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "label": "Description font size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "text",
+      "id": "read_more_label",
+      "label": "Mobile “View more” label",
+      "default": "View more",
+      "info": "Shown on tablet and phone when the origin description is collapsed."
+    },
+    {
+      "type": "text",
+      "id": "read_less_label",
+      "label": "Mobile “View less” label",
+      "default": "View less"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tea origin map"
+    }
+  ]
+}
+{% endschema %}

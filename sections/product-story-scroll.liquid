@@ -303,14 +303,9 @@
     padding-bottom: var(--product-story-outer-bottom-desktop, 0px);
   }
 
+  /* Typography: default theme h2 (see base.css h2); only spacing here */
   .product-story-scroll__heading {
     margin: 0 0 var(--padding-md);
-    font-family: var(--font-heading--family);
-    font-style: var(--font-heading--style);
-    font-weight: var(--font-heading--weight);
-    font-size: clamp(1.5rem, 2.5vw, 2rem);
-    line-height: 1.2;
-    color: rgb(var(--color-foreground));
   }
 
   /* Stage: clips one card on desktop; mobile overflow comes from .carousel */
@@ -441,10 +436,6 @@
       padding-bottom: var(--product-story-outer-bottom-desktop, 0px);
     }
 
-    .product-story-scroll__heading {
-      font-size: clamp(1.375rem, 2.2vw, 1.8rem);
-    }
-
     .product-story-scroll__col--copy {
       padding: min(var(--product-story-copy-pad, 1.25rem), 1rem);
     }
@@ -463,10 +454,6 @@
     .product-story-scroll__container {
       padding-top: min(var(--product-story-outer-top-desktop, 0px), 0.125rem);
       padding-bottom: var(--product-story-outer-bottom-desktop, 0px);
-    }
-
-    .product-story-scroll__heading {
-      font-size: clamp(1.25rem, 2vw, 1.65rem);
     }
 
     .product-story-scroll__col--copy {
@@ -698,6 +685,10 @@
       padding-right: var(--product-story-outer-right-mobile, 0px);
       padding-top: var(--product-story-outer-top-mobile, 0px);
       padding-bottom: var(--product-story-outer-bottom-mobile, 0px);
+    }
+
+    .product-story-scroll__heading {
+      text-align: center;
     }
 
     .product-story-scroll__card-inner {

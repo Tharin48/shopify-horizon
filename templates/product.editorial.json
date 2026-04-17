@@ -26,6 +26,8 @@
             "thumbnail_position": "left",
             "thumbnail_width": 72,
             "thumbnail_radius": 4,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
             "aspect_ratio": "1",
             "constrain_to_viewport": true,
             "media_fit": "cover",
@@ -149,14 +151,14 @@
                     "width": "fit-content",
                     "max_width": "normal",
                     "alignment": "left",
-                    "type_preset": "custom",
+                    "type_preset": "h2",
                     "font": "var(--font-heading--family)",
                     "font_size": "1.5rem",
                     "line_height": "normal",
                     "letter_spacing": "normal",
                     "case": "none",
                     "wrap": "pretty",
-                    "color": "var(--color-foreground-heading)",
+                    "color": "var(--color-foreground)",
                     "background": false,
                     "background_color": "#00000026",
                     "corner_radius": 0,
@@ -605,209 +607,61 @@
         "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
         "enable_scroll_animation": true,
         "scroll_start_anchor": 10,
-        "scroll_depth_vh": 32,
+        "scroll_depth_vh": 42,
         "mobile_enable_carousel": true
       }
     },
-    "editorial_origin_map": {
-      "type": "editorial-origin-map",
+    "tea_origin_map_ewBtD4": {
+      "type": "tea-origin-map",
+      "name": "Tea origin map",
       "settings": {
-        "heading": "Origin Map",
-        "body": "<p>Placeholder — map or origin story; often a metaobject reference from the product.</p>",
-        "color_scheme": "scheme-1",
-        "section_width": "page-width",
-        "padding_block_start": 48,
-        "padding_block_end": 48
+        "heading": "Where Our Tea Comes From",
+        "mapbox_url": "https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/80.775,6.9526,9.48,0/1280x600?access_token=pk.eyJ1IjoidGhhcmluNDc4IiwiYSI6ImNtbzJiemFwcTByY2syb3B2M244eTRpejQifQ.ARAO33s03QG1nWQzIu9RSA",
+        "eyebrow_color": "#222829",
+        "eyebrow_font_size": 14,
+        "title_color": "#007378",
+        "title_font_size": 36,
+        "subtitle_color": "#222829",
+        "subtitle_font_size": 16,
+        "description_color": "#222829",
+        "description_font_size": 14,
+        "read_more_label": "View more",
+        "read_less_label": "View less"
       }
     },
-    "editorial_recipes": {
-      "type": "editorial-recipes",
+    "custom_blog_recipes_B8B4a8": {
+      "type": "custom-blog-recipes",
+      "name": "Custom blog recipes",
       "settings": {
-        "heading": "Recipes",
-        "body": "<p>Placeholder — recipe list often powered by a product metafield referencing metaobjects.</p>",
-        "color_scheme": "scheme-1",
-        "section_width": "page-width",
-        "padding_block_start": 48,
-        "padding_block_end": 48
-      }
-    },
-    "editorial_reviews": {
-      "type": "editorial-reviews",
-      "settings": {
-        "heading": "Reviews",
-        "body": "<p>Placeholder — curated reviews or app block; may use metafields or metaobjects.</p>",
-        "color_scheme": "scheme-1",
-        "section_width": "page-width",
-        "padding_block_start": 48,
-        "padding_block_end": 48
-      }
-    },
-    "editorial_impact_bar": {
-      "type": "editorial-impact-bar",
-      "settings": {
-        "heading": "Impact Bar",
-        "body": "<p>Placeholder — impact stats; shared metaobject or product metafields per SKU line.</p>",
-        "color_scheme": "scheme-1",
-        "section_width": "page-width",
-        "padding_block_start": 32,
-        "padding_block_end": 32
-      }
-    },
-    "product_recommendations_qggXJq": {
-      "type": "product-recommendations",
-      "blocks": {
-        "text_cbcgyb": {
-          "type": "text",
-          "name": "t:names.header",
-          "settings": {
-            "text": "<h3>You may also like </h3>",
-            "width": "fit-content",
-            "max_width": "normal",
-            "alignment": "left",
-            "type_preset": "h4",
-            "font": "var(--font-primary--family)",
-            "font_size": "",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "color": "",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
-        },
-        "static-product-card": {
-          "type": "_product-card",
-          "name": "t:names.product_card",
-          "static": true,
-          "settings": {
-            "product_card_gap": 8,
-            "inherit_color_scheme": true,
-            "color_scheme": "",
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 8,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {
-            "product_card_gallery_DNizbJ": {
-              "type": "_product-card-gallery",
-              "name": "t:names.product_card_media",
-              "settings": {
-                "image_ratio": "adapt",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "product_title_M7MJkb": {
-              "type": "product-title",
-              "name": "t:names.product_title",
-              "settings": {
-                "width": "100%",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "rte",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "color": "var(--color-foreground)",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 4,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0,
-                "show_collection_link": false,
-                "collection_link_target": "",
-                "collection_link_font_size": 14,
-                "collection_link_text_color": "#6b6b6b",
-                "collection_link_padding_top": 12,
-                "collection_link_padding_bottom": 0
-              },
-              "blocks": {}
-            },
-            "price_gLWgA6": {
-              "type": "price",
-              "settings": {
-                "show_sale_price_first": true,
-                "show_installments": false,
-                "show_tax_info": false,
-                "type_preset": "h6",
-                "width": "100%",
-                "alignment": "left",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "color": "var(--color-foreground)",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "product_card_gallery_DNizbJ",
-            "product_title_M7MJkb",
-            "price_gLWgA6"
-          ]
-        }
-      },
-      "block_order": [
-        "text_cbcgyb"
-      ],
-      "name": "t:names.product_recommendations",
-      "settings": {
-        "product": "{{ closest.product }}",
-        "recommendation_type": "related",
-        "layout_type": "grid",
-        "carousel_on_mobile": false,
-        "max_products": 4,
-        "columns": 4,
-        "mobile_columns": "2",
-        "columns_gap": 12,
-        "rows_gap": 24,
-        "icons_style": "arrow",
-        "icons_shape": "none",
-        "section_width": "page-width",
-        "gap": 28,
-        "color_scheme": "scheme-1",
-        "padding-block-start": 48,
-        "padding-block-end": 48
+        "heading": "Our Tea Inspired Recipes",
+        "blog": "recipes",
+        "post_limit": 4,
+        "button_label": "View More Recipes",
+        "button_link": "shopify://blogs/recipes",
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "section_max_width": 1600,
+        "padding_inline_desktop": 32,
+        "padding_inline_mobile": 16,
+        "cards_gap": 32,
+        "heading_size_desktop": 36,
+        "heading_size_mobile": 20,
+        "eyebrow_size_desktop": 18,
+        "eyebrow_size_mobile": 16,
+        "title_size_desktop": 20,
+        "title_size_mobile": 20,
+        "body_size_desktop": 14,
+        "body_size_mobile": 14,
+        "meta_size_desktop": 14,
+        "meta_size_mobile": 12,
+        "cta_size_desktop": 16,
+        "cta_size_mobile": 14
       }
     }
   },
   "order": [
     "main",
     "product_story_scroll_jHfTGB",
-    "editorial_origin_map",
-    "editorial_recipes",
-    "editorial_reviews",
-    "editorial_impact_bar",
-    "product_recommendations_qggXJq"
+    "tea_origin_map_ewBtD4",
+    "custom_blog_recipes_B8B4a8"
   ]
 }

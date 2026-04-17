@@ -28,6 +28,11 @@
   assign selected_product = closest.product
   assign selected_variant_media = selected_product.selected_or_first_available_variant.featured_media
   assign first_3d_model = selected_product.media | where: 'media_type', 'model' | first
+  assign mobile_breadcrumb_collection = blank
+
+  if selected_product != blank and selected_product.collections.size > 0
+    assign mobile_breadcrumb_collection = selected_product.collections | first
+  endif
 
   if block_settings.hide_variants
     assign variant_images = selected_product.images | where: 'attached_to_variant?', true | map: 'src'
@@ -123,6 +128,12 @@
     assign sorted_media = selected_product.media
   endif
   assign has_image_drop = sorted_media | has: 'media_type', 'image'
+
+  if block_settings.inherit_color_scheme == false
+    assign gallery_color_scheme = block_settings.color_scheme | default: 'scheme-1'
+  else
+    assign gallery_color_scheme = section.settings.color_scheme | default: 'scheme-1'
+  endif
 
   # Determine if we're in single column mode (carousel, list stack, or grid with one column)
   assign is_single_column = false
@@ -345,17 +356,42 @@
 {% endstyle %}
 
 {% if closest.product == blank %}
-  <div
-    class="
-      {% if block_settings.extend_media %}
-        media-gallery--extend
-      {% endif %}
-    "
-    {{ block_shopify_attributes }}
-  >
-    {{ 'product-apparel-1' | placeholder_svg_tag: 'product-media-gallery__placeholder-image' }}
+  <div class="product-media-gallery__shell color-{{ gallery_color_scheme }}">
+    <div
+      class="
+        {% if block_settings.extend_media %}
+          media-gallery--extend
+        {% endif %}
+      "
+      {{ block_shopify_attributes }}
+    >
+      {{ 'product-apparel-1' | placeholder_svg_tag: 'product-media-gallery__placeholder-image' }}
+    </div>
   </div>
 {% else %}
+  <div class="product-media-gallery__shell color-{{ gallery_color_scheme }}">
+    <div class="desktop:hidden product-media-gallery__mobile-breadcrumb">
+      <nav class="product-breadcrumb product-breadcrumb--single-line" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+        <div class="product-breadcrumb__scroll-track">
+          <ol class="product-breadcrumb__list list-unstyled">
+            <li class="product-breadcrumb__item">
+              <a class="product-breadcrumb__link" href="{{ routes.root_url }}">Shop</a>
+            </li>
+            {% if mobile_breadcrumb_collection != blank %}
+              <li class="product-breadcrumb__item">
+                <a class="product-breadcrumb__link" href="{{ mobile_breadcrumb_collection.url }}">
+                  {{ mobile_breadcrumb_collection.title | escape }}
+                </a>
+              </li>
+            {% endif %}
+            <li class="product-breadcrumb__item product-breadcrumb__item--current" aria-current="page">
+              <span>{{ selected_product.title | escape }}</span>
+            </li>
+          </ol>
+        </div>
+      </nav>
+    </div>
+
   <media-gallery
     class="
       spacing-style
@@ -672,6 +708,7 @@
       </script>
     {%- endif -%}
   </media-gallery>
+  </div>
 {% endif %}
 
 {% render 'product-media-gallery-content-styles' %}
@@ -791,6 +828,48 @@
   }
 
   @media screen and (max-width: 749px) {
+    .product-media-gallery__mobile-breadcrumb {
+      padding: 0.8rem 0 1rem;
+    }
+
+    /* Single-line breadcrumb: horizontal scroll, no wrap, scrollbar hidden */
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__scroll-track {
+      overflow-x: auto;
+      overflow-y: hidden;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__scroll-track::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__list {
+      flex-wrap: nowrap;
+      width: max-content;
+      max-width: none;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__item {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__item--current {
+      max-width: none;
+      min-width: 0;
+      word-break: normal;
+      overflow: visible;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__item--current span {
+      white-space: nowrap;
+    }
+
     /* Media gallery has a peeking slide on the right side always, and on the left side when the current slide is the last one */
     .media-gallery--hint
       :is(
