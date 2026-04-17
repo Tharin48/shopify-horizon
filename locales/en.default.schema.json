@@ -371,6 +371,7 @@
     // Theme block name for main page body content
     "page_content": "Content",
     "page_layout": "Page layout",
+    "pair_with": "Pair with",
     "payment_icons": "Payment icons",
     "policy_list": "Policy links",
     "popovers_and_modals": "Popovers and modals",

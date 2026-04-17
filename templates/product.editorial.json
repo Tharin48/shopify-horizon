@@ -438,46 +438,6 @@
                     "text_3VJzAQ"
                   ]
                 },
-                "accordion_row_99KkzY": {
-                  "type": "_accordion-row",
-                  "name": "Shipping",
-                  "settings": {
-                    "heading": "Shipping",
-                    "open_by_default": false,
-                    "icon": "none",
-                    "width": 20
-                  },
-                  "blocks": {
-                    "text_bfmEGF": {
-                      "type": "text",
-                      "settings": {
-                        "text": "",
-                        "width": "100%",
-                        "max_width": "normal",
-                        "alignment": "left",
-                        "type_preset": "rte",
-                        "font": "var(--font-body--family)",
-                        "font_size": "1rem",
-                        "line_height": "normal",
-                        "letter_spacing": "normal",
-                        "case": "none",
-                        "wrap": "pretty",
-                        "color": "var(--color-foreground)",
-                        "background": false,
-                        "background_color": "#00000026",
-                        "corner_radius": 0,
-                        "padding-block-start": 0,
-                        "padding-block-end": 0,
-                        "padding-inline-start": 0,
-                        "padding-inline-end": 0
-                      },
-                      "blocks": {}
-                    }
-                  },
-                  "block_order": [
-                    "text_bfmEGF"
-                  ]
-                },
                 "accordion_row_7kNwP7": {
                   "type": "_accordion-row",
                   "name": "t:names.accordion_row",
@@ -527,13 +487,67 @@
                   "block_order": [
                     "custom_brewing_tabs_JFhk9n"
                   ]
+                },
+                "accordion_row_99KkzY": {
+                  "type": "_accordion-row",
+                  "name": "Shipping",
+                  "settings": {
+                    "heading": "Shipping",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  },
+                  "blocks": {
+                    "text_bfmEGF": {
+                      "type": "text",
+                      "settings": {
+                        "text": "",
+                        "width": "100%",
+                        "max_width": "normal",
+                        "alignment": "left",
+                        "type_preset": "rte",
+                        "font": "var(--font-body--family)",
+                        "font_size": "1rem",
+                        "line_height": "normal",
+                        "letter_spacing": "normal",
+                        "case": "none",
+                        "wrap": "pretty",
+                        "color": "var(--color-foreground)",
+                        "background": false,
+                        "background_color": "#00000026",
+                        "corner_radius": 0,
+                        "padding-block-start": 0,
+                        "padding-block-end": 0,
+                        "padding-inline-start": 0,
+                        "padding-inline-end": 0
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "text_bfmEGF"
+                  ]
                 }
               },
               "block_order": [
                 "accordion_row_eaYi6b",
-                "accordion_row_99KkzY",
-                "accordion_row_7kNwP7"
+                "accordion_row_7kNwP7",
+                "accordion_row_99KkzY"
               ]
+            },
+            "pair_with_CAbztJ": {
+              "type": "_pair-with",
+              "name": "t:names.pair_with",
+              "settings": {
+                "heading": "Pair With",
+                "items_to_show": 2,
+                "fallback_collection": "",
+                "show_price": true,
+                "show_add_to_cart": true,
+                "enable_quick_add": true,
+                "hide_when_empty": true
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -545,7 +559,8 @@
             "variant_picker_R3rGDr",
             "buy_buttons_eYQEYi",
             "group_KTiCTi",
-            "custom_accordion_8XDnzt"
+            "custom_accordion_8XDnzt",
+            "pair_with_CAbztJ"
           ]
         }
       },
@@ -566,15 +581,32 @@
         "padding-block-end": 0
       }
     },
-    "editorial_tea_story": {
-      "type": "editorial-tea-story",
+    "product_story_scroll_jHfTGB": {
+      "type": "product-story-scroll",
+      "name": "Product story scroll",
       "settings": {
-        "heading": "Tea Story",
-        "body": "<p>Placeholder — connect heading and body to product metafields or metaobjects via dynamic sources when ready.</p>",
-        "color_scheme": "scheme-1",
-        "section_width": "page-width",
-        "padding_block_start": 48,
-        "padding_block_end": 48
+        "section_heading": "A Tea with a Story",
+        "left_decorative_bg": "shopify://shop_images/Group_1272628375.svg",
+        "left_decorative_offset_x": 24,
+        "right_decorative_bg": "shopify://shop_images/Group.svg",
+        "card_background_color": "#f7f3eb",
+        "section_max_width": 1920,
+        "section_max_height": 1400,
+        "desktop_padding_left": 80,
+        "desktop_padding_right": 80,
+        "desktop_padding_top": 72,
+        "desktop_padding_bottom": 0,
+        "mobile_padding_left": 16,
+        "mobile_padding_right": 16,
+        "mobile_padding_top": 24,
+        "mobile_padding_bottom": 24,
+        "copy_column_padding": 48,
+        "media_column_max_percent": 47,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "enable_scroll_animation": true,
+        "scroll_start_anchor": 10,
+        "scroll_depth_vh": 32,
+        "mobile_enable_carousel": true
       }
     },
     "editorial_origin_map": {
@@ -771,7 +803,7 @@
   },
   "order": [
     "main",
-    "editorial_tea_story",
+    "product_story_scroll_jHfTGB",
     "editorial_origin_map",
     "editorial_recipes",
     "editorial_reviews",
