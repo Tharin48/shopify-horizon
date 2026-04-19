@@ -1,8 +1,13 @@
 /* Scoped: Dilmah-style sidebar mega menu (L2 rail + L3 grid) */
 
 .mega-menu-sidebar {
-  --mega-menu-rail-width: 18%;
-  --mega-menu-rail-max: 14rem;
+  /*
+   * Left rail: min width + max of (%, px cap) — set via Menu (editorial) block inline vars.
+   * Defaults give more room than legacy 14rem / 18% so long L2 labels do not collide with the right panel.
+   */
+  --mega-menu-rail-min: 260px;
+  --mega-menu-rail-max-pct: 32%;
+  --mega-menu-rail-max-width: 400px;
   --mega-menu-divider: 1px solid color-mix(in srgb, var(--mega-menu-accent) 55%, transparent);
   --mega-menu-panel-max-height: 25rem;
   width: 100%;
@@ -16,23 +21,20 @@
 
 .mega-menu-sidebar__inner {
   display: grid;
-  grid-template-columns: minmax(9.5rem, var(--mega-menu-rail-max)) minmax(0, 1fr);
+  grid-template-columns:
+    minmax(var(--mega-menu-rail-min), min(var(--mega-menu-rail-max-pct), var(--mega-menu-rail-max-width)))
+    minmax(0, 1fr);
   gap: 0;
   align-items: stretch;
   /* Theme: Menu (editorial mega) → Mega menu minimum height */
   min-height: var(--mega-menu-min-height, 12rem);
 }
 
-@media screen and (min-width: 990px) {
-  .mega-menu-sidebar__inner {
-    grid-template-columns: minmax(10.5rem, var(--mega-menu-rail-width)) minmax(0, 1fr);
-  }
-}
-
 .mega-menu-sidebar__rail-column {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 0;
   padding-inline-end: var(--padding-lg);
   border-inline-end: var(--mega-menu-divider);
   gap: var(--padding-xl);
@@ -46,6 +48,7 @@
 .mega-menu-sidebar__tab {
   display: block;
   width: 100%;
+  max-width: 100%;
   text-align: start;
   padding: 0.25rem 0;
   margin: 0;
@@ -60,6 +63,14 @@
   color: rgb(var(--color-foreground-rgb));
   text-decoration: none;
   transition: color 0.15s ease;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.mega-menu-sidebar__tab-label {
+  display: block;
+  max-width: 100%;
 }
 
 .mega-menu-sidebar__tab--link {

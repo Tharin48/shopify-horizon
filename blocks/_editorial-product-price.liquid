@@ -5,8 +5,8 @@
   assign product_resource = closest.product
   assign has_volume_pricing = false
   if product_resource != blank
-    assign _epp_variant = product_resource.selected_or_first_available_variant
-    if _epp_variant != blank and _epp_variant.quantity_price_breaks.size > 0
+    assign epp_variant = product_resource.selected_or_first_available_variant
+    if epp_variant != blank and epp_variant.quantity_price_breaks.size > 0
       assign has_volume_pricing = true
     endif
   endif

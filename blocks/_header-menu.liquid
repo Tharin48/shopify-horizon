@@ -11,6 +11,15 @@
 %}
 
 {% case variant %}
+  {% when 'custom_mobile' %}
+    {% if block_settings.menu != blank and block_settings.menu.links.size > 0 %}
+      {% render 'custom-header-mobile-drawer-nav',
+        section: section,
+        menu: block_settings.menu,
+        drawer_title_id: drawer_title_id
+      %}
+    {% endif %}
+
   {% when 'mobile' %}
     <div
       class="header__drawer"

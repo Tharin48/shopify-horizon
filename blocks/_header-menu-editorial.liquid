@@ -12,6 +12,15 @@
 %}
 
 {% case variant %}
+  {% when 'custom_mobile' %}
+    {% if block_settings.menu != blank and block_settings.menu.links.size > 0 %}
+      {% render 'custom-header-mobile-drawer-nav',
+        section: section,
+        menu: block_settings.menu,
+        drawer_title_id: drawer_title_id
+      %}
+    {% endif %}
+
   {% when 'mobile' %}
     <div
       class="header__drawer"
@@ -60,6 +69,11 @@
   {% else %}
     {% liquid
       assign block_settings = block.settings
+      assign editorial_compact_menu_width_style = ''
+      if block_settings.override_compact_menu_width
+        assign editorial_cw = block_settings.editorial_compact_menu_max_width | default: 416
+        assign editorial_compact_menu_width_style = '--custom-header-compact-submenu-width: min(' | append: editorial_cw | append: 'px, calc(100vw - (2 * var(--section-padding-inline, 0px))));'
+      endif
       assign image_border_radius = block_settings.image_border_radius
       assign color_scheme_classes = ''
       assign color_scheme_setting_id = 'color_scheme_' | append: section.settings.menu_row
@@ -176,6 +190,9 @@
     <header-menu
       ref="headerMenu"
       class="header-menu header-menu--editorial"
+      {% if editorial_compact_menu_width_style != blank %}
+        style="{{ editorial_compact_menu_width_style }}"
+      {% endif %}
       {{ block.shopify_attributes }}
       data-hydration-key="header-menu-editorial"
     >
@@ -833,6 +850,25 @@
       "default": "explore"
     },
     {
+      "type": "checkbox",
+      "id": "override_compact_menu_width",
+      "label": "Custom compact menu width",
+      "info": "When enabled, the width below overrides Custom header → Compact menu max width. When off, the section setting applies.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "editorial_compact_menu_max_width",
+      "label": "Compact menu max width",
+      "info": "Maximum width of the narrow (simple) dropdown panel. Capped by viewport side margins.",
+      "min": 280,
+      "max": 896,
+      "step": 8,
+      "unit": "px",
+      "default": 416,
+      "visible_if": "{{ block.settings.override_compact_menu_width }}"
+    },
+    {
       "type": "color",
       "id": "mega_menu_accent",
       "label": "Mega menu accent",
@@ -885,6 +921,39 @@
       "step": 8,
       "unit": "px",
       "default": 360
+    },
+    {
+      "type": "range",
+      "id": "mega_menu_sidebar_rail_min_px",
+      "label": "Left column minimum width",
+      "info": "Ensures the L2 link list has at least this width so long titles do not overlap the right panel.",
+      "min": 200,
+      "max": 420,
+      "step": 4,
+      "unit": "px",
+      "default": 260
+    },
+    {
+      "type": "range",
+      "id": "mega_menu_sidebar_rail_max_percent",
+      "label": "Left column width (share of menu)",
+      "info": "Upper cap as a percentage of the mega menu width. The column uses the smaller of this share and “Left column max width” below.",
+      "min": 22,
+      "max": 42,
+      "step": 1,
+      "unit": "%",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "mega_menu_sidebar_rail_max_px",
+      "label": "Left column max width",
+      "info": "Absolute maximum width for the left rail (works with the percentage above).",
+      "min": 280,
+      "max": 560,
+      "step": 8,
+      "unit": "px",
+      "default": 400
     },
     {
       "type": "header",

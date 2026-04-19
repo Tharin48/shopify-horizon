@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "names": {
     "404": "404",
@@ -26,7 +17,7 @@
     "product_variant_picker": "Variantkiezer",
     "slideshow_controls": "Besturingselementen voor diavoorstelling",
     "size": "Maat",
-    "spacing": "Spatiëring",
+    "spacing": "SpatiÃ«ring",
     "product_recommendations": "Aanbevolen producten",
     "product_media": "Productmedia",
     "featured_collection": "Uitgelichte collectie",
@@ -162,7 +153,7 @@
     "page_layout": "Paginaopmaak",
     "policy_list": "Beleidslinks",
     "prices": "Prijzen",
-    "product_list_button": "Knop ‘Alles weergeven’",
+    "product_list_button": "Knop âAlles weergevenâ",
     "products_editorial": "Uitgelichte collectie: Redactioneel",
     "social_link": "Sociale link",
     "split_showcase": "Gesplitste showcase",
@@ -202,7 +193,8 @@
     "tea_club": "Tea Club",
     "leaf_story": "Leaf story",
     "category_explore": "Explore categories",
-    "category_explore_card": "Category card"
+    "category_explore_card": "Category card",
+    "pair_with": "Pair with"
   },
   "settings": {
     "autoplay": "Automatisch afspelen",
@@ -278,7 +270,7 @@
     "layout": "Opmaak",
     "layout_type": "Type",
     "show_grid_layout_selector": "Selector voor grid-indeling weergeven",
-    "view_more_show": "Knop ‘Meer bekijken’ weergeven",
+    "view_more_show": "Knop âMeer bekijkenâ weergeven",
     "image_gap": "Tussenruimte afbeelding",
     "width_desktop": "Breedte op desktop",
     "width_mobile": "Breedte op mobiel",
@@ -387,7 +379,7 @@
     "icons": "Pictogrammen",
     "image_border_radius": "Hoekradius afbeelding",
     "installments": "Termijnbetalingen",
-    "integrated_button": "Geïntegreerde knop",
+    "integrated_button": "GeÃ¯ntegreerde knop",
     "language_selector": "Taalkiezer",
     "large": "Groot",
     "left_padding": "Padding links",
@@ -453,7 +445,7 @@
     "speed": "Snelheid",
     "statement": "Overzicht",
     "sticky_header": "Vastgezette koptekst",
-    "text_hierarchy": "Teksthiërarchie",
+    "text_hierarchy": "TeksthiÃ«rarchie",
     "text_presets": "Voorinstellingen tekst",
     "title": "Titel",
     "top": "Boven",
@@ -465,7 +457,7 @@
     "vertical_gap": "Verticale tussenruimte",
     "vertical_offset": "Verticale offset schaduw",
     "vertical_on_mobile": "Verticaal op mobiel",
-    "view_all_as_last_card": "‘Alles bekijken’ als laatste kaart",
+    "view_all_as_last_card": "âAlles bekijkenâ als laatste kaart",
     "weight": "Dikte",
     "wrap": "Terugloop",
     "read_only": "Alleen-lezen",
@@ -483,7 +475,7 @@
     "bottom_row": "Onderste rij",
     "button_text_case": "Hoofdlettergebruik",
     "card_size": "Kaartgrootte",
-    "auto_open_cart_drawer": "Lade automatisch openen na ‘Toevoegen aan winkelwagen’",
+    "auto_open_cart_drawer": "Lade automatisch openen na âToevoegen aan winkelwagenâ",
     "collection_count": "Aantal in collectie",
     "collection_title_case": "Hoofdlettergebruik collectietitel",
     "custom_liquid": "Liquid-code",
@@ -532,7 +524,7 @@
     "product_card_carousel": "Carrousel weergeven",
     "media_fit": "Passing media",
     "scroll_speed": "Tijd tot volgende aankondiging",
-    "show_powered_by_shopify": "‘Powered by Shopify’ weergeven",
+    "show_powered_by_shopify": "âPowered by Shopifyâ weergeven",
     "seller_note_open_by_default": "Notitie aan verkoper standaard openen",
     "gift_card_form": "Cadeaubonformulier",
     "add_to_cart_animation": "Toevoegen aan winkelwagen",
@@ -619,6 +611,10 @@
     "desktop_search_style_custom": "Custom dropdown",
     "desktop_search_style_default": "Default search modal",
     "desktop_search_placeholder": "Search bar placeholder text",
+    "homepage_search_typing_enabled": "Typewriter placeholder on homepage",
+    "homepage_search_typing_enabled_info": "Animates the search hint one character at a time on the home page (custom dropdown search only). Uses the field below, or the main placeholder if that is blank.",
+    "homepage_search_typing_text": "Typewriter text",
+    "homepage_search_typing_text_info": "Shown as the animated hint. Leave blank to use “Search bar placeholder text” above.",
     "search_bar_colors_header": "Search bar colors",
     "search_bar_background": "Background",
     "search_bar_text_color": "Text & icon color",
@@ -632,7 +628,7 @@
     "show_leaf_bottom_right": "Show bottom-right leaf",
     "show_leaf_top_left": "Show top-left leaf",
     "mobile_vision_text_size": "Vision text size (mobile)",
-    "mobile_vision_text_size_info": "Applies to Paragraph, Custom, and Default blocks in the vision column except the first block (that one uses Vision heading (eyebrow)). Heading presets H1–H4 use block/theme sizing. Icon row uses Icon row settings.",
+    "mobile_vision_text_size_info": "Applies to Paragraph, Custom, and Default blocks in the vision column except the first block (that one uses Vision heading (eyebrow)). Heading presets H1âH4 use block/theme sizing. Icon row uses Icon row settings.",
     "enable_custom_leaf_background": "Custom section background",
     "icon_row_text_size": "Icon row text size (desktop)",
     "icon_row_text_size_mobile": "Icon row text size (mobile)",
@@ -677,7 +673,7 @@
     "category_explore_section_min_height_mobile": "Min height (small screens)",
     "category_explore_show_overlay": "Show overlay",
     "category_explore_section_height_desktop": "Grid height (large screens)",
-    "category_explore_section_height_desktop_info": "Sets the exact grid height on desktop — cards auto-fill the rows proportionally. 0 = automatic.",
+    "category_explore_section_height_desktop_info": "Sets the exact grid height on desktop â cards auto-fill the rows proportionally. 0 = automatic.",
     "category_explore_section_height_mobile_info": "Sets a minimum height on mobile. 0 = automatic.",
     "category_explore_label_size": "Label size",
     "category_explore_label_size_mobile": "Label size (small screens)",
@@ -696,7 +692,12 @@
     "category_explore_mobile_row_square_min": "Middle row minimum height",
     "category_explore_mobile_row_wide_min": "Bottom row minimum height",
     "category_explore_mobile_row_min_info": "Minimum height for the two side-by-side cards in this row. The row can still grow with viewport width and free space.",
-    "category_explore_mobile_row_wide_info": "Minimum height for the full-width card at the bottom. The row can still grow with viewport width and free space."
+    "category_explore_mobile_row_wide_info": "Minimum height for the full-width card at the bottom. The row can still grow with viewport width and free space.",
+    "enable_custom_product_page_frame": "Enable custom max width and horizontal insets",
+    "custom_frame_max_width": "Max content width",
+    "custom_frame_inset_start_desktop": "Inset start (large screens)",
+    "custom_frame_inset_end_desktop": "Inset end (large screens)",
+    "custom_frame_inset_mobile": "Horizontal inset (small screens)"
   },
   "options": {
     "apple": "Apple",
@@ -822,7 +823,7 @@
     "drawer": "Lade",
     "preview": "Voorbeeld",
     "text": "Tekst",
-    "video_uploaded": "Geüpload",
+    "video_uploaded": "GeÃ¼pload",
     "video_external_url": "Externe URL",
     "up": "Omhoog",
     "down": "Omlaag",
@@ -1014,7 +1015,7 @@
     "edit_price_in_theme_settings": "Prijsopmaak bewerken in [thema-instellingen](/editor?context=theme&category=currency%20code)",
     "edit_variants_in_theme_settings": "Variantstijl bewerken in [thema-instellingen](/editor?context=theme&category=variants)",
     "email_signups_create_customer_profiles": "Aanmeldingen voegen [klantprofielen](https://help.shopify.com/manual/customers) toe",
-    "follow_on_shop_eligiblity": "De knop wordt alleen weergegeven als het Shop-kanaal is geïnstalleerd en Shop Pay is geactiveerd. [Meer informatie](https://help.shopify.com/en/manual/online-store/themes/customizing-themes/add-shop-buttons)",
+    "follow_on_shop_eligiblity": "De knop wordt alleen weergegeven als het Shop-kanaal is geÃ¯nstalleerd en Shop Pay is geactiveerd. [Meer informatie](https://help.shopify.com/en/manual/online-store/themes/customizing-themes/add-shop-buttons)",
     "fonts": "Lettertypen",
     "grid": "Grid",
     "heading_size": "Kopgrootte",
@@ -1057,7 +1058,7 @@
     "grid_layout": "Grid-indeling",
     "home_page": "Homepage",
     "images": "Afbeeldingen",
-    "inverse_logo_info": "Wordt gebruikt wanneer de transparante koptekstachtergrond is ingesteld op ‘Omgekeerd’",
+    "inverse_logo_info": "Wordt gebruikt wanneer de transparante koptekstachtergrond is ingesteld op âOmgekeerdâ",
     "manage_customer_accounts": "[Zichtbaarheid beheren](/admin/settings/customer_accounts) in de instellingen voor klantaccounts. Verouderde accounts worden niet ondersteund.",
     "manage_policies": "[Beleid beheren](/admin/settings/legal)",
     "product_page": "Productpagina",
@@ -1105,7 +1106,9 @@
     "category_explore_padding_desktop": "Section padding (large screens)",
     "category_explore_padding_mobile": "Section padding (small screens)",
     "category_explore_section_height": "Section height",
-    "category_explore_grid_mobile": "Mobile and tablet grid"
+    "category_explore_grid_mobile": "Mobile and tablet grid",
+    "custom_product_page_frame": "Custom product page frame",
+    "custom_product_page_frame_info": "Caps content width and sets horizontal insets. The Editorial product template uses this automatically; enable here for other product templates or to match a saved toggle to the storefront."
   },
   "html_defaults": {
     "share_information_about_your": "<p>Deel informatie over je merk met je klanten. Beschrijf een product, doe aankondigingen of heet klanten welkom in je winkel.</p>",
@@ -1122,7 +1125,7 @@
     "free_returns": "<p>Gratis retourneren binnen 30 dagen</p>",
     "free_shipping_over": "<p>Gratis verzending bij bestellingen boven de $ 50</p>",
     "goal_for_every_customer": "<p>Ons doel is dat elke klant volledig tevreden is met zijn aankoop. Als dit niet het geval is, laat het ons dan weten. We doen ons best om samen met jou tot een goede oplossing te komen.</p>",
-    "home_to_shirts": "<p>Home → Shirts</p>",
+    "home_to_shirts": "<p>Home â Shirts</p>",
     "intentional_design": "<h2>Doordacht ontwerp</h2>",
     "introducing_p": "<p><em>Introductie</em></p>",
     "latest_products": "<p>Introductie van onze nieuwste producten, speciaal gemaakt voor dit seizoen. Shop je favorieten voordat ze uitverkocht zijn!</p>",
@@ -1141,14 +1144,14 @@
     "real_people": "<p>Echte mensen die geweldige producten maken</p>",
     "related_product": "<h2>Gerelateerde producten</h2>",
     "return_policy": "<h2>Wat is het retourbeleid?</h2>",
-    "reviews": "<p>★★★★★ 368 beoordelingen</p>",
+    "reviews": "<p>âââââ 368 beoordelingen</p>",
     "shipping_based_on_location": "<p>De verzendkosten worden berekend op basis van je locatie en de artikelen in je bestelling. Je weet altijd wat de verzendkosten zijn voordat je je aankoop voltooit.</p>",
     "shop_by_collection": "<h3>Winkelen op collectie</h3>",
     "signature_products": "<h2>Ons kenmerkende product</h2>",
     "styled_with": "<h3>Gecombineerd met</h3>",
     "subscribe": "<h2>Abonneer je op onze e-mails</h2>",
     "team_with_goal": "<h2>Een team met een doel</h2>",
-    "unable_to_accept_returns": "<p>We kunnen bepaalde artikelen niet retour nemen. Dit wordt vóór de aankoop duidelijk aangegeven.</p>",
+    "unable_to_accept_returns": "<p>We kunnen bepaalde artikelen niet retour nemen. Dit wordt vÃ³Ã³r de aankoop duidelijk aangegeven.</p>",
     "work_quickly_to_ship": "<p>We zullen je bestelling zo snel mogelijk verzenden. Zodra je bestelling is verzonden, ontvang je een e-mail met meer informatie. De levertijden zijn afhankelijk van je locatie.</p>",
     "join_our_email_list": "<h2>Meld je aan voor onze e-maillijst</h2>",
     "get_exclusive_deals_and_early_access_to_new_products": "<p>Ontvang exclusieve deals en vroege toegang tot nieuwe producten.</p>",
@@ -1206,7 +1209,7 @@
     "video_alt_text": "Beschrijf de video voor gebruikers van ondersteunende technologie",
     "video_autoplay": "Video's worden standaard gedempt",
     "video_external": "Gebruik een YouTube- of Vimeo-URL",
-    "carousel_hover_behavior_not_supported": "‘Carrousel’-hover wordt niet ondersteund wanneer het type ‘Carrousel’ is geselecteerd op sectieniveau",
+    "carousel_hover_behavior_not_supported": "âCarrouselâ-hover wordt niet ondersteund wanneer het type âCarrouselâ is geselecteerd op sectieniveau",
     "checkout_buttons": "Hiermee kunnen kopers sneller afrekenen, wat de conversie kan verbeteren. [Meer informatie](https://help.shopify.com/manual/online-store/dynamic-checkout)",
     "custom_heading": "Aangepaste kop",
     "edit_presets_in_theme_settings": "Voorinstellingen bewerken in [thema-instellingen](/editor?context=theme&category=typography)",

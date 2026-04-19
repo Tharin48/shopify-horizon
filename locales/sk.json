@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "Načítať video: {{ description }}",
@@ -336,7 +327,7 @@
     "separator": "k"
   },
   "product_rating_summary": {
-    "yotpo_editor_hint": "Z\u00e1stupn\u00e9 hviezdy \u2014 po in\u0161tal\u00e1cii Yotpo sa tu zobrazia skuto\u010dn\u00e9 hodnotenia."
+    "yotpo_editor_hint": "Zástupné hviezdy — po inštalácii Yotpo sa tu zobrazia skutočné hodnotenia."
   },
   "placeholders": {
     "password": "Heslo",
@@ -364,7 +355,11 @@
       "quantity_maximum": "Maximálne {{ maximum }} ks",
       "in_cart": "v košíku",
       "default_title": "Predvolený názov",
-      "sticky_add_to_cart": "Panel rýchleho pridania do košíka"
+      "sticky_add_to_cart": "Panel rýchleho pridania do košíka",
+      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
+      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "price_display_group": "Product pricing",
+      "discount_percent_off": "({{ percent }}% Off)"
     }
   }
 }

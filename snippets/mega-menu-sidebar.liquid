@@ -26,11 +26,14 @@
     assign footer_url = parent_link.url
   endif
   assign img_radius = image_border_radius | default: 14
+  assign rail_min_px = block_settings.mega_menu_sidebar_rail_min_px | default: 260
+  assign rail_max_pct = block_settings.mega_menu_sidebar_rail_max_percent | default: 32
+  assign rail_max_px = block_settings.mega_menu_sidebar_rail_max_px | default: 400
 %}
 
 <mega-menu-sidebar
   class="mega-menu-sidebar{% if l3_item_style == 'rounded_view' %} mega-menu-sidebar--rounded-view{% else %} mega-menu-sidebar--card-view{% endif %}"
-  style="--mega-menu-accent: {{ accent }}; --mega-menu-card-radius: {{ img_radius }}px; --mega-menu-min-height: {{ block_settings.mega_menu_min_height | default: 360 }}px;"
+  style="--mega-menu-accent: {{ accent }}; --mega-menu-card-radius: {{ img_radius }}px; --mega-menu-min-height: {{ block_settings.mega_menu_min_height | default: 360 }}px; --mega-menu-rail-min: {{ rail_min_px }}px; --mega-menu-rail-max-pct: {{ rail_max_pct }}%; --mega-menu-rail-max-width: {{ rail_max_px }}px;"
   data-parent-title="{{ parent_link.title | escape }}"
 >
   <div class="mega-menu-sidebar__inner">

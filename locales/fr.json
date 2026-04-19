@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "Charger la vidéo : {{ description }}",
@@ -305,7 +296,7 @@
     }
   },
   "product_rating_summary": {
-    "yotpo_editor_hint": "\u00c9toiles de substitution \u2014 Yotpo affichera les vraies notes ici apr\u00e8s installation de l\u2019application."
+    "yotpo_editor_hint": "Étoiles de substitution — Yotpo affichera les vraies notes ici après installation de l’application."
   },
   "placeholders": {
     "password": "Mot de passe",
@@ -333,7 +324,11 @@
       "quantity_maximum": "Maximum de {{ maximum }}",
       "in_cart": "dans le panier",
       "default_title": "Titre par défaut",
-      "sticky_add_to_cart": "Barre d’ajout rapide au panier"
+      "sticky_add_to_cart": "Barre d’ajout rapide au panier",
+      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
+      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "price_display_group": "Product pricing",
+      "discount_percent_off": "({{ percent }}% Off)"
     }
   },
   "fields": {

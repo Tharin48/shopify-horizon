@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "Зареждане на видео: {{ description }}",
@@ -299,7 +290,7 @@
     }
   },
   "product_rating_summary": {
-    "yotpo_editor_hint": "\u0412\u0440\u0435\u043c\u0435\u043d\u043d\u0438 \u0437\u0432\u0435\u0437\u0434\u0438 \u2014 Yotpo \u0449\u0435 \u043f\u043e\u043a\u0430\u0436\u0435 \u0440\u0435\u0430\u043b\u043d\u0438 \u043e\u0446\u0435\u043d\u043a\u0438 \u0442\u0443\u043a \u0441\u043b\u0435\u0434 \u0438\u043d\u0441\u0442\u0430\u043b\u0438\u0440\u0430\u043d\u0435 \u043d\u0430 \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0435\u0442\u043e."
+    "yotpo_editor_hint": "Временни звезди — Yotpo ще покаже реални оценки тук след инсталиране на приложението."
   },
   "placeholders": {
     "password": "Парола",
@@ -327,7 +318,11 @@
       "quantity_maximum": "Максимум: {{ maximum }}",
       "in_cart": "в количката",
       "default_title": "Заглавие по подразбиране",
-      "sticky_add_to_cart": "Лента за бързо добавяне в количката"
+      "sticky_add_to_cart": "Лента за бързо добавяне в количката",
+      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
+      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "price_display_group": "Product pricing",
+      "discount_percent_off": "({{ percent }}% Off)"
     }
   },
   "fields": {

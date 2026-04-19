@@ -354,18 +354,18 @@
 
   if pair_with_source != 'metafield'
     if recommendations.performed
-      if recommendations.products_count > 0
-        assign paired_products = recommendations.products
-        assign pair_with_source = 'recommendations'
+    if recommendations.products_count > 0
+      assign paired_products = recommendations.products
+      assign pair_with_source = 'recommendations'
       elsif block.settings.fallback_collection != blank
         assign paired_products = block.settings.fallback_collection.products
-        assign pair_with_source = 'collection'
-      endif
-    elsif product != blank
-      assign should_fetch_recommendations = true
+      assign pair_with_source = 'collection'
+    endif
+  elsif product != blank
+    assign should_fetch_recommendations = true
     elsif block.settings.fallback_collection != blank
       assign paired_products = block.settings.fallback_collection.products
-      assign pair_with_source = 'collection'
+    assign pair_with_source = 'collection'
     endif
   endif
 

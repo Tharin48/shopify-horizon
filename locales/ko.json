@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "동영상 로드: {{ description }}",
@@ -299,7 +290,7 @@
     }
   },
   "product_rating_summary": {
-    "yotpo_editor_hint": "\ud50c\ub808\uc774\uc2a4\ud640\ub354 \ubcc4\uc810 \u2014 Yotpo \uc571 \uc124\uce58 \ud6c4 \uc2e4\uc81c \ud3c9\uc810\uc774 \uc5ec\uae30\uc5d0 \ud45c\uc2dc\ub429\ub2c8\ub2e4."
+    "yotpo_editor_hint": "플레이스홀더 별점 — Yotpo 앱 설치 후 실제 평점이 여기에 표시됩니다."
   },
   "placeholders": {
     "password": "비밀번호",
@@ -327,7 +318,11 @@
       "quantity_maximum": "최대 {{ maximum }}개",
       "in_cart": "카트에 있음",
       "default_title": "기본 이름",
-      "sticky_add_to_cart": "빠른 카트 추가 바"
+      "sticky_add_to_cart": "빠른 카트 추가 바",
+      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
+      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "price_display_group": "Product pricing",
+      "discount_percent_off": "({{ percent }}% Off)"
     }
   },
   "fields": {

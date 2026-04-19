@@ -1,0 +1,43 @@
+{%- doc -%}
+  Single L3 tile for mobile drawer grid (image + label). Mirrors mega-menu-sidebar image resolution.
+  @param {object} l3 - Link object (Shopify menu link with optional .object)
+{%- enddoc -%}
+<li class="custom-header__mobile-l3-item">
+  <a href="{{ l3.url }}" class="custom-header__mobile-l3-tile">
+    <span class="custom-header__mobile-l3-media">
+      {% if l3.type == 'collection_link' and l3.object.featured_image %}
+        {{
+          l3.object.featured_image
+          | image_url: width: 400
+          | image_tag: loading: 'lazy', class: 'custom-header__mobile-l3-img', sizes: '33vw', alt: l3.title
+        }}
+      {% elsif l3.type == 'product_link' and l3.object.featured_image %}
+        {{
+          l3.object.featured_image
+          | image_url: width: 400
+          | image_tag: loading: 'lazy', class: 'custom-header__mobile-l3-img', sizes: '33vw', alt: l3.title
+        }}
+      {% elsif l3.type == 'collection_link' and l3.object.products.size > 0 %}
+        {% assign first_product = nil %}
+        {% for p in l3.object.products limit: 12 %}
+          {% if p.featured_image %}
+            {% assign first_product = p %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        {% if first_product and first_product.featured_image %}
+          {{
+            first_product.featured_image
+            | image_url: width: 400
+            | image_tag: loading: 'lazy', class: 'custom-header__mobile-l3-img', sizes: '33vw', alt: l3.title
+          }}
+        {% else %}
+          <span class="custom-header__mobile-l3-placeholder" aria-hidden="true"></span>
+        {% endif %}
+      {% else %}
+        <span class="custom-header__mobile-l3-placeholder" aria-hidden="true"></span>
+      {% endif %}
+    </span>
+    <span class="custom-header__mobile-l3-label">{{ l3.title | escape }}</span>
+  </a>
+</li>

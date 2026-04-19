@@ -334,13 +334,14 @@ class HeaderMenu extends Component {
   /**
    * Deactivate the active item immediately
    * @param {HTMLElement | null} [item]
+   * @param {boolean} [force] - If true, skip hover guards (e.g. custom header search opened).
    */
-  #deactivate = (item = this.#state.activeItem) => {
+  #deactivate = (item = this.#state.activeItem, force = false) => {
     if (!item || item != this.#state.activeItem) return;
     this.#cancelDeactivate();
 
     // Don't deactivate if the overflow menu or overflow list is still being hovered
-    if (this.overflowListHovered || this.overflowMenu?.matches(':hover')) return;
+    if (!force && (this.overflowListHovered || this.overflowMenu?.matches(':hover'))) return;
 
     this.headerComponent?.style.setProperty('--submenu-height', '0px');
     this.#setFullOpenHeaderHeight(0);
@@ -416,6 +417,14 @@ class HeaderMenu extends Component {
     const images = this.querySelectorAll('img[loading="lazy"]');
     images?.forEach((image) => image.removeAttribute('loading'));
   };
+
+  /**
+   * Close open mega submenus when custom header predictive search opens.
+   */
+  closeSubmenusForSearchOverlay() {
+    if (!this.#state.activeItem) return;
+    this.#deactivate(this.#state.activeItem, true);
+  }
 
   #scheduleDeactivate() {
     this.#cancelDeactivate();

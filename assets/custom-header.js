@@ -147,6 +147,25 @@
     }
     document.documentElement.style.setProperty('--announcement-bar-height', h + 'px');
     syncProductGalleryViewportOffset();
+    updateMobilePortalTopInset();
+  }
+
+  /**
+   * Mobile full-screen portals (overlay, nav drawer, search) use position:fixed; inset:0.
+   * At scroll top the announcement bar is visible — offset portals so they start below it.
+   * After the user scrolls down, the bar is gone → use full viewport (inset 0).
+   */
+  function updateMobilePortalTopInset() {
+    if (typeof window.matchMedia !== 'function' || !window.matchMedia(MOBILE_MQ).matches) {
+      document.documentElement.style.setProperty('--custom-header-mobile-portal-top', '0px');
+      return;
+    }
+    var ann = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announcement-bar-height'));
+    if (isNaN(ann)) ann = 0;
+    var st = getScrollTop();
+    var eps = scrollTopEpsilon();
+    var inset = st <= eps && ann > 0 ? ann + 'px' : '0px';
+    document.documentElement.style.setProperty('--custom-header-mobile-portal-top', inset);
   }
 
   /**
@@ -266,6 +285,118 @@
     var drawerClose = portalRoot ? portalRoot.querySelector('[data-custom-header-drawer-close]') : null;
     var searchClose = portalRoot ? portalRoot.querySelector('[data-custom-header-search-close]') : null;
 
+    var mobileTabList = drawer ? drawer.querySelector('[data-custom-header-mobile-tabs]') : null;
+    var mobilePanelsScroll = drawer ? drawer.querySelector('[data-custom-header-mobile-panels]') : null;
+
+    function getMobileTabs() {
+      return mobileTabList ? mobileTabList.querySelectorAll('[data-custom-header-mobile-tab]') : [];
+    }
+
+    function getMobilePanels() {
+      return drawer ? drawer.querySelectorAll('[data-custom-header-mobile-panel]') : [];
+    }
+
+    function selectMobileDrawerTab(index) {
+      var tabs = getMobileTabs();
+      var panels = getMobilePanels();
+      if (!tabs.length || !panels.length) {
+        return;
+      }
+      var n = tabs.length;
+      var i = Math.max(0, Math.min(index, n - 1));
+      for (var t = 0; t < n; t++) {
+        var selected = t === i;
+        tabs[t].setAttribute('aria-selected', selected ? 'true' : 'false');
+        tabs[t].tabIndex = selected ? 0 : -1;
+        tabs[t].classList.toggle('custom-header__mobile-tab--active', selected);
+      }
+      for (var p = 0; p < panels.length; p++) {
+        var show = p === i;
+        if (show) {
+          panels[p].removeAttribute('hidden');
+          panels[p].classList.remove('custom-header__mobile-panel--hidden');
+        } else {
+          panels[p].setAttribute('hidden', '');
+          panels[p].classList.add('custom-header__mobile-panel--hidden');
+        }
+      }
+      if (mobilePanelsScroll) {
+        mobilePanelsScroll.scrollTop = 0;
+      }
+    }
+
+    function closeSiblingMobileAccordions(opened) {
+      if (!drawer || !opened || !opened.open) {
+        return;
+      }
+      var g = opened.getAttribute('data-custom-header-acc-group');
+      if (!g) {
+        return;
+      }
+      var all = drawer.querySelectorAll('.custom-header__mobile-details[data-custom-header-acc-group]');
+      for (var k = 0; k < all.length; k++) {
+        var el = all[k];
+        if (el !== opened && el.getAttribute('data-custom-header-acc-group') === g) {
+          el.removeAttribute('open');
+        }
+      }
+    }
+
+    var onMobileTabClick = function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest('[data-custom-header-mobile-tab]') : null;
+      if (!btn || !mobileTabList || !mobileTabList.contains(btn)) {
+        return;
+      }
+      var idx = parseInt(btn.getAttribute('data-tab-index'), 10);
+      if (isNaN(idx)) {
+        return;
+      }
+      selectMobileDrawerTab(idx);
+    };
+
+    var onMobileTabListKeydown = function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') {
+        return;
+      }
+      var tabs = getMobileTabs();
+      if (!tabs.length) {
+        return;
+      }
+      var current = -1;
+      for (var j = 0; j < tabs.length; j++) {
+        if (tabs[j].getAttribute('aria-selected') === 'true') {
+          current = j;
+          break;
+        }
+      }
+      if (current < 0) {
+        current = 0;
+      }
+      var next = current;
+      if (e.key === 'ArrowRight') {
+        next = (current + 1) % tabs.length;
+      } else if (e.key === 'ArrowLeft') {
+        next = (current - 1 + tabs.length) % tabs.length;
+      } else if (e.key === 'Home') {
+        next = 0;
+      } else if (e.key === 'End') {
+        next = tabs.length - 1;
+      }
+      if (next !== current) {
+        e.preventDefault();
+        selectMobileDrawerTab(next);
+        tabs[next].focus();
+      }
+    };
+
+    var onMobileAccordionToggle = function (e) {
+      var t = e.target;
+      if (!t || !t.matches || !t.matches('details.custom-header__mobile-details')) {
+        return;
+      }
+      closeSiblingMobileAccordions(t);
+    };
+
     var prevScrollTop = getScrollTop();
     /** Running total of scroll movement in one direction. Resets on direction reversal.
      * Positive = downward scroll accumulated, negative = upward. */
@@ -293,8 +424,10 @@
       }
       updateOverlay();
       updateScrollLock();
+      updateMobilePortalTopInset();
       if (open && drawer) {
         lastMenuFocus = document.activeElement;
+        selectMobileDrawerTab(0);
         requestAnimationFrame(function () {
           var f = getFocusable(drawer);
           if (f[0]) {
@@ -323,6 +456,7 @@
       }
       updateOverlay();
       updateScrollLock();
+      updateMobilePortalTopInset();
       if (open && searchPanel) {
         lastSearchFocus = document.activeElement;
         requestAnimationFrame(function () {
@@ -364,6 +498,9 @@
 
     function onToggleClick() {
       if (!isMobile()) {
+        return;
+      }
+      if (!drawer) {
         return;
       }
       var isOpen = root.dataset.mobileNavOpen === 'true';
@@ -427,6 +564,13 @@
     }
     if (searchClose) {
       searchClose.addEventListener('click', onSearchCloseClick);
+    }
+    if (mobileTabList) {
+      mobileTabList.addEventListener('click', onMobileTabClick);
+      mobileTabList.addEventListener('keydown', onMobileTabListKeydown);
+    }
+    if (drawer) {
+      drawer.addEventListener('toggle', onMobileAccordionToggle, true);
     }
 
     var layoutRaf = null;
@@ -584,6 +728,7 @@
       layoutRaf = requestAnimationFrame(function () {
         layoutRaf = null;
         onScrollFrame();
+        updateMobilePortalTopInset();
       });
     }
 
@@ -659,6 +804,7 @@
       applyHeaderState(root, 'hidden');
     }
     onScrollFrame();
+    updateMobilePortalTopInset();
 
     root.dataset.customHeaderJs = 'initialized';
 
@@ -689,6 +835,13 @@
       }
       if (searchClose) {
         searchClose.removeEventListener('click', onSearchCloseClick);
+      }
+      if (mobileTabList) {
+        mobileTabList.removeEventListener('click', onMobileTabClick);
+        mobileTabList.removeEventListener('keydown', onMobileTabListKeydown);
+      }
+      if (drawer) {
+        drawer.removeEventListener('toggle', onMobileAccordionToggle, true);
       }
       closeAllMobilePanels();
       setScrollLock(false);
@@ -732,6 +885,125 @@
   var CH_SVG_CLOCK = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
   var CH_SVG_SEARCH = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
 
+  var CH_TYPING_CHAR_MS = 72;
+  var CH_TYPING_PAUSE_MS = 2400;
+
+  /**
+   * Homepage-only typewriter overlay for the desktop search field (theme editor
+   * copy in data-typing-phrase). Native placeholders cannot animate.
+   */
+  function initHomepageSearchTyping(wrap, form, input) {
+    var overlay = wrap.querySelector('[data-custom-header-search-typing]');
+    if (!overlay || wrap.getAttribute('data-homepage-search-typing') !== 'true') {
+      return function () {};
+    }
+    var phrase = wrap.getAttribute('data-typing-phrase') || '';
+    var loopTyping = wrap.getAttribute('data-typing-loop') !== 'false';
+    if (!phrase) {
+      return function () {};
+    }
+
+    var pos = 0;
+    var timer = null;
+    var hasCompletedOnce = false;
+
+    function clearTypingTimer() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    }
+
+    function shouldRun() {
+      if (document.hidden) {
+        return false;
+      }
+      if (form.classList.contains('custom-header__desktop-search-form--has-query')) {
+        return false;
+      }
+      try {
+        if (form.matches(':focus-within')) {
+          return false;
+        }
+      } catch (e) {
+        return false;
+      }
+      return true;
+    }
+
+    function tick() {
+      clearTypingTimer();
+      if (!shouldRun()) {
+        return;
+      }
+      if (pos < phrase.length) {
+        pos += 1;
+        overlay.textContent = phrase.slice(0, pos);
+        timer = setTimeout(tick, CH_TYPING_CHAR_MS);
+        return;
+      }
+      hasCompletedOnce = true;
+      overlay.textContent = phrase;
+      if (!loopTyping) {
+        return;
+      }
+      timer = setTimeout(function () {
+        pos = 0;
+        overlay.textContent = '';
+        tick();
+      }, CH_TYPING_PAUSE_MS);
+    }
+
+    function onTypingBlur() {
+      form.classList.toggle('custom-header__desktop-search-form--has-query', !!input.value.trim());
+      if (!input.value.trim()) {
+        if (!loopTyping && hasCompletedOnce) {
+          pos = phrase.length;
+          clearTypingTimer();
+          overlay.textContent = phrase;
+          return;
+        }
+        pos = 0;
+        clearTypingTimer();
+        overlay.textContent = '';
+        tick();
+      }
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden) {
+        clearTypingTimer();
+        return;
+      }
+      if (!input.value.trim()) {
+        if (!loopTyping && hasCompletedOnce) {
+          pos = phrase.length;
+          overlay.textContent = phrase;
+          return;
+        }
+        pos = 0;
+        clearTypingTimer();
+        overlay.textContent = '';
+        tick();
+      }
+    }
+
+    input.addEventListener('focus', clearTypingTimer);
+    input.addEventListener('blur', onTypingBlur);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    form.classList.toggle('custom-header__desktop-search-form--has-query', !!input.value.trim());
+    tick();
+
+    return function cleanupHomepageTyping() {
+      clearTypingTimer();
+      input.removeEventListener('focus', clearTypingTimer);
+      input.removeEventListener('blur', onTypingBlur);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      overlay.textContent = '';
+    };
+  }
+
   function initDesktopSearch(root) {
     var wrap = root.querySelector('[data-custom-header-search-wrap]');
     if (!wrap) { return; }
@@ -739,6 +1011,8 @@
     var input = wrap.querySelector('[data-custom-header-search-input]');
     var dropdown = wrap.querySelector('[data-custom-header-search-dropdown]');
     if (!form || !input || !dropdown) { return; }
+
+    var cleanupTyping = initHomepageSearchTyping(wrap, form, input);
 
     var debTimer = null;
     var activeSearchController = null;
@@ -782,7 +1056,16 @@
     }
 
     /* ── Open / close ────────────────────────────────────────────────────── */
+    function closeDesktopMegaMenusForSearch() {
+      root.querySelectorAll('header-menu').forEach(function (hm) {
+        if (typeof hm.closeSubmenusForSearchOverlay === 'function') {
+          hm.closeSubmenusForSearchOverlay();
+        }
+      });
+    }
+
     function open(html) {
+      closeDesktopMegaMenusForSearch();
       dropdown.innerHTML = html;
       dropdown.hidden = false;
       input.setAttribute('aria-expanded', 'true');
@@ -986,6 +1269,9 @@
     };
 
     var onInputEvent = function () {
+      if (form.classList.contains('custom-header__desktop-search-form--typing')) {
+        form.classList.toggle('custom-header__desktop-search-form--has-query', !!input.value.trim());
+      }
       clearTimeout(debTimer);
       var q = input.value.trim();
       currentFocusIdx = -1;
@@ -1017,6 +1303,9 @@
     /* ── Cleanup — chain onto the root's existing cleanup fn ────────────── */
     var prevCleanup = root._customHeaderCleanup;
     root._customHeaderCleanup = function () {
+      if (typeof cleanupTyping === 'function') {
+        cleanupTyping();
+      }
       input.removeEventListener('keydown', onKeydown);
       input.removeEventListener('input', onInputEvent);
       input.removeEventListener('focus', onFocus);

@@ -33,6 +33,7 @@
 
   assign desktop_navigation = section.settings.desktop_navigation | default: 'simple'
   assign active_menu = section.settings.menu
+  assign custom_header_drawer_title_id = 'CustomHeaderDrawerTitle-' | append: section.id
   assign active_menu_block = nil
 
   if desktop_navigation == 'editorial'
@@ -43,6 +44,11 @@
 
   if active_menu_block != blank and active_menu_block.settings.menu != blank
     assign active_menu = active_menu_block.settings.menu
+  endif
+
+  assign active_menu_handle = active_menu.handle | default: active_menu
+  if active_menu_handle != blank
+    assign active_menu = linklists[active_menu_handle] | default: active_menu
   endif
 %}
 
@@ -58,6 +64,25 @@
   {% endif %}
 {% endcapture %}
 {% assign custom_header_mega_stripped = custom_header_horizon_menu | strip %}
+
+{% capture custom_header_mobile_drawer %}
+  {% if desktop_navigation == 'editorial' %}
+    {% content_for 'block',
+      type: '_header-menu-editorial',
+      id: 'custom-header-menu-editorial',
+      variant: 'custom_mobile',
+      drawer_title_id: custom_header_drawer_title_id
+    %}
+  {% elsif desktop_navigation == 'horizon' %}
+    {% content_for 'block',
+      type: '_header-menu',
+      id: 'custom-header-menu-horizon',
+      variant: 'custom_mobile',
+      drawer_title_id: custom_header_drawer_title_id
+    %}
+  {% endif %}
+{% endcapture %}
+{% assign custom_header_mobile_drawer_stripped = custom_header_mobile_drawer | strip %}
 
 {% if load_search_assets %}
   {% render 'predictive-search-styles' %}
@@ -119,6 +144,14 @@
     --custom-header-foreground-rgb-minimized: {{ minimized_text_rgb }};
     --custom-header-search-bg: {{ section.settings.search_bar_background | default: '#FFFFFF' }};
     --custom-header-search-color: {{ section.settings.search_bar_text_color | default: '#121212' }};
+    --custom-header-search-typing-color:
+      {% if section.settings.homepage_search_typing_color != blank %}
+        {{ section.settings.homepage_search_typing_color }}
+      {% elsif section.settings.search_bar_text_color != blank %}
+        {{ section.settings.search_bar_text_color }}
+      {% else %}
+        #121212
+      {% endif %};
     --custom-header-search-border: {{ section.settings.search_bar_border_color | default: '#D4D4D4' }};
     --custom-header-search-focus: {{ section.settings.search_bar_focus_color | default: '#BC9407' }};
     --custom-header-mega-gap: {{ section.settings.mega_menu_header_gap | default: 0 }}px;
@@ -141,14 +174,22 @@
     active_menu: active_menu,
     desktop_navigation: desktop_navigation,
     horizon_menu_html: custom_header_horizon_menu,
-    horizon_menu_stripped: custom_header_mega_stripped
+    horizon_menu_stripped: custom_header_mega_stripped,
+    mobile_drawer_html: custom_header_mobile_drawer,
+    mobile_drawer_stripped: custom_header_mobile_drawer_stripped,
+    is_home: is_home
   %}
 </header>
 
 {% comment %}
   Mobile overlay + full-screen drawers live outside <header> so position:fixed layers are not clipped by header/shell overflow or stacking.
 {% endcomment %}
-{% render 'custom-header-mobile-portals', section: section, active_menu: active_menu %}
+{% render 'custom-header-mobile-portals',
+  section: section,
+  active_menu: active_menu,
+  mobile_drawer_html: custom_header_mobile_drawer,
+  mobile_drawer_stripped: custom_header_mobile_drawer_stripped
+%}
 
 {% stylesheet %}
   /*
@@ -162,6 +203,8 @@
    */
   :root {
     --announcement-bar-height: 0px;
+    /* Mobile: JS sets below announcement when scrollTop ≈ 0; 0 when scrolled */
+    --custom-header-mobile-portal-top: 0px;
     --custom-header-z: 400;
   }
 
@@ -948,6 +991,8 @@
 
   .custom-header__desktop-search-row {
     display: none; /* hidden by default for all states and screen sizes */
+    position: relative;
+    z-index: 25;
     width: 100%;
     order: 3; /* appears after logo row and lower row in the column flex */
   }
@@ -1100,6 +1145,70 @@
     .custom-header__desktop-search-submit .svg-wrapper svg {
       width: 1.25rem;
       height: 1.25rem;
+    }
+
+    /*
+     * Homepage typewriter “placeholder” (editor-controlled copy). Native
+     * placeholders cannot animate; this overlay mimics placeholder styling and
+     * hides on focus, when the field has a value, or when the tab is hidden.
+     */
+    .custom-header__desktop-search-form--typing {
+      position: relative;
+    }
+
+    .custom-header__desktop-search-typing {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inset-inline-end: 0;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+      padding-inline-start: 1.375rem;
+      padding-inline-end: 3rem;
+      font: inherit;
+      font-size: 0.9375rem;
+      color: var(--custom-header-search-typing-color, var(--custom-header-search-color, #121212));
+      opacity: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.15s ease;
+    }
+
+    .custom-header__desktop-search-typing:not(:empty)::after {
+      content: '';
+      display: inline-block;
+      width: 1px;
+      height: 1em;
+      margin-inline-start: 1px;
+      background: currentcolor;
+      animation: custom-header-typing-cursor 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes custom-header-typing-cursor {
+      0%,
+      50% {
+        opacity: 1;
+      }
+      51%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .custom-header__desktop-search-form--typing:focus-within .custom-header__desktop-search-typing,
+    .custom-header__desktop-search-form--typing.custom-header__desktop-search-form--has-query
+      .custom-header__desktop-search-typing {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .custom-header__desktop-search-form--typing:focus-within .custom-header__desktop-search-typing::after,
+    .custom-header__desktop-search-form--typing.custom-header__desktop-search-form--has-query
+      .custom-header__desktop-search-typing::after {
+      animation: none;
     }
   }
 
@@ -1492,6 +1601,28 @@
       "content": "t:content.menu"
     },
     {
+      "type": "header",
+      "content": "Mobile menu drawer"
+    },
+    {
+      "type": "color",
+      "id": "mobile_drawer_accent_color",
+      "label": "Mobile drawer tab & accordion accent",
+      "default": "#b8965c"
+    },
+    {
+      "type": "text",
+      "id": "mobile_drawer_footer_label",
+      "label": "Mobile drawer footer link label",
+      "default": "Explore all products"
+    },
+    {
+      "type": "url",
+      "id": "mobile_drawer_footer_url",
+      "label": "Mobile drawer footer link",
+      "info": "Leave blank to use the All products collection."
+    },
+    {
       "type": "select",
       "id": "desktop_navigation",
       "label": "Desktop navigation",
@@ -1617,9 +1748,9 @@
       "type": "range",
       "id": "compact_menu_max_width",
       "label": "Compact menu max width",
-      "info": "Maximum width of the compact dropdown (capped by viewport margins).",
+      "info": "Maximum width of the compact dropdown (capped by viewport margins). Editorial menu block can override via “Custom compact menu width”.",
       "min": 280,
-      "max": 520,
+      "max": 896,
       "step": 8,
       "unit": "px",
       "default": 416,
@@ -1681,6 +1812,14 @@
       "visible_if": "{{ section.settings.show_desktop_search_bar }}"
     },
     {
+      "type": "checkbox",
+      "id": "homepage_search_typing_enabled",
+      "label": "t:settings.homepage_search_typing_enabled",
+      "info": "t:settings.homepage_search_typing_enabled_info",
+      "default": false,
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
       "type": "header",
       "content": "t:settings.search_bar_colors_header",
       "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
@@ -1701,11 +1840,26 @@
     },
     {
       "type": "color",
+      "id": "homepage_search_typing_color",
+      "label": "t:settings.homepage_search_typing_color",
+      "info": "t:settings.homepage_search_typing_color_info",
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' and section.settings.homepage_search_typing_enabled }}"
+    },
+    {
+      "type": "color",
       "id": "search_bar_border_color",
       "label": "t:settings.search_bar_border_color",
       "info": "t:settings.search_bar_border_color_info",
       "default": "#D4D4D4",
       "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "homepage_search_typing_loop",
+      "label": "t:settings.homepage_search_typing_loop",
+      "info": "t:settings.homepage_search_typing_loop_info",
+      "default": true,
+      "visible_if": "{{ section.settings.show_desktop_search_bar and section.settings.desktop_search_style == 'custom' and section.settings.homepage_search_typing_enabled }}"
     },
     {
       "type": "color",

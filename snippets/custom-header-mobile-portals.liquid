@@ -4,10 +4,16 @@
 
   @param {object} section - Parent section object (required)
   @param {object} [active_menu] - Resolved active menu object shared across desktop/mobile
+  @param {string} [mobile_drawer_html] - Captured output from menu theme block mobile variant
+  @param {string} [mobile_drawer_stripped] - Same capture after strip; avoids whitespace-only mobile drawer slot
 {% enddoc %}
 
 {% liquid
   assign menu = active_menu | default: section.settings.menu
+  assign menu_handle = menu.handle | default: menu
+  if menu_handle != blank
+    assign menu = linklists[menu_handle] | default: menu
+  endif
   assign search_style = 'none'
   if section.settings.show_search
     assign search_style = 'modal'
@@ -21,8 +27,13 @@
   if menu != blank and menu.links.size > 0
     assign has_menu = true
   endif
+  assign theme_drawer_htm = mobile_drawer_stripped | default: mobile_drawer_html | strip
+  assign has_theme_drawer = false
+  if theme_drawer_htm != blank
+    assign has_theme_drawer = true
+  endif
   assign show_portals = false
-  if has_menu or search_style != 'none'
+  if has_menu or has_theme_drawer or search_style != 'none'
     assign show_portals = true
   endif
 %}
@@ -40,7 +51,7 @@
       aria-hidden="true"
     ></div>
 
-    {% if has_menu %}
+    {% if has_theme_drawer %}
       <div
         id="{{ drawer_id }}"
         class="custom-header__mobile-drawer"
@@ -52,46 +63,22 @@
         tabindex="-1"
       >
         <div class="custom-header__mobile-drawer-inner">
-          <div class="custom-header__mobile-drawer-header">
-            <h2 id="{{ drawer_title_id }}" class="custom-header__mobile-drawer-title">
-              {{ 'accessibility.menu' | t }}
-            </h2>
-            <button
-              type="button"
-              class="custom-header__mobile-drawer-close button-unstyled"
-              data-custom-header-drawer-close
-              aria-label="{{ 'accessibility.close_dialog' | t }}"
-            >
-              <span class="svg-wrapper" aria-hidden="true">
-                {{- 'icon-close.svg' | inline_asset_content -}}
-              </span>
-            </button>
-          </div>
-          <nav
-            class="custom-header__mobile-drawer-nav"
-            aria-label="{{ 'accessibility.header_navigation_label' | t }}"
-          >
-            <ul class="custom-header__mobile-drawer-list list-unstyled" role="list">
-              {% for link in menu.links %}
-                <li class="custom-header__mobile-drawer-item">
-                  <a href="{{ link.url }}" class="custom-header__mobile-drawer-link">
-                    {{- link.title -}}
-                  </a>
-                  {% if link.links != blank and link.links.size > 0 %}
-                    <ul class="custom-header__mobile-drawer-sub list-unstyled" role="list">
-                      {% for child in link.links %}
-                        <li class="custom-header__mobile-drawer-subitem">
-                          <a href="{{ child.url }}" class="custom-header__mobile-drawer-sublink">
-                            {{- child.title -}}
-                          </a>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
-          </nav>
+          {{ mobile_drawer_html }}
+        </div>
+      </div>
+    {% elsif has_menu %}
+      <div
+        id="{{ drawer_id }}"
+        class="custom-header__mobile-drawer"
+        data-custom-header-mobile-drawer
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="{{ drawer_title_id }}"
+        aria-hidden="true"
+        tabindex="-1"
+      >
+        <div class="custom-header__mobile-drawer-inner">
+          {% render 'custom-header-mobile-drawer-nav', section: section, menu: menu, drawer_title_id: drawer_title_id %}
         </div>
       </div>
     {% endif %}

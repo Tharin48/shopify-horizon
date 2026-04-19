@@ -43,9 +43,6 @@
   if mode == 'yotpo_star_rating' and product != blank and yotpo_editor_preview == false
     assign show_yotpo_mount = true
   endif
-
-  assign placeholder_rating = block.settings.placeholder_rating
-  assign placeholder_count = block.settings.placeholder_review_count
 -%}
 
 <div
@@ -87,9 +84,9 @@
   {%- elsif show_placeholder_stars -%}
     <div class="product-rating-summary-block__inner product-rating-summary-block__inner--placeholder">
       {% render 'product-rating-summary-display',
-        rating: placeholder_rating,
+        rating: block.settings.placeholder_rating,
         scale_max: 5,
-        rating_count: placeholder_count,
+        rating_count: block.settings.placeholder_review_count,
         star_color: star_c,
         star_empty_color: empty_c,
         show_count: show_count,
@@ -104,9 +101,9 @@
   {%- elsif product == blank -%}
     <div class="product-rating-summary-block__inner product-rating-summary-block__inner--placeholder">
       {% render 'product-rating-summary-display',
-        rating: placeholder_rating,
+        rating: block.settings.placeholder_rating,
         scale_max: 5,
-        rating_count: placeholder_count,
+        rating_count: block.settings.placeholder_review_count,
         star_color: star_c,
         star_empty_color: empty_c,
         show_count: show_count,

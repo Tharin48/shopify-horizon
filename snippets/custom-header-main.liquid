@@ -6,19 +6,31 @@
   @param {string} [desktop_navigation] - simple | horizon | editorial
   @param {string} [horizon_menu_html] - Captured output from menu theme blocks (desktop only)
   @param {string} [horizon_menu_stripped] - Same capture after strip; avoids whitespace-only mega slot
+  @param {string} [mobile_drawer_html] - Captured output from menu theme block mobile variant
+  @param {string} [mobile_drawer_stripped] - Same capture after strip; avoids whitespace-only mobile drawer slot
+  @param {boolean} [is_home] - True on the index template; drives homepage-only search typing
 {% enddoc %}
 
 {% liquid
   assign nav_mode = desktop_navigation | default: 'simple'
   assign mega_htm = horizon_menu_stripped | default: horizon_menu_html | strip
+  assign mobile_drawer_htm = mobile_drawer_stripped | default: mobile_drawer_html | strip
   assign has_mega_output = false
   if nav_mode != 'simple' and mega_htm != blank
     assign has_mega_output = true
   endif
   assign menu = active_menu | default: section.settings.menu
+  assign menu_handle = menu.handle | default: menu
+  if menu_handle != blank
+    assign menu = linklists[menu_handle] | default: menu
+  endif
   assign has_menu = false
   if menu != blank and menu.links.size > 0
     assign has_menu = true
+  endif
+  assign has_mobile_drawer = false
+  if has_menu or mobile_drawer_htm != blank
+    assign has_mobile_drawer = true
   endif
   assign show_nav_chrome = false
   if has_menu or has_mega_output
@@ -50,7 +62,7 @@
     <div class="custom-header__primary-inner{% unless show_nav_chrome %} custom-header__primary-inner--no-menu{% endunless %}">
       <div class="custom-header__mobile">
         <div class="custom-header__mobile-top">
-          {% if show_nav_chrome %}
+          {% if has_mobile_drawer %}
             <button
               type="button"
               class="custom-header__menu-toggle custom-header__mobile-menu-toggle"
@@ -130,6 +142,18 @@
           {%- assign desktop_search_placeholder = 'Search...' -%}
         {%- endif -%}
         {%- assign desktop_search_style = section.settings.desktop_search_style | default: 'custom' -%}
+        {%- assign show_homepage_typing = false -%}
+        {%- if is_home
+          and section.settings.homepage_search_typing_enabled
+          and desktop_search_style == 'custom'
+        -%}
+          {%- assign show_homepage_typing = true -%}
+        {%- endif -%}
+        {%- if show_homepage_typing -%}
+          {%- assign search_input_a11y_label = desktop_search_placeholder -%}
+        {%- else -%}
+          {%- assign search_input_a11y_label = desktop_search_placeholder -%}
+        {%- endif -%}
         <div class="custom-header__desktop-search-row mobile:hidden">
           {%- if desktop_search_style == 'default' -%}
             {%- comment -%}
@@ -155,11 +179,19 @@
               "Custom search" mode: live-autocomplete dropdown with recent searches,
               recently viewed products, and Shopify predictive search results.
             {%- endcomment -%}
-            <div class="custom-header__desktop-search-wrap" data-custom-header-search-wrap>
+            <div
+              class="custom-header__desktop-search-wrap"
+              data-custom-header-search-wrap
+              {% if show_homepage_typing %}
+                data-homepage-search-typing="true"
+                data-typing-phrase="{{ desktop_search_placeholder | escape }}"
+                data-typing-loop="{% if section.settings.homepage_search_typing_loop == false %}false{% else %}true{% endif %}"
+              {% endif %}
+            >
               <form
                 action="{{ routes.search_url }}"
                 method="get"
-                class="custom-header__desktop-search-form"
+                class="custom-header__desktop-search-form{% if show_homepage_typing %} custom-header__desktop-search-form--typing{% endif %}"
                 role="search"
                 data-custom-header-search-form
               >
@@ -167,15 +199,22 @@
                 <input
                   type="search"
                   name="q"
-                  placeholder="{{ desktop_search_placeholder }}"
+                  {% if show_homepage_typing %}
+                    placeholder=""
+                  {% else %}
+                    placeholder="{{ desktop_search_placeholder }}"
+                  {% endif %}
                   class="custom-header__desktop-search-input"
                   autocomplete="off"
-                  aria-label="{{ desktop_search_placeholder }}"
+                  aria-label="{{ search_input_a11y_label | escape }}"
                   aria-autocomplete="list"
                   aria-controls="CustomHeaderSearchDropdown-{{ section.id }}"
                   aria-expanded="false"
                   data-custom-header-search-input
                 >
+                {% if show_homepage_typing %}
+                  <span class="custom-header__desktop-search-typing" data-custom-header-search-typing aria-hidden="true"></span>
+                {% endif %}
                 <button
                   type="submit"
                   class="custom-header__desktop-search-submit"
@@ -190,7 +229,7 @@
                 class="custom-header__search-dropdown"
                 id="CustomHeaderSearchDropdown-{{ section.id }}"
                 role="listbox"
-                aria-label="{{ desktop_search_placeholder }}"
+                aria-label="{{ search_input_a11y_label | escape }}"
                 hidden
                 data-custom-header-search-dropdown
               ></div>
