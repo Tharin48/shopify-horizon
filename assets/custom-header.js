@@ -8,6 +8,11 @@
 
   var SCROLL_EPS = 2;
   /**
+   * Mobile: wider "at top" band so layout + scroll anchoring does not oscillate scrollTop
+   * across the desktop epsilon when --header-height jumps between default and minimized.
+   */
+  var SCROLL_EPS_MOBILE = 14;
+  /**
    * Require this many pixels of *sustained* scroll movement before changing state.
    * This is the primary anti-flicker mechanism: slow/jittery scroll (1–5px per event)
    * near the threshold no longer causes rapid state oscillation.
@@ -20,7 +25,7 @@
   /**
    * Once in minimized/hidden state, do NOT revert to full just because scrollTop dipped
    * slightly below scroll_threshold. Only revert when scrollTop is this many px below the
-   * threshold — or at the true page top (handled by SCROLL_EPS check).
+   * threshold — or at the true page top (handled by scrollTopEpsilon()).
    *
    * This eliminates the most common flicker pattern: slow scroll near the threshold boundary
    * causes scrollTop to oscillate ±2px across the threshold → rapid solid↔hidden state flips
@@ -31,6 +36,42 @@
    */
   var THRESHOLD_BACK_PX = 100;
   var MOBILE_MQ = '(max-width: 749px)';
+
+  function scrollTopEpsilon() {
+    if (typeof window.matchMedia === 'function' && window.matchMedia(MOBILE_MQ).matches) {
+      return SCROLL_EPS_MOBILE;
+    }
+    return SCROLL_EPS;
+  }
+
+  function isMobileViewport() {
+    return typeof window.matchMedia === 'function' && window.matchMedia(MOBILE_MQ).matches;
+  }
+
+  /** DialogComponent locks scroll with inline body styles; match that so scroll handlers cannot run during cart drawer / modal lock even between attribute and style application. */
+  function isDialogBodyScrollLocked() {
+    var b = document.body;
+    return !!(b && b.style && b.style.position === 'fixed' && b.style.top);
+  }
+
+  /** Full / compact header heights from theme CSS vars — avoids getBoundingClientRect feedback loops near scroll top. */
+  function getStableCustomHeaderHeightPx(root) {
+    var state = root.dataset.headerState;
+    var cs = getComputedStyle(root);
+    if (isMobileViewport()) {
+      var mobileDefault = parseFloat(cs.getPropertyValue('--custom-header-default-height').trim());
+      return isNaN(mobileDefault) ? Math.round(root.getBoundingClientRect().height) : Math.round(mobileDefault);
+    }
+    if (state === 'transparent' || state === 'solid') {
+      var def = parseFloat(cs.getPropertyValue('--custom-header-default-height').trim());
+      return isNaN(def) ? Math.round(root.getBoundingClientRect().height) : Math.round(def);
+    }
+    if (state === 'minimized' || state === 'hidden') {
+      var minH = parseFloat(cs.getPropertyValue('--custom-header-minimized-height').trim());
+      return isNaN(minH) ? Math.round(root.getBoundingClientRect().height) : Math.round(minH);
+    }
+    return Math.round(root.getBoundingClientRect().height);
+  }
 
   function getScrollTop() {
     /*
@@ -59,9 +100,10 @@
      * Reuse the last locked value for a brief grace window to avoid false
      * "at top" detection (which would switch header to transparent).
      */
+    var epsTop = scrollTopEpsilon();
     if (
-      liveScrollTop <= SCROLL_EPS &&
-      lastLockedScrollTop > SCROLL_EPS &&
+      liveScrollTop <= epsTop &&
+      lastLockedScrollTop > epsTop &&
       Date.now() - lastLockSeenAt < LOCK_RELEASE_GRACE_MS
     ) {
       return lastLockedScrollTop;
@@ -74,6 +116,10 @@
     var mayTransparent = root.dataset.mayTransparent === 'true';
     var isHome = root.dataset.isHomepage === 'true';
     return mayTransparent && isHome ? 'transparent' : 'solid';
+  }
+
+  function visibleScrollState(root) {
+    return topState(root) === 'transparent' ? 'solid' : topState(root);
   }
 
   function isPastThreshold(root, scrollTop) {
@@ -152,7 +198,9 @@
           var cssH = parseFloat(cs.getPropertyValue('--custom-header-default-height').trim());
           total += isNaN(cssH) ? Math.round(root.getBoundingClientRect().height) : cssH;
         } else {
-          total += Math.round(root.getBoundingClientRect().height);
+          var csM = getComputedStyle(root);
+          var minHx = parseFloat(csM.getPropertyValue('--custom-header-minimized-height').trim());
+          total += isNaN(minHx) ? Math.round(root.getBoundingClientRect().height) : Math.round(minHx);
         }
       } else {
         total += section.offsetHeight;
@@ -162,13 +210,20 @@
   }
 
   function updateBodyHeaderHeight(root) {
-    var h = Math.round(root.getBoundingClientRect().height);
+    var h = getStableCustomHeaderHeightPx(root);
     document.body.style.setProperty('--header-height', h + 'px');
     updateHeaderGroupHeight(root);
     syncProductGalleryViewportOffset();
   }
 
   function applyHeaderState(root, state) {
+    /*
+     * Never assign transparent on templates where the header is not allowed to be transparent
+     * (e.g. product pages). Prevents stray transitions if scroll/lock timing mis-reads position.
+     */
+    if (state === 'transparent' && topState(root) !== 'transparent') {
+      state = 'solid';
+    }
     if (root.dataset.headerState === state) {
       return; /* no change — skip the expensive getBoundingClientRect call */
     }
@@ -381,20 +436,21 @@
       prevScrollTop = scrollTop;
 
       /*
-       * While a modal/drawer with [scroll-lock] is open, freeze header state.
-       * DialogComponent locks body positioning, which can create transient
-       * scroll readings during open/close animations.
+       * While a modal/drawer with [scroll-lock] is open — or body is locked by DialogComponent —
+       * freeze header state. Prevents bogus scroll deltas (e.g. cart drawer) from forcing
+       * hidden/minimized on product pages.
        */
-      if (document.documentElement.hasAttribute('scroll-lock')) {
+      if (document.documentElement.hasAttribute('scroll-lock') || isDialogBodyScrollLocked()) {
         scrollAccum = 0;
         return;
       }
 
       var full = topState(root);
+      var visibleState = visibleScrollState(root);
       var curState = root.dataset.headerState || full;
 
       /* ── Case 1: At true page top → always restore full header ──────────────────────── */
-      if (scrollTop <= SCROLL_EPS) {
+      if (scrollTop <= scrollTopEpsilon()) {
         scrollAccum = 0;
         if (curState !== full) {
           applyHeaderState(root, full);
@@ -404,12 +460,12 @@
 
       /*
        * Invariant: transparent is allowed only at true top.
-       * If we're below top for any reason (reload restore, drawer close, etc.),
-       * immediately demote transparent to minimized before normal threshold logic.
+       * Demote to hidden (not minimized) so the first scroll down does not flash the slim
+       * minimized bar — that bar is reserved for scroll-up-from-hidden (Case 3).
        */
       if (full === 'transparent' && curState === 'transparent') {
-        applyHeaderState(root, 'minimized');
-        curState = 'minimized';
+        applyHeaderState(root, 'hidden');
+        curState = 'hidden';
       }
 
       /* ── Case 2: Below the scroll_threshold zone ──────────────────────────────────── */
@@ -417,11 +473,11 @@
         if (curState === full) {
           /*
            * On homepage "full" can be transparent. Transparent must exist only
-           * at true top (Case 1). If we're below top, force minimized immediately.
+           * at true top (Case 1). If we're below top, force hidden (same as main demotion).
            */
           scrollAccum = 0;
           if (full === 'transparent') {
-            applyHeaderState(root, 'minimized');
+            applyHeaderState(root, 'hidden');
           }
           return;
         }
@@ -445,9 +501,17 @@
         var revertAt = Math.max(0, effectiveThr - THRESHOLD_BACK_PX);
 
         if (scrollTop <= revertAt) {
-          /* Safely above the threshold (with buffer) → restore full */
+          /*
+           * Safely below the scroll threshold (with buffer) → restore non-scroll "full" state.
+           * For non-homepage that is solid; for homepage full === 'transparent' must NOT be
+           * applied here — only Case 1 (scrollTop ≈ 0) may show transparent again. Otherwise
+           * scrollTop <= revertAt fires while the user has already left the top (e.g. 50–300px),
+           * re-applying transparent and fighting the transparent→hidden demotion → flicker.
+           */
           scrollAccum = 0;
-          applyHeaderState(root, full);
+          if (full !== 'transparent') {
+            applyHeaderState(root, full);
+          }
         } else {
           /* In the hysteresis zone: maintain current state, reset accumulator */
           scrollAccum = 0;
@@ -460,6 +524,33 @@
        * Direction reversal resets the accumulator so the user must scroll a meaningful
        * distance in the new direction before the header changes state.
        */
+      if (isMobile()) {
+        if (delta > 0) {
+          if (scrollAccum < 0) {
+            scrollAccum = 0;
+          }
+          scrollAccum += delta;
+          if (scrollAccum >= HIDE_REQUIRE_PX && curState !== 'hidden') {
+            applyHeaderState(root, 'hidden');
+          }
+          if (scrollAccum > HIDE_REQUIRE_PX) {
+            scrollAccum = HIDE_REQUIRE_PX;
+          }
+        } else if (delta < 0) {
+          if (scrollAccum > 0) {
+            scrollAccum = 0;
+          }
+          scrollAccum += delta;
+          if (scrollAccum <= -SHOW_REQUIRE_PX && curState !== visibleState) {
+            applyHeaderState(root, visibleState);
+          }
+          if (scrollAccum < -SHOW_REQUIRE_PX) {
+            scrollAccum = -SHOW_REQUIRE_PX;
+          }
+        }
+        return;
+      }
+
       if (delta > 0) {
         if (scrollAccum < 0) {
           scrollAccum = 0;
@@ -531,11 +622,14 @@
       scrollAccum = 0;
     };
     var onDialogClose = function () {
-      prevScrollTop = getScrollTop();
       scrollAccum = 0;
-      scheduleScrollUpdate();
-      requestAnimationFrame(scheduleScrollUpdate);
-      window.setTimeout(scheduleScrollUpdate, 80);
+      var sync = function () {
+        prevScrollTop = getScrollTop();
+        scheduleScrollUpdate();
+      };
+      sync();
+      requestAnimationFrame(sync);
+      window.setTimeout(sync, 80);
     };
     document.addEventListener('dialog:open', onDialogOpen);
     document.addEventListener('dialog:close', onDialogClose);
@@ -561,8 +655,8 @@
      * Guard against deferred script timing + restored scroll position:
      * never start transparent when page is already scrolled.
      */
-    if (topState(root) === 'transparent' && getScrollTop() > SCROLL_EPS) {
-      applyHeaderState(root, 'minimized');
+    if (topState(root) === 'transparent' && getScrollTop() > scrollTopEpsilon()) {
+      applyHeaderState(root, 'hidden');
     }
     onScrollFrame();
 
@@ -647,6 +741,8 @@
     if (!form || !input || !dropdown) { return; }
 
     var debTimer = null;
+    var activeSearchController = null;
+    var resultCache = new Map();
     var focusableItems = [];
     var currentFocusIdx = -1;
 
@@ -696,6 +792,10 @@
     }
 
     function close() {
+      if (activeSearchController) {
+        activeSearchController.abort();
+        activeSearchController = null;
+      }
       dropdown.hidden = true;
       dropdown.innerHTML = '';
       input.setAttribute('aria-expanded', 'false');
@@ -787,23 +887,54 @@
 
     /* ── Fetch predictive search ─────────────────────────────────────────── */
     function fetchSearch(q) {
+      if (resultCache.has(q)) {
+        renderResults(resultCache.get(q).queries || [], resultCache.get(q).products || [], q);
+        return;
+      }
+
+      if (activeSearchController) {
+        activeSearchController.abort();
+      }
+      activeSearchController = new AbortController();
+
       open('<div class="ch-search-loading">Searching\u2026</div>');
-      fetch(
-        '/search/suggest.json'
-        + '?q=' + encodeURIComponent(q)
-        + '&resources[type]=product,query'
-        + '&resources[limit]=6'
-        + '&resources[options][unavailable_products]=last'
-      )
-        .then(function (r) { return r.json(); })
+      var predictiveSearchPath = '/search/suggest.json';
+      if (window.Shopify && Shopify.routes && Shopify.routes.root) {
+        predictiveSearchPath = Shopify.routes.root + 'search/suggest.json';
+      }
+      var url = new URL(predictiveSearchPath, location.origin);
+      url.searchParams.set('q', q);
+      url.searchParams.set('resources[type]', 'product,query');
+      url.searchParams.set('resources[limit]', '6');
+      url.searchParams.set('resources[limit_scope]', 'each');
+      url.searchParams.set('resources[options][unavailable_products]', 'last');
+
+      fetch(url.toString(), { signal: activeSearchController.signal })
+        .then(function (r) {
+          if (!r.ok) {
+            var err = new Error('Predictive search request failed');
+            err.status = r.status;
+            err.retryAfter = parseFloat(r.headers.get('Retry-After') || '0');
+            throw err;
+          }
+          return r.json();
+        })
         .then(function (data) {
+          activeSearchController = null;
           if (input.value.trim() !== q) { return; }
           var r = (data.resources && data.resources.results) || {};
+          resultCache.set(q, { queries: r.queries || [], products: r.products || [] });
           renderResults(r.queries || [], r.products || [], q);
         })
-        .catch(function () {
+        .catch(function (error) {
+          if (error && error.name === 'AbortError') { return; }
+          activeSearchController = null;
           if (input.value.trim() !== q) { return; }
-          open('<div class="ch-search-empty">Could not load results. <a href="/search?q=' + encodeURIComponent(q) + '&type=product">Try the search page</a></div>');
+          var message = 'Could not load results. ';
+          if (error && error.status === 429) {
+            message = 'Too many requests. ';
+          }
+          open('<div class="ch-search-empty">' + message + '<a href="/search?q=' + encodeURIComponent(q) + '&type=product">Try the search page</a></div>');
         });
     }
 
@@ -859,9 +990,10 @@
       var q = input.value.trim();
       currentFocusIdx = -1;
       if (!q) { renderEmpty(); return; }
+      if (q.length < 2) { close(); return; }
       debTimer = setTimeout(function () {
         if (input.value.trim() === q) { fetchSearch(q); }
-      }, 280);
+      }, 320);
     };
 
     var onFocus = function () {
@@ -890,6 +1022,10 @@
       input.removeEventListener('focus', onFocus);
       document.removeEventListener('click', onDocClick);
       clearTimeout(debTimer);
+      if (activeSearchController) {
+        activeSearchController.abort();
+        activeSearchController = null;
+      }
       close();
       if (typeof prevCleanup === 'function') { prevCleanup(); }
     };

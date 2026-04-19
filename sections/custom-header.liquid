@@ -30,7 +30,34 @@
   if section.settings.show_search
     assign load_search_assets = true
   endif
+
+  assign desktop_navigation = section.settings.desktop_navigation | default: 'simple'
+  assign active_menu = section.settings.menu
+  assign active_menu_block = nil
+
+  if desktop_navigation == 'editorial'
+    assign active_menu_block = section.blocks | where: 'id', 'custom-header-menu-editorial' | first
+  elsif desktop_navigation == 'horizon'
+    assign active_menu_block = section.blocks | where: 'id', 'custom-header-menu-horizon' | first
+  endif
+
+  if active_menu_block != blank and active_menu_block.settings.menu != blank
+    assign active_menu = active_menu_block.settings.menu
+  endif
 %}
+
+{% comment %}
+  Theme blocks resolve their own menu from block settings; do not gate content_for on section.settings.menu.handle
+  (that can be blank in edge cases and hides the entire mega menu).
+{% endcomment %}
+{% capture custom_header_horizon_menu %}
+  {% if desktop_navigation == 'editorial' %}
+    {% content_for 'block', type: '_header-menu-editorial', id: 'custom-header-menu-editorial' %}
+  {% elsif desktop_navigation == 'horizon' %}
+    {% content_for 'block', type: '_header-menu', id: 'custom-header-menu-horizon' %}
+  {% endif %}
+{% endcapture %}
+{% assign custom_header_mega_stripped = custom_header_horizon_menu | strip %}
 
 {% if load_search_assets %}
   {% render 'predictive-search-styles' %}
@@ -75,6 +102,9 @@
   data-mobile-search-open="false"
   data-scroll-threshold="{{ section.settings.scroll_threshold }}"
   data-minimized-nav="{{ section.settings.minimized_nav_alignment | default: 'left' }}"
+  {% if desktop_navigation == 'horizon' or desktop_navigation == 'editorial' %}
+    data-header-menu-root
+  {% endif %}
   style="
     --custom-header-default-height: {{ section.settings.default_header_height }}px;
     --custom-header-minimized-height: {{ section.settings.minimized_header_height }}px;
@@ -91,15 +121,34 @@
     --custom-header-search-color: {{ section.settings.search_bar_text_color | default: '#121212' }};
     --custom-header-search-border: {{ section.settings.search_bar_border_color | default: '#D4D4D4' }};
     --custom-header-search-focus: {{ section.settings.search_bar_focus_color | default: '#BC9407' }};
+    --custom-header-mega-gap: {{ section.settings.mega_menu_header_gap | default: 0 }}px;
+    --custom-header-mega-padding-block: {{ section.settings.mega_menu_padding_block | default: 24 }}px;
+    --custom-header-mega-padding-inline: {{ section.settings.mega_menu_padding_inline | default: 36 }}px;
+    --custom-header-compact-gap: {{ section.settings.compact_menu_header_gap | default: 0 }}px;
+    --custom-header-compact-padding-block: {{ section.settings.compact_menu_padding_block | default: 16 }}px;
+    --custom-header-compact-padding-inline: {{ section.settings.compact_menu_padding_inline | default: 20 }}px;
+    --custom-header-compact-submenu-width: min({{ section.settings.compact_menu_max_width | default: 416 }}px, calc(100vw - (2 * var(--section-padding-inline, 0px))));
+    --custom-header-mega-panel-radius-bottom: {{ section.settings.mega_menu_bottom_corner_radius | default: 12 }}px;
+    {% if section.settings.mega_menu_panel_drop_shadow %}
+      --custom-header-mega-panel-shadow: 0 10px 22px -8px rgb(0 0 0 / 0.12);
+    {% else %}
+      --custom-header-mega-panel-shadow: none;
+    {% endif %}
   "
 >
-  {% render 'custom-header-main', section: section %}
+  {% render 'custom-header-main',
+    section: section,
+    active_menu: active_menu,
+    desktop_navigation: desktop_navigation,
+    horizon_menu_html: custom_header_horizon_menu,
+    horizon_menu_stripped: custom_header_mega_stripped
+  %}
 </header>
 
 {% comment %}
   Mobile overlay + full-screen drawers live outside <header> so position:fixed layers are not clipped by header/shell overflow or stacking.
 {% endcomment %}
-{% render 'custom-header-mobile-portals', section: section %}
+{% render 'custom-header-mobile-portals', section: section, active_menu: active_menu %}
 
 {% stylesheet %}
   /*
@@ -114,6 +163,11 @@
   :root {
     --announcement-bar-height: 0px;
     --custom-header-z: 400;
+  }
+
+  /* Horizon announcement section adds border-block-end from divider_width; remove the seam above the hero/header */
+  body:has([data-custom-header]) #header-group aside.announcement-bar {
+    border-block-end: none;
   }
 
   /* Custom header — transparent / solid / minimized via [data-header-state] */
@@ -320,6 +374,22 @@
   }
 
   .custom-header__actions cart-icon.header-actions__cart-icon {
+    color: inherit;
+  }
+
+  /*
+   * Account icon: header-actions sets .account-button__icon { color: var(--color-account-icon) }.
+   * The popover color-* class on .account-button also defines --color-foreground for that scheme
+   * (often light text), so --color-account-icon can stay light while the header is solid white.
+   * Match the cart: inherit header chrome color, and align shopify-account’s token with currentColor.
+   */
+  .custom-header .account-button shopify-account {
+    color: inherit;
+    --shopify-account-color-text: currentColor;
+  }
+
+  .custom-header .account-button .account-button__icon,
+  .custom-header .account-button .account-button__text {
     color: inherit;
   }
 
@@ -740,6 +810,29 @@
       gap: var(--gap-md);
     }
 
+    .custom-header[data-header-state='minimized'] .custom-header__horizon-menu,
+    .custom-header[data-header-state='hidden'] .custom-header__horizon-menu {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex: 0 0 auto;
+      min-width: 0;
+      width: auto;
+      max-width: 100%;
+      margin-inline: 0;
+    }
+
+    .custom-header[data-header-state='minimized'] .custom-header__horizon-menu .header-menu,
+    .custom-header[data-header-state='hidden'] .custom-header__horizon-menu .header-menu,
+    .custom-header[data-header-state='minimized'] .custom-header__horizon-menu .menu-list,
+    .custom-header[data-header-state='hidden'] .custom-header__horizon-menu .menu-list,
+    .custom-header[data-header-state='minimized'] .custom-header__horizon-menu .menu-list__list,
+    .custom-header[data-header-state='hidden'] .custom-header__horizon-menu .menu-list__list {
+      width: auto;
+      min-width: 0;
+      margin-inline: 0;
+    }
+
     /* Nav in minimized/hidden */
     .custom-header[data-header-state='minimized'] .custom-header__nav,
     .custom-header[data-header-state='hidden'] .custom-header__nav {
@@ -772,7 +865,9 @@
     .custom-header[data-minimized-nav='left'][data-header-state='minimized'] .custom-header__nav,
     .custom-header[data-minimized-nav='left'][data-header-state='hidden'] .custom-header__nav {
       order: 1;
+      flex: 0 0 auto;
       margin-inline-start: 0;
+      margin-inline-end: 0;
     }
 
     .custom-header[data-minimized-nav='left'][data-header-state='minimized'] .custom-header__actions,
@@ -781,19 +876,54 @@
       margin-inline-start: auto; /* push icons to the far right */
     }
 
+    .custom-header[data-minimized-nav='left'][data-header-state='minimized'] .custom-header__nav :is(.menu-list, .menu-list__list),
+    .custom-header[data-minimized-nav='left'][data-header-state='hidden'] .custom-header__nav :is(.menu-list, .menu-list__list) {
+      justify-content: flex-start;
+    }
+
+    /* ── Menu alignment: CENTER ──────────────────────────────────────────────────
+     * [Logo] ───────────── [Nav items] ───────────── [Icons]
+     * ─────────────────────────────────────────────────────────────────────────── */
+    .custom-header[data-minimized-nav='center'][data-header-state='minimized'] .custom-header__nav,
+    .custom-header[data-minimized-nav='center'][data-header-state='hidden'] .custom-header__nav {
+      order: 1;
+      flex: 1 1 auto;
+      margin-inline: 0;
+      text-align: center;
+    }
+
+    .custom-header[data-minimized-nav='center'][data-header-state='minimized'] .custom-header__actions,
+    .custom-header[data-minimized-nav='center'][data-header-state='hidden'] .custom-header__actions {
+      order: 2;
+      margin-inline-start: auto;
+    }
+
+    .custom-header[data-minimized-nav='center'][data-header-state='minimized'] .custom-header__nav :is(.menu-list, .menu-list__list),
+    .custom-header[data-minimized-nav='center'][data-header-state='hidden'] .custom-header__nav :is(.menu-list, .menu-list__list) {
+      width: 100%;
+      justify-content: center;
+    }
+
     /* ── Menu alignment: RIGHT ───────────────────────────────────────────────────
      * [Logo] ────────────────────── [Nav] [Icons]
      * ─────────────────────────────────────────────────────────────────────────── */
     .custom-header[data-minimized-nav='right'][data-header-state='minimized'] .custom-header__nav,
     .custom-header[data-minimized-nav='right'][data-header-state='hidden'] .custom-header__nav {
       order: 2;
+      flex: 0 0 auto;
       margin-inline-start: auto; /* push nav to the right */
+      margin-inline-end: 0;
     }
 
     .custom-header[data-minimized-nav='right'][data-header-state='minimized'] .custom-header__actions,
     .custom-header[data-minimized-nav='right'][data-header-state='hidden'] .custom-header__actions {
       order: 3;
       margin-inline-start: 0;
+    }
+
+    .custom-header[data-minimized-nav='right'][data-header-state='minimized'] .custom-header__nav :is(.menu-list, .menu-list__list),
+    .custom-header[data-minimized-nav='right'][data-header-state='hidden'] .custom-header__nav :is(.menu-list, .menu-list__list) {
+      justify-content: flex-end;
     }
 
     /* Menu list horizontal in minimized */
@@ -1362,10 +1492,145 @@
       "content": "t:content.menu"
     },
     {
+      "type": "select",
+      "id": "desktop_navigation",
+      "label": "Desktop navigation",
+      "info": "Horizon / Editorial use the theme Menu block (mega menu). Simple uses inline links. Edit the static Menu block under this section so its menu matches the section Menu setting above.",
+      "options": [
+        {
+          "value": "simple",
+          "label": "Simple (inline links)"
+        },
+        {
+          "value": "horizon",
+          "label": "Horizon mega menu (grid)"
+        },
+        {
+          "value": "editorial",
+          "label": "Editorial mega menu (sidebar)"
+        }
+      ],
+      "default": "simple"
+    },
+    {
+      "type": "range",
+      "id": "mega_menu_header_gap",
+      "label": "Mega menu gap below header",
+      "info": "Space between the header bar and the open mega menu (desktop, Horizon or Editorial). 0 = flush.",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "range",
+      "id": "mega_menu_padding_block",
+      "label": "Mega menu padding (top & bottom, inside)",
+      "info": "Inner vertical padding for the open mega menu panel content.",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 24,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "range",
+      "id": "mega_menu_padding_inline",
+      "label": "Mega menu padding (left & right, inside)",
+      "info": "Inner horizontal padding for the mega menu (desktop).",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 36,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "range",
+      "id": "mega_menu_bottom_corner_radius",
+      "label": "Mega & compact menu bottom corner radius",
+      "info": "Rounds the bottom-left and bottom-right corners of open desktop dropdown panels (full-width mega and compact).",
+      "min": 0,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 12,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "mega_menu_panel_drop_shadow",
+      "label": "Mega & compact menu drop shadow",
+      "info": "Adds a soft shadow under open desktop dropdown panels.",
+      "default": true,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "header",
+      "content": "Compact dropdown (simple mega)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Used for top-level links configured as compact/simple dropdowns in the Header menu block (not the full-width mega).",
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "range",
+      "id": "compact_menu_header_gap",
+      "label": "Compact menu gap below header",
+      "info": "Space between the header and the compact dropdown panel. Independent from full mega menu.",
+      "min": 0,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "range",
+      "id": "compact_menu_padding_block",
+      "label": "Compact menu padding (top & bottom, inside)",
+      "info": "Inner vertical padding inside the compact panel.",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "range",
+      "id": "compact_menu_padding_inline",
+      "label": "Compact menu padding (left & right, inside)",
+      "info": "Inner horizontal padding inside the compact panel.",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 20,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
+      "type": "range",
+      "id": "compact_menu_max_width",
+      "label": "Compact menu max width",
+      "info": "Maximum width of the compact dropdown (capped by viewport margins).",
+      "min": 280,
+      "max": 520,
+      "step": 8,
+      "unit": "px",
+      "default": 416,
+      "visible_if": "{{ section.settings.desktop_navigation == 'horizon' or section.settings.desktop_navigation == 'editorial' }}"
+    },
+    {
       "type": "link_list",
       "id": "menu",
       "label": "t:settings.menu",
-      "default": "main-menu"
+      "default": "main-menu",
+      "visible_if": "{{ section.settings.desktop_navigation == 'simple' }}"
     },
     {
       "type": "select",
@@ -1374,6 +1639,7 @@
       "info": "t:settings.minimized_nav_alignment_info",
       "options": [
         { "value": "left",  "label": "t:options.left"  },
+        { "value": "center", "label": "t:options.center" },
         { "value": "right", "label": "t:options.right" }
       ],
       "default": "left"

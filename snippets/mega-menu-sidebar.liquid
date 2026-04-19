@@ -1,0 +1,170 @@
+{%- doc -%}
+  Dilmah-style mega menu: left rail (L2) + right panel (L3) with hover/focus switching.
+
+  @param {object} parent_link - Top-level menu link with nested links (L2).
+  @param {string} id - Unique prefix for tab/panel IDs.
+  @param {object} block_settings - Header menu block settings.
+  @param {number} [image_border_radius] - Corner radius for card layout.
+{%- enddoc -%}
+
+{% liquid
+  assign accent = block_settings.mega_menu_accent | default: '#b8965c'
+  assign footer_label = block_settings.sidebar_footer_label | default: 'Explore all products'
+  assign footer_url = block_settings.sidebar_footer_url
+  assign l3_item_style = block_settings.level_three_item_style | default: 'rounded_view'
+  if l3_item_style == 'rounded_bottom' or l3_item_style == 'current_card'
+    assign l3_item_style = 'card_view'
+  endif
+  assign default_collection_1 = block_settings.default_collection_1
+  assign default_collection_2 = block_settings.default_collection_2
+  assign default_collection_3 = block_settings.default_collection_3
+  assign has_default_panel = false
+  if default_collection_1 != blank or default_collection_2 != blank or default_collection_3 != blank
+    assign has_default_panel = true
+  endif
+  if footer_url == blank
+    assign footer_url = parent_link.url
+  endif
+  assign img_radius = image_border_radius | default: 14
+%}
+
+<mega-menu-sidebar
+  class="mega-menu-sidebar{% if l3_item_style == 'rounded_view' %} mega-menu-sidebar--rounded-view{% else %} mega-menu-sidebar--card-view{% endif %}"
+  style="--mega-menu-accent: {{ accent }}; --mega-menu-card-radius: {{ img_radius }}px; --mega-menu-min-height: {{ block_settings.mega_menu_min_height | default: 360 }}px;"
+  data-parent-title="{{ parent_link.title | escape }}"
+>
+  <div class="mega-menu-sidebar__inner">
+    <div class="mega-menu-sidebar__rail-column">
+      <nav class="mega-menu-sidebar__rail" aria-label="{{ parent_link.title | escape }}">
+        <ul class="mega-menu-sidebar__rail-list list-unstyled" role="list">
+          {% assign tab_idx = 0 %}
+          {% for l2 in parent_link.links %}
+            <li class="mega-menu-sidebar__rail-item">
+              {% if l2.links != blank %}
+                <button
+                  type="button"
+                  class="mega-menu-sidebar__tab"
+                  id="tab-{{ id }}-{{ tab_idx }}"
+                  aria-expanded="{% if has_default_panel %}false{% elsif tab_idx == 0 %}true{% else %}false{% endif %}"
+                  aria-controls="panel-{{ id }}-{{ tab_idx }}"
+                  data-mega-sidebar-tab
+                  data-mega-sidebar-index="{{ tab_idx }}"
+                >
+                  <span class="mega-menu-sidebar__tab-label">{{ l2.title | escape }}</span>
+                </button>
+                {% assign tab_idx = tab_idx | plus: 1 %}
+              {% else %}
+                <a href="{{ l2.url }}" class="mega-menu-sidebar__tab mega-menu-sidebar__tab--link">
+                  <span class="mega-menu-sidebar__tab-label">{{ l2.title | escape }}</span>
+                </a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      {% if footer_label != blank and footer_url != blank %}
+        <a href="{{ footer_url }}" class="mega-menu-sidebar__footer-link">
+          <span>{{ footer_label | escape }}</span>
+          <span class="mega-menu-sidebar__footer-arrow" aria-hidden="true">→</span>
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="mega-menu-sidebar__panels" data-mega-sidebar-panels>
+      {% if has_default_panel %}
+        <div
+          class="mega-menu-sidebar__panel mega-menu-sidebar__panel--default mega-menu-sidebar__panel--card-view"
+          data-mega-sidebar-default-panel
+        >
+          <ul class="mega-menu-sidebar__grid list-unstyled" role="list">
+            {% render 'mega-menu-sidebar-collection-card', collection: default_collection_1 %}
+            {% render 'mega-menu-sidebar-collection-card', collection: default_collection_2 %}
+            {% render 'mega-menu-sidebar-collection-card', collection: default_collection_3 %}
+          </ul>
+        </div>
+      {% endif %}
+      {% assign panel_idx = 0 %}
+      {% for l2 in parent_link.links %}
+        {% if l2.links == blank %}
+        {% else %}
+        {% liquid
+          assign panel_variant = l3_item_style
+        %}
+        <div
+          id="panel-{{ id }}-{{ panel_idx }}"
+          class="mega-menu-sidebar__panel{% if panel_variant == 'card_view' %} mega-menu-sidebar__panel--card-view{% else %} mega-menu-sidebar__panel--rounded-view{% endif %}"
+          role="region"
+          aria-labelledby="tab-{{ id }}-{{ panel_idx }}"
+          {% if has_default_panel or panel_idx != 0 %}
+            hidden
+          {% endif %}
+          data-mega-sidebar-panel
+          data-mega-sidebar-index="{{ panel_idx }}"
+        >
+          <ul class="mega-menu-sidebar__grid list-unstyled" role="list">
+            {% for l3 in l2.links %}
+              <li class="mega-menu-sidebar__grid-item">
+                <a href="{{ l3.url }}" class="mega-menu-sidebar__tile">
+                  <span class="mega-menu-sidebar__media{% if panel_variant == 'rounded_view' %} mega-menu-sidebar__media--circle{% endif %}">
+                    {% if l3.type == 'collection_link' and l3.object.featured_image %}
+                      {{
+                        l3.object.featured_image
+                        | image_url: width: 800
+                        | image_tag:
+                          loading: 'lazy',
+                          class: 'mega-menu-sidebar__img',
+                          sizes: '(min-width: 990px) 200px, 33vw',
+                          alt: l3.title
+                      }}
+                    {% elsif l3.type == 'product_link' and l3.object.featured_image %}
+                      {{
+                        l3.object.featured_image
+                        | image_url: width: 800
+                        | image_tag:
+                          loading: 'lazy',
+                          class: 'mega-menu-sidebar__img',
+                          sizes: '(min-width: 990px) 200px, 33vw',
+                          alt: l3.title
+                      }}
+                    {% elsif l3.type == 'collection_link' and l3.object.products.size > 0 %}
+                      {% assign first_product = nil %}
+                      {% for p in l3.object.products limit: 12 %}
+                        {% if p.featured_image %}
+                          {% assign first_product = p %}
+                          {% break %}
+                        {% endif %}
+                      {% endfor %}
+                      {% if first_product and first_product.featured_image %}
+                        {{
+                          first_product.featured_image
+                          | image_url: width: 800
+                          | image_tag:
+                            loading: 'lazy',
+                            class: 'mega-menu-sidebar__img',
+                            sizes: '(min-width: 990px) 200px, 33vw',
+                            alt: l3.title
+                        }}
+                      {% else %}
+                        <span class="mega-menu-sidebar__placeholder"></span>
+                      {% endif %}
+                    {% else %}
+                      <span class="mega-menu-sidebar__placeholder"></span>
+                    {% endif %}
+                  </span>
+                  <span class="mega-menu-sidebar__tile-meta">
+                    <span class="mega-menu-sidebar__tile-label">{{ l3.title | escape }}</span>
+                    {% if panel_variant == 'card_view' %}
+                      <span class="mega-menu-sidebar__tile-arrow" aria-hidden="true">→</span>
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% assign panel_idx = panel_idx | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</mega-menu-sidebar>

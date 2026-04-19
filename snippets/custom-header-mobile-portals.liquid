@@ -3,10 +3,11 @@
   Rendered from sections/custom-header.liquid as a sibling of <header> so fixed layers are not clipped by header overflow.
 
   @param {object} section - Parent section object (required)
+  @param {object} [active_menu] - Resolved active menu object shared across desktop/mobile
 {% enddoc %}
 
 {% liquid
-  assign menu = section.settings.menu
+  assign menu = active_menu | default: section.settings.menu
   assign search_style = 'none'
   if section.settings.show_search
     assign search_style = 'modal'

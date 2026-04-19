@@ -2332,6 +2332,18 @@ deferred-media[class] :is(.deferred-media__poster-button img, .deferred-media__p
     top: var(--sticky-header-offset, 0);
     z-index: var(--layer-flat);
   }
+
+  /*
+   * When the cart drawer opens, the page body is scroll-locked with `position: fixed`.
+   * Product page sticky panels can visually re-anchor against that temporary layout,
+   * which makes the content appear to jump upward behind the drawer. Freeze those
+   * sticky regions for the duration of the drawer to preserve the current page position.
+   */
+  body:has(.cart-drawer__dialog[open]) .sticky-content--desktop,
+  body:has(.cart-drawer__dialog[open]) .sticky-content--desktop.full-height--desktop > .group-block {
+    position: static;
+    top: auto;
+  }
 }
 
 .price,

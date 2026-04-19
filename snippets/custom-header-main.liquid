@@ -2,20 +2,34 @@
   Primary header chrome. Mobile menu/search drawers render from custom-header-mobile-portals (section root).
 
   @param {object} section - Parent section object (required)
+  @param {object} [active_menu] - Resolved active menu object shared across desktop/mobile
+  @param {string} [desktop_navigation] - simple | horizon | editorial
+  @param {string} [horizon_menu_html] - Captured output from menu theme blocks (desktop only)
+  @param {string} [horizon_menu_stripped] - Same capture after strip; avoids whitespace-only mega slot
 {% enddoc %}
 
 {% liquid
-  assign menu = section.settings.menu
+  assign nav_mode = desktop_navigation | default: 'simple'
+  assign mega_htm = horizon_menu_stripped | default: horizon_menu_html | strip
+  assign has_mega_output = false
+  if nav_mode != 'simple' and mega_htm != blank
+    assign has_mega_output = true
+  endif
+  assign menu = active_menu | default: section.settings.menu
+  assign has_menu = false
+  if menu != blank and menu.links.size > 0
+    assign has_menu = true
+  endif
+  assign show_nav_chrome = false
+  if has_menu or has_mega_output
+    assign show_nav_chrome = true
+  endif
   assign search_style = 'none'
   if section.settings.show_search
     assign search_style = 'modal'
   endif
   assign nav_id = 'CustomHeaderNav-' | append: section.id
   assign drawer_id = 'CustomHeaderMobileDrawer-' | append: section.id
-  assign has_menu = false
-  if menu != blank and menu.links.size > 0
-    assign has_menu = true
-  endif
   assign logo_alt = shop.name
   if settings.logo != blank
     assign logo_alt = settings.logo.alt | default: shop.name
@@ -33,10 +47,10 @@
 
 <div class="custom-header__shell" data-custom-header-shell>
   <div class="custom-header__primary" data-custom-header-primary>
-    <div class="custom-header__primary-inner{% unless has_menu %} custom-header__primary-inner--no-menu{% endunless %}">
+    <div class="custom-header__primary-inner{% unless show_nav_chrome %} custom-header__primary-inner--no-menu{% endunless %}">
       <div class="custom-header__mobile">
         <div class="custom-header__mobile-top">
-          {% if has_menu %}
+          {% if show_nav_chrome %}
             <button
               type="button"
               class="custom-header__menu-toggle custom-header__mobile-menu-toggle"
@@ -186,28 +200,36 @@
       {%- endif -%}
 
       <div class="custom-header__lower">
-        {% if has_menu %}
-          <nav
-            class="custom-header__nav custom-header__nav--desktop"
+        {% if has_mega_output %}
+          <div
+            class="custom-header__horizon-menu custom-header__nav custom-header__nav--desktop"
             id="{{ nav_id }}"
-            aria-label="{{ 'accessibility.header_navigation_label' | t }}"
             data-custom-header-nav
           >
-            <ul class="custom-header__menu-list list-unstyled" role="list">
-              {% for link in menu.links %}
-                <li class="custom-header__menu-item">
-                  <a href="{{ link.url }}" class="custom-header__menu-link">
-                    {{- link.title -}}
-                    {% if link.links != blank and link.links.size > 0 %}
-                      <span class="svg-wrapper custom-header__menu-caret" aria-hidden="true">
-                        {{- 'icon-caret.svg' | inline_asset_content -}}
-                      </span>
-                    {% endif %}
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </nav>
+            {{ mega_htm }}
+          </div>
+        {% elsif has_menu %}
+            <nav
+              class="custom-header__nav custom-header__nav--desktop"
+              id="{{ nav_id }}"
+              aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+              data-custom-header-nav
+            >
+              <ul class="custom-header__menu-list list-unstyled" role="list">
+                {% for link in menu.links %}
+                  <li class="custom-header__menu-item">
+                    <a href="{{ link.url }}" class="custom-header__menu-link">
+                      {{- link.title -}}
+                      {% if link.links != blank and link.links.size > 0 %}
+                        <span class="svg-wrapper custom-header__menu-caret" aria-hidden="true">
+                          {{- 'icon-caret.svg' | inline_asset_content -}}
+                        </span>
+                      {% endif %}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </nav>
         {% endif %}
 
         <div class="custom-header__actions" data-custom-header-actions>

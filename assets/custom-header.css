@@ -5,6 +5,15 @@
 
 @media screen and (max-width: 749px) {
   /*
+   * Homepage transparent headers start below the announcement bar only at the real top.
+   * Once JS has initialized and the mobile header is in its scrolled visible state
+   * (`solid`), pin it to the viewport top like the other pages.
+   */
+  .custom-header[data-custom-header-js='initialized'][data-may-transparent='true'][data-header-state='solid'] {
+    top: 0;
+  }
+
+  /*
    * Portal wrapper: sibling of <header> in the section; does not participate in layout.
    * Fixed children attach to the viewport and sit above the header stack (no clipping).
    */
@@ -165,6 +174,16 @@
 
   .custom-header[data-header-state='minimized'] .custom-header__mobile-search-trigger {
     background: color-mix(in srgb, var(--custom-header-bg-minimized) 96%, transparent);
+  }
+
+  /*
+   * Mobile scroll-hide should not collapse the sticky section height while the user is
+   * actively scrolling. Keep the header box at the default height and only animate
+   * visibility, otherwise slow scroll can feed back into layout and cause flicker.
+   */
+  .custom-header[data-header-state='hidden'] .custom-header__primary {
+    min-height: var(--custom-header-default-height);
+    max-height: none;
   }
 
   .custom-header__mobile-search-trigger:focus-visible {
@@ -473,6 +492,283 @@
     flex: 1 1 auto;
     width: 100%;
     text-align: center;
+  }
+
+  /* Horizon / editorial menu blocks (desktop): mega menus need visible overflow */
+  .custom-header[data-header-menu-root],
+  .custom-header[data-header-menu-root] .custom-header__shell,
+  .custom-header[data-header-menu-root] .custom-header__primary,
+  .custom-header[data-header-menu-root] .custom-header__lower {
+    overflow: visible;
+  }
+
+  .custom-header__horizon-menu {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-header__horizon-menu .header-menu {
+    width: 100%;
+    height: auto;
+  }
+
+  /*
+   * Horizon editorial: `.menu-list__list` uses `justify-content: var(--grid-area-alignment)`.
+   * Custom header has no #header-component, so the variable is unset → links align start.
+   */
+  .custom-header[data-header-menu-root] {
+    --grid-area-alignment: center;
+    /* --custom-header-mega-gap, --custom-header-compact-*, --custom-header-compact-submenu-width: Custom header section (inline on <header>) */
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__list {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .custom-header__horizon-menu .menu-list {
+    justify-content: center;
+  }
+
+  /*
+   * Keep the desktop menu in the actual center grid column so it stays visually centered
+   * against the full header width. The mega panel itself is already viewport-anchored with
+   * position: fixed below, so the menu strip no longer needs to span extra grid columns.
+   */
+  .custom-header[data-header-menu-root] .custom-header__lower .custom-header__horizon-menu {
+    grid-column: 2;
+    justify-self: center;
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .custom-header[data-header-menu-root][data-header-state='minimized'] .custom-header__lower .custom-header__horizon-menu,
+  .custom-header[data-header-menu-root][data-header-state='hidden'] .custom-header__lower .custom-header__horizon-menu {
+    max-width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+
+  /* Stack mega panels with the rest of the custom header chrome (above hero / page content). */
+  .custom-header[data-header-menu-root] .custom-header__lower {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/*
+ * Editorial / Horizon mega menus — custom header layout differs from #header-component:
+ * Horizon sets --full-open-header-height from the whole header node; here that is the full
+ * <header> (logo + search + nav), which breaks `top` + clip-path + inner translateY math.
+ * Vertical position: `top: calc(100% + gap)` — anchored to the bottom of `.custom-header`
+ * (transform = fixed CB). No negative overlap and no upward ::before bridge, so the tray does
+ * not sit on top of the header chrome (unlike `100% - 1px` + hover bridge).
+ *
+ * Fixed positioning + full viewport width avoids broken `left: 50%` / margin breakout math
+ * (percentage margins are relative to the list item, not the viewport).
+ */
+@media screen and (min-width: 750px) {
+  /*
+   * In the stock theme, hovering the submenu itself is enough to keep it visible.
+   * With the custom fixed-position tray, that can leave panels visually stuck open
+   * after the trigger item has already deactivated. For the custom header, only the
+   * actively expanded top-level item should control submenu visibility.
+   */
+  .custom-header[data-header-menu-root] .header-menu:not([aria-expanded='true']) .menu-list__submenu {
+    visibility: hidden !important;
+    pointer-events: none;
+    --submenu-content-opacity: 0;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__list-item:not(:has([aria-expanded='true'])) > .menu-list__submenu {
+    visibility: hidden !important;
+    pointer-events: none;
+    --submenu-content-opacity: 0;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__list-item:has([aria-expanded='true']) > .menu-list__submenu {
+    visibility: visible;
+    pointer-events: auto;
+    --submenu-content-opacity: 1;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu,
+  .custom-header[data-header-menu-root] .overflow-menu::part(overflow) {
+    /*
+     * Above in-header UI such as the desktop search dropdown (z-index: 20 in this section)
+     * so the mega surface stays one coherent layer with the custom header chrome.
+     */
+    z-index: 20;
+    background-color: #ffffff;
+    box-sizing: border-box;
+
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    bottom: auto;
+    clip-path: none !important;
+    border-bottom-left-radius: var(--custom-header-mega-panel-radius-bottom, 12px);
+    border-bottom-right-radius: var(--custom-header-mega-panel-radius-bottom, 12px);
+    /* Positive Y + negative spread: shadow sits under the panel, not hazy toward the header */
+    box-shadow: var(--custom-header-mega-panel-shadow, 0 10px 22px -8px rgb(0 0 0 / 0.12));
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact),
+  .custom-header[data-header-menu-root] .overflow-menu::part(overflow) {
+    top: calc(100% + var(--custom-header-mega-gap, 0px));
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu {
+    padding-inline: 0;
+  }
+
+  .custom-header[data-header-menu-root] .overflow-menu::part(overflow) {
+    padding-block: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-inline: var(--custom-header-mega-padding-inline, 2.25rem);
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact {
+    top: calc(100% + var(--custom-header-compact-gap, var(--custom-header-mega-gap, 0px)));
+    left: clamp(
+      var(--section-padding-inline, 0px),
+      calc(var(--custom-header-mega-left, 0px) - var(--padding-sm)),
+      calc(
+        100vw - var(
+            --custom-header-compact-submenu-width,
+            min(26rem, calc(100vw - (2 * var(--section-padding-inline, 0px))))
+          ) - var(--section-padding-inline, 0px)
+      )
+    );
+    right: auto;
+    width: var(
+      --custom-header-compact-submenu-width,
+      min(26rem, calc(100vw - (2 * var(--section-padding-inline, 0px))))
+    );
+    max-width: var(
+      --custom-header-compact-submenu-width,
+      min(26rem, calc(100vw - (2 * var(--section-padding-inline, 0px))))
+    );
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu-inner {
+    background-color: #ffffff;
+    --submenu-padding-block-start: var(--custom-header-mega-padding-block, 1.5rem);
+    --submenu-padding-block-end: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-block-start: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-block-end: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-inline: var(--custom-header-mega-padding-inline, 2.25rem);
+    /* Horizon animates translateY from --full-open-header-height; that variable is wrong here */
+    transform: none !important;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .menu-list__submenu-inner {
+    --submenu-padding-block-start: var(--custom-header-compact-padding-block, var(--padding-md));
+    --submenu-padding-block-end: var(--custom-header-compact-padding-block, var(--padding-md));
+    padding-inline: var(--custom-header-compact-padding-inline, var(--padding-lg));
+    padding-block-start: var(--custom-header-compact-padding-block, var(--padding-md));
+    padding-block-end: var(--custom-header-compact-padding-block, var(--padding-md));
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .menu-list__submenu-inner,
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu.section {
+    background-color: transparent;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu.section {
+    display: block;
+    width: 100%;
+    max-width: none;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu__grid--sidebar {
+    width: 100%;
+    max-width: none;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu-sidebar {
+    box-shadow: none;
+    padding-block-end: 0;
+    background-color: transparent;
+  }
+
+  /*
+   * Compact tray: Horizon `.section` is a 3-column page grid; children default to `grid-column: 2`,
+   * which traps the simple dropdown in the center track — huge empty band beside the links.
+   * Stack block layout here so the list uses the full panel width (padding still from submenu-inner).
+   */
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu.section,
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu-simple.section {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu__grid,
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu-simple {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu__grid {
+    display: block;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu-simple__nav {
+    max-width: none;
+    width: 100%;
+  }
+
+  .custom-header[data-header-menu-root] .mega-menu.section,
+  .custom-header[data-header-menu-root] .mega-menu-sidebar,
+  .custom-header[data-header-menu-root] .mega-menu-simple {
+    background-color: #ffffff;
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) {
+    --color-foreground: var(--custom-header-color-text-solid);
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-solid);
+    --color-account-icon: var(--custom-header-color-text-solid);
+    color: var(--custom-header-color-text-solid);
+    background: var(--custom-header-bg-solid, #ffffff);
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__primary,
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__primary-inner,
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__lower {
+    background: var(--custom-header-bg-solid, #ffffff);
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__primary {
+    box-shadow: none;
+    border-block-end: 0;
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__lower {
+    gap: 0;
+  }
+
+  .custom-header[data-header-menu-root][data-header-state='minimized'],
+  .custom-header[data-header-menu-root][data-header-state='hidden'] {
+    z-index: 30;
+  }
+
+  .custom-header[data-header-menu-root][data-header-state='minimized'] .custom-header__primary,
+  .custom-header[data-header-menu-root][data-header-state='minimized'] .custom-header__primary-inner,
+  .custom-header[data-header-menu-root][data-header-state='hidden'] .custom-header__primary,
+  .custom-header[data-header-menu-root][data-header-state='hidden'] .custom-header__primary-inner {
+    position: relative;
+    z-index: 31;
   }
 }
 

@@ -1,0 +1,52 @@
+{%- doc -%}
+  Render a collection card for the mega menu fallback panel.
+
+  @param {object} collection - Collection object selected in theme settings.
+{%- enddoc -%}
+
+{% if collection != blank %}
+  <li class="mega-menu-sidebar__grid-item mega-menu-sidebar__grid-item--default">
+    <a href="{{ collection.url }}" class="mega-menu-sidebar__tile mega-menu-sidebar__tile--default-card">
+      <span class="mega-menu-sidebar__media">
+        {% if collection.featured_image %}
+          {{
+            collection.featured_image
+            | image_url: width: 1200
+            | image_tag:
+              loading: 'lazy',
+              class: 'mega-menu-sidebar__img',
+              sizes: '(min-width: 990px) 26vw, 100vw',
+              alt: collection.title
+          }}
+        {% elsif collection.products.size > 0 %}
+          {% assign fallback_product = nil %}
+          {% for product in collection.products limit: 12 %}
+            {% if product.featured_image %}
+              {% assign fallback_product = product %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+          {% if fallback_product and fallback_product.featured_image %}
+            {{
+              fallback_product.featured_image
+              | image_url: width: 1200
+              | image_tag:
+                loading: 'lazy',
+                class: 'mega-menu-sidebar__img',
+                sizes: '(min-width: 990px) 26vw, 100vw',
+                alt: collection.title
+            }}
+          {% else %}
+            <span class="mega-menu-sidebar__placeholder"></span>
+          {% endif %}
+        {% else %}
+          <span class="mega-menu-sidebar__placeholder"></span>
+        {% endif %}
+      </span>
+      <span class="mega-menu-sidebar__tile-meta">
+        <span class="mega-menu-sidebar__tile-label">{{ collection.title | escape }}</span>
+        <span class="mega-menu-sidebar__tile-arrow" aria-hidden="true">→</span>
+      </span>
+    </a>
+  </li>
+{% endif %}

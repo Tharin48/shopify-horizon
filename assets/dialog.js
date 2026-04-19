@@ -53,6 +53,17 @@ export class DialogComponent extends Component {
 
     // Prevent layout thrashing by separating DOM reads from DOM writes
     requestAnimationFrame(() => {
+      /*
+       * Dialogs that opt in with the `scroll-lock` attribute must also set `html[scroll-lock]`.
+       * Details elements get this via the global `toggle` listener below; `<dialog>` opened
+       * here did not, so themes (e.g. custom header scroll freeze, overflow: hidden) never ran.
+       * Cart drawer / search modal then left scroll handlers active during body lock → wrong
+       * scrollTop-derived header state and layout vars while the drawer is open.
+       */
+      if (dialog.hasAttribute('scroll-lock')) {
+        document.documentElement.setAttribute('scroll-lock', '');
+      }
+
       document.body.style.width = '100%';
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
@@ -95,6 +106,10 @@ export class DialogComponent extends Component {
     document.body.style.position = '';
     document.body.style.top = '';
     window.scrollTo({ top: this.#previousScrollY, behavior: 'instant' });
+
+    if (dialog.hasAttribute('scroll-lock')) {
+      document.documentElement.removeAttribute('scroll-lock');
+    }
 
     dialog.close();
     dialog.classList.remove('dialog-closing');
