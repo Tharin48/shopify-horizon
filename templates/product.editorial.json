@@ -503,7 +503,7 @@
                     "text_bfmEGF": {
                       "type": "text",
                       "settings": {
-                        "text": "",
+                        "text": "{{ closest.product.metafields.custom.shipping_info | metafield_tag }}",
                         "width": "100%",
                         "max_width": "normal",
                         "alignment": "left",
