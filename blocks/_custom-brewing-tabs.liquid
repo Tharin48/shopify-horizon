@@ -1,0 +1,776 @@
+{%- liquid
+  assign s = block.settings
+  assign uid = block.id | replace: '-', ''
+  assign product = closest.product
+  assign preview = false
+  if request.design_mode or request.visual_preview_mode
+    assign preview = true
+  endif
+
+  comment
+    custom.brewing_methods: list of choices (e.g. Hot + Cold) — read ALL values.
+    Single value / legacy: brewing_tabs_mode (hot_only, cold_only, both).
+  endcomment
+  assign want_hot = true
+  assign want_cold = true
+  assign mode_raw = ''
+  assign methods_from_list = false
+
+  if product != blank
+    assign bm = product.metafields.custom.brewing_methods
+    if bm != blank and bm.value != blank
+      assign bm_type = bm.type | default: ''
+      if bm_type contains 'list'
+        assign methods_from_list = true
+        assign want_hot = false
+        assign want_cold = false
+        for slot in bm.value
+          assign tok = slot | strip | downcase | replace: ' ', '_' | replace: '-', '_'
+          if tok == 'hot' or tok == 'hot_only'
+            assign want_hot = true
+          endif
+          if tok == 'cold' or tok == 'cold_only'
+            assign want_cold = true
+          endif
+        endfor
+        if want_hot == false and want_cold == false
+          assign want_hot = true
+          assign want_cold = true
+        endif
+      else
+        assign mode_raw = bm.value | strip | downcase | replace: ' ', '_' | replace: '-', '_'
+      endif
+    endif
+
+    if methods_from_list == false
+      if mode_raw == blank
+        assign mode_raw = product.metafields.custom.brewing_tabs_mode.value | default: product.metafields.custom.brewing_tabs_mode | strip | downcase | replace: ' ', '_' | replace: '-', '_'
+      endif
+      assign want_hot = true
+      assign want_cold = true
+      if mode_raw == 'hot' or mode_raw == 'hot_only'
+        assign want_cold = false
+      elsif mode_raw == 'cold' or mode_raw == 'cold_only'
+        assign want_hot = false
+      endif
+    endif
+  endif
+
+  assign nested_hot = 0
+  assign nested_cold = 0
+  assign hot_step_filled = 0
+  assign cold_step_filled = 0
+  for child in block.blocks
+    if child.type == '_brewing-step-card'
+      assign bt = child.settings.brewing_tab | default: 'hot' | strip | downcase
+      assign has_step = false
+      if child.settings.step_text != blank or child.settings.custom_image != blank
+        assign has_step = true
+      endif
+      if bt == 'cold'
+        assign nested_cold = nested_cold | plus: 1
+        if has_step
+          assign cold_step_filled = cold_step_filled | plus: 1
+        endif
+      else
+        assign nested_hot = nested_hot | plus: 1
+        if has_step
+          assign hot_step_filled = hot_step_filled | plus: 1
+        endif
+      endif
+    endif
+  endfor
+
+  assign use_nested_hot = false
+  assign use_nested_cold = false
+  if nested_hot > 0
+    assign use_nested_hot = true
+  endif
+  if nested_cold > 0
+    assign use_nested_cold = true
+  endif
+
+  if nested_hot > 0 and hot_step_filled == 0 and preview == false
+    assign use_nested_hot = false
+  endif
+  if nested_cold > 0 and cold_step_filled == 0 and preview == false
+    assign use_nested_cold = false
+  endif
+
+  assign hot_intro_show = s.hot_intro
+  assign cold_intro_show = s.cold_intro
+
+  assign legacy_hot_filled = false
+  if s.hot_card_1 != blank or s.hot_card_2 != blank or s.hot_card_3 != blank or s.hot_footer != blank or s.hot_link_label != blank
+    assign legacy_hot_filled = true
+  elsif s.hot_card_1_media != blank or s.hot_card_2_media != blank or s.hot_card_3_media != blank
+    assign legacy_hot_filled = true
+  endif
+
+  assign legacy_cold_filled = false
+  if s.cold_card_1 != blank or s.cold_card_2 != blank or s.cold_card_3 != blank or s.cold_card_4 != blank or s.cold_footer != blank or s.cold_link_label != blank
+    assign legacy_cold_filled = true
+  elsif s.cold_card_1_media != blank or s.cold_card_2_media != blank or s.cold_card_3_media != blank or s.cold_card_4_media != blank
+    assign legacy_cold_filled = true
+  endif
+  if cold_intro_show != blank
+    assign legacy_cold_filled = true
+  endif
+
+  assign hot_has_content = false
+  if use_nested_hot and hot_step_filled > 0
+    assign hot_has_content = true
+  elsif use_nested_hot and preview
+    assign hot_has_content = true
+  elsif use_nested_hot == false and legacy_hot_filled
+    assign hot_has_content = true
+  elsif use_nested_hot == false and hot_intro_show != blank
+    assign hot_has_content = true
+  endif
+
+  assign cold_has_content = false
+  if use_nested_cold and cold_step_filled > 0
+    assign cold_has_content = true
+  elsif use_nested_cold and preview
+    assign cold_has_content = true
+  elsif use_nested_cold == false and legacy_cold_filled
+    assign cold_has_content = true
+  endif
+
+  assign pair_tabs = false
+  if want_hot and want_cold
+    assign pair_tabs = true
+  endif
+
+  assign show_hot_tab = false
+  assign show_cold_tab = false
+  if preview
+    if want_hot
+      assign show_hot_tab = true
+    endif
+    if want_cold
+      assign show_cold_tab = true
+    endif
+  elsif pair_tabs
+    if want_hot
+      if hot_has_content
+        assign show_hot_tab = true
+      elsif cold_has_content
+        assign show_hot_tab = true
+      endif
+    endif
+    if want_cold
+      if cold_has_content
+        assign show_cold_tab = true
+      elsif hot_has_content
+        assign show_cold_tab = true
+      endif
+    endif
+  else
+    if want_hot and hot_has_content
+      assign show_hot_tab = true
+    endif
+    if want_cold and cold_has_content
+      assign show_cold_tab = true
+    endif
+  endif
+
+  assign tab_count = 0
+  if show_hot_tab
+    assign tab_count = tab_count | plus: 1
+  endif
+  if show_cold_tab
+    assign tab_count = tab_count | plus: 1
+  endif
+
+  assign show_tablist = false
+  if tab_count > 1
+    assign show_tablist = true
+  endif
+
+  assign initial_tab = 'hot'
+  if show_hot_tab == false and show_cold_tab
+    assign initial_tab = 'cold'
+  endif
+
+  assign hide_block = false
+  if show_hot_tab == false and show_cold_tab == false
+    assign hide_block = true
+  endif
+
+  assign card_width_mode = s.card_width_mode | default: 'full'
+  assign card_width_custom = s.card_width_custom | default: 160
+-%}
+
+{%- if hide_block and preview == false -%}
+{%- elsif hide_block and preview -%}
+  <div class="custom-brewing-tabs custom-brewing-tabs--empty" {{ block.shopify_attributes }}>
+    <p class="custom-brewing-tabs__empty-hint">Add brewing step blocks or set <code>custom.brewing_methods</code> (list: Hot and/or Cold).</p>
+  </div>
+{%- else -%}
+<script src="{{ 'custom-brewing-tabs.js' | asset_url }}" defer></script>
+
+<custom-brewing-tabs
+  class="custom-brewing-tabs custom-brewing-tabs--cards-{{ card_width_mode }}"
+  style="--brewing-tabs-accent: {{ s.accent_color }};{% if card_width_mode == 'custom' %} --brewing-card-min: {{ card_width_custom }}px;{% endif %}"
+  data-brewing-tab-count="{{ tab_count }}"
+  {% if show_tablist == false %}
+    data-brewing-single-tab="{{ initial_tab }}"
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  {%- if show_tablist -%}
+    <div
+      class="custom-brewing-tabs__tablist"
+      role="tablist"
+      aria-label="{{ s.tabs_aria_label | escape }}"
+    >
+      {%- if show_hot_tab -%}
+        <button
+          type="button"
+          class="custom-brewing-tabs__tab"
+          id="brewing-tab-hot-{{ uid }}"
+          role="tab"
+          aria-selected="{% if initial_tab == 'hot' %}true{% else %}false{% endif %}"
+          aria-controls="brewing-panel-hot-{{ uid }}"
+          tabindex="{% if initial_tab == 'hot' %}0{% else %}-1{% endif %}"
+        >
+          <span class="custom-brewing-tabs__tab-text">{{ s.hot_label | escape }}</span>
+          <span class="custom-brewing-tabs__tab-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M6 18h8a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2Z"/>
+              <path d="M14 10V8a1 1 0 0 0-1-1H9"/>
+              <path d="M5 4s.5 2 2 2M7 2s.5 2 2 2M9 4s.5 2 2 2"/>
+            </svg>
+          </span>
+        </button>
+      {%- endif -%}
+      {%- if show_cold_tab -%}
+        <button
+          type="button"
+          class="custom-brewing-tabs__tab"
+          id="brewing-tab-cold-{{ uid }}"
+          role="tab"
+          aria-selected="{% if initial_tab == 'cold' %}true{% else %}false{% endif %}"
+          aria-controls="brewing-panel-cold-{{ uid }}"
+          tabindex="{% if initial_tab == 'cold' %}0{% else %}-1{% endif %}"
+        >
+          <span class="custom-brewing-tabs__tab-text">{{ s.cold_label | escape }}</span>
+          <span class="custom-brewing-tabs__tab-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 20h8v2H8z"/>
+              <path d="M9 20V10a3 3 0 0 1 6 0v10"/>
+              <circle cx="10" cy="6" r="0.75" fill="currentColor"/>
+              <circle cx="12" cy="4.5" r="0.75" fill="currentColor"/>
+              <circle cx="14" cy="6" r="0.75" fill="currentColor"/>
+            </svg>
+          </span>
+        </button>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if show_hot_tab -%}
+    <div
+      class="custom-brewing-tabs__panel"
+      id="brewing-panel-hot-{{ uid }}"
+      {% if show_tablist %}
+        role="tabpanel"
+        aria-labelledby="brewing-tab-hot-{{ uid }}"
+      {% else %}
+        role="region"
+        aria-label="{{ s.hot_label | escape }}"
+      {% endif %}
+      {% if show_tablist and initial_tab != 'hot' %}
+        hidden
+      {% endif %}
+    >
+      {%- if hot_intro_show != blank -%}
+        <p class="custom-brewing-tabs__intro">{{ hot_intro_show | escape }}</p>
+      {%- endif -%}
+      <ul class="custom-brewing-tabs__cards list-unstyled" role="list">
+        {%- if use_nested_hot -%}
+          {%- for child in block.blocks -%}
+            {%- if child.type == '_brewing-step-card' -%}
+              {%- assign bt = child.settings.brewing_tab | default: 'hot' | strip | downcase -%}
+              {%- if bt != 'cold' -%}
+                {% render 'brewing-step-card-item', step_block: child, preview: preview %}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- else -%}
+          {% render 'brewing-legacy-card', media: s.hot_card_1_media, text: s.hot_card_1 %}
+          {% render 'brewing-legacy-card', media: s.hot_card_2_media, text: s.hot_card_2 %}
+          {% render 'brewing-legacy-card', media: s.hot_card_3_media, text: s.hot_card_3 %}
+        {%- endif -%}
+      </ul>
+      {%- if s.hot_footer != blank -%}
+        <p class="custom-brewing-tabs__footer-note">{{ s.hot_footer | escape }}</p>
+      {%- endif -%}
+      {%- if s.hot_link_label != blank and s.hot_link_url != blank -%}
+        <a class="custom-brewing-tabs__link" href="{{ s.hot_link_url }}">{{ s.hot_link_label | escape }}</a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if show_cold_tab -%}
+    <div
+      class="custom-brewing-tabs__panel"
+      id="brewing-panel-cold-{{ uid }}"
+      {% if show_tablist %}
+        role="tabpanel"
+        aria-labelledby="brewing-tab-cold-{{ uid }}"
+      {% else %}
+        role="region"
+        aria-label="{{ s.cold_label | escape }}"
+      {% endif %}
+      {% if show_tablist and initial_tab != 'cold' %}
+        hidden
+      {% endif %}
+    >
+      {%- if cold_intro_show != blank -%}
+        <p class="custom-brewing-tabs__intro">{{ cold_intro_show | escape }}</p>
+      {%- endif -%}
+      <ul class="custom-brewing-tabs__cards custom-brewing-tabs__cards--cold list-unstyled" role="list">
+        {%- if use_nested_cold -%}
+          {%- for child in block.blocks -%}
+            {%- if child.type == '_brewing-step-card' -%}
+              {%- assign bt = child.settings.brewing_tab | default: 'hot' | strip | downcase -%}
+              {%- if bt == 'cold' -%}
+                {% render 'brewing-step-card-item', step_block: child, preview: preview %}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- else -%}
+          {% render 'brewing-legacy-card', media: s.cold_card_1_media, text: s.cold_card_1 %}
+          {% render 'brewing-legacy-card', media: s.cold_card_2_media, text: s.cold_card_2 %}
+          {% render 'brewing-legacy-card', media: s.cold_card_3_media, text: s.cold_card_3 %}
+          {% render 'brewing-legacy-card', media: s.cold_card_4_media, text: s.cold_card_4 %}
+        {%- endif -%}
+      </ul>
+      {%- if s.cold_footer != blank -%}
+        <p class="custom-brewing-tabs__footer-note">{{ s.cold_footer | escape }}</p>
+      {%- endif -%}
+      {%- if s.cold_link_label != blank and s.cold_link_url != blank -%}
+        <a class="custom-brewing-tabs__link" href="{{ s.cold_link_url }}">{{ s.cold_link_label | escape }}</a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</custom-brewing-tabs>
+{%- endif -%}
+
+{% stylesheet %}
+  .custom-brewing-tabs {
+    --brewing-tabs-accent: #b58e1a;
+    display: block;
+    width: 100%;
+  }
+
+  .custom-brewing-tabs--empty {
+    padding: 1rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.25);
+    border-radius: var(--border-radius-md, 8px);
+  }
+
+  .custom-brewing-tabs__empty-hint {
+    margin: 0;
+    font-size: var(--font-paragraph-small--size, 0.875rem);
+    color: rgb(var(--color-foreground-rgb) / 0.8);
+  }
+
+  .custom-brewing-tabs__tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 var(--padding-md);
+    padding: 0;
+  }
+
+  .custom-brewing-tabs__tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.45rem 1rem;
+    min-height: var(--minimum-touch-target);
+    font-family: var(--font-body--family);
+    font-size: var(--font-paragraph-medium--size, 0.9375rem);
+    font-weight: 500;
+    line-height: 1.2;
+    color: rgb(var(--color-foreground-rgb));
+    background: rgb(var(--color-background-rgb));
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.35);
+    border-radius: 999px;
+    cursor: pointer;
+    transition:
+      background-color var(--animation-speed) var(--animation-easing),
+      color var(--animation-speed) var(--animation-easing),
+      border-color var(--animation-speed) var(--animation-easing);
+  }
+
+  .custom-brewing-tabs__tab[aria-selected='true'] {
+    color: #ffffff;
+    background: var(--brewing-tabs-accent);
+    border-color: var(--brewing-tabs-accent);
+  }
+
+  .custom-brewing-tabs__tab:focus-visible {
+    outline: 2px solid var(--brewing-tabs-accent);
+    outline-offset: 2px;
+  }
+
+  .custom-brewing-tabs__tab-icon {
+    display: flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .custom-brewing-tabs__tab-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-brewing-tabs__intro {
+    margin: 0 0 var(--padding-sm);
+    font-family: var(--font-body--family);
+    font-size: var(--font-paragraph-medium--size, 1rem);
+    font-weight: 500;
+    color: rgb(var(--color-foreground-rgb));
+  }
+
+  .custom-brewing-tabs__cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-sm);
+    margin: 0 0 var(--padding-sm);
+    padding: 0;
+    list-style: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-brewing-tabs--cards-full .custom-brewing-tabs__cards,
+    .custom-brewing-tabs--cards-full .custom-brewing-tabs__cards--cold {
+      grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+
+    .custom-brewing-tabs--cards-auto .custom-brewing-tabs__cards,
+    .custom-brewing-tabs--cards-auto .custom-brewing-tabs__cards--cold {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--gap-sm);
+    }
+
+    .custom-brewing-tabs--cards-auto .custom-brewing-tabs__cards .custom-brewing-tabs__card,
+    .custom-brewing-tabs--cards-auto .custom-brewing-tabs__cards--cold .custom-brewing-tabs__card {
+      flex: 0 1 auto;
+      width: auto;
+      min-width: min(100%, 7.5rem);
+      max-width: min(100%, 22rem);
+    }
+
+    .custom-brewing-tabs--cards-custom .custom-brewing-tabs__cards,
+    .custom-brewing-tabs--cards-custom .custom-brewing-tabs__cards--cold {
+      grid-template-columns: repeat(auto-fill, minmax(var(--brewing-card-min, 10rem), 1fr));
+    }
+  }
+
+  .custom-brewing-tabs__card--no-media .custom-brewing-tabs__card-text {
+    margin-block-start: 0;
+  }
+
+  .custom-brewing-tabs__card-icon-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 3rem;
+    min-height: 3rem;
+    max-width: 100%;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    line-height: 1.25;
+    text-align: center;
+    color: rgb(var(--color-foreground-rgb) / 0.55);
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.35);
+    border-radius: var(--border-radius-sm, 4px);
+  }
+
+  .custom-brewing-tabs__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--gap-sm);
+    padding: var(--padding-md) var(--padding-sm);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: var(--border-radius-md, 8px);
+    background: rgb(var(--color-background-rgb));
+  }
+
+  .custom-brewing-tabs__card-icon {
+    display: flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--color-foreground-rgb) / 0.85);
+  }
+
+  .custom-brewing-tabs__card-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-brewing-tabs__card-image {
+    width: 100%;
+    max-width: 4.5rem;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .custom-brewing-tabs__card-text {
+    font-family: var(--font-body--family);
+    font-size: var(--font-paragraph-small--size, 0.875rem);
+    line-height: 1.35;
+    color: rgb(var(--color-foreground-rgb));
+  }
+
+  .custom-brewing-tabs__footer-note {
+    margin: 0 0 var(--padding-xs);
+    font-size: var(--font-paragraph-small--size, 0.875rem);
+    font-weight: 500;
+    color: #0f766e;
+  }
+
+  .custom-brewing-tabs__link {
+    display: inline-block;
+    margin-top: var(--padding-xs);
+    font-size: var(--font-paragraph-small--size, 0.875rem);
+    font-weight: 500;
+    color: var(--brewing-tabs-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .custom-brewing-tabs__link:focus-visible {
+    outline: 2px solid var(--brewing-tabs-accent);
+    outline-offset: 2px;
+  }
+
+  .custom-brewing-tabs__panel[hidden] {
+    display: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Brewing tabs",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_brewing-step-card"
+    }
+  ],
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Metafield custom.brewing_methods: list of choices Hot and/or Cold (select both for tabs). Legacy: brewing_tabs_mode. Icons: step blocks or fallback cards. Layout: Step cards layout."
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Active tab & link accent",
+      "default": "#b58e1a"
+    },
+    {
+      "type": "text",
+      "id": "tabs_aria_label",
+      "label": "Tabs accessibility name",
+      "default": "Brewing method"
+    },
+    {
+      "type": "header",
+      "content": "Tab labels"
+    },
+    {
+      "type": "text",
+      "id": "hot_label",
+      "label": "Hot tab",
+      "default": "Hot"
+    },
+    {
+      "type": "text",
+      "id": "cold_label",
+      "label": "Cold tab",
+      "default": "Cold"
+    },
+    {
+      "type": "header",
+      "content": "Step cards layout"
+    },
+    {
+      "type": "select",
+      "id": "card_width_mode",
+      "label": "Card width",
+      "options": [
+        { "value": "full", "label": "Full width (equal columns)" },
+        { "value": "auto", "label": "Auto (content-sized)" },
+        { "value": "custom", "label": "Custom min width" }
+      ],
+      "default": "full",
+      "info": "Desktop grid. Mobile stays one column."
+    },
+    {
+      "type": "range",
+      "id": "card_width_custom",
+      "label": "Min width",
+      "min": 80,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 160,
+      "visible_if": "{{ block.settings.card_width_mode == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Hot brew — fallback (no step blocks)"
+    },
+    {
+      "type": "text",
+      "id": "hot_intro",
+      "label": "Intro line",
+      "default": "For the perfect cup:"
+    },
+    {
+      "type": "text",
+      "id": "hot_card_1",
+      "label": "Card 1",
+      "default": "200 ml of hot water"
+    },
+    {
+      "type": "image_picker",
+      "id": "hot_card_1_media",
+      "label": "Card 1 icon image"
+    },
+    {
+      "type": "text",
+      "id": "hot_card_2",
+      "label": "Card 2",
+      "default": "1 teaspoon of loose leaf tea"
+    },
+    {
+      "type": "image_picker",
+      "id": "hot_card_2_media",
+      "label": "Card 2 icon image"
+    },
+    {
+      "type": "text",
+      "id": "hot_card_3",
+      "label": "Card 3",
+      "default": "Steep for 3–5 minutes"
+    },
+    {
+      "type": "image_picker",
+      "id": "hot_card_3_media",
+      "label": "Card 3 icon image"
+    },
+    {
+      "type": "text",
+      "id": "hot_footer",
+      "label": "Footer note (e.g. temperature)",
+      "default": "Recommended water temperature: 90–95°C"
+    },
+    {
+      "type": "text",
+      "id": "hot_link_label",
+      "label": "Link label",
+      "default": "Explore More Tea Recipes"
+    },
+    {
+      "type": "url",
+      "id": "hot_link_url",
+      "label": "Link URL"
+    },
+    {
+      "type": "header",
+      "content": "Cold brew — fallback (no step blocks)"
+    },
+    {
+      "type": "text",
+      "id": "cold_intro",
+      "label": "Intro line",
+      "default": "For the perfect cup:"
+    },
+    {
+      "type": "text",
+      "id": "cold_card_1",
+      "label": "Card 1",
+      "default": "200 ml cold or filtered water"
+    },
+    {
+      "type": "image_picker",
+      "id": "cold_card_1_media",
+      "label": "Card 1 icon image"
+    },
+    {
+      "type": "text",
+      "id": "cold_card_2",
+      "label": "Card 2",
+      "default": "1 teaspoon of loose leaf tea"
+    },
+    {
+      "type": "image_picker",
+      "id": "cold_card_2_media",
+      "label": "Card 2 icon image"
+    },
+    {
+      "type": "text",
+      "id": "cold_card_3",
+      "label": "Card 3",
+      "default": "Steep for 3–5 minutes"
+    },
+    {
+      "type": "image_picker",
+      "id": "cold_card_3_media",
+      "label": "Card 3 icon image"
+    },
+    {
+      "type": "text",
+      "id": "cold_card_4",
+      "label": "Card 4",
+      "default": "Cool & pour over ice"
+    },
+    {
+      "type": "image_picker",
+      "id": "cold_card_4_media",
+      "label": "Card 4 icon image"
+    },
+    {
+      "type": "text",
+      "id": "cold_footer",
+      "label": "Footer note",
+      "info": "Optional. Leave empty to hide on the Cold tab."
+    },
+    {
+      "type": "text",
+      "id": "cold_link_label",
+      "label": "Link label",
+      "default": "Explore More Tea Recipes"
+    },
+    {
+      "type": "url",
+      "id": "cold_link_url",
+      "label": "Link URL"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brewing tabs",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

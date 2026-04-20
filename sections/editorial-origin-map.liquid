@@ -1,0 +1,97 @@
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<section
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }}"
+  style="padding-block-start: {{ section.settings.padding_block_start }}px; padding-block-end: {{ section.settings.padding_block_end }}px;"
+  data-testid="editorial-origin-map"
+  {{ section.shopify_attributes }}
+>
+  <div class="editorial-placeholder">
+    <h2>{{ section.settings.heading | escape }}</h2>
+    <div class="rte">
+      {{ section.settings.body }}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Editorial Origin Map",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Future dynamic content"
+    },
+    {
+      "type": "paragraph",
+      "content": "Origin data is often shared across products: use a product metafield referencing one Origin (or Region) metaobject. Use plain product metafields only when every product has unique, non-reusable map copy."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Origin Map"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Placeholder copy",
+      "default": "<p>Placeholder section for future origin map content.</p>"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "Page"
+        },
+        {
+          "value": "full-width",
+          "label": "Full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial Origin Map",
+      "category": "Editorial"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,39 @@
+{%- doc -%}
+  Tab definition block for the Teamaker's Pick section.
+{%- enddoc -%}
+
+{% schema %}
+{
+  "name": "Filter tab",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Filter name",
+      "default": "Best Sellers"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Optional badge text"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Optional tab icon"
+    },
+    {
+      "type": "checkbox",
+      "id": "default_active",
+      "label": "Default active tab",
+      "default": false
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Filter collection"
+    }
+  ]
+}
+{% endschema %}

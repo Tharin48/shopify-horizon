@@ -25,6 +25,7 @@
             "slideshow_mobile_controls_style": "dots",
             "thumbnail_position": "right",
             "thumbnail_width": 44,
+            "thumbnail_radius": 0,
             "aspect_ratio": "adapt",
             "constrain_to_viewport": true,
             "media_fit": "contain",
@@ -98,6 +99,7 @@
                 "overlay_color": "#00000026",
                 "overlay_style": "solid",
                 "gradient_direction": "to top",
+                "link": "",
                 "open_in_new_tab": false,
                 "placeholder": "",
                 "padding-block-start": 0,
@@ -127,7 +129,13 @@
                     "padding-block-start": 0,
                     "padding-block-end": 0,
                     "padding-inline-start": 0,
-                    "padding-inline-end": 0
+                    "padding-inline-end": 0,
+                    "show_collection_link": false,
+                    "collection_link_target": "",
+                    "collection_link_font_size": 14,
+                    "collection_link_text_color": "#6b6b6b",
+                    "collection_link_padding_top": 12,
+                    "collection_link_padding_bottom": 0
                   },
                   "blocks": {}
                 },
@@ -261,6 +269,12 @@
         "equal_columns": false,
         "limit_details_width": false,
         "gap": 48,
+        "enable_custom_product_page_frame": false,
+        "custom_frame_max_width": 1920,
+        "custom_frame_inset_start_desktop": 20,
+        "custom_frame_inset_end_desktop": 80,
+        "custom_frame_inset_mobile": 16,
+        "enable_sticky_add_to_cart": true,
         "color_scheme": "",
         "padding-block-start": 0,
         "padding-block-end": 0
@@ -350,7 +364,13 @@
                 "padding-block-start": 4,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
-                "padding-inline-end": 0
+                "padding-inline-end": 0,
+                "show_collection_link": false,
+                "collection_link_target": "",
+                "collection_link_font_size": 14,
+                "collection_link_text_color": "#6b6b6b",
+                "collection_link_padding_top": 12,
+                "collection_link_padding_bottom": 0
               },
               "blocks": {}
             },

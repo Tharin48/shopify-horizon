@@ -1,0 +1,5 @@
+[environments.global]
+store = "dilmah-global.myshopify.com"
+
+[environments.srilanka]
+store = "dilmahtea-srilanka.myshopify.com"

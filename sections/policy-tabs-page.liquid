@@ -1,0 +1,977 @@
+{%- liquid
+  assign current_page_id = page.id
+  assign current_page_handle = page.handle | default: blank
+  assign current_page_url = page.url | default: request.path | split: '#' | first | split: '?' | first
+  assign current_request_path = request.path | split: '#' | first | split: '?' | first
+  assign intro_markup = blank
+  assign visible_tabs = 0
+
+  if page.metafields.custom.policy_intro != blank
+    assign intro_markup = page.metafields.custom.policy_intro | metafield_tag
+  elsif page.metafields.custom.intro_text != blank
+    assign intro_markup = page.metafields.custom.intro_text | metafield_tag
+  elsif page.metafields.custom.subheading != blank
+    assign intro_markup = page.metafields.custom.subheading | metafield_tag
+  elsif section.settings.intro_text != blank
+    assign intro_markup = section.settings.intro_text | escape | newline_to_br
+  endif
+
+  capture tabs_markup
+    for index in (1..4)
+      assign page_setting_key = 'tab_' | append: index | append: '_page'
+      assign label_setting_key = 'tab_' | append: index | append: '_label'
+      assign icon_setting_key = 'tab_' | append: index | append: '_icon'
+      assign linked_page = section.settings[page_setting_key]
+      assign linked_page_handle = linked_page.handle | default: linked_page
+
+      if linked_page.url == blank and linked_page_handle != blank
+        assign linked_page = pages[linked_page_handle]
+      endif
+
+      if linked_page != blank and linked_page.url != blank
+        assign visible_tabs = visible_tabs | plus: 1
+        assign linked_page_url = linked_page.url | split: '#' | first | split: '?' | first
+        assign tab_label = linked_page.title | default: section.settings[label_setting_key]
+        assign is_active = false
+
+        if current_page_id != blank and linked_page.id == current_page_id
+          assign is_active = true
+        elsif current_page_handle != blank and linked_page.handle == current_page_handle
+          assign is_active = true
+        elsif linked_page_url == current_page_url or linked_page_url == current_request_path
+          assign is_active = true
+        endif
+
+        echo '<li class="policy-tabs-page__tab-item">'
+        echo '<a class="policy-tabs-page__tab'
+        if is_active
+          echo ' is-active'
+        endif
+        echo '" href="'
+        echo linked_page.url
+        echo '"'
+        if is_active
+          echo ' aria-current="page"'
+        endif
+        echo '>'
+
+        capture tab_icon
+          case section.settings[icon_setting_key]
+            when 'question'
+              echo '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.75"></circle><path d="M9.9 9.15a2.43 2.43 0 0 1 2.29-1.34c1.47 0 2.56.88 2.56 2.18 0 1.25-.78 1.86-1.68 2.52-.86.62-1.43 1.16-1.43 2.26v.2"></path><circle cx="12" cy="17.8" r="0.7" fill="currentColor" stroke="none"></circle></svg>'
+            when 'truck'
+              echo '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 6.5h10v7.25H3.5z"></path><path d="M13.5 9.25h3.2l2.3 2.55v1.95h-5.5z"></path><circle cx="8" cy="15.75" r="1.75"></circle><circle cx="17.25" cy="15.75" r="1.75"></circle></svg>'
+            when 'document'
+              echo '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3.75h5.9l3.35 3.36v12.9H8z"></path><path d="M13.9 3.75v3.45h3.45"></path><path d="M10.25 11h4.75"></path><path d="M10.25 14h4.75"></path></svg>'
+            when 'shield'
+              echo '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.75 18 6v4.62c0 3.96-2.27 6.76-6 8.63-3.73-1.87-6-4.67-6-8.63V6z"></path><path d="m9.65 11.9 1.55 1.55 3.15-3.25"></path></svg>'
+            when 'info'
+              echo '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.75"></circle><path d="M12 10.25v5.1"></path><circle cx="12" cy="7.55" r="0.7" fill="currentColor" stroke="none"></circle></svg>'
+            when 'page'
+              echo '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6.25" y="3.75" width="11.5" height="16.5" rx="1.6"></rect><path d="M9.5 8.5h5"></path><path d="M9.5 11.75h5"></path><path d="M9.5 15h3.4"></path></svg>'
+            when 'lock'
+              echo '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="7" y="10.25" width="10" height="8.25" rx="1.6"></rect><path d="M9 10.25V8.8a3 3 0 0 1 6 0v1.45"></path></svg>'
+          endcase
+        endcapture
+
+        if tab_icon != blank
+          echo '<span class="policy-tabs-page__tab-icon">'
+          echo tab_icon
+          echo '</span>'
+        endif
+
+        echo '<span class="policy-tabs-page__tab-label">'
+        echo tab_label | escape
+        echo '</span></a></li>'
+      endif
+    endfor
+  endcapture
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+<section
+  class="section page-width-content color-{{ section.settings.color_scheme }} policy-tabs-page"
+  style="
+    max-width: {{ section.settings.page_max_width }}px;
+    --policy-tabs-padding-top: {{ section.settings.padding_top }}px;
+    --policy-tabs-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --policy-tabs-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --policy-tabs-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --policy-tabs-padding-inline: {{ section.settings.padding_inline }}px;
+    --policy-tabs-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --policy-tabs-tab-alignment: {{ section.settings.tab_alignment }};
+    --policy-tabs-accent: {{ section.settings.accent_color }};
+  "
+>
+  {%- if section.settings.decorative_left_image != blank or section.settings.decorative_right_image != blank -%}
+    <div class="policy-tabs-page__art-rows" aria-hidden="true">
+      {%- for index in (1..10) -%}
+        {%- assign row_side = index | modulo: 2 -%}
+        {%- if row_side == 1 -%}
+          {%- comment -%} Odd row — left image only {%- endcomment -%}
+          <div class="policy-tabs-page__art-row policy-tabs-page__art-row--left">
+            {%- if section.settings.decorative_left_image != blank -%}
+              {{
+                section.settings.decorative_left_image
+                | image_url: width: 600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '120,200,300,440,600',
+                  sizes: '(min-width: 990px) 14vw, 22vw',
+                  class: 'policy-tabs-page__art-row-img',
+                  alt: ''
+              }}
+            {%- endif -%}
+          </div>
+        {%- else -%}
+          {%- comment -%} Even row — right image only {%- endcomment -%}
+          <div class="policy-tabs-page__art-row policy-tabs-page__art-row--right">
+            {%- if section.settings.decorative_right_image != blank -%}
+              {{
+                section.settings.decorative_right_image
+                | image_url: width: 600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '120,200,300,440,600',
+                  sizes: '(min-width: 990px) 14vw, 22vw',
+                  class: 'policy-tabs-page__art-row-img',
+                  alt: ''
+              }}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  <div class="policy-tabs-page__inner">
+    <nav class="policy-tabs-page__breadcrumb" aria-label="Breadcrumb">
+      <ol class="policy-tabs-page__breadcrumb-list">
+        <li class="policy-tabs-page__breadcrumb-item">
+          <a href="{{ routes.root_url }}">Home</a>
+        </li>
+        <li class="policy-tabs-page__breadcrumb-item">
+          <span aria-current="page">{{ page.title }}</span>
+        </li>
+      </ol>
+    </nav>
+
+    {%- if visible_tabs > 0 -%}
+      <nav class="policy-tabs-page__tabs-shell" aria-label="Related pages">
+        <ul class="policy-tabs-page__tabs">
+          {{ tabs_markup }}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    <header class="policy-tabs-page__header">
+      <h1 class="policy-tabs-page__title">{{ page.title }}</h1>
+
+      {%- if intro_markup != blank -%}
+        <div class="policy-tabs-page__intro rte">
+          {{ intro_markup }}
+        </div>
+      {%- endif -%}
+    </header>
+
+    <div class="policy-tabs-page__content rte" role="document">
+      {{ page.content }}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  /*
+   * Explicit 3-column grid.
+   * Columns 1 & 3 = left/right gutter (controlled by padding-inline settings).
+   * Column 2     = all content (fills remaining space).
+   * Art-rows is position:absolute so it doesn't consume a grid track.
+   */
+  .policy-tabs-page {
+    position: relative;
+    overflow: visible;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns:
+      var(--policy-tabs-padding-inline-mobile)
+      1fr
+      var(--policy-tabs-padding-inline-mobile);
+  }
+
+  @media screen and (min-width: 750px) {
+    .policy-tabs-page {
+      grid-template-columns:
+        var(--policy-tabs-padding-inline)
+        1fr
+        var(--policy-tabs-padding-inline);
+    }
+  }
+
+  /* ── Row-based decorative art ── */
+
+  /*
+   * Single container that spans the full section height.
+   * Divided into 8 equal-height rows via flex children with flex: 1.
+   */
+  .policy-tabs-page__art-rows {
+    grid-column: 1 / -1; /* span all 3 columns */
+    grid-row: 1;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /*
+   * Each row takes 1/8 of the section height.
+   * The image sits at the top of its row (align-items: flex-start),
+   * so there is natural breathing room below each image before the
+   * next row begins — no grid-like uniform spacing.
+   */
+  .policy-tabs-page__art-row {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  .policy-tabs-page__art-row--left  { justify-content: flex-start; }
+  .policy-tabs-page__art-row--right { justify-content: flex-end; }
+
+  /* The image itself */
+  .policy-tabs-page__art-row-img {
+    display: block;
+    width: min(15vw, 10rem);
+    height: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  /*
+   * Per-row organic transforms: each leaf has its own slight
+   * translateX + rotation so nothing feels copy-pasted.
+   * Left rows lean into the left gutter; right rows lean into the right gutter.
+   */
+  .policy-tabs-page__art-row:nth-child(1) .policy-tabs-page__art-row-img {
+    transform: translateX(-22%) rotate(-3deg);
+  }
+  .policy-tabs-page__art-row:nth-child(2) .policy-tabs-page__art-row-img {
+    transform: translateX(20%) rotate(2deg);
+  }
+  .policy-tabs-page__art-row:nth-child(3) .policy-tabs-page__art-row-img {
+    transform: translateX(-14%) rotate(2deg);
+  }
+  .policy-tabs-page__art-row:nth-child(4) .policy-tabs-page__art-row-img {
+    transform: translateX(24%) rotate(-2deg);
+  }
+  .policy-tabs-page__art-row:nth-child(5) .policy-tabs-page__art-row-img {
+    transform: translateX(-20%) rotate(-1deg);
+  }
+  .policy-tabs-page__art-row:nth-child(6) .policy-tabs-page__art-row-img {
+    transform: translateX(16%) rotate(3deg);
+  }
+  .policy-tabs-page__art-row:nth-child(7) .policy-tabs-page__art-row-img {
+    transform: translateX(-18%) rotate(1deg);
+  }
+  .policy-tabs-page__art-row:nth-child(8) .policy-tabs-page__art-row-img {
+    transform: translateX(22%) rotate(-1deg);
+  }
+  .policy-tabs-page__art-row:nth-child(9) .policy-tabs-page__art-row-img {
+    transform: translateX(-16%) rotate(-2deg);
+  }
+  .policy-tabs-page__art-row:nth-child(10) .policy-tabs-page__art-row-img {
+    transform: translateX(18%) rotate(1deg);
+  }
+
+  .policy-tabs-page__inner {
+    grid-column: 2; /* center track of the 3-column grid */
+    grid-row: 1;
+    position: relative;
+    z-index: 1;
+    min-width: 0; /* prevent grid blowout */
+    /* Mobile padding by default; desktop overrides below at 750px+ */
+    padding-block: var(--policy-tabs-padding-top-mobile) var(--policy-tabs-padding-bottom-mobile);
+  }
+
+  .policy-tabs-page__breadcrumb,
+  .policy-tabs-page__tabs-shell,
+  .policy-tabs-page__header,
+  .policy-tabs-page__content {
+    /* No hardcoded max-width — merchant controls this via inline padding settings */
+    width: 100%;
+  }
+
+  .policy-tabs-page__breadcrumb {
+    margin-bottom: 1.25rem;
+  }
+
+  .policy-tabs-page__breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: rgb(var(--color-foreground-rgb) / 0.72);
+    font-family: var(--font-body--family);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .policy-tabs-page__breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .policy-tabs-page__breadcrumb-item:not(:last-child)::after {
+    content: "/";
+    color: rgb(var(--color-foreground-rgb) / 0.42);
+  }
+
+  .policy-tabs-page__breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .policy-tabs-page__breadcrumb a:hover {
+    color: var(--policy-tabs-accent);
+  }
+
+  .policy-tabs-page__breadcrumb a:focus-visible {
+    outline: 2px solid var(--policy-tabs-accent);
+    outline-offset: 0.2rem;
+    border-radius: 0.2rem;
+  }
+
+  .policy-tabs-page__tabs-shell {
+    width: min(100%, calc(var(--policy-tabs-content-max-width) + 14rem));
+    margin-bottom: clamp(2rem, 4vw, 3.25rem);
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    overflow: hidden;
+  }
+
+  .policy-tabs-page__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: var(--policy-tabs-tab-alignment);
+    gap: 0.35rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .policy-tabs-page__tab-item {
+    margin: 0;
+    scroll-snap-align: start;
+  }
+
+  .policy-tabs-page__tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.6rem 0 0.85rem;
+    border-bottom: 2px solid transparent;
+    color: rgb(var(--color-foreground-rgb) / 0.72);
+    font-family: var(--font-body--family);
+    font-size: 0.96rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .policy-tabs-page__tab:hover {
+    color: rgb(var(--color-foreground-rgb) / 0.92);
+  }
+
+  .policy-tabs-page__tab:focus-visible {
+    outline: 2px solid var(--policy-tabs-accent);
+    outline-offset: 0.24rem;
+    border-radius: 0.3rem;
+  }
+
+  .policy-tabs-page__tab.is-active {
+    color: var(--policy-tabs-accent);
+    border-color: var(--policy-tabs-accent);
+  }
+
+  .policy-tabs-page__tab-label {
+    text-wrap: pretty;
+  }
+
+  .policy-tabs-page__tab-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .policy-tabs-page__tab-icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .policy-tabs-page__header {
+    text-align: center;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+
+  .policy-tabs-page__title {
+    margin: 0;
+    color: rgb(var(--color-foreground-heading-rgb, var(--color-foreground-rgb)));
+    font-family: var(--font-primary--family);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .policy-tabs-page__intro {
+    max-width: 62ch;
+    margin: 1rem auto 0;
+    color: rgb(var(--color-foreground-rgb) / 0.72);
+    font-family: var(--font-body--family);
+    font-size: 1rem;
+    line-height: 1.72;
+    text-wrap: pretty;
+  }
+
+  .policy-tabs-page__intro > *:first-child {
+    margin-top: 0;
+  }
+
+  .policy-tabs-page__intro > *:last-child {
+    margin-bottom: 0;
+  }
+
+  .policy-tabs-page__intro a {
+    color: var(--policy-tabs-accent);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  .policy-tabs-page__content {
+    color: rgb(var(--color-foreground-rgb) / 0.9);
+    font-family: var(--font-body--family);
+    font-size: clamp(1rem, 1vw, 1.04rem);
+    line-height: 1.82;
+    text-wrap: pretty;
+  }
+
+  .policy-tabs-page__content > *:first-child {
+    margin-top: 0;
+  }
+
+  .policy-tabs-page__content > *:last-child {
+    margin-bottom: 0;
+  }
+
+  .policy-tabs-page__content :is(h2, h3, h4, h5, h6) {
+    margin-top: 2.5rem;
+    margin-bottom: 0.85rem;
+    color: rgb(var(--color-foreground-heading-rgb, var(--color-foreground-rgb)));
+    font-family: var(--font-primary--family);
+    line-height: 1.2;
+    scroll-margin-top: 1.5rem;
+    text-wrap: balance;
+  }
+
+  .policy-tabs-page__content h2 {
+    font-size: clamp(1.5rem, 2.2vw, 1.95rem);
+  }
+
+  .policy-tabs-page__content h3 {
+    font-size: clamp(1.24rem, 1.8vw, 1.5rem);
+  }
+
+  .policy-tabs-page__content :is(h2, h3, h4, h5, h6) + * {
+    margin-top: 0;
+  }
+
+  .policy-tabs-page__content :is(p, ul, ol, blockquote, table, pre) {
+    margin-top: 0;
+    margin-bottom: 1.1rem;
+  }
+
+  .policy-tabs-page__content :is(ul, ol) {
+    padding-inline-start: 1.35rem;
+  }
+
+  .policy-tabs-page__content :is(ul, ol) :is(ul, ol) {
+    margin-top: 0.55rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .policy-tabs-page__content li + li {
+    margin-top: 0.45rem;
+  }
+
+  .policy-tabs-page__content strong {
+    color: rgb(var(--color-foreground-heading-rgb, var(--color-foreground-rgb)));
+    font-weight: 600;
+  }
+
+  .policy-tabs-page__content a {
+    color: var(--policy-tabs-accent);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  .policy-tabs-page__content a:hover {
+    color: rgb(var(--color-foreground-rgb) / 0.92);
+  }
+
+  .policy-tabs-page__content a:focus-visible {
+    outline: 2px solid var(--policy-tabs-accent);
+    outline-offset: 0.24rem;
+    border-radius: 0.2rem;
+  }
+
+  .policy-tabs-page__content hr {
+    margin-block: 2.3rem;
+    border: 0;
+    border-top: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+  }
+
+  .policy-tabs-page__content blockquote {
+    margin-inline: 0;
+    padding: 0.15rem 0 0.15rem 1rem;
+    border-inline-start: 2px solid rgb(var(--color-foreground-rgb) / 0.16);
+    color: rgb(var(--color-foreground-rgb) / 0.74);
+    font-style: italic;
+  }
+
+  .policy-tabs-page__content :is(img, video, iframe) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-block: 1.5rem;
+  }
+
+  .policy-tabs-page__content table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  .policy-tabs-page__content :is(th, td) {
+    padding: 0.85rem 1rem;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .policy-tabs-page__content th {
+    color: rgb(var(--color-foreground-heading-rgb, var(--color-foreground-rgb)));
+    font-weight: 600;
+    background: rgb(var(--color-foreground-rgb) / 0.035);
+  }
+
+  .policy-tabs-page__content :is(code, kbd, samp) {
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+    background: rgb(var(--color-foreground-rgb) / 0.06);
+    font-size: 0.92em;
+  }
+
+  .policy-tabs-page__content pre {
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    border-radius: 0.6rem;
+    background: rgb(var(--color-foreground-rgb) / 0.04);
+  }
+
+  @media screen and (max-width: 989px) {
+    .policy-tabs-page__art-row-img {
+      width: min(18vw, 8rem);
+    }
+
+    .policy-tabs-page__tabs-shell {
+      width: 100%;
+    }
+  }
+
+  /* Switch to desktop block padding at 750px and above */
+  @media screen and (min-width: 750px) {
+    .policy-tabs-page__inner {
+      padding-block: var(--policy-tabs-padding-top) var(--policy-tabs-padding-bottom);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    /* Scale down images on mobile; push them further into the gutters */
+    .policy-tabs-page__art-row-img {
+      width: min(20vw, 5rem);
+    }
+
+    .policy-tabs-page__art-row:nth-child(odd) .policy-tabs-page__art-row-img {
+      transform: translateX(-30%) rotate(-2deg);
+    }
+
+    .policy-tabs-page__art-row:nth-child(even) .policy-tabs-page__art-row-img {
+      transform: translateX(30%) rotate(2deg);
+    }
+
+    .policy-tabs-page__tabs-shell {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      scroll-padding-inline: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgb(var(--color-foreground-rgb) / 0.4) transparent;
+    }
+
+    .policy-tabs-page__tabs-shell::-webkit-scrollbar {
+      height: 0.3rem;
+    }
+
+    .policy-tabs-page__tabs-shell::-webkit-scrollbar-thumb {
+      background: rgb(var(--color-foreground-rgb) / 0.3);
+      border-radius: 999px;
+    }
+
+    .policy-tabs-page__tabs {
+      width: max-content;
+      min-width: 100%;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      gap: 0.25rem 0.85rem;
+    }
+
+    .policy-tabs-page__tab {
+      flex: 0 0 auto;
+      min-height: 2.6rem;
+      padding: 0.55rem 0 0.8rem;
+      font-size: 0.92rem;
+      white-space: nowrap;
+    }
+
+    .policy-tabs-page__title {
+      font-size: clamp(1.75rem, 9vw, 2.35rem);
+    }
+
+    .policy-tabs-page__intro,
+    .policy-tabs-page__content {
+      font-size: 0.97rem;
+      line-height: 1.74;
+    }
+
+    .policy-tabs-page__content :is(h2, h3, h4, h5, h6) {
+      margin-top: 2rem;
+    }
+  }
+
+  @media screen and (max-width: 479px) {
+    .policy-tabs-page__art-column {
+      width: min(20vw, 4.2rem);
+    }
+
+    .policy-tabs-page__tabs {
+      gap: 0.2rem 0.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .policy-tabs-page__breadcrumb a,
+    .policy-tabs-page__tab,
+    .policy-tabs-page__content a {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Policy tabs page",
+  "class": "section-wrapper",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Active accent color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "header",
+      "content": "Decorative artwork"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_left_image",
+      "label": "Decorative left image"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_right_image",
+      "label": "Decorative right image"
+    },
+    {
+      "type": "header",
+      "content": "Intro"
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "label": "Fallback intro text",
+      "info": "Used only when the current page does not have a supported intro metafield."
+    },
+    {
+      "type": "header",
+      "content": "Tab 1"
+    },
+    {
+      "type": "page",
+      "id": "tab_1_page",
+      "label": "Tab 1 page"
+    },
+    {
+      "type": "text",
+      "id": "tab_1_label",
+      "label": "Tab 1 fallback label",
+      "default": "FAQ"
+    },
+    {
+      "type": "select",
+      "id": "tab_1_icon",
+      "label": "Tab 1 icon",
+      "default": "question",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "question", "label": "Question" },
+        { "value": "truck", "label": "Truck" },
+        { "value": "document", "label": "Document" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "info", "label": "Info" },
+        { "value": "page", "label": "Page" },
+        { "value": "lock", "label": "Lock" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Tab 2"
+    },
+    {
+      "type": "page",
+      "id": "tab_2_page",
+      "label": "Tab 2 page"
+    },
+    {
+      "type": "text",
+      "id": "tab_2_label",
+      "label": "Tab 2 fallback label",
+      "default": "Shipping & Delivery Policy"
+    },
+    {
+      "type": "select",
+      "id": "tab_2_icon",
+      "label": "Tab 2 icon",
+      "default": "truck",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "question", "label": "Question" },
+        { "value": "truck", "label": "Truck" },
+        { "value": "document", "label": "Document" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "info", "label": "Info" },
+        { "value": "page", "label": "Page" },
+        { "value": "lock", "label": "Lock" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Tab 3"
+    },
+    {
+      "type": "page",
+      "id": "tab_3_page",
+      "label": "Tab 3 page"
+    },
+    {
+      "type": "text",
+      "id": "tab_3_label",
+      "label": "Tab 3 fallback label",
+      "default": "Terms & Conditions"
+    },
+    {
+      "type": "select",
+      "id": "tab_3_icon",
+      "label": "Tab 3 icon",
+      "default": "document",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "question", "label": "Question" },
+        { "value": "truck", "label": "Truck" },
+        { "value": "document", "label": "Document" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "info", "label": "Info" },
+        { "value": "page", "label": "Page" },
+        { "value": "lock", "label": "Lock" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Tab 4"
+    },
+    {
+      "type": "page",
+      "id": "tab_4_page",
+      "label": "Tab 4 page"
+    },
+    {
+      "type": "text",
+      "id": "tab_4_label",
+      "label": "Tab 4 fallback label",
+      "default": "Privacy Policy"
+    },
+    {
+      "type": "select",
+      "id": "tab_4_icon",
+      "label": "Tab 4 icon",
+      "default": "shield",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "question", "label": "Question" },
+        { "value": "truck", "label": "Truck" },
+        { "value": "document", "label": "Document" },
+        { "value": "shield", "label": "Shield" },
+        { "value": "info", "label": "Info" },
+        { "value": "page", "label": "Page" },
+        { "value": "lock", "label": "Lock" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "page_max_width",
+      "label": "Section max width",
+      "info": "Controls the outer boundary of the whole section",
+      "min": 600,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1400
+    },
+    {
+      "type": "select",
+      "id": "tab_alignment",
+      "label": "Tab alignment",
+      "default": "center",
+      "options": [
+        { "value": "flex-start", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "flex-end", "label": "Right" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Desktop padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 88
+    },
+    {
+      "type": "range",
+      "id": "padding_inline",
+      "label": "Left / Right",
+      "info": "Space between the section edge and the content. Increase to push content away from the decorative art.",
+      "min": 0,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "header",
+      "content": "Mobile padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Left / Right",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Policy tabs page"
+    }
+  ]
+}
+{% endschema %}

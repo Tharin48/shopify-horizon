@@ -1,0 +1,331 @@
+{% doc %}
+  Primary header chrome. Mobile menu/search drawers render from custom-header-mobile-portals (section root).
+
+  @param {object} section - Parent section object (required)
+  @param {object} [active_menu] - Resolved active menu object shared across desktop/mobile
+  @param {string} [desktop_navigation] - simple | horizon | editorial
+  @param {string} [horizon_menu_html] - Captured output from menu theme blocks (desktop only)
+  @param {string} [horizon_menu_stripped] - Same capture after strip; avoids whitespace-only mega slot
+  @param {string} [mobile_drawer_html] - Captured output from menu theme block mobile variant
+  @param {string} [mobile_drawer_stripped] - Same capture after strip; avoids whitespace-only mobile drawer slot
+  @param {boolean} [is_home] - True on the index template; drives homepage-only search typing
+{% enddoc %}
+
+{% liquid
+  assign nav_mode = desktop_navigation | default: 'simple'
+  assign mega_htm = horizon_menu_stripped | default: horizon_menu_html | strip
+  assign mobile_drawer_htm = mobile_drawer_stripped | default: mobile_drawer_html | strip
+  assign has_mega_output = false
+  if nav_mode != 'simple' and mega_htm != blank
+    assign has_mega_output = true
+  endif
+  assign menu = active_menu | default: section.settings.menu
+  assign menu_handle = menu.handle | default: menu
+  if menu_handle != blank
+    assign menu = linklists[menu_handle] | default: menu
+  endif
+  assign has_menu = false
+  if menu != blank and menu.links.size > 0
+    assign has_menu = true
+  endif
+  assign has_mobile_drawer = false
+  if has_menu or mobile_drawer_htm != blank
+    assign has_mobile_drawer = true
+  endif
+  assign show_nav_chrome = false
+  if has_menu or has_mega_output
+    assign show_nav_chrome = true
+  endif
+  assign search_style = 'none'
+  if section.settings.show_search
+    assign search_style = 'modal'
+  endif
+  assign nav_id = 'CustomHeaderNav-' | append: section.id
+  assign drawer_id = 'CustomHeaderMobileDrawer-' | append: section.id
+  assign logo_alt = shop.name
+  if settings.logo != blank
+    assign logo_alt = settings.logo.alt | default: shop.name
+  endif
+
+  assign show_tea = section.settings.show_tea_club_button
+  assign tea_label = section.settings.tea_club_label | strip
+  assign tea_link = section.settings.tea_club_link
+
+  assign wishlist_href = section.settings.wishlist_link
+  if wishlist_href == blank
+    assign wishlist_href = routes.root_url
+  endif
+%}
+
+<div class="custom-header__shell" data-custom-header-shell>
+  <div class="custom-header__primary" data-custom-header-primary>
+    <div class="custom-header__primary-inner{% unless show_nav_chrome %} custom-header__primary-inner--no-menu{% endunless %}">
+      <div class="custom-header__mobile">
+        <div class="custom-header__mobile-top">
+          {% if has_mobile_drawer %}
+            <button
+              type="button"
+              class="custom-header__menu-toggle custom-header__mobile-menu-toggle"
+              aria-expanded="false"
+              aria-controls="{{ drawer_id }}"
+              data-custom-header-menu-toggle
+            >
+              <span class="svg-wrapper" aria-hidden="true">
+                {{- 'icon-menu.svg' | inline_asset_content -}}
+              </span>
+              <span class="visually-hidden">{{ 'accessibility.menu' | t }}</span>
+            </button>
+          {% endif %}
+
+          <div class="custom-header__logo-row">
+            <div class="custom-header__logo">
+              {%- if request.page_type == 'index' -%}
+                <h1 class="custom-header__logo-heading">
+                  <a href="{{ routes.root_url }}" class="custom-header__logo-link">
+                    {%- if settings.logo != blank -%}
+                      {{
+                        settings.logo
+                        | image_url: width: 144
+                        | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
+                      }}
+                    {%- else -%}
+                      <span class="custom-header__logo-text">{{ shop.name }}</span>
+                    {%- endif -%}
+                  </a>
+                </h1>
+              {%- else -%}
+                <a href="{{ routes.root_url }}" class="custom-header__logo-link">
+                  {%- if settings.logo != blank -%}
+                    {{
+                      settings.logo
+                      | image_url: width: 144
+                      | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
+                    }}
+                  {%- else -%}
+                    <span class="custom-header__logo-text">{{ shop.name }}</span>
+                  {%- endif -%}
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+        {% if search_style != 'none' %}
+          <div class="custom-header__mobile-bottom desktop:hidden">
+            {%- comment -%}
+              Mobile search always opens the theme's default predictive search modal
+              (the same overlay as the header search icon).
+              We use `on:click="#search-modal/showDialog"` — the Horizon event directive
+              that dispatches a showDialog event on the #search-modal web component.
+            {%- endcomment -%}
+            <button
+              type="button"
+              class="custom-header__mobile-search-trigger"
+              on:click="#search-modal/showDialog"
+              aria-haspopup="dialog"
+              aria-label="{{ 'content.search_input_label' | t }}"
+            >
+              <span class="custom-header__mobile-search-placeholder">
+                {{- 'content.search_input_placeholder' | t -}}
+              </span>
+              <span class="svg-wrapper custom-header__mobile-search-icon" aria-hidden="true">
+                {{- 'icon-search.svg' | inline_asset_content -}}
+              </span>
+            </button>
+          </div>
+        {% endif %}
+      </div>
+
+      {%- if section.settings.show_desktop_search_bar -%}
+        {%- assign desktop_search_placeholder = section.settings.desktop_search_placeholder | strip -%}
+        {%- if desktop_search_placeholder == blank -%}
+          {%- assign desktop_search_placeholder = 'Search...' -%}
+        {%- endif -%}
+        {%- assign desktop_search_style = section.settings.desktop_search_style | default: 'custom' -%}
+        {%- assign show_homepage_typing = false -%}
+        {%- if is_home
+          and section.settings.homepage_search_typing_enabled
+          and desktop_search_style == 'custom'
+        -%}
+          {%- assign show_homepage_typing = true -%}
+        {%- endif -%}
+        {%- if show_homepage_typing -%}
+          {%- assign search_input_a11y_label = desktop_search_placeholder -%}
+        {%- else -%}
+          {%- assign search_input_a11y_label = desktop_search_placeholder -%}
+        {%- endif -%}
+        <div class="custom-header__desktop-search-row mobile:hidden">
+          {%- if desktop_search_style == 'default' -%}
+            {%- comment -%}
+              "Default search" mode: pill button that opens the theme's predictive
+              search modal — identical trigger to the header search icon.
+            {%- endcomment -%}
+            <button
+              type="button"
+              class="custom-header__desktop-search-form custom-header__desktop-search-default-btn"
+              on:click="#search-modal/showDialog"
+              aria-haspopup="dialog"
+              aria-label="{{ desktop_search_placeholder }}"
+            >
+              <span class="custom-header__desktop-search-placeholder-text">
+                {{- desktop_search_placeholder -}}
+              </span>
+              <span class="svg-wrapper custom-header__desktop-search-submit" aria-hidden="true">
+                {{- 'icon-search.svg' | inline_asset_content -}}
+              </span>
+            </button>
+          {%- else -%}
+            {%- comment -%}
+              "Custom search" mode: live-autocomplete dropdown with recent searches,
+              recently viewed products, and Shopify predictive search results.
+            {%- endcomment -%}
+            <div
+              class="custom-header__desktop-search-wrap"
+              data-custom-header-search-wrap
+              {% if show_homepage_typing %}
+                data-homepage-search-typing="true"
+                data-typing-phrase="{{ desktop_search_placeholder | escape }}"
+                data-typing-loop="{% if section.settings.homepage_search_typing_loop == false %}false{% else %}true{% endif %}"
+              {% endif %}
+            >
+              <form
+                action="{{ routes.search_url }}"
+                method="get"
+                class="custom-header__desktop-search-form{% if show_homepage_typing %} custom-header__desktop-search-form--typing{% endif %}"
+                role="search"
+                data-custom-header-search-form
+              >
+                <input type="hidden" name="type" value="product,article,page">
+                <input
+                  type="search"
+                  name="q"
+                  {% if show_homepage_typing %}
+                    placeholder=""
+                  {% else %}
+                    placeholder="{{ desktop_search_placeholder }}"
+                  {% endif %}
+                  class="custom-header__desktop-search-input"
+                  autocomplete="off"
+                  aria-label="{{ search_input_a11y_label | escape }}"
+                  aria-autocomplete="list"
+                  aria-controls="CustomHeaderSearchDropdown-{{ section.id }}"
+                  aria-expanded="false"
+                  data-custom-header-search-input
+                >
+                {% if show_homepage_typing %}
+                  <span class="custom-header__desktop-search-typing" data-custom-header-search-typing aria-hidden="true"></span>
+                {% endif %}
+                <button
+                  type="submit"
+                  class="custom-header__desktop-search-submit"
+                  aria-label="{{ 'content.search_input_label' | t }}"
+                >
+                  <span class="svg-wrapper" aria-hidden="true">
+                    {{- 'icon-search.svg' | inline_asset_content -}}
+                  </span>
+                </button>
+              </form>
+              <div
+                class="custom-header__search-dropdown"
+                id="CustomHeaderSearchDropdown-{{ section.id }}"
+                role="listbox"
+                aria-label="{{ search_input_a11y_label | escape }}"
+                hidden
+                data-custom-header-search-dropdown
+              ></div>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <div class="custom-header__lower">
+        {% if has_mega_output %}
+          <div
+            class="custom-header__horizon-menu custom-header__nav custom-header__nav--desktop"
+            id="{{ nav_id }}"
+            data-custom-header-nav
+          >
+            {{ mega_htm }}
+          </div>
+        {% elsif has_menu %}
+            <nav
+              class="custom-header__nav custom-header__nav--desktop"
+              id="{{ nav_id }}"
+              aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+              data-custom-header-nav
+            >
+              <ul class="custom-header__menu-list list-unstyled" role="list">
+                {% for link in menu.links %}
+                  <li class="custom-header__menu-item">
+                    <a href="{{ link.url }}" class="custom-header__menu-link">
+                      {{- link.title -}}
+                      {% if link.links != blank and link.links.size > 0 %}
+                        <span class="svg-wrapper custom-header__menu-caret" aria-hidden="true">
+                          {{- 'icon-caret.svg' | inline_asset_content -}}
+                        </span>
+                      {% endif %}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </nav>
+        {% endif %}
+
+        <div class="custom-header__actions" data-custom-header-actions>
+          {% if search_style != 'none' %}
+            <div class="custom-header__search-slot custom-header__search-slot--desktop mobile:hidden" data-custom-header-search>
+              {% render 'search',
+                style: search_style,
+                display_style: 'icon',
+                class: 'custom-header-search-trigger'
+              %}
+            </div>
+          {% endif %}
+
+          <div class="custom-header__actions-icons">
+            {% if section.settings.show_wishlist %}
+              <a
+                href="{{ wishlist_href }}"
+                class="custom-header__wishlist header-actions__action"
+                aria-label="{{ section.settings.wishlist_label | escape }}"
+              >
+                <span class="svg-wrapper" aria-hidden="true">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="custom-header__wishlist-icon"
+                    focusable="false"
+                  >
+                    {% render 'icon', icon: 'heart' %}
+                  </svg>
+                </span>
+              </a>
+            {% endif %}
+
+            {% render 'header-actions',
+              section: section,
+              customer_account_menu: section.settings.customer_account_menu,
+              display_style: 'icon'
+            %}
+
+            {% render 'custom-header-localization', section: section %}
+
+            {% if show_tea and tea_label != blank %}
+              <div class="custom-header__tea-club" data-custom-header-tea-club>
+                <a
+                  href="{% if tea_link != blank %}{{ tea_link }}{% else %}#{% endif %}"
+                  class="custom-header__tea-club-bubble"
+                >
+                  <span class="custom-header__tea-club-label">{{ tea_label }}</span>
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

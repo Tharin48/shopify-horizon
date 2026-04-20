@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "加载视频：{{ description }}",
@@ -48,6 +39,7 @@
     "search_results_no_results": "未找到“{{ query }}”的相关结果",
     "filters": "筛选条件",
     "account": "账户",
+    "breadcrumb": "面包屑导航",
     "cart": "购物车",
     "cart_count": "购物车中的商品总数",
     "filter_count": {
@@ -297,6 +289,9 @@
       "expired": "已过期"
     }
   },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "占位星星 — 安装 Yotpo 应用并启用星级后，将显示真实评分。"
+  },
   "placeholders": {
     "password": "密码",
     "search": "搜索",
@@ -323,7 +318,11 @@
       "quantity_maximum": "最多 {{ maximum }} 个",
       "in_cart": "在购物车中",
       "default_title": "默认标题",
-      "sticky_add_to_cart": "快速添加到购物车栏"
+      "sticky_add_to_cart": "快速添加到购物车栏",
+      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
+      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "price_display_group": "Product pricing",
+      "discount_percent_off": "({{ percent }}% Off)"
     }
   },
   "fields": {

@@ -10,6 +10,7 @@
 {
   "accessibility": {
     "account": "Account",
+    "breadcrumb": "Breadcrumb",
     "active_filters": "Active filters:",
     "cart": "Cart",
     "cart_count": "Total items in cart",
@@ -339,6 +340,9 @@
       "expired": "Expired"
     }
   },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "Placeholder stars — the Yotpo app will show live ratings here after you install Yotpo Reviews and enable the star rating widget for products."
+  },
   "placeholders": {
     "password": "Password",
     "search": "Search",
@@ -365,7 +369,11 @@
       "quantity_maximum": "Maximum of {{ maximum }}",
       "in_cart": "in cart",
       "default_title": "Default Title",
-      "sticky_add_to_cart": "Quick add to cart bar"
+      "sticky_add_to_cart": "Quick add to cart bar",
+      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
+      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "price_display_group": "Product pricing",
+      "discount_percent_off": "({{ percent }}% Off)"
     }
   }
 }

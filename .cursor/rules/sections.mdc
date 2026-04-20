@@ -1,0 +1,115 @@
+---
+description: Section coding standards and best practices guide
+globs: sections/*.liquid
+alwaysApply: false
+---
+# Section Development Standards
+
+## Section Requirements
+
+Every section must include:
+
+- `{% schema %}` tag with valid JSON
+- Proper HTML semantic structure
+- CSS scoping with section classes
+- Translation keys for all text
+
+## Section Patterns
+
+**Basic Section Structure:**
+
+```liquid
+{% liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign section_class = 'section-' | append: section.type
+%}
+
+<section
+  id="{{ section_id }}"
+  class="{{ section_class }}"
+  style="
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="page-width">
+    {% content_for 'blocks %}
+  </div>
+</section>
+
+{% stylesheet %}
+.{{ section_class }} {
+  padding-top: var(--section-padding-top, 40px);
+  padding-bottom: var(--section-padding-bottom, 40px);
+}
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.section_name",
+  "tag": "section",
+  "class": "section-name",
+  "blocks": [
+    {"type": "@theme"},
+    {"type": "@app"}
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:settings.padding",
+      "min": 0,
+      "max": 100,
+      "default": 40,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.section_name"
+    }
+  ]
+}
+{% endschema %}
+```
+
+## Performance Patterns
+
+- Use `{% liquid %}` for multiline logic
+- Lazy load images with `loading="lazy"`
+- Scope CSS variables to section
+- Use `container-queries` for responsive behavior
+
+## Decorative Layer Pattern
+
+For decorative background media (for example, movable leaf images) in block-capable sections:
+
+- Keep the section root `position: relative`
+- Render decorative layers with `aria-hidden="true"` and `pointer-events: none`
+- Keep decorative layer at lower stacking order (`z-index: 0`)
+- Keep editable block content wrapper above decoration (`position: relative; z-index: 1`)
+- Expose decorative position/size through schema controls (for example, X/Y offsets and mobile variants) instead of hardcoded CSS
+
+## Editorial blog post card (custom layout, Horizon data)
+
+`blocks/editorial-blog-post-card.liquid` is an alternate **Featured blog posts** card: same article fields as Horizon’s `_featured-blog-posts-card` / `_blog-post-description` pattern (`article.image`, `article.title`, `article.url`, `article.excerpt` falling back to `article.content` with `strip_html` + a long character cap in Liquid, first `article.tags` entry for the optional category line). **Description** uses CSS **line-clamp** (`excerpt_lines` select: `"1"`–`"8"`, default `"3"`), not a merchant word count. Styling: rounded card, aspect-ratio image, category + title + excerpt with **separate px font sizes for desktop vs mobile** (`max-width: 749px`), **Card shadow** toggle plus strength when on, border, colors. The block is registered on **`sections/featured-blog-posts.liquid`**. Because `content_for` for the static card uses a fixed `type`, switch the **Blog card** static block in the theme editor from the default card to **Editorial blog post card** (nested Horizon blocks on the default card are dropped when switching).
+
+**`sections/editorial-blog-carousel.liquid`** duplicates Horizon’s **Featured blog posts** carousel pipeline (same `blog` feed, `paginate`, `resource-list` → `resource-list-carousel` / `slideshow`, `slide_count`, gaps, nav icons) but renders **`editorial-blog-post-card`** via `content_for` id `static-editorial-blog-post-card`. Uses `carousel_ref: 'editorialBlogCarousel'` so it can coexist with the stock Featured blog posts section. `layout_type` is fixed to carousel (single schema option). Preset: **Editorial blog carousel** under Storytelling. Inner wrapper **`.editorial-blog-carousel__inner`**: configurable **section max width** (960–1920px, default 1920), **horizontal padding (desktop)** from 750px up, **horizontal padding (mobile)** below 750px (`--ebc-*` CSS variables). **Carousel row — desktop / mobile**: `justify-content` on `slideshow-slides` (`flex-start`, `center`, `space-between`, `space-evenly`, `flex-end`) via `--ebc-carousel-justify-desktop` / `-mobile`; **slide width** per breakpoint: `default` (Horizon fixed `--slide-width`) or `fill` (modifier classes `--slides-fill-desktop` / `--slides-fill-mobile` → `flex: 1 1 0; width: auto` on `.resource-list__slide`). **`show_next_slide_peek`**: when false (default), sets `--peek-next-slide-size: 0px` on `.resource-list__carousel` so slide width math uses the full track (avoids the stock right-side gap from peek).
+
+## Nested slider blocks (Impact slider)
+
+When a theme block wraps Horizon’s `slideshow` snippet and child blocks render individual slides, `{% content_for 'blocks' %}` does not provide a per-child index in Liquid. The **Impact slider** pattern captures child HTML, splits on a delimiter comment (`<!--IMPACT_SLIDE_BOUNDARY-->`) emitted by each private `_impact-slide` block, then wraps each segment with `slideshow-slide` using a running index. Use a **private** slide block (`_impact-slide`) so slides are only addable inside the slider block, not at the section root when the section also allows `@theme`.
+
+For **slide height**, the `auto` option passes an empty `slide_size` into `slideshow` / `slideshow-slide` so Horizon’s fixed `--slide-min-height` presets are not applied, and adds `impact-slider--height-auto` so CSS can make the slide image in-flow (natural aspect) with overlaid text—avoiding large empty vertical space when content is short. The `custom` option also passes empty `slide_size` and sets `min-height` in px on `#ImpactSlider-{id} slideshow-slides` and `slideshow-slide` from `slide_height_custom` (range).
+
+Impact slides reuse the `slide__content` class; Horizon’s `_slide` stylesheet includes `.slide__content > * { margin: auto }`, so `_impact-slide` resets margins on `.impact-slide > .slide__content.impact-slide__content > *`. Content placement uses a **single-cell CSS grid** on `.impact-slide__content` with `align-self` / `justify-self` on `.impact-slide__inner` (mapped from block settings) so vertical position works even when flex height chains fail inside `slideshow-slide`. **Horizontal** and **vertical** position each have **desktop** and **mobile** (`max-width: 749px`) settings: `--impact-slide-justify-self` / `--impact-slide-justify-self-mobile`, `--impact-slide-align` / `--impact-slide-align-mobile`, text-align vars, and `--impact-slide-align-self` / `--impact-slide-align-self-mobile`.
+
+Pagination uses `class: 'impact-slider__controls'` on `slideshow-controls`, `controls_on_media`, and `#ImpactSlider-{id}` `{% style %}` for dot placement over the image, inactive/active colors (and `mix-blend-mode: normal` so picks aren’t altered by Horizon’s dot difference blend), plus slide corner radius and optional border from block settings.
+
+The **Impact counter** theme block (`blocks/impact-counter.liquid`) is a stat-style card: `icon-or-image` with **`css_controlled_size: true`** so icon sizing is driven by CSS variables (desktop + mobile), including custom uploaded icons (no inline width fighting the breakpoint). **Icon background** and **icon graphic** sizes have separate **desktop** and **mobile** range settings; sub text + count text likewise. Card/icon colors, radii, padding via `spacing-style`, width `fit-content` / `fill` / custom px (desktop + mobile). Use **`impact-counter-group`** (`blocks/impact-counter-group.liquid`) for a **CSS grid** of counters (defaults: 2 columns on mobile, 4 on desktop ≥750px); child blocks are only `impact-counter`.
+
+Inside **Impact section** (`custom-leaf-background-content`), a Horizon **Group** with row direction and **Vertical on mobile** still gets a scoped override: if the group’s children are **only** Impact counters (direct `.impact-counter` or platform wrappers containing them), mobile CSS uses a **2-column grid** so two cards share a row. Mixed groups (counters + other blocks) keep normal stacked mobile behavior.
+
+**Impact slider** custom height: `slide_height_custom` for desktop and `slide_height_custom_mobile` below 750px (`{% style %}` media query on `#ImpactSlider-{id}`).
+
+[section-example.liquid](mdc:.cursor/rules/examples/section-example.liquid)

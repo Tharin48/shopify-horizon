@@ -1,0 +1,461 @@
+{%- liquid
+  assign leaf_opacity = section.settings.leaf_opacity | divided_by: 100.0
+-%}
+
+<div
+  class="section-background color-{{ section.settings.color_scheme }}"
+  {% if section.settings.enable_custom_leaf_background %}
+    style="background: {{ section.settings.leaf_section_background }};"
+  {% endif %}
+></div>
+
+<div
+  class="
+    section
+    {% if section.settings.section_width == 'full-width' %}
+      section--full-width
+    {% else %}
+      page-width-content
+    {% endif %}
+    
+    color-{{ section.settings.color_scheme }}
+    custom-leaf-background-content
+  "
+  style="
+    --clbc-leaf-opacity: {{ leaf_opacity }};
+    --clbc-leaf-width-desktop: {{ section.settings.leaf_width_desktop }}px;
+    --clbc-leaf-width-mobile: {{ section.settings.leaf_width_mobile }}px;
+    --clbc-leaf-offset-x: {{ section.settings.leaf_offset_x }}px;
+    --clbc-leaf-offset-y: {{ section.settings.leaf_offset_y }}px;
+    --clbc-leaf-offset-x-mobile: {{ section.settings.leaf_offset_x_mobile }}px;
+    --clbc-leaf-offset-y-mobile: {{ section.settings.leaf_offset_y_mobile }}px;
+  "
+>
+  {%- if section.settings.show_leaf_background and section.settings.leaf_background_image != blank -%}
+    <div class="custom-leaf-background-content__decor" aria-hidden="true">
+      <div
+        class="custom-leaf-background-content__leaf{% if section.settings.hide_leaf_on_mobile %} custom-leaf-background-content__leaf--hide-mobile{% endif %}"
+      >
+        {{
+          section.settings.leaf_background_image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '240,400,600,800,1000,1200',
+            sizes: '(min-width: 990px) 20vw, 40vw',
+            class: 'custom-leaf-background-content__leaf-image',
+            alt: ''
+        }}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div
+    class="
+      spacing-style
+      layout-panel-flex
+      layout-panel-flex--column
+      section-content-wrapper
+      mobile-column
+      custom-leaf-background-content__content
+    "
+    style="
+      {% render 'layout-panel-style', settings: section.settings %}
+      {% render 'spacing-style', settings: section.settings %}
+    "
+  >
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .custom-leaf-background-content {
+    position: relative;
+    /* Root overflow visible: clip only the decorative leaf inside __decor (Theme Editor) */
+    overflow: visible;
+  }
+
+  .custom-leaf-background-content__decor {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .custom-leaf-background-content__leaf {
+    position: absolute;
+    inset-inline-start: var(--clbc-leaf-offset-x, 0px);
+    top: var(--clbc-leaf-offset-y, 0px);
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--clbc-leaf-opacity, 0.4);
+  }
+
+  .custom-leaf-background-content__leaf-image {
+    display: block;
+    width: var(--clbc-leaf-width-desktop, 280px);
+    height: auto;
+    max-width: none;
+    object-fit: contain;
+  }
+
+  .custom-leaf-background-content__content {
+    grid-column: 2;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  @media screen and (max-width: 989px) {
+    .custom-leaf-background-content__leaf {
+      inset-inline-start: var(--clbc-leaf-offset-x-mobile, 0px);
+      top: var(--clbc-leaf-offset-y-mobile, 0px);
+    }
+
+    .custom-leaf-background-content__leaf-image {
+      width: var(--clbc-leaf-width-mobile, 200px);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-leaf-background-content__leaf--hide-mobile {
+      display: none;
+    }
+
+    /*
+     * Group blocks: "Vertical on mobile" sets .mobile-column and stacks children.
+     * When a horizontal group contains *only* Impact counters, use a 2-column grid so
+     * two cards sit on one row. Covers direct .impact-counter children and editor wrappers.
+     */
+    .custom-leaf-background-content .group-block-content.layout-panel-flex--row:is(
+        :has(> .impact-counter):not(:has(> *:not(.impact-counter))),
+        :has(> * .impact-counter):not(:has(> *:not(:has(.impact-counter))))
+      ) {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--gap, 0.75rem);
+      align-items: stretch;
+      flex-flow: unset;
+    }
+
+    .custom-leaf-background-content
+      .group-block-content.layout-panel-flex--row:has(> .impact-counter):not(:has(> *:not(.impact-counter)))
+      > .impact-counter {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .custom-leaf-background-content
+      .group-block-content.layout-panel-flex--row:has(> * .impact-counter):not(:has(> *:not(:has(.impact-counter))))
+      > * {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .custom-leaf-background-content
+      .group-block-content.layout-panel-flex--row:has(> * .impact-counter):not(:has(> *:not(:has(.impact-counter))))
+      .impact-counter {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Impact section",
+  "class": "section-wrapper",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "@theme"
+    },
+    {
+      "type": "@app"
+    },
+    {
+      "type": "_divider"
+    },
+    {
+      "type": "impact-slider"
+    },
+    {
+      "type": "impact-counter"
+    },
+    {
+      "type": "impact-counter-group"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background leaf"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_leaf_background",
+      "label": "Show background leaf",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "leaf_background_image",
+      "label": "Leaf background image",
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "range",
+      "id": "leaf_opacity",
+      "label": "Leaf opacity",
+      "min": 5,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 40,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "range",
+      "id": "leaf_width_desktop",
+      "label": "Leaf width (desktop)",
+      "min": 120,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "default": 280,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "range",
+      "id": "leaf_width_mobile",
+      "label": "Leaf width (mobile)",
+      "min": 80,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 200,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "range",
+      "id": "leaf_offset_x",
+      "label": "Leaf horizontal offset",
+      "info": "Wider range for placing the leaf; step is 20px (Shopify editor limit).",
+      "min": -1000,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "range",
+      "id": "leaf_offset_y",
+      "label": "Leaf vertical offset",
+      "info": "Wider range for placing the leaf; step is 20px (Shopify editor limit).",
+      "min": -1000,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "range",
+      "id": "leaf_offset_x_mobile",
+      "label": "Leaf horizontal offset (mobile)",
+      "info": "Wider range for placing the leaf; step is 20px (Shopify editor limit).",
+      "min": -1000,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "range",
+      "id": "leaf_offset_y_mobile",
+      "label": "Leaf vertical offset (mobile)",
+      "info": "Wider range for placing the leaf; step is 20px (Shopify editor limit).",
+      "min": -1000,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_leaf_on_mobile",
+      "label": "Hide background leaf on mobile",
+      "default": false,
+      "visible_if": "{{ section.settings.show_leaf_background }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_custom_leaf_background",
+      "label": "t:settings.enable_custom_leaf_background",
+      "default": false
+    },
+    {
+      "type": "color_background",
+      "id": "leaf_section_background",
+      "label": "t:settings.leaf_section_background",
+      "info": "t:settings.leaf_section_background_info",
+      "visible_if": "{{ section.settings.enable_custom_leaf_background }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "select",
+      "id": "content_direction",
+      "label": "t:settings.direction",
+      "options": [
+        {
+          "value": "column",
+          "label": "t:options.vertical"
+        },
+        {
+          "value": "row",
+          "label": "t:options.horizontal"
+        }
+      ],
+      "default": "column"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_alignment_flex_direction_column",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.left"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment_flex_direction_column",
+      "label": "t:settings.position",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "t:options.top"
+        },
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "flex-end",
+          "label": "t:options.bottom"
+        },
+        {
+          "value": "space-between",
+          "label": "t:options.space_between"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Impact section",
+      "category": "Custom",
+      "settings": {
+        "section_width": "page-width",
+        "content_direction": "column",
+        "horizontal_alignment_flex_direction_column": "center",
+        "vertical_alignment_flex_direction_column": "flex-start",
+        "gap": 24,
+        "show_leaf_background": true,
+        "leaf_opacity": 40,
+        "leaf_width_desktop": 280,
+        "leaf_width_mobile": 200,
+        "leaf_offset_x": 0,
+        "leaf_offset_y": 0,
+        "leaf_offset_x_mobile": 0,
+        "leaf_offset_y_mobile": 0,
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    }
+  ]
+}
+{% endschema %}

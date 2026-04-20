@@ -5,11 +5,13 @@
   @param {product} product_resource - The product to render
   @param {boolean} [show_unit_price] - Whether to show the unit price
   @param {boolean} [show_sale_price_first] - Whether to show the sale price first
+  @param {boolean} [hide_compare_at_price] - When true, show only the current variant selling price (no compare-at or ranges)
 {%- enddoc -%}
 
 {%- liquid
   assign show_unit_price = show_unit_price | default: false
   assign show_sale_price_first = show_sale_price_first | default: false
+  assign hide_compare_at_price = hide_compare_at_price | default: false
   assign selected_variant = product_resource.selected_or_first_available_variant
   assign price = selected_variant.price
   assign compare_at_price = selected_variant.compare_at_price
@@ -72,6 +74,21 @@
   endif
 -%}
 
+{% if hide_compare_at_price %}
+  <div ref="priceContainer">
+    <span class="price">{{ price | default: '&nbsp;' }}</span>
+  </div>
+  {%- if selected_variant.unit_price and show_unit_price %}
+    {%- liquid
+      if use_currency
+        assign unit_price = selected_variant.unit_price | money_with_currency
+      else
+        assign unit_price = selected_variant.unit_price | money
+      endif
+    -%}
+    {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
+  {%- endif -%}
+{% else %}
 <div ref="priceContainer">
   {% if has_volume_pricing %}
     {% comment %} Volume pricing display {% endcomment %}
@@ -145,3 +162,4 @@
     {{- 'content.volume_pricing_available' | t -}}
   </small>
 {%- endif -%}
+{% endif %}

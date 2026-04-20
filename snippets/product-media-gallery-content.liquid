@@ -3,7 +3,7 @@
 
   Renders product media gallery for the closest product.
 
-  @param {string} media_presentation - Either 'grid' or 'carousel'
+  @param {string} media_presentation - 'grid', 'carousel', or 'list' (thumbnails + vertical stack)
   @param {object} block_settings - Block settings object
   @param {string} block_id - Block ID for unique element IDs
   @param {string} block_shopify_attributes - Block shopify attributes
@@ -28,6 +28,11 @@
   assign selected_product = closest.product
   assign selected_variant_media = selected_product.selected_or_first_available_variant.featured_media
   assign first_3d_model = selected_product.media | where: 'media_type', 'model' | first
+  assign mobile_breadcrumb_collection = blank
+
+  if selected_product != blank and selected_product.collections.size > 0
+    assign mobile_breadcrumb_collection = selected_product.collections | first
+  endif
 
   if block_settings.hide_variants
     assign variant_images = selected_product.images | where: 'attached_to_variant?', true | map: 'src'
@@ -47,13 +52,15 @@
 
   assign render_slideshow_controls = false
 
-  if media_presentation == 'carousel' or block_settings.slideshow_controls_style == block_settings.slideshow_mobile_controls_style
-    assign render_slideshow_controls = true
+  if media_presentation != 'list'
+    if media_presentation == 'carousel' or block_settings.slideshow_controls_style == block_settings.slideshow_mobile_controls_style
+      assign render_slideshow_controls = true
+    endif
   endif
 
   assign render_mobile_slideshow_controls = false
 
-  if block_settings.slideshow_controls_style != block_settings.slideshow_mobile_controls_style
+  if media_presentation != 'list' and block_settings.slideshow_controls_style != block_settings.slideshow_mobile_controls_style
     assign slideshow_controls_class = 'mobile:hidden'
 
     if block_settings.slideshow_mobile_controls_style != 'hint'
@@ -80,6 +87,8 @@
   endif
 
   if slideshow_controls_style == 'thumbnails'
+    assign pagination_position = block_settings.thumbnail_position
+  elsif media_presentation == 'list'
     assign pagination_position = block_settings.thumbnail_position
   else
     assign pagination_position = 'center'
@@ -120,9 +129,15 @@
   endif
   assign has_image_drop = sorted_media | has: 'media_type', 'image'
 
-  # Determine if we're in single column mode (carousel or grid with one column)
+  if block_settings.inherit_color_scheme == false
+    assign gallery_color_scheme = block_settings.color_scheme | default: 'scheme-1'
+  else
+    assign gallery_color_scheme = section.settings.color_scheme | default: 'scheme-1'
+  endif
+
+  # Determine if we're in single column mode (carousel, list stack, or grid with one column)
   assign is_single_column = false
-  if media_presentation == 'carousel' or sorted_media.size == 1 or media_presentation == 'grid' and block_settings.media_columns == 'one'
+  if media_presentation == 'carousel' or media_presentation == 'list' or sorted_media.size == 1 or media_presentation == 'grid' and block_settings.media_columns == 'one'
     assign is_single_column = true
   endif
 
@@ -206,11 +221,17 @@
         flex-shrink: 0;
       }
 
-      /* Desktop constraint wrapper sizing */
+      /* Desktop constraint wrapper sizing (vh-based — keeps hero within viewport on carousel/grid) */
       @media screen and (min-width: 750px) {
         .product-media-constraint-wrapper {
           width: min(100%, calc(var(--constrained-height) * {{ block_settings.aspect_ratio }}));
         }
+        {% if media_presentation == 'list' %}
+          /* List: width from column only; max-height override below (avoids shrinking when window height drops) */
+          .media-gallery--list .product-media-constraint-wrapper {
+            width: 100%;
+          }
+        {% endif %}
       }
     {% endif %}
 
@@ -319,25 +340,62 @@
     {{ view_transition_styles_cover }}
   {% endif %}
 
+  {% if block_settings.constrain_to_viewport and media_presentation == 'list' %}
+    {% comment %}
+      Adapt + constrain: no constraint-wrapper, but base.css still applies max-height via .constrain-height.
+      List stack should follow column width, not viewport height.
+    {% endcomment %}
+    @media screen and (min-width: 750px) {
+      .media-gallery--list .product-media-container.constrain-height {
+        max-height: none;
+      }
+    }
+  {% endif %}
+
   :root { --gallery-media-border-radius: {{ block_settings.media_radius }}px; }
 {% endstyle %}
 
 {% if closest.product == blank %}
-  <div
-    class="
-      {% if block_settings.extend_media %}
-        media-gallery--extend
-      {% endif %}
-    "
-    {{ block_shopify_attributes }}
-  >
-    {{ 'product-apparel-1' | placeholder_svg_tag: 'product-media-gallery__placeholder-image' }}
+  <div class="product-media-gallery__shell color-{{ gallery_color_scheme }}">
+    <div
+      class="
+        {% if block_settings.extend_media %}
+          media-gallery--extend
+        {% endif %}
+      "
+      {{ block_shopify_attributes }}
+    >
+      {{ 'product-apparel-1' | placeholder_svg_tag: 'product-media-gallery__placeholder-image' }}
+    </div>
   </div>
 {% else %}
+  <div class="product-media-gallery__shell color-{{ gallery_color_scheme }}">
+    <div class="desktop:hidden product-media-gallery__mobile-breadcrumb">
+      <nav class="product-breadcrumb product-breadcrumb--single-line" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+        <div class="product-breadcrumb__scroll-track">
+          <ol class="product-breadcrumb__list list-unstyled">
+            <li class="product-breadcrumb__item">
+              <a class="product-breadcrumb__link" href="{{ routes.root_url }}">Shop</a>
+            </li>
+            {% if mobile_breadcrumb_collection != blank %}
+              <li class="product-breadcrumb__item">
+                <a class="product-breadcrumb__link" href="{{ mobile_breadcrumb_collection.url }}">
+                  {{ mobile_breadcrumb_collection.title | escape }}
+                </a>
+              </li>
+            {% endif %}
+            <li class="product-breadcrumb__item product-breadcrumb__item--current" aria-current="page">
+              <span>{{ selected_product.title | escape }}</span>
+            </li>
+          </ol>
+        </div>
+      </nav>
+    </div>
+
   <media-gallery
     class="
       spacing-style
-      sticky-content
+      {% unless media_presentation == 'list' %}sticky-content{% endunless %}
       {% if media_presentation == 'grid' %}
         media-gallery--{{ block_settings.media_columns }}-column
         {% if block_settings.media_columns == "two" and block_settings.large_first_image%}media-gallery--large-first-image{% endif %}
@@ -350,10 +408,23 @@
         media-gallery--extend
       {% endif %}
     "
-    style="{% render 'spacing-style', settings: block_settings %} --thumbnail-width: {{ block_settings.thumbnail_width }}px; --media-radius: {{ block_settings.media_radius }}px;{% if block_settings.icons_style contains 'large' %} --slideshow-icon-padding: 0px;{% endif %}--image-gap: {{ block_settings.image_gap }}px;{% unless block_settings.aspect_ratio == 'adapt' %} --gallery-aspect-ratio: {{ block_settings.aspect_ratio }};{% endunless %}"
+    style="{% render 'spacing-style', settings: block_settings %} --thumbnail-width: {{ block_settings.thumbnail_width }}px; --thumbnail-radius: {{ block_settings.thumbnail_radius }}px; --media-radius: {{ block_settings.media_radius }}px;{% if block_settings.icons_style contains 'large' %} --slideshow-icon-padding: 0px;{% endif %}--image-gap: {{ block_settings.image_gap }}px;{% unless block_settings.aspect_ratio == 'adapt' %} --gallery-aspect-ratio: {{ block_settings.aspect_ratio }};{% endunless %}"
     data-presentation="{{ media_presentation }}"
     {{ block_shopify_attributes }}
   >
+    {% if media_presentation == 'list' %}
+      {% render 'product-media-gallery-list',
+        sorted_media: sorted_media,
+        block_settings: block_settings,
+        block_id: block_id,
+        sizes: sizes,
+        needs_both_sizes: needs_both_sizes,
+        sizes_single: sizes_single,
+        product_media_container_class: product_media_container_class,
+        lowest_aspect_ratio_index: lowest_aspect_ratio_index,
+        pagination_position: pagination_position
+      %}
+    {% else %}
     {% capture slides %}
       {% for media in sorted_media %}
         {% capture children %}
@@ -490,6 +561,7 @@
           </li>
         {% endfor %}
       </ul>
+    {% endif %}
     {% endif %}
 
     {%- if block_settings.zoom -%}
@@ -636,6 +708,7 @@
       </script>
     {%- endif -%}
   </media-gallery>
+  </div>
 {% endif %}
 
 {% render 'product-media-gallery-content-styles' %}
@@ -755,6 +828,48 @@
   }
 
   @media screen and (max-width: 749px) {
+    .product-media-gallery__mobile-breadcrumb {
+      padding: 0.8rem 0 1rem;
+    }
+
+    /* Single-line breadcrumb: horizontal scroll, no wrap, scrollbar hidden */
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__scroll-track {
+      overflow-x: auto;
+      overflow-y: hidden;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__scroll-track::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__list {
+      flex-wrap: nowrap;
+      width: max-content;
+      max-width: none;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__item {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__item--current {
+      max-width: none;
+      min-width: 0;
+      word-break: normal;
+      overflow: visible;
+    }
+
+    .product-media-gallery__mobile-breadcrumb .product-breadcrumb__item--current span {
+      white-space: nowrap;
+    }
+
     /* Media gallery has a peeking slide on the right side always, and on the left side when the current slide is the last one */
     .media-gallery--hint
       :is(

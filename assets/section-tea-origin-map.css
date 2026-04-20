@@ -1,0 +1,294 @@
+.tea-origin-map {
+  background: rgb(var(--color-background));
+}
+
+.tea-origin-map.section {
+  grid-template-columns: 0 minmax(0, 1fr) 0;
+}
+
+.tea-origin-map__map-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tea-origin-map__inner {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+}
+
+.tea-origin-map__surface {
+  position: relative;
+  isolation: isolate;
+  border-radius: 0;
+  background: #171618;
+}
+
+.tea-origin-map__map-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.tea-origin-map__eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: var(--tea-origin-map-eyebrow-size, 14px);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tea-origin-map-eyebrow-color, rgb(var(--color-foreground)));
+}
+
+.tea-origin-map__title {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, var(--tea-origin-map-title-size, 48px));
+  line-height: 1.02;
+  color: var(--tea-origin-map-title-color, rgb(var(--color-foreground)));
+}
+
+.tea-origin-map__subtitle {
+  margin: 0.75rem 0 0;
+  font-size: var(--tea-origin-map-subtitle-size, 16px);
+  font-weight: 500;
+  color: var(--tea-origin-map-subtitle-color, rgb(var(--color-foreground)));
+}
+
+.tea-origin-map__description {
+  margin-top: 1.25rem;
+  font-size: var(--tea-origin-map-description-size, 16px);
+  line-height: 1.7;
+  color: var(--tea-origin-map-description-color, rgb(var(--color-foreground)));
+}
+
+.tea-origin-map__description p:first-child {
+  margin-top: 0;
+}
+
+.tea-origin-map__description p:last-child {
+  margin-bottom: 0;
+}
+
+.tea-origin-map__placeholder {
+  font-size: var(--tea-origin-map-description-size, 16px);
+  line-height: 1.6;
+  color: var(--tea-origin-map-description-color, rgb(var(--color-foreground)));
+}
+
+.tea-origin-map__placeholder p {
+  margin: 0;
+}
+
+.tea-origin-map__placeholder p + p {
+  margin-top: 0.75rem;
+}
+
+/* Large map pin: photo card + white frame + bottom tail; tip anchors to map coordinates. */
+.tea-origin-map__pin {
+  --tea-origin-map-pin-border: 3px;
+  --tea-origin-map-pin-radius: 1.25rem;
+  --tea-origin-map-pin-width: min(32vw, 22rem);
+  position: absolute;
+  z-index: 3;
+  left: var(--tea-origin-map-pin-left, 50%);
+  top: var(--tea-origin-map-pin-top, 50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--tea-origin-map-pin-width);
+  max-width: min(92%, 22rem);
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+
+.tea-origin-map__pin-bubble {
+  width: 100%;
+  border: var(--tea-origin-map-pin-border) solid #fff;
+  border-radius: var(--tea-origin-map-pin-radius);
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  box-shadow:
+    0 0.35rem 0 rgb(0 0 0 / 0.06),
+    0 1.25rem 2.5rem rgb(0 0 0 / 0.35);
+  background: rgb(20 20 22);
+}
+
+.tea-origin-map__pin-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Downward triangle; sits under the bubble so the tip is the bottom anchor of .tea-origin-map__pin */
+.tea-origin-map__pin-tail {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-top: calc(-1 * var(--tea-origin-map-pin-border));
+  border-left: 0.5rem solid transparent;
+  border-right: 0.5rem solid transparent;
+  border-top: 0.65rem solid #fff;
+  filter: drop-shadow(0 0.35rem 0.65rem rgb(0 0 0 / 0.22));
+}
+
+/* Desktop: side-by-side hero, pin uses metaobject x/y. */
+@media screen and (min-width: 990px) {
+  .tea-origin-map__inner {
+    padding: 2rem 0 0;
+  }
+
+  .tea-origin-map__inner > h2 {
+    margin: 0 0 1.5rem;
+    padding-inline: 2rem;
+  }
+
+  .tea-origin-map__surface {
+    overflow: hidden;
+  }
+
+  .tea-origin-map__stage {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 520px;
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+
+  .tea-origin-map__card {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 36rem);
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-radius: 1.5rem;
+    background: rgb(255 255 255 / 0.96);
+    color: rgb(var(--color-foreground));
+    box-shadow: 0 2rem 5rem rgb(0 0 0 / 0.2);
+  }
+}
+
+/*
+ * Tablet + phone (same layout): stacked card, centered pin.
+ * Extra top padding when a pin exists so the white card sits below the pin (no overlap).
+ */
+@media screen and (max-width: 989px) {
+  .tea-origin-map__inner {
+    padding: 1.5rem 0 0;
+  }
+
+  .tea-origin-map__inner > h2 {
+    margin: 0 0 1.5rem;
+    text-align: center;
+    padding-inline: 1rem;
+  }
+
+  .tea-origin-map__surface {
+    overflow: visible;
+  }
+
+  .tea-origin-map__stage {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: clamp(38rem, 118vw, 48rem);
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  /* Pin + map label zone: pushes the flex-end card down so it clears the floating pin */
+  .tea-origin-map__stage--with-pin {
+    padding-top: clamp(12rem, 36vw, 22rem);
+    min-height: clamp(44rem, 125vw, 54rem);
+  }
+
+  .tea-origin-map__card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin-top: auto;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background: rgb(255 255 255 / 0.96);
+    color: rgb(var(--color-foreground));
+    box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 0.14);
+  }
+
+  .tea-origin-map__title {
+    font-size: min(3rem, var(--tea-origin-map-title-size, 48px));
+  }
+
+  .tea-origin-map__subtitle {
+    margin-top: 0.625rem;
+  }
+
+  .tea-origin-map__description {
+    line-height: 1.55;
+  }
+
+  /* Collapsed origin story: ~5 lines + fade; expanded via .is-expanded (see tea-origin-map.js) */
+  .tea-origin-map__description-wrap:not(.is-expanded) .tea-origin-map__description {
+    position: relative;
+    max-height: 7.75em;
+    overflow: hidden;
+  }
+
+  .tea-origin-map__description-wrap:not(.is-expanded) .tea-origin-map__description::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2rem;
+    background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.96));
+    pointer-events: none;
+  }
+
+  .tea-origin-map__read-more {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0;
+    border: none;
+    background: none;
+    font-size: inherit;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--tea-origin-map-title-color, rgb(var(--color-foreground)));
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+
+  .tea-origin-map__read-more:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .tea-origin-map__pin {
+    --tea-origin-map-pin-width: min(68vw, 17rem);
+    --tea-origin-map-pin-radius: 1rem;
+    left: 50% !important;
+    top: clamp(13.5rem, 34vw, 19rem) !important;
+    transform: translate(-50%, -100%);
+  }
+}
+
+/* Very small viewports: a bit more room above the card */
+@media screen and (max-width: 480px) {
+  .tea-origin-map__stage--with-pin {
+    padding-top: clamp(14rem, 42vw, 24rem);
+    min-height: clamp(46rem, 132vw, 56rem);
+  }
+
+  .tea-origin-map__pin {
+    top: clamp(12.5rem, 32vw, 17rem) !important;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .tea-origin-map__read-more {
+    display: none;
+  }
+}

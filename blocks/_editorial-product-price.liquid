@@ -1,0 +1,365 @@
+
+
+{%- liquid
+  assign block_settings = block.settings
+  assign product_resource = closest.product
+  assign has_volume_pricing = false
+  if product_resource != blank
+    assign epp_variant = product_resource.selected_or_first_available_variant
+    if epp_variant != blank and epp_variant.quantity_price_breaks.size > 0
+      assign has_volume_pricing = true
+    endif
+  endif
+-%}
+
+{% liquid
+  if block_settings.type_preset == 'rte' or block_settings.type_preset == 'paragraph'
+    assign is_rte = true
+  endif
+
+  capture text_block_classes
+    if block_settings.width == '100%'
+      echo 'text-block--align-' | append: block_settings.alignment
+      if block_settings.max_width == 'none'
+        echo ' text-block--full-width'
+      endif
+    endif
+    if block_settings.type_preset == 'custom'
+      echo ' custom-typography'
+      if block_settings.font_size != ''
+        echo ' custom-font-size'
+      endif
+      if block_settings.color != ''
+        echo ' custom-color'
+      endif
+    endif
+    if block_settings.background
+      echo ' text-block--background'
+    endif
+    if is_rte
+      echo ' rte'
+    endif
+  endcapture
+-%}
+
+<product-price
+  class="editorial-product-price text-block {{ text_block_classes }} text-{{ block_settings.alignment }} {{ block_settings.type_preset | default: 'paragraph' }} spacing-style"
+  data-block-id="{{ block.id }}"
+  data-product-id="{{ product_resource.id }}"
+  style="
+    {% render 'typography-style', settings: block_settings %}
+    {% render 'spacing-style', settings: block_settings %}
+    --width: {{ block_settings.width }};
+  "
+  {{ block.shopify_attributes }}
+>
+  {%- if has_volume_pricing -%}
+    {% render 'price',
+      show_unit_price: block_settings.show_unit_price,
+      product_resource: product_resource,
+      show_sale_price_first: true
+    %}
+  {%- else -%}
+    {% render 'product-price-editorial', product_resource: product_resource, block_settings: block_settings %}
+  {%- endif -%}
+
+  {% if block_settings.show_tax_info %}
+    <div class="tax-note">
+      {%- if cart.duties_included and cart.taxes_included -%}
+        {{ 'content.duties_and_taxes_included' | t }}
+      {%- elsif cart.taxes_included -%}
+        {{ 'content.taxes_included' | t }}
+      {%- elsif cart.duties_included -%}
+        {{ 'content.duties_included' | t }}
+      {%- endif -%}
+
+      {%- if shop.shipping_policy.body != blank -%}
+        {{ 'content.shipping_policy' | t }}
+      {%- endif -%}
+    </div>
+  {% endif %}
+
+  {%- if product_resource != blank and product_resource.selected_or_first_available_variant != blank and block_settings.show_installments -%}
+    <div class="installments">
+      {%- assign product_form_installment_id = 'product-form-installment-' | append: block.id -%}
+      {%- form 'product', product_resource, id: product_form_installment_id, class: 'payment-terms' -%}
+        <input
+          type="hidden"
+          name="id"
+          value="{{ product_resource.selected_or_first_available_variant.id }}"
+        >
+        {{ form | payment_terms }}
+      {%- endform -%}
+    </div>
+  {%- endif -%}
+</product-price>
+
+{% stylesheet %}
+  .editorial-product-price.product-price-editorial,
+  .editorial-product-price .product-price-editorial {
+    width: 100%;
+  }
+
+  .product-price-editorial__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--epp-column-gap, 12px);
+    row-gap: var(--epp-row-gap, 4px);
+  }
+
+  .product-price-editorial__current {
+    font-family: var(--font-body--family);
+  }
+
+  .product-price-editorial__sale {
+    font-weight: 600;
+    color: var(--epp-current, rgb(var(--color-foreground-rgb)));
+  }
+
+  .product-price-editorial__regular-only {
+    font-weight: 500;
+    color: var(--epp-current-regular, rgb(var(--color-foreground-rgb)));
+  }
+
+  .product-price-editorial__compare {
+    color: var(--epp-compare, rgb(var(--color-foreground-rgb) / 0.55));
+    text-decoration-thickness: 1px;
+  }
+
+  .product-price-editorial__discount {
+    font-size: 0.9375em;
+    font-weight: 500;
+    color: var(--epp-discount, #0f766e);
+    white-space: nowrap;
+  }
+
+  @media (prefers-contrast: more) {
+    .product-price-editorial__compare {
+      color: rgb(var(--color-foreground-rgb) / 0.85);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial product price",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows sale price, compare-at, and discount percent when the variant is on sale. Otherwise shows a single price."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_discount_percentage",
+      "label": "Show discount percentage when on sale",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_unit_price",
+      "label": "Show unit price",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_installments",
+      "label": "t:settings.installments",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tax_info",
+      "label": "t:settings.show_tax_info",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "current_price_color",
+      "label": "Sale price color",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "regular_only_price_color",
+      "label": "Regular price color (no sale)",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "compare_at_color",
+      "label": "Compare-at price color",
+      "default": "#737373"
+    },
+    {
+      "type": "color",
+      "id": "discount_label_color",
+      "label": "Discount label color",
+      "default": "#0f766e",
+      "info": "Shown next to compare-at price, e.g. (20% Off)."
+    },
+    {
+      "type": "header",
+      "content": "t:content.typography"
+    },
+    {
+      "type": "select",
+      "id": "type_preset",
+      "label": "t:settings.preset",
+      "options": [
+        { "value": "", "label": "t:options.default" },
+        { "value": "paragraph", "label": "t:options.paragraph" },
+        { "value": "h1", "label": "t:options.h1" },
+        { "value": "h2", "label": "t:options.h2" },
+        { "value": "h3", "label": "t:options.h3" },
+        { "value": "h4", "label": "t:options.h4" },
+        { "value": "h5", "label": "t:options.h5" },
+        { "value": "h6", "label": "t:options.h6" },
+        { "value": "custom", "label": "t:options.custom" }
+      ],
+      "info": "t:info.edit_presets_in_theme_settings"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "fit-content", "label": "t:options.fit_content" },
+        { "value": "100%", "label": "t:options.fill" }
+      ],
+      "default": "100%"
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "default": "left",
+      "visible_if": "{{ block.settings.width != 'fit-content' }}"
+    },
+    {
+      "type": "select",
+      "id": "font",
+      "label": "t:settings.font",
+      "options": [
+        { "value": "var(--font-body--family)", "label": "t:options.body" },
+        { "value": "var(--font-subheading--family)", "label": "t:options.subheading" },
+        { "value": "var(--font-heading--family)", "label": "t:options.heading" },
+        { "value": "var(--font-accent--family)", "label": "t:options.accent" }
+      ],
+      "default": "var(--font-body--family)",
+      "visible_if": "{{ block.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "font_size",
+      "label": "t:settings.size",
+      "options": [
+        { "value": "", "label": "t:options.default" },
+        { "value": "0.875rem", "label": "14px" },
+        { "value": "1rem", "label": "16px" },
+        { "value": "1.125rem", "label": "18px" },
+        { "value": "1.25rem", "label": "20px" },
+        { "value": "1.5rem", "label": "24px" }
+      ],
+      "default": "1rem",
+      "visible_if": "{{ block.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "line_height",
+      "label": "t:settings.line_height",
+      "options": [
+        { "value": "tight", "label": "t:options.tight" },
+        { "value": "normal", "label": "t:options.normal" },
+        { "value": "loose", "label": "t:options.loose" }
+      ],
+      "default": "normal",
+      "visible_if": "{{ block.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "letter_spacing",
+      "label": "t:settings.letter_spacing",
+      "options": [
+        { "value": "tight", "label": "t:options.tight" },
+        { "value": "normal", "label": "t:options.normal" },
+        { "value": "loose", "label": "t:options.loose" }
+      ],
+      "default": "normal",
+      "visible_if": "{{ block.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "case",
+      "label": "t:settings.case",
+      "options": [
+        { "value": "none", "label": "t:options.default" },
+        { "value": "uppercase", "label": "t:options.uppercase" }
+      ],
+      "default": "none",
+      "visible_if": "{{ block.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "color",
+      "label": "t:settings.color",
+      "options": [
+        { "value": "var(--color-foreground)", "label": "t:options.text" },
+        { "value": "var(--color-foreground-heading)", "label": "t:options.heading" },
+        { "value": "var(--color-primary)", "label": "t:options.link" }
+      ],
+      "default": "var(--color-foreground)",
+      "visible_if": "{{ block.settings.type_preset != 'rte' }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

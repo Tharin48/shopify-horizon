@@ -1,0 +1,43 @@
+{%- liquid
+  assign preview = false
+  if request.design_mode or request.visual_preview_mode
+    assign preview = true
+  endif
+-%}
+{% render 'brewing-step-card-item', step_block: block, preview: preview %}
+
+{% schema %}
+{
+  "name": "Brewing step",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "brewing_tab",
+      "label": "Tab",
+      "options": [
+        { "value": "hot", "label": "Hot brew" },
+        { "value": "cold", "label": "Cold brew" }
+      ],
+      "default": "hot"
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_image",
+      "label": "Icon image",
+      "info": "Choose from theme or uploaded media. Shown above the step text."
+    },
+    {
+      "type": "text",
+      "id": "step_text",
+      "label": "Step text"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brewing step",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,254 @@
+{%- doc -%}
+  One row in the Pair With block (media, title, price, optional quick add).
+
+  @param {product} paired_product - Product to display
+  @param {object} block - Theme block
+  @param {section} section - Parent section
+{%- enddoc -%}
+
+{% liquid
+  assign paired_variant = paired_product.selected_or_first_available_variant
+  assign paired_images = paired_product.media | where: 'media_type', 'image'
+  assign carousel_id = 'PairWithCarousel-' | append: block.id | append: '-' | append: paired_product.id
+  assign can_quick_add = false
+  assign paired_product_available = false
+
+  if paired_variant != blank and paired_variant.available
+    assign paired_product_available = true
+  endif
+
+  if block.settings.enable_quick_add and paired_product_available and paired_product.has_only_default_variant
+    assign can_quick_add = true
+  endif
+
+  if can_quick_add
+    assign button_label = 'products.product.add_to_cart' | t | append: ': ' | append: paired_product.title
+  elsif paired_product_available
+    assign button_label = 'actions.choose' | t | append: ': ' | append: paired_product.title
+  elsif paired_variant == blank
+    assign button_label = 'products.product.unavailable' | t | append: ': ' | append: paired_product.title
+  else
+    assign button_label = 'products.product.sold_out' | t | append: ': ' | append: paired_product.title
+  endif
+
+  assign product_variant_media = paired_variant.featured_media.preview_image | image_url: width: 120
+  if paired_variant.featured_media.preview_image == blank and paired_product.featured_media.preview_image != blank
+    assign product_variant_media = paired_product.featured_media.preview_image | image_url: width: 120
+  endif
+%}
+
+<article class="pair-with__item" data-pair-with-item role="listitem">
+  <div
+    class="pair-with__media"
+    data-pair-with-carousel
+    data-carousel-id="{{ carousel_id }}"
+    role="region"
+    aria-label="{{ paired_product.title | escape }} media gallery"
+  >
+    <div
+      id="{{ carousel_id }}-viewport"
+      class="pair-with__media-viewport"
+    >
+      <div
+        id="{{ carousel_id }}-track"
+        class="pair-with__media-track"
+        data-pair-with-track
+        role="list"
+        aria-label="{{ paired_product.title | escape }} images"
+      >
+        {% if paired_images.size > 0 %}
+          {% for media in paired_images %}
+            {% liquid
+              assign pair_with_slide_alt = media.alt | default: paired_product.title | escape
+              assign pair_with_img_widths = '180, 240, 320, 360'
+              assign pair_with_img_sizes = '(max-width: 749px) 30vw, 140px'
+            %}
+            <div
+              class="pair-with__media-slide{% if forloop.first %} is-active{% endif %}"
+              role="listitem"
+              aria-label="{{ paired_product.title | escape }} image {{ forloop.index }} of {{ paired_images.size }}"
+              data-pair-with-slide
+              aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+            >
+              <a
+                href="{{ paired_product.url }}"
+                class="pair-with__media-link"
+                aria-label="{{ paired_product.title | escape }}"
+              >
+                {{
+                  media.preview_image
+                  | image_url: width: 360
+                  | image_tag:
+                    widths: pair_with_img_widths,
+                    sizes: pair_with_img_sizes,
+                    loading: 'lazy',
+                    alt: pair_with_slide_alt,
+                    class: 'pair-with__media-image'
+                }}
+              </a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div
+            class="pair-with__media-slide pair-with__media-slide--placeholder is-active"
+            role="listitem"
+            aria-label="{{ paired_product.title | escape }} placeholder image"
+            aria-hidden="false"
+          >
+            <a
+              href="{{ paired_product.url }}"
+              class="pair-with__media-link"
+              aria-label="{{ paired_product.title | escape }}"
+            >
+              <span class="pair-with__media-placeholder">{{ paired_product.title | escape }}</span>
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if paired_images.size > 1 %}
+      <button
+        type="button"
+        class="pair-with__media-nav pair-with__media-nav--prev"
+        aria-label="Previous image for {{ paired_product.title | escape }}"
+        aria-controls="{{ carousel_id }}-track"
+        data-pair-with-prev
+      >
+        <svg
+          class="pair-with__media-icon"
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M11.75 4.5L6.25 10l5.5 5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="pair-with__media-nav pair-with__media-nav--next"
+        aria-label="Next image for {{ paired_product.title | escape }}"
+        aria-controls="{{ carousel_id }}-track"
+        data-pair-with-next
+      >
+        <svg
+          class="pair-with__media-icon"
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M8.25 4.5L13.75 10l-5.5 5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    {% endif %}
+  </div>
+
+  <div class="pair-with__details">
+    <p class="pair-with__title">
+      <a
+        href="{{ paired_product.url }}"
+        class="pair-with__title-link"
+      >
+        {{ paired_product.title | escape }}
+      </a>
+    </p>
+
+    {% if block.settings.show_price %}
+      <div class="pair-with__price">
+        {% render 'price', product_resource: paired_product, hide_compare_at_price: true %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if block.settings.show_add_to_cart %}
+    <div class="pair-with__actions">
+      {% if can_quick_add %}
+        {% assign product_form_id = 'PairWithProductForm-' | append: block.id | append: '-' | append: paired_product.id %}
+        <product-form-component
+          data-section-id="{{ section.id }}"
+          data-product-id="{{ paired_product.id }}"
+          on:submit="/handleSubmit"
+          class="pair-with__product-form"
+        >
+          <div
+            class="visually-hidden"
+            aria-live="assertive"
+            role="status"
+            aria-atomic="true"
+            ref="liveRegion"
+          ></div>
+          {%- form 'product', paired_product, id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+            <input
+              type="hidden"
+              name="id"
+              ref="variantId"
+              value="{{ paired_variant.id }}"
+            >
+            <input
+              type="hidden"
+              name="quantity"
+              value="{% if paired_variant.quantity_rule.min %}{{ paired_variant.quantity_rule.min }}{% else %}1{% endif %}"
+            >
+
+            <add-to-cart-component
+              ref="addToCartButtonContainer"
+              data-product-variant-media="{{ product_variant_media }}"
+              data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
+            >
+              <button
+                type="submit"
+                name="add"
+                ref="addToCartButton"
+                on:click="/handleClick"
+                class="button pair-with__cart-button"
+                aria-label="{{ button_label | escape }}"
+              >
+                <span class="visually-hidden">{{ button_label }}</span>
+                <span
+                  class="pair-with__cart-icon"
+                  aria-hidden="true"
+                >
+                  {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+                </span>
+                <span class="add-to-cart__added">
+                  <span class="svg-wrapper add-to-cart__added-icon">
+                    {{- 'icon-checkmark-burst.svg' | inline_asset_content -}}
+                  </span>
+                </span>
+              </button>
+            </add-to-cart-component>
+          {%- endform -%}
+        </product-form-component>
+      {% elsif paired_product_available %}
+        <a
+          href="{{ paired_product.url }}"
+          class="button pair-with__cart-button pair-with__cart-button--link"
+          aria-label="{{ button_label | escape }}"
+        >
+          <span class="visually-hidden">{{ button_label }}</span>
+          <span
+            class="pair-with__cart-icon"
+            aria-hidden="true"
+          >
+            {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+          </span>
+        </a>
+      {% else %}
+        <button
+          type="button"
+          class="button pair-with__cart-button pair-with__cart-button--disabled"
+          aria-label="{{ button_label | escape }}"
+          disabled
+        >
+          <span class="visually-hidden">{{ button_label }}</span>
+          <span
+            class="pair-with__cart-icon"
+            aria-hidden="true"
+          >
+            {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+          </span>
+        </button>
+      {% endif %}
+    </div>
+  {% endif %}
+</article>

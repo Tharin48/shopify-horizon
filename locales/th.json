@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "โหลดวิดีโอ: {{ description }}",
@@ -52,6 +43,7 @@
       "other": "ใช้ตัวกรอง {{ count }} ตัวกรองแล้ว"
     },
     "account": "บัญชีผู้ใช้",
+    "breadcrumb": "แถบนำทาง",
     "cart": "ตะกร้าสินค้า",
     "cart_count": "สินค้าทั้งหมดในตะกร้าสินค้า",
     "menu": "เมนู",
@@ -297,6 +289,9 @@
       "expired": "หมดอายุแล้ว"
     }
   },
+  "product_rating_summary": {
+    "yotpo_editor_hint": "ดาวตัวอย่าง — Yotpo จะแสดงคะแนนจริงหลังติดตั้งแอป"
+  },
   "placeholders": {
     "password": "รหัสผ่าน",
     "search": "การค้นหา",
@@ -323,7 +318,11 @@
       "quantity_maximum": "จำนวนสูงสุดคือ {{ maximum }}",
       "in_cart": "ในตะกร้าสินค้า",
       "default_title": "ชื่อเริ่มต้น",
-      "sticky_add_to_cart": "แถบเพิ่มลงในตะกร้าสินค้าแบบด่วน"
+      "sticky_add_to_cart": "แถบเพิ่มลงในตะกร้าสินค้าแบบด่วน",
+      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
+      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "price_display_group": "Product pricing",
+      "discount_percent_off": "({{ percent }}% Off)"
     }
   },
   "fields": {

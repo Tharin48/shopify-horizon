@@ -1,0 +1,134 @@
+{%- doc -%}
+  Tabbed mobile nav: L1 tabs, L2 accordions when L3 exists else arrow rows, fixed footer.
+  @param {object} section - Custom header section
+  @param {object} menu - Linklist
+  @param {string} drawer_title_id - ID for dialog aria-labelledby
+{%- enddoc -%}
+
+{% liquid
+  assign accent = section.settings.mobile_drawer_accent_color | default: '#b8965c'
+  assign footer_label = section.settings.mobile_drawer_footer_label | default: 'Explore all products'
+  assign footer_url = section.settings.mobile_drawer_footer_url
+  if footer_url == blank
+    assign footer_url = routes.all_products_collection_url
+  endif
+  assign uid = section.id
+%}
+
+<div
+  class="custom-header__mobile-drawer-layout"
+  style="--mobile-drawer-accent: {{ accent }};"
+  data-custom-header-mobile-drawer-layout
+>
+  <div class="custom-header__mobile-drawer-top">
+    <div
+      class="custom-header__mobile-tabs"
+      role="tablist"
+      aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+      data-custom-header-mobile-tabs
+    >
+      {% for link in menu.links %}
+        <button
+          type="button"
+          class="custom-header__mobile-tab{% if forloop.first %} custom-header__mobile-tab--active{% endif %}"
+          role="tab"
+          id="MobileDrawerTab-{{ uid }}-{{ forloop.index0 }}"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          aria-controls="MobileDrawerPanel-{{ uid }}-{{ forloop.index0 }}"
+          tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+          data-custom-header-mobile-tab
+          data-tab-index="{{ forloop.index0 }}"
+        >
+          <span class="custom-header__mobile-tab-label">{{ link.title | escape }}</span>
+        </button>
+      {% endfor %}
+    </div>
+    <button
+      type="button"
+      class="custom-header__mobile-drawer-close button-unstyled"
+      data-custom-header-drawer-close
+      aria-label="{{ 'accessibility.close_dialog' | t }}"
+    >
+      <span class="svg-wrapper" aria-hidden="true">
+        {{- 'icon-close.svg' | inline_asset_content -}}
+      </span>
+    </button>
+  </div>
+
+  <h2 id="{{ drawer_title_id }}" class="visually-hidden">{{ 'accessibility.menu' | t }}</h2>
+
+  <div
+    class="custom-header__mobile-panels"
+    data-custom-header-mobile-panels
+  >
+    {% for l1 in menu.links %}
+      <div
+        id="MobileDrawerPanel-{{ uid }}-{{ forloop.index0 }}"
+        class="custom-header__mobile-panel{% unless forloop.first %} custom-header__mobile-panel--hidden{% endunless %}"
+        role="tabpanel"
+        aria-labelledby="MobileDrawerTab-{{ uid }}-{{ forloop.index0 }}"
+        {% unless forloop.first %}hidden{% endunless %}
+        data-custom-header-mobile-panel
+        data-panel-index="{{ forloop.index0 }}"
+      >
+        <nav class="custom-header__mobile-panel-nav" aria-label="{{ l1.title | escape }}">
+          {% if l1.links == blank %}
+            <a href="{{ l1.url }}" class="custom-header__mobile-row-link">
+              <span>{{ l1.title | escape }}</span>
+              <span class="custom-header__mobile-row-arrow" aria-hidden="true">→</span>
+            </a>
+          {% else %}
+            {% assign acc_group = 'mdw-' | append: uid | append: '-' | append: forloop.index0 %}
+            {% assign opened_first_accordion = false %}
+            {% for l2 in l1.links %}
+              {% if l2.links != blank and l2.links.size > 0 %}
+                {% liquid
+                  assign first_accordion_open = false
+                  unless opened_first_accordion
+                    assign first_accordion_open = true
+                    assign opened_first_accordion = true
+                  endunless
+                %}
+                <details
+                  class="custom-header__mobile-details"
+                  name="{{ acc_group }}"
+                  data-custom-header-acc-group="{{ acc_group }}"
+                  data-custom-header-mobile-accordion
+                  {% if first_accordion_open %}open{% endif %}
+                >
+                  <summary class="custom-header__mobile-details-summary">
+                    <span>{{ l2.title | escape }}</span>
+                    <span class="custom-header__mobile-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <div class="custom-header__mobile-details-body">
+                    <div class="custom-header__mobile-details-body-inner">
+                      <ul class="custom-header__mobile-l3-grid list-unstyled" role="list">
+                        {% for l3 in l2.links %}
+                          {% render 'custom-header-mobile-l3-tile', l3: l3 %}
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+                </details>
+              {% else %}
+                <a href="{{ l2.url }}" class="custom-header__mobile-row-link">
+                  <span>{{ l2.title | escape }}</span>
+                  <span class="custom-header__mobile-row-arrow" aria-hidden="true">→</span>
+                </a>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </nav>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if footer_label != blank and footer_url != blank %}
+    <div class="custom-header__mobile-drawer-footer">
+      <a href="{{ footer_url }}" class="custom-header__mobile-footer-link">
+        <span>{{ footer_label | escape }}</span>
+        <span class="custom-header__mobile-footer-arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  {% endif %}
+</div>

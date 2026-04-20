@@ -244,19 +244,19 @@ class CartItemsComponent extends Component {
    */
   #handleCartUpdate = (event) => {
     if (event instanceof DiscountUpdateEvent) {
-      sectionRenderer.renderSection(this.sectionId, { cache: false });
+      sectionRenderer.renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' });
       return;
     }
     if (event.target === this) return;
 
     const cartItemsHtml = event.detail.data.sections?.[this.sectionId];
     if (cartItemsHtml) {
-      morphSection(this.sectionId, cartItemsHtml);
+      morphSection(this.sectionId, cartItemsHtml, { mode: this.isDrawer ? 'hydration' : 'full' });
 
       // Update button states for all cart quantity selectors after morph
       this.#updateCartQuantitySelectorButtonStates();
     } else {
-      sectionRenderer.renderSection(this.sectionId, { cache: false });
+      sectionRenderer.renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' });
     }
   };
 

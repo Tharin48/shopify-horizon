@@ -1,3 +1,65 @@
+{% comment %}
+  Preview-only: stabilize Theme Editor floating UI (often jumps to bottom-left when
+  richtext/settings focus). Causes include slideshow overflow:hidden before in-viewport,
+  scroll-lock on html, transform on controls, and iframe scrollbar reflow. This snippet
+  runs only when request.design_mode — storefront is unchanged.
+{% endcomment %}
+<style id="theme-editor-preview-stability">
+  html.shopify-design-mode {
+    scrollbar-gutter: stable;
+  }
+
+  html.shopify-design-mode body {
+    overflow-x: hidden;
+  }
+
+  /* Don’t let theme scroll-lock collapse the iframe layout while editing */
+  html.shopify-design-mode[scroll-lock],
+  html.shopify-design-mode[scroll-lock] body {
+    overflow: visible !important;
+    touch-action: auto !important;
+    height: auto !important;
+  }
+
+  html.shopify-design-mode.custom-header-scroll-lock,
+  html.shopify-design-mode.custom-header-scroll-lock body {
+    overflow: visible !important;
+    touch-action: auto !important;
+    height: auto !important;
+  }
+
+  /* Slideshow: CSS mirrors “in viewport” so slides aren’t overflow:hidden if JS is late */
+  html.shopify-design-mode slideshow-component:not([in-viewport]) slideshow-slides,
+  html.shopify-design-mode slideshow-component[disabled='true'] slideshow-slides {
+    overflow-x: scroll !important;
+    overflow-y: visible !important;
+  }
+
+  @media screen and (max-width: 749px) {
+    html.shopify-design-mode slideshow-component[mobile-disabled] slideshow-slides {
+      overflow-x: scroll !important;
+      overflow-y: visible !important;
+    }
+  }
+
+  html.shopify-design-mode main#MainContent.content-for-layout {
+    overflow: visible;
+    transform: none;
+    filter: none;
+  }
+
+  html.shopify-design-mode main#MainContent .shopify-section {
+    overflow: visible;
+    contain: none;
+  }
+
+  html.shopify-design-mode .impact-slider slideshow-controls.impact-slider__controls[controls-on-media] {
+    transform: none !important;
+  }
+</style>
+{% # theme-check-disable MissingAsset %}
+<script src="{{ 'theme-editor-preview-fix.js' | asset_url }}" defer></script>
+{% # theme-check-enable MissingAsset %}
 <script
   src="{{ 'theme-editor.js' | asset_url }}"
   type="module"

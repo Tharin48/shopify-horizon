@@ -1,0 +1,46 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "policy-tabs-page",
+      "settings": {
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "accent_color": "#b08a2f",
+        "decorative_left_image": "shopify://shop_images/x31_1_1.png",
+        "decorative_right_image": "shopify://shop_images/Group_1.png",
+        "intro_text": "",
+        "tab_1_page": "faq",
+        "tab_1_label": "FAQ",
+        "tab_1_icon": "question",
+        "tab_2_page": "shipping-and-delivery",
+        "tab_2_label": "Shipping & Delivery Policy",
+        "tab_2_icon": "truck",
+        "tab_3_page": "terms-conditions",
+        "tab_3_label": "Terms & Conditions",
+        "tab_3_icon": "document",
+        "tab_4_page": "privacy-and-cookie-policy",
+        "tab_4_label": "Privacy Policy",
+        "tab_4_icon": "shield",
+        "page_max_width": 1920,
+        "tab_alignment": "center",
+        "padding_top": 40,
+        "padding_bottom": 88,
+        "padding_inline": 80,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 48,
+        "padding_inline_mobile": 16
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

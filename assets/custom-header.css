@@ -1,0 +1,1097 @@
+/**
+ * Custom header — mobile drawer (left), search panel (right), overlay, scroll lock.
+ * Desktop: these layers are hidden; header chrome stays in sections/custom-header.liquid base styles.
+ */
+
+@media screen and (max-width: 749px) {
+  /*
+   * Homepage transparent headers start below the announcement bar only at the real top.
+   * Once JS has initialized and the mobile header is in its scrolled visible state
+   * (`solid`), pin it to the viewport top like the other pages.
+   */
+  .custom-header[data-custom-header-js='initialized'][data-may-transparent='true'][data-header-state='solid'] {
+    top: 0;
+  }
+
+  /*
+   * Portal wrapper: sibling of <header> in the section; does not participate in layout.
+   * Fixed children attach to the viewport and sit above the header stack (no clipping).
+   */
+  .custom-header__mobile-portals {
+    display: contents;
+    --custom-header-portal-overlay-z: 100000;
+    --custom-header-portal-panel-z: 100001;
+  }
+
+  .custom-header__shell {
+    position: relative;
+  }
+
+  /* Inline desktop nav is never shown on small screens — drawer holds navigation */
+  .custom-header__nav--desktop {
+    display: none !important;
+  }
+
+  /*
+   * Top bar: one grid row [ menu | logo (left) | icons ] — icons come from .lower via display:contents
+   * so they are not absolutely positioned (fixes vertical/horizontal misalignment).
+   */
+  .custom-header__primary-inner {
+    display: grid;
+    grid-template-columns: minmax(44px, auto) 1fr minmax(44px, auto);
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: var(--gap-sm);
+    row-gap: var(--gap-sm);
+  }
+
+  .custom-header__mobile {
+    display: contents;
+  }
+
+  .custom-header__mobile-top {
+    display: contents;
+  }
+
+  .custom-header__lower {
+    display: contents;
+  }
+
+  .custom-header__actions {
+    display: contents;
+  }
+
+  .custom-header__menu-toggle {
+    grid-column: 1;
+    grid-row: 1;
+    position: relative;
+    z-index: 3;
+    align-self: center;
+    justify-self: start;
+  }
+
+  .custom-header__logo-row {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    align-self: center;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    text-align: start;
+  }
+
+  .custom-header .custom-header__logo {
+    text-align: start;
+  }
+
+  .custom-header .custom-header__logo-link {
+    justify-content: flex-start;
+  }
+
+  /* Override section base 72px — mobile logo art at 42px */
+  .custom-header .custom-header__logo-img {
+    max-width: 42px;
+    max-height: 42px;
+    width: auto;
+    height: auto;
+  }
+
+  .custom-header__actions-icons {
+    position: static;
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    justify-self: end;
+    z-index: 2;
+    width: auto;
+    max-width: min(50vw, 11rem);
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--gap-sm);
+  }
+
+  .custom-header__search-slot--desktop {
+    display: none !important;
+  }
+
+  .custom-header__mobile-bottom {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  /* No hamburger: logo uses first two columns, left-aligned */
+  .custom-header__primary-inner--no-menu .custom-header__logo-row {
+    grid-column: 1 / 3;
+    justify-self: start;
+  }
+
+  .custom-header__primary-inner--no-menu .custom-header__actions-icons {
+    grid-column: 3;
+  }
+
+  .custom-header__mobile-search-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    min-height: 44px;
+    padding-inline: 1rem;
+    border-radius: 9999px;
+    border: 2px solid color-mix(in srgb, currentColor 35%, transparent);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .custom-header__mobile-search-placeholder {
+    flex: 1;
+    font-size: 0.9375rem;
+    opacity: 0.85;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .custom-header__mobile-search-icon {
+    flex-shrink: 0;
+  }
+
+  .custom-header[data-header-state='transparent'] .custom-header__mobile-search-trigger {
+    border-color: #e6c229;
+    background: color-mix(in srgb, currentColor 10%, transparent);
+  }
+
+  .custom-header[data-header-state='solid'] .custom-header__mobile-search-trigger,
+  .custom-header[data-header-state='minimized'] .custom-header__mobile-search-trigger {
+    border-color: color-mix(in srgb, currentColor 42%, transparent);
+    background: color-mix(in srgb, var(--custom-header-bg-solid) 96%, transparent);
+  }
+
+  .custom-header[data-header-state='minimized'] .custom-header__mobile-search-trigger {
+    background: color-mix(in srgb, var(--custom-header-bg-minimized) 96%, transparent);
+  }
+
+  /*
+   * Mobile scroll-hide should not collapse the sticky section height while the user is
+   * actively scrolling. Keep the header box at the default height and only animate
+   * visibility, otherwise slow scroll can feed back into layout and cause flicker.
+   */
+  .custom-header[data-header-state='hidden'] .custom-header__primary {
+    min-height: var(--custom-header-default-height);
+    max-height: none;
+  }
+
+  .custom-header__mobile-search-trigger:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  /* Overlay */
+  .custom-header__overlay {
+    position: fixed;
+    top: var(--custom-header-mobile-portal-top, 0px);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--custom-header-portal-overlay-z, 100000);
+    background: rgb(0 0 0 / 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0.3s,
+      top 0.2s ease;
+  }
+
+  .custom-header__overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Left drawer — full screen (top inset below announcement when at page top) */
+  .custom-header__mobile-drawer {
+    position: fixed;
+    top: var(--custom-header-mobile-portal-top, 0px);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    z-index: var(--custom-header-portal-panel-z, 100001);
+    background: var(--color-background, #fff);
+    color: var(--color-foreground, #121212);
+    box-shadow: none;
+    transform: translate3d(-100%, 0, 0);
+    transition:
+      transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      top 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .custom-header__mobile-drawer.is-open {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  .custom-header__mobile-drawer:not(.is-open) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .custom-header__mobile-drawer-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Tabbed nav + accordions + fixed footer */
+  .custom-header__mobile-drawer-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .custom-header__mobile-drawer-top {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+    padding: var(--padding-xs) var(--padding-sm);
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+    flex-shrink: 0;
+  }
+
+  .custom-header__mobile-drawer-top .custom-header__mobile-drawer-close {
+    flex-shrink: 0;
+  }
+
+  .custom-header__mobile-tabs {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    gap: var(--gap-md);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
+    padding-block-end: 2px;
+  }
+
+  .custom-header__mobile-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-header__mobile-tab {
+    flex: 0 0 auto;
+    padding: var(--padding-xs) 0;
+    border: none;
+    background: none;
+    font: inherit;
+    font-family: var(--font-heading--family, inherit);
+    font-size: 0.9375rem;
+    letter-spacing: 0.02em;
+    color: inherit;
+    opacity: 0.75;
+    cursor: pointer;
+    white-space: nowrap;
+    border-block-end: 2px solid transparent;
+    margin-block-end: -2px;
+    transition:
+      color 0.2s ease,
+      opacity 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .custom-header__mobile-tab--active,
+  .custom-header__mobile-tab[aria-selected='true'] {
+    opacity: 1;
+    color: var(--mobile-drawer-accent, #b8965c);
+    border-block-end-color: var(--mobile-drawer-accent, #b8965c);
+  }
+
+  .custom-header__mobile-tab:focus-visible {
+    outline: 2px solid var(--mobile-drawer-accent, #b8965c);
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-panels {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--padding-sm) var(--padding-md) var(--padding-lg);
+  }
+
+  .custom-header__mobile-panel--hidden,
+  .custom-header__mobile-panel[hidden] {
+    display: none !important;
+  }
+
+  .custom-header__mobile-panel-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xl);
+  }
+
+  .custom-header__mobile-row-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    padding: var(--padding-md) 0;
+    color: inherit;
+    text-decoration: none;
+    font-family: var(--font-heading--family, inherit);
+    font-size: 1rem;
+  }
+
+  .custom-header__mobile-row-arrow {
+    flex-shrink: 0;
+    opacity: 0.65;
+  }
+
+  .custom-header__mobile-details-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    padding: var(--padding-md) 0;
+    cursor: pointer;
+    font-family: var(--font-heading--family, inherit);
+    font-size: 1rem;
+    list-style: none;
+  }
+
+  .custom-header__mobile-details-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .custom-header__mobile-chevron {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-inline-end: 2px solid currentcolor;
+    border-block-end: 2px solid currentcolor;
+    transform: rotate(45deg);
+    margin-block-end: 0.15rem;
+    opacity: 0.7;
+    transition:
+      transform 0.38s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .custom-header__mobile-details[open] .custom-header__mobile-chevron {
+    transform: rotate(-135deg);
+    margin-block-start: 0.2rem;
+    color: var(--mobile-drawer-accent, #b8965c);
+    border-color: var(--mobile-drawer-accent, #b8965c);
+  }
+
+  .custom-header__mobile-details[open] .custom-header__mobile-details-summary {
+    color: var(--mobile-drawer-accent, #b8965c);
+  }
+
+  /*
+   * Smooth accordion: grid 0fr → 1fr (override closed <details> content hiding).
+   * Inner wrapper clips overflow so row height animates.
+   */
+  .custom-header__mobile-details > .custom-header__mobile-details-body {
+    display: grid !important;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.38s ease;
+  }
+
+  .custom-header__mobile-details[open] > .custom-header__mobile-details-body {
+    grid-template-rows: 1fr;
+  }
+
+  .custom-header__mobile-details-body-inner {
+    min-height: 0;
+    overflow: hidden;
+    padding-block-end: var(--padding-md);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .custom-header__mobile-details > .custom-header__mobile-details-body {
+      transition: none;
+    }
+  }
+
+  .custom-header__mobile-l3-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gap-md) var(--gap-sm);
+  }
+
+  .custom-header__mobile-l3-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-xs);
+    padding-inline: clamp(0.25rem, 10%, 0.75rem);
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    font-family: var(--font-body--family, inherit);
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .custom-header__mobile-l3-media {
+    display: block;
+    width: 78%;
+    max-width: 4.75rem;
+    margin-inline: auto;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgb(var(--color-foreground-rgb, 18 18 18) / 0.06);
+    padding: 5px;
+    box-sizing: border-box;
+  }
+
+  .custom-header__mobile-l3-media .custom-header__mobile-l3-img,
+  .custom-header__mobile-l3-media .custom-header__mobile-l3-placeholder {
+    border-radius: 50%;
+  }
+
+  .custom-header__mobile-l3-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .custom-header__mobile-l3-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      rgb(var(--color-foreground-rgb, 18 18 18) / 0.08),
+      rgb(var(--color-foreground-rgb, 18 18 18) / 0.02)
+    );
+  }
+
+  .custom-header__mobile-l3-label {
+    display: block;
+    max-width: 100%;
+    padding-inline: 2px;
+  }
+
+  .custom-header__mobile-drawer-footer {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--padding-lg) var(--padding-md);
+    border-block-start: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+    background: var(--color-background, #fff);
+  }
+
+  .custom-header__mobile-footer-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap-xs);
+    font-family: var(--font-heading--family, inherit);
+    font-style: var(--font-heading--style, inherit);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .custom-header__mobile-footer-link:focus-visible {
+    outline: 2px solid var(--mobile-drawer-accent, #b8965c);
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-footer-arrow {
+    font-size: 1em;
+  }
+
+  .custom-header__mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    padding: var(--padding-sm) var(--padding-md);
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+    flex-shrink: 0;
+  }
+
+  .custom-header__mobile-drawer-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .custom-header__mobile-drawer-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--minimum-touch-target, 44px);
+    min-height: var(--minimum-touch-target, 44px);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .custom-header__mobile-drawer-close:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-drawer-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--padding-sm) var(--padding-md) var(--padding-xl);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-header__mobile-drawer-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2xs);
+  }
+
+  .custom-header__mobile-drawer-link,
+  .custom-header__mobile-drawer-sublink {
+    display: block;
+    padding-block: var(--padding-sm);
+    padding-inline: var(--padding-2xs);
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--style-border-radius-inputs, 4px);
+  }
+
+  .custom-header__mobile-drawer-link:focus-visible,
+  .custom-header__mobile-drawer-sublink:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-drawer-sub {
+    margin-block-start: var(--gap-2xs);
+    margin-inline-start: var(--padding-md);
+    padding-inline-start: var(--padding-sm);
+    border-inline-start: 2px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+  }
+
+  .custom-header__mobile-drawer-sublink {
+    font-size: 0.9375rem;
+    opacity: 0.92;
+  }
+
+  /* Right search panel — full screen, slides in from the right */
+  .custom-header__mobile-search-panel {
+    position: fixed;
+    top: var(--custom-header-mobile-portal-top, 0px);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    z-index: var(--custom-header-portal-panel-z, 100001);
+    background: var(--color-background, #fff);
+    color: var(--color-foreground, #121212);
+    box-shadow: none;
+    transform: translate3d(100%, 0, 0);
+    transition:
+      transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      top 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .custom-header__mobile-search-panel.is-open {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+
+  .custom-header__mobile-search-panel:not(.is-open) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .custom-header__mobile-search-panel-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .custom-header__mobile-search-panel-header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-sm);
+    padding: var(--padding-sm) var(--padding-md);
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.12);
+    flex-shrink: 0;
+  }
+
+  .custom-header__mobile-search-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm);
+    min-width: 0;
+  }
+
+  .custom-header__mobile-search-input {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--padding-sm) var(--padding-md);
+    border: var(--style-border-width-inputs, 1px) solid
+      rgb(var(--color-foreground-rgb, 18 18 18) / 0.2);
+    border-radius: var(--style-border-radius-inputs, 4px);
+    font: inherit;
+    background: var(--color-input-background, #fff);
+    color: inherit;
+  }
+
+  .custom-header__mobile-search-input:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-search-submit {
+    align-self: flex-start;
+  }
+
+  .custom-header__mobile-search-panel-close {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--minimum-touch-target, 44px);
+    min-height: var(--minimum-touch-target, 44px);
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .custom-header__mobile-search-panel-close:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .custom-header__mobile-search-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--padding-md);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-header__mobile-search-section {
+    margin-block-end: var(--padding-lg);
+  }
+
+  .custom-header__mobile-search-section-title {
+    margin: 0 0 var(--padding-sm);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+
+  .custom-header__mobile-search-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-xs);
+  }
+
+  .custom-header__mobile-search-chip {
+    display: inline-block;
+    padding: var(--padding-2xs) var(--padding-sm);
+    border-radius: 999px;
+    border: 1px solid rgb(var(--color-foreground-rgb, 18 18 18) / 0.15);
+    color: inherit;
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  .custom-header__mobile-search-links a {
+    display: block;
+    padding-block: var(--padding-xs);
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .custom-header__mobile-search-hint {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.75;
+    line-height: 1.4;
+  }
+}
+
+@media screen and (min-width: 750px) {
+  .custom-header__mobile-portals,
+  .custom-header__overlay,
+  .custom-header__mobile-drawer,
+  .custom-header__mobile-search-panel {
+    display: none !important;
+  }
+
+  .custom-header__mobile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .custom-header__mobile-bottom {
+    display: none !important;
+  }
+
+  .custom-header__mobile-top {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .custom-header__mobile-top .custom-header__menu-toggle {
+    display: none !important;
+  }
+
+  .custom-header__mobile-top .custom-header__logo-row {
+    flex: 1 1 auto;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Horizon / editorial menu blocks (desktop): mega menus need visible overflow */
+  .custom-header[data-header-menu-root],
+  .custom-header[data-header-menu-root] .custom-header__shell,
+  .custom-header[data-header-menu-root] .custom-header__primary,
+  .custom-header[data-header-menu-root] .custom-header__lower {
+    overflow: visible;
+  }
+
+  .custom-header__horizon-menu {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .custom-header__horizon-menu .header-menu {
+    width: 100%;
+    height: auto;
+  }
+
+  /*
+   * Horizon editorial: `.menu-list__list` uses `justify-content: var(--grid-area-alignment)`.
+   * Custom header has no #header-component, so the variable is unset → links align start.
+   */
+  .custom-header[data-header-menu-root] {
+    --grid-area-alignment: center;
+    /* --custom-header-mega-gap, --custom-header-compact-*, --custom-header-compact-submenu-width: Custom header section (inline on <header>) */
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__list {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .custom-header__horizon-menu .menu-list {
+    justify-content: center;
+  }
+
+  /*
+   * Keep the desktop menu in the actual center grid column so it stays visually centered
+   * against the full header width. The mega panel itself is already viewport-anchored with
+   * position: fixed below, so the menu strip no longer needs to span extra grid columns.
+   */
+  .custom-header[data-header-menu-root] .custom-header__lower .custom-header__horizon-menu {
+    grid-column: 2;
+    justify-self: center;
+    width: auto;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .custom-header[data-header-menu-root][data-header-state='minimized'] .custom-header__lower .custom-header__horizon-menu,
+  .custom-header[data-header-menu-root][data-header-state='hidden'] .custom-header__lower .custom-header__horizon-menu {
+    max-width: 100%;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+
+  /* Stack mega panels with the rest of the custom header chrome (above hero / page content). */
+  .custom-header[data-header-menu-root] .custom-header__lower {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/*
+ * Editorial / Horizon mega menus — custom header layout differs from #header-component:
+ * Horizon sets --full-open-header-height from the whole header node; here that is the full
+ * <header> (logo + search + nav), which breaks `top` + clip-path + inner translateY math.
+ * Vertical position: `top: calc(100% + gap)` — anchored to the bottom of `.custom-header`
+ * (transform = fixed CB). No negative overlap and no upward ::before bridge, so the tray does
+ * not sit on top of the header chrome (unlike `100% - 1px` + hover bridge).
+ *
+ * Fixed positioning + full viewport width avoids broken `left: 50%` / margin breakout math
+ * (percentage margins are relative to the list item, not the viewport).
+ */
+@media screen and (min-width: 750px) {
+  /*
+   * In the stock theme, hovering the submenu itself is enough to keep it visible.
+   * With the custom fixed-position tray, that can leave panels visually stuck open
+   * after the trigger item has already deactivated. For the custom header, only the
+   * actively expanded top-level item should control submenu visibility.
+   */
+  .custom-header[data-header-menu-root] .header-menu:not([aria-expanded='true']) .menu-list__submenu {
+    visibility: hidden !important;
+    pointer-events: none;
+    --submenu-content-opacity: 0;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__list-item:not(:has([aria-expanded='true'])) > .menu-list__submenu {
+    visibility: hidden !important;
+    pointer-events: none;
+    --submenu-content-opacity: 0;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__list-item:has([aria-expanded='true']) > .menu-list__submenu {
+    visibility: visible;
+    pointer-events: auto;
+    --submenu-content-opacity: 1;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu,
+  .custom-header[data-header-menu-root] .overflow-menu::part(overflow) {
+    /*
+     * Above in-header UI such as the desktop search dropdown (z-index: 20 in this section)
+     * so the mega surface stays one coherent layer with the custom header chrome.
+     */
+    z-index: 20;
+    background-color: #ffffff;
+    box-sizing: border-box;
+
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    bottom: auto;
+    clip-path: none !important;
+    border-bottom-left-radius: var(--custom-header-mega-panel-radius-bottom, 12px);
+    border-bottom-right-radius: var(--custom-header-mega-panel-radius-bottom, 12px);
+    /* Positive Y + negative spread: shadow sits under the panel, not hazy toward the header */
+    box-shadow: var(--custom-header-mega-panel-shadow, 0 10px 22px -8px rgb(0 0 0 / 0.12));
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact),
+  .custom-header[data-header-menu-root] .overflow-menu::part(overflow) {
+    top: calc(100% + var(--custom-header-mega-gap, 0px));
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu {
+    padding-inline: 0;
+  }
+
+  .custom-header[data-header-menu-root] .overflow-menu::part(overflow) {
+    padding-block: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-inline: var(--custom-header-mega-padding-inline, 2.25rem);
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact {
+    top: calc(100% + var(--custom-header-compact-gap, var(--custom-header-mega-gap, 0px)));
+    left: clamp(
+      var(--section-padding-inline, 0px),
+      calc(var(--custom-header-mega-left, 0px) - var(--padding-sm)),
+      calc(
+        100vw - var(
+            --custom-header-compact-submenu-width,
+            min(26rem, calc(100vw - (2 * var(--section-padding-inline, 0px))))
+          ) - var(--section-padding-inline, 0px)
+      )
+    );
+    right: auto;
+    width: var(
+      --custom-header-compact-submenu-width,
+      min(26rem, calc(100vw - (2 * var(--section-padding-inline, 0px))))
+    );
+    max-width: var(
+      --custom-header-compact-submenu-width,
+      min(26rem, calc(100vw - (2 * var(--section-padding-inline, 0px))))
+    );
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu-inner {
+    background-color: #ffffff;
+    --submenu-padding-block-start: var(--custom-header-mega-padding-block, 1.5rem);
+    --submenu-padding-block-end: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-block-start: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-block-end: var(--custom-header-mega-padding-block, 1.5rem);
+    padding-inline: var(--custom-header-mega-padding-inline, 2.25rem);
+    /* Horizon animates translateY from --full-open-header-height; that variable is wrong here */
+    transform: none !important;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .menu-list__submenu-inner {
+    --submenu-padding-block-start: var(--custom-header-compact-padding-block, var(--padding-md));
+    --submenu-padding-block-end: var(--custom-header-compact-padding-block, var(--padding-md));
+    padding-inline: var(--custom-header-compact-padding-inline, var(--padding-lg));
+    padding-block-start: var(--custom-header-compact-padding-block, var(--padding-md));
+    padding-block-end: var(--custom-header-compact-padding-block, var(--padding-md));
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .menu-list__submenu-inner,
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu.section {
+    background-color: transparent;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu.section {
+    display: block;
+    width: 100%;
+    max-width: none;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu__grid--sidebar {
+    width: 100%;
+    max-width: none;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu:not(.menu-list__submenu--compact) .mega-menu-sidebar {
+    box-shadow: none;
+    padding-block-end: 0;
+    background-color: transparent;
+  }
+
+  /*
+   * Compact tray: Horizon `.section` is a 3-column page grid; children default to `grid-column: 2`,
+   * which traps the simple dropdown in the center track — huge empty band beside the links.
+   * Stack block layout here so the list uses the full panel width (padding still from submenu-inner).
+   */
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu.section,
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu-simple.section {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu__grid,
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu-simple {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu__grid {
+    display: block;
+  }
+
+  .custom-header[data-header-menu-root] .menu-list__submenu--compact .mega-menu-simple__nav {
+    max-width: none;
+    width: 100%;
+  }
+
+  .custom-header[data-header-menu-root] .mega-menu.section,
+  .custom-header[data-header-menu-root] .mega-menu-sidebar,
+  .custom-header[data-header-menu-root] .mega-menu-simple {
+    background-color: #ffffff;
+  }
+
+  @media screen and (min-width: 750px) and (max-height: 700px) {
+    .custom-header[data-header-menu-root] {
+      --custom-header-mega-padding-block: 1rem;
+      --custom-header-mega-padding-inline: 1.5rem;
+      --custom-header-compact-padding-block: 0.75rem;
+      --custom-header-compact-padding-inline: 1rem;
+    }
+
+    .custom-header .custom-header__logo-img {
+      max-width: 36px;
+      max-height: 36px;
+    }
+
+    .custom-header[data-header-menu-root] .header-menu {
+      --menu-top-level-font-size-desktop: 0.95rem;
+    }
+
+    .custom-header[data-header-menu-root] .menu-list__link-title {
+      padding-inline: 0.4rem;
+    }
+
+    .custom-header .custom-header__desktop-search-form,
+    .custom-header .custom-header__desktop-search-default-btn {
+      min-height: 42px;
+    }
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) {
+    --color-foreground: var(--custom-header-color-text-solid);
+    --color-foreground-rgb: var(--custom-header-foreground-rgb-solid);
+    --color-account-icon: var(--custom-header-color-text-solid);
+    color: var(--custom-header-color-text-solid);
+    background: var(--custom-header-bg-solid, #ffffff);
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__primary,
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__primary-inner,
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__lower {
+    background: var(--custom-header-bg-solid, #ffffff);
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__primary {
+    box-shadow: none;
+    border-block-end: 0;
+  }
+
+  .custom-header[data-header-menu-root]:has(.header-menu[aria-expanded='true']) .custom-header__lower {
+    gap: 0;
+  }
+
+  .custom-header[data-header-menu-root][data-header-state='minimized'],
+  .custom-header[data-header-menu-root][data-header-state='hidden'] {
+    z-index: 30;
+  }
+
+  .custom-header[data-header-menu-root][data-header-state='minimized'] .custom-header__primary,
+  .custom-header[data-header-menu-root][data-header-state='minimized'] .custom-header__primary-inner,
+  .custom-header[data-header-menu-root][data-header-state='hidden'] .custom-header__primary,
+  .custom-header[data-header-menu-root][data-header-state='hidden'] .custom-header__primary-inner {
+    position: relative;
+    z-index: 31;
+  }
+}
+
+/* Body scroll lock when a mobile panel is open (class on html) */
+html.custom-header-scroll-lock,
+html.custom-header-scroll-lock body {
+  overflow: hidden;
+  touch-action: none;
+}
+
+html.custom-header-scroll-lock {
+  height: 100%;
+}

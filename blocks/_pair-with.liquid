@@ -1,0 +1,657 @@
+{%- doc -%}
+  Pair With — complementary products (metafield, recommendations, or collection).
+  Add inside a Group block on the product page. Uses parent section id for recommendations fetch.
+
+  Metafield (product): namespace `custom`, key `pair_with_products` — type **List of products** (recommended), or `pair_with_product` for a single **Product** reference.
+  On the PDP, `closest.product` is used; if it is blank in the editor, the theme falls back to the global `product` object.
+{%- enddoc -%}
+
+{% stylesheet %}
+  .pair-with {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .pair-with[hidden] {
+    display: none;
+  }
+
+  .pair-with__section {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .pair-with__header {
+    margin: 0 0 var(--padding-sm);
+  }
+
+  /* Match Custom accordion / Shipping row header typography */
+  .pair-with__heading {
+    margin: 0;
+    font-family: var(--font-body--family);
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-transform: none;
+    color: rgb(var(--color-foreground));
+  }
+
+  @media screen and (min-width: 750px) {
+    .pair-with__heading {
+      font-size: 18px;
+    }
+  }
+
+  .pair-with__item {
+    display: grid;
+    grid-template-columns: minmax(0, clamp(6.25rem, 18vw, 8.75rem)) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.125rem;
+    padding-block: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .pair-with__item:last-child {
+    border-bottom: none;
+  }
+
+  .pair-with__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid rgb(var(--color-border-rgb) / 0.7);
+    border-radius: 0.375rem;
+    background: rgb(var(--color-background));
+  }
+
+  .pair-with__media-viewport {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .pair-with__media-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pair-with__media-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(var(--color-background));
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+
+  .pair-with__media-slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .pair-with__media-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+
+  .pair-with__media-slide--placeholder .pair-with__media-link {
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .pair-with__media-placeholder {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--color-foreground-secondary);
+  }
+
+  .pair-with__media-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .pair-with__media-nav {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(24 24 24 / 0.88);
+    color: rgb(255 255 255);
+    box-shadow: 0 0.65rem 1.25rem rgb(0 0 0 / 0.16);
+    transform: translateY(-50%);
+    transition: opacity 180ms ease;
+  }
+
+  .pair-with__media-nav--prev {
+    left: 0.625rem;
+  }
+
+  .pair-with__media-nav--next {
+    right: 0.625rem;
+  }
+
+  .pair-with__media-nav[disabled] {
+    opacity: 0.38;
+  }
+
+  .pair-with__media-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .pair-with__details {
+    min-width: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .pair-with__title {
+    margin: 0;
+    font-family: var(--font-body--family);
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.4;
+    letter-spacing: normal;
+    color: rgb(var(--color-foreground));
+  }
+
+  .pair-with__title-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .pair-with__title-link:hover,
+  .pair-with__title-link:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.14em;
+  }
+
+  .pair-with__price {
+    font-family: var(--font-body--family);
+    font-size: 16px;
+    line-height: 1.4;
+    color: rgb(var(--color-foreground));
+  }
+
+  .pair-with__price .price__regular,
+  .pair-with__price .price__sale {
+    display: block;
+  }
+
+  .pair-with__actions {
+    display: flex;
+    align-self: center;
+    justify-self: end;
+  }
+
+  .pair-with__product-form,
+  .pair-with__product-form form {
+    display: block;
+  }
+
+  .pair-with__cart-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    min-width: 3.5rem;
+    padding: 0;
+    border: 1px solid rgb(var(--color-border-rgb) / 0.38);
+    border-radius: 0.5rem;
+    background: rgb(var(--color-background));
+    color: rgb(var(--color-foreground));
+    box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.08);
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .pair-with__cart-button:hover,
+  .pair-with__cart-button:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 0.9rem 1.8rem rgb(0 0 0 / 0.12);
+    border-color: rgb(var(--color-border-rgb) / 0.6);
+  }
+
+  .pair-with__cart-button:disabled,
+  .pair-with__cart-button--disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
+
+  .pair-with__cart-button:disabled:hover,
+  .pair-with__cart-button:disabled:focus-visible,
+  .pair-with__cart-button--disabled:hover,
+  .pair-with__cart-button--disabled:focus-visible {
+    transform: none;
+    box-shadow: none;
+    border-color: rgb(var(--color-border-rgb) / 0.38);
+  }
+
+  .pair-with__cart-button .add-to-cart__added {
+    inset: 0;
+  }
+
+  .pair-with__cart-icon,
+  .pair-with__cart-icon .svg-wrapper,
+  .pair-with__cart-icon svg {
+    display: inline-flex;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .pair-with__loading {
+    height: 0;
+    overflow: hidden;
+  }
+
+  .pair-with__empty {
+    min-height: 0;
+  }
+
+  @media screen and (hover: hover) and (min-width: 750px) {
+    .pair-with__media-nav {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .pair-with__media:hover .pair-with__media-nav,
+    .pair-with__media:focus-within .pair-with__media-nav {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .pair-with__item {
+      grid-template-columns: minmax(0, 6.5rem) minmax(0, 1fr) auto;
+      gap: 0.875rem;
+      padding-block: 1rem;
+    }
+
+    .pair-with__title,
+    .pair-with__price {
+      font-size: 14px;
+    }
+
+    .pair-with__cart-button {
+      width: 3rem;
+      height: 3rem;
+      min-width: 3rem;
+      border-radius: 0.45rem;
+    }
+
+    .pair-with__media-nav {
+      width: 2.2rem;
+      height: 2.2rem;
+    }
+
+    .pair-with__media-nav--prev {
+      left: 0.5rem;
+    }
+
+    .pair-with__media-nav--next {
+      right: 0.5rem;
+    }
+  }
+{% endstylesheet %}
+
+{% liquid
+  assign pair_with_context_product = closest.product
+  if pair_with_context_product == blank
+    assign pair_with_context_product = product
+  endif
+  assign product = pair_with_context_product
+  assign heading = block.settings.heading | default: 'Pair With'
+  assign items_limit = block.settings.items_to_show | default: 4
+  assign paired_products = blank
+  assign pair_single = blank
+  assign pair_with_source = blank
+  assign should_fetch_recommendations = false
+  assign pair_mf = blank
+
+  if product != blank
+    assign pair_mf = product.metafields.custom.pair_with_products
+    if pair_mf == blank or pair_mf.value == blank
+      assign pair_mf = product.metafields.custom.pair_with_product
+    endif
+
+    if pair_mf != blank and pair_mf.value != blank
+      if pair_mf.list?
+        assign paired_products = pair_mf.value
+        assign pair_with_source = 'metafield'
+      elsif pair_mf.type == 'product_reference'
+        assign pair_single = pair_mf.value
+        assign pair_with_source = 'metafield'
+      endif
+    endif
+  endif
+
+  if pair_with_source != 'metafield'
+    if recommendations.performed
+    if recommendations.products_count > 0
+      assign paired_products = recommendations.products
+      assign pair_with_source = 'recommendations'
+      elsif block.settings.fallback_collection != blank
+        assign paired_products = block.settings.fallback_collection.products
+      assign pair_with_source = 'collection'
+    endif
+  elsif product != blank
+    assign should_fetch_recommendations = true
+    elsif block.settings.fallback_collection != blank
+      assign paired_products = block.settings.fallback_collection.products
+    assign pair_with_source = 'collection'
+    endif
+  endif
+
+  assign rendered_ids = '|'
+  assign rendered_count = 0
+%}
+
+{% capture pair_with_cards %}
+  {% if paired_products != blank %}
+    {% for paired_product in paired_products %}
+      {% if rendered_count >= items_limit %}
+        {% break %}
+      {% endif %}
+
+      {% if paired_product == blank or paired_product.id == product.id %}
+        {% continue %}
+      {% endif %}
+
+      {% assign product_token = '|' | append: paired_product.id | append: '|' %}
+      {% if rendered_ids contains product_token %}
+        {% continue %}
+      {% endif %}
+
+      {% assign rendered_ids = rendered_ids | append: paired_product.id | append: '|' %}
+      {% assign rendered_count = rendered_count | plus: 1 %}
+
+      {% render 'pair-with-item', paired_product: paired_product, block: block, section: section %}
+    {% endfor %}
+  {% elsif pair_single != blank %}
+    {% assign paired_product = pair_single %}
+    {% if paired_product != blank and paired_product.id != product.id and rendered_count < items_limit %}
+      {% render 'pair-with-item', paired_product: paired_product, block: block, section: section %}
+    {% endif %}
+  {% endif %}
+{% endcapture %}
+
+{% liquid
+  assign has_cards = false
+  if pair_with_cards != blank
+    assign has_cards = true
+  endif
+
+  assign hide_section = false
+  if has_cards == false and should_fetch_recommendations == false and block.settings.hide_when_empty
+    assign hide_section = true
+  endif
+%}
+
+<pair-with-section
+  class="pair-with"
+  data-pair-with-root
+  data-section-id="{{ section.id }}"
+  data-block-id="{{ block.id }}"
+  data-source="{{ pair_with_source }}"
+  data-fetch-recommendations="{{ should_fetch_recommendations }}"
+  data-hide-when-empty="{{ block.settings.hide_when_empty }}"
+  data-recommendations-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ items_limit }}&intent=complementary"
+  data-has-cards="{{ has_cards }}"
+  {% if hide_section %}
+    hidden
+  {% endif %}
+  {{ block.shopify_attributes }}
+>
+  <div class="pair-with__section">
+    {% if heading != blank %}
+      <div class="pair-with__header">
+        <h2 class="pair-with__heading">{{ heading | escape }}</h2>
+      </div>
+    {% endif %}
+
+    {% if has_cards %}
+      <div
+        class="pair-with__list"
+        role="list"
+      >
+        {{ pair_with_cards }}
+      </div>
+    {% elsif should_fetch_recommendations %}
+      <div class="pair-with__loading" aria-hidden="true"></div>
+    {% elsif block.settings.hide_when_empty == false %}
+      <div class="pair-with__empty"></div>
+    {% endif %}
+  </div>
+</pair-with-section>
+
+{% javascript %}
+  (function () {
+    'use strict';
+
+    var selectors = {
+      section: '[data-pair-with-root]',
+      item: '[data-pair-with-item]',
+      carousel: '[data-pair-with-carousel]',
+      slide: '[data-pair-with-slide]',
+      prev: '[data-pair-with-prev]',
+      next: '[data-pair-with-next]',
+    };
+
+    function initItem(item) {
+      if (item.dataset.pairWithItemReady === 'true') return;
+      item.dataset.pairWithItemReady = 'true';
+
+      var carousel = item.querySelector(selectors.carousel);
+      var slides = carousel ? Array.from(carousel.querySelectorAll(selectors.slide)) : [];
+      var prevButton = carousel ? carousel.querySelector(selectors.prev) : null;
+      var nextButton = carousel ? carousel.querySelector(selectors.next) : null;
+
+      if (!carousel || !slides.length) return;
+
+      var currentIndex = slides.findIndex(function (slide) {
+        return slide.classList.contains('is-active');
+      });
+
+      if (currentIndex < 0) currentIndex = 0;
+
+      var update = function () {
+        slides.forEach(function (slide, slideIndex) {
+          var isActive = slideIndex === currentIndex;
+          slide.classList.toggle('is-active', isActive);
+          slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
+
+        if (prevButton) prevButton.disabled = currentIndex === 0;
+        if (nextButton) nextButton.disabled = currentIndex === slides.length - 1;
+      };
+
+      if (slides.length <= 1 || !prevButton || !nextButton) {
+        update();
+        return;
+      }
+
+      prevButton.addEventListener('click', function () {
+        currentIndex = Math.max(0, currentIndex - 1);
+        update();
+      });
+
+      nextButton.addEventListener('click', function () {
+        currentIndex = Math.min(slides.length - 1, currentIndex + 1);
+        update();
+      });
+
+      update();
+    }
+
+    async function fetchRecommendations(section) {
+      if (section.dataset.fetching === 'true' || !section.dataset.recommendationsUrl) return;
+      section.dataset.fetching = 'true';
+
+      try {
+        var response = await fetch(section.dataset.recommendationsUrl, {
+          credentials: 'same-origin',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Pair With request failed with status ' + response.status);
+        }
+
+        var html = await response.text();
+        var documentFragment = new DOMParser().parseFromString(html, 'text/html');
+        var selector =
+          selectors.section +
+          '[data-section-id="' +
+          section.dataset.sectionId +
+          '"][data-block-id="' +
+          section.dataset.blockId +
+          '"]';
+        var replacement = documentFragment.querySelector(selector);
+
+        if (replacement) {
+          section.replaceWith(replacement);
+          initSection(replacement);
+          return;
+        }
+      } catch (error) {
+        console.error('Pair With recommendations error:', error);
+      }
+
+      if (section.dataset.hasCards !== 'true' && section.dataset.hideWhenEmpty === 'true') {
+        section.hidden = true;
+      }
+
+      section.dataset.fetching = 'false';
+    }
+
+    function initSections(scope) {
+      var root = scope || document;
+      var sections = [];
+
+      if (root instanceof HTMLElement && root.matches(selectors.section)) {
+        sections.push(root);
+      }
+
+      if (root.querySelectorAll) {
+        sections = sections.concat(Array.from(root.querySelectorAll(selectors.section)));
+      }
+
+      sections.forEach(function (section) {
+        initSection(section);
+      });
+    }
+
+    function initSection(section) {
+      if (!section || section.dataset.pairWithInitialized === 'true') return;
+      section.dataset.pairWithInitialized = 'true';
+
+      section.querySelectorAll(selectors.item).forEach(function (item) {
+        initItem(item);
+      });
+
+      if (section.dataset.fetchRecommendations === 'true') {
+        fetchRecommendations(section);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        initSections(document);
+      });
+    } else {
+      initSections(document);
+    }
+
+    document.addEventListener('shopify:section:load', function (event) {
+      if (!(event.target instanceof HTMLElement)) return;
+      initSections(event.target);
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:names.pair_with",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Pair With"
+    },
+    {
+      "type": "range",
+      "id": "items_to_show",
+      "label": "Items to show",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "collection",
+      "id": "fallback_collection",
+      "label": "Fallback collection"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_add_to_cart",
+      "label": "Show add to cart",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_quick_add",
+      "label": "Enable quick add for single-variant products",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_when_empty",
+      "label": "Hide when empty",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.pair_with",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,97 @@
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<section
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }}"
+  style="padding-block-start: {{ section.settings.padding_block_start }}px; padding-block-end: {{ section.settings.padding_block_end }}px;"
+  data-testid="editorial-impact-bar"
+  {{ section.shopify_attributes }}
+>
+  <div class="editorial-placeholder">
+    <h2>{{ section.settings.heading | escape }}</h2>
+    <div class="rte">
+      {{ section.settings.body }}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Editorial Impact Bar",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Future dynamic content"
+    },
+    {
+      "type": "paragraph",
+      "content": "Shared brand metrics: reference a Stats or Impact metaobject via a product metafield (or theme-level setting). Use product metafields when impact numbers differ per product or variant."
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Impact Bar"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Placeholder copy",
+      "default": "<p>Placeholder section for future impact content.</p>"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "Page"
+        },
+        {
+          "value": "full-width",
+          "label": "Full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial Impact Bar",
+      "category": "Editorial"
+    }
+  ]
+}
+{% endschema %}

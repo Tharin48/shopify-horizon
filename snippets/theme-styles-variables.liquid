@@ -352,6 +352,15 @@
       endfor
     %}
 
+    /* Fixed h2 scale on small / medium viewports (overrides theme type preset above) */
+    @media screen and (max-width: 749px) {
+      --font-h2--size: 1.25rem; /* 20px */
+    }
+
+    @media screen and (min-width: 750px) and (max-width: 989px) {
+      --font-h2--size: 1.5rem; /* 24px */
+    }
+
     /* Hardcoded font sizes */
     --font-size--3xs: 0.625rem;
     --font-size--2xs: 0.75rem;

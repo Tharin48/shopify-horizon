@@ -1,0 +1,27 @@
+{%- doc -%}
+  Compact vertical dropdown for top-level items (e.g. Explore) when sidebar mega is enabled.
+
+  @param {object} parent_link - Top-level link with children.
+  @param {object} section - Parent section.
+{%- enddoc -%}
+
+<div class="mega-menu-simple section section--full-width-margin section--{{ section.settings.section_width }}">
+  <nav class="mega-menu-simple__nav" aria-label="{{ parent_link.title | escape }}">
+    <ul class="mega-menu-simple__list list-unstyled" role="list">
+      {% for child in parent_link.links %}
+        <li class="mega-menu-simple__item">
+          <a href="{{ child.url }}" class="mega-menu-simple__link">{{ child.title | escape }}</a>
+          {% if child.links != blank %}
+            <ul class="mega-menu-simple__sub list-unstyled" role="list">
+              {% for grand in child.links %}
+                <li>
+                  <a href="{{ grand.url }}" class="mega-menu-simple__sublink">{{ grand.title | escape }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+</div>

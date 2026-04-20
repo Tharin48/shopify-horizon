@@ -6,7 +6,14 @@
   @param {number} width - The width setting from block.settings.width
   @param {string} class_name - CSS class name for the rendered element
   @param {object} [attributes] - Additional HTML attributes to add to the element
+  @param {boolean} [css_controlled_size] - When true, omit fixed SVG dimensions and image inline width so parent CSS controls size
 {%- enddoc -%}
+
+{%- liquid
+  if css_controlled_size != true
+    assign css_controlled_size = false
+  endif
+-%}
 
 {%- if icon != 'none' and image_upload == blank -%}
   <svg
@@ -14,8 +21,10 @@
     aria-hidden="true"
     focusable="false"
     xmlns="http://www.w3.org/2000/svg"
-    width="{{ width }}"
-    height="{{ width }}"
+    {% if css_controlled_size == false %}
+      width="{{ width }}"
+      height="{{ width }}"
+    {% endif %}
     viewBox="0 0 20 20"
     {% if attributes %}
       {{ attributes }}
@@ -31,10 +40,18 @@
     assign widths = '240, 352, 832, 1200'
   %}
 
-  {% assign image_style = 'width: ' | append: width | append: 'px;' %}
-  {{
-    image_upload
-    | image_url: width: 1200
-    | image_tag: widths: widths, class: class_name, style: image_style, sizes: sizes
-  }}
+  {% if css_controlled_size %}
+    {{
+      image_upload
+      | image_url: width: 1200
+      | image_tag: widths: widths, class: class_name, sizes: sizes
+    }}
+  {% else %}
+    {% assign image_style = 'width: ' | append: width | append: 'px;' %}
+    {{
+      image_upload
+      | image_url: width: 1200
+      | image_tag: widths: widths, class: class_name, style: image_style, sizes: sizes
+    }}
+  {% endif %}
 {%- endif -%}

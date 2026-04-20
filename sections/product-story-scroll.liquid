@@ -1,0 +1,977 @@
+{% comment %}
+  Product Story Scroll — stories from product.metafields.custom.product_stories (metaobjects).
+  Optional desktop: sticky scroll “chapters” — image curtain (bottom→top), then copy (see enable_scroll_animation).
+  Mobile: horizontal scroll carousel (optional stack). Decorative BGs: section settings only, non-content.
+{% endcomment %}
+
+{% liquid
+  assign stories = blank
+  if product != blank
+    assign stories_mf = product.metafields.custom.product_stories
+    if stories_mf != blank and stories_mf.value != blank
+      assign stories = stories_mf.value
+    endif
+  endif
+
+  assign has_stories = false
+  if stories != blank
+    if stories.size != blank and stories.size > 0
+      assign has_stories = true
+    elsif stories.count != blank and stories.count > 0
+      assign has_stories = true
+    endif
+  endif
+
+  assign show_placeholder = false
+  if has_stories == false
+    if request.design_mode or request.visual_preview_mode
+      assign show_placeholder = true
+    endif
+  endif
+
+  assign story_count = 0
+  if has_stories
+    assign story_count = stories.size
+  elsif show_placeholder
+    assign story_count = 1
+  endif
+
+  assign curtain_mode = false
+  if section.settings.enable_scroll_animation and story_count > 0
+    assign curtain_mode = true
+  endif
+
+  assign section_heading = section.settings.section_heading | default: 'A Tea with a Story'
+  assign carousel_off_class = ''
+  unless section.settings.mobile_enable_carousel
+    assign carousel_off_class = ' product-story-scroll--carousel-off'
+  endunless
+
+  assign region_label = section_heading | default: 'Stories'
+
+  assign section_modifiers = ''
+  if curtain_mode
+    assign section_modifiers = ' product-story-scroll--curtain'
+  endif
+
+  assign story_transitions = story_count | minus: 1
+  if story_transitions < 0
+    assign story_transitions = 0
+  endif
+
+  capture heading_markup
+    if section_heading != blank
+      echo '<h2 class="product-story-scroll__heading">'
+      echo section_heading | escape
+      echo '</h2>'
+    endif
+  endcapture
+-%}
+
+{% if has_stories or show_placeholder %}
+  <div class="section-background color-{{ section.settings.color_scheme }}"></div>
+  <section
+    class="section section--full-width disable-section-top-offset product-story-scroll{{ carousel_off_class }}{{ section_modifiers }} color-{{ section.settings.color_scheme }}"
+    data-stories="{{ story_count }}"
+    style="
+      --product-story-card-bg: {{ section.settings.card_background_color }};
+      --product-story-max-width: {% if section.settings.section_max_width > 0 %}{{ section.settings.section_max_width }}px{% else %}100%{% endif %};
+      --product-story-max-height: {{ section.settings.section_max_height | default: 960 }}px;
+      --product-story-left-decor-offset-x: {{ section.settings.left_decorative_offset_x | default: 0 }}px;
+      --product-story-outer-left-desktop: {{ section.settings.desktop_padding_left | default: 16 }}px;
+      --product-story-outer-right-desktop: {{ section.settings.desktop_padding_right | default: 16 }}px;
+      --product-story-outer-top-desktop: {{ section.settings.desktop_padding_top | default: 24 }}px;
+      --product-story-outer-bottom-desktop: {{ section.settings.desktop_padding_bottom | default: 24 }}px;
+      --product-story-outer-left-mobile: {{ section.settings.mobile_padding_left | default: 16 }}px;
+      --product-story-outer-right-mobile: {{ section.settings.mobile_padding_right | default: 16 }}px;
+      --product-story-outer-top-mobile: {{ section.settings.mobile_padding_top | default: 24 }}px;
+      --product-story-outer-bottom-mobile: {{ section.settings.mobile_padding_bottom | default: 24 }}px;
+      --product-story-copy-pad: {{ section.settings.copy_column_padding | default: 20 }}px;
+      --story-media-pct: {{ section.settings.media_column_max_percent | default: 50 }};
+      --scroll-depth-vh: {{ section.settings.scroll_depth_vh | default: 36 }};
+    "
+    data-enable-scroll-animation="{{ section.settings.enable_scroll_animation }}"
+    data-testid="product-story-scroll"
+    {{ section.shopify_attributes }}
+  >
+    <div class="product-story-scroll__container">
+      {% if curtain_mode %}
+        <div
+          class="product-story-scroll__scrolly"
+          data-product-story-scrolly
+          style="--story-count: {{ story_count }}; --story-transitions: {{ story_transitions }}; --scroll-anchor: {{ section.settings.scroll_start_anchor | default: 10 | times: 0.01 }};"
+        >
+          <div class="product-story-scroll__sticky">
+            {{ heading_markup }}
+      {% else %}
+        {{ heading_markup }}
+      {% endif %}
+
+      {% comment %} Stage: desktop curtain scroll or single .is-active panel; mobile carousel {% endcomment %}
+      <div
+        class="product-story-scroll__stage"
+        data-product-story-stage
+        data-section-id="{{ section.id }}"
+        {% if has_stories %}
+          data-story-count="{{ stories.size }}"
+        {% else %}
+          data-story-count="0"
+        {% endif %}
+      >
+        {% comment %} Carousel region: mobile horizontal scroll; desktop track is non-scrolling {% endcomment %}
+        <div
+          class="product-story-scroll__carousel"
+          role="region"
+          aria-label="{{ region_label | escape }}"
+        >
+          <ul
+            class="product-story-scroll__track"
+            role="list"
+          >
+            {% if has_stories %}
+              {% for story in stories %}
+                {% liquid
+                  assign story_type = story.story_type.value | default: story.story_type | default: ''
+                  assign story_title = story.title.value | default: story.title | default: ''
+                  assign story_image = story.image.value | default: story.image
+                  assign panel_id = 'ProductStoryPanel-' | append: section.id | append: '-' | append: forloop.index0
+                  assign is_first = forloop.first
+                %}
+                <li
+                  id="{{ panel_id }}"
+                  class="product-story-scroll__panel{% if is_first %} is-active{% endif %}"
+                  role="listitem"
+                  data-story-index="{{ forloop.index0 }}"
+                  data-product-story-panel
+                  {% if curtain_mode %}
+                    aria-hidden="{% if is_first %}false{% else %}true{% endif %}"
+                  {% endif %}
+                >
+                  <article class="product-story-scroll__card">
+                    <div class="product-story-scroll__card-inner">
+                      <div class="product-story-scroll__col product-story-scroll__col--copy">
+                        {% if section.settings.left_decorative_bg != blank %}
+                          <div
+                            class="product-story-scroll__decor-bg product-story-scroll__decor-bg--left"
+                            style="background-image: url('{{ section.settings.left_decorative_bg | image_url: width: 1200 }}');"
+                            role="presentation"
+                            aria-hidden="true"
+                          ></div>
+                        {% endif %}
+                        {% if section.settings.right_decorative_bg != blank %}
+                          <div
+                            class="product-story-scroll__decor-bg product-story-scroll__decor-bg--right"
+                            style="background-image: url('{{ section.settings.right_decorative_bg | image_url: width: 1200 }}');"
+                            role="presentation"
+                            aria-hidden="true"
+                          ></div>
+                        {% endif %}
+                        <div class="product-story-scroll__copy">
+                          {% if story_title != blank %}
+                            <h3 class="product-story-scroll__story-title" id="{{ panel_id }}-title">
+                              {{ story_title | escape }}
+                            </h3>
+                          {% endif %}
+
+                          {% if story.content != blank %}
+                            <div
+                              class="product-story-scroll__body rte"
+                              {% if story_title != blank %}
+                                aria-labelledby="{{ panel_id }}-title"
+                              {% endif %}
+                            >
+                              {{ story.content | metafield_tag }}
+                            </div>
+                          {% endif %}
+                        </div>
+                      </div>
+
+                      <div class="product-story-scroll__col product-story-scroll__col--media">
+                        {% if story_image != blank %}
+                          <div class="product-story-scroll__figure{% if curtain_mode %} product-story-scroll__figure--curtain{% endif %}">
+                            {% liquid
+                              assign story_widths = '375, 450, 600, 750, 900, 1100, 1400'
+                              assign story_sizes = '(min-width: 750px) min(28rem, 42vw), 100vw'
+                            %}
+                            {{
+                              story_image
+                              | image_url: width: 1400
+                              | image_tag:
+                                loading: 'lazy',
+                                widths: story_widths,
+                                sizes: story_sizes,
+                                class: 'product-story-scroll__image',
+                                alt: story_title | default: story_type | default: section_heading | escape
+                            }}
+                          </div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </article>
+                </li>
+              {% endfor %}
+
+            {% elsif show_placeholder %}
+              <li
+                id="ProductStoryPanel-{{ section.id }}-0"
+                class="product-story-scroll__panel is-active product-story-scroll__panel--placeholder"
+                role="listitem"
+                data-story-index="0"
+                data-product-story-panel
+                {% if curtain_mode %}
+                  aria-hidden="false"
+                {% endif %}
+              >
+                <article class="product-story-scroll__card">
+                  <div class="product-story-scroll__card-inner">
+                    <div class="product-story-scroll__col product-story-scroll__col--copy">
+                      {% if section.settings.left_decorative_bg != blank %}
+                        <div
+                          class="product-story-scroll__decor-bg product-story-scroll__decor-bg--left"
+                          style="background-image: url('{{ section.settings.left_decorative_bg | image_url: width: 1200 }}');"
+                          role="presentation"
+                          aria-hidden="true"
+                        ></div>
+                      {% endif %}
+                      {% if section.settings.right_decorative_bg != blank %}
+                        <div
+                          class="product-story-scroll__decor-bg product-story-scroll__decor-bg--right"
+                          style="background-image: url('{{ section.settings.right_decorative_bg | image_url: width: 1200 }}');"
+                          role="presentation"
+                          aria-hidden="true"
+                        ></div>
+                      {% endif %}
+                      <div class="product-story-scroll__copy">
+                        <h3 class="product-story-scroll__story-title" id="ProductStoryPanel-{{ section.id }}-0-title">
+                          Story type — Story title
+                        </h3>
+                        <div
+                          class="product-story-scroll__body rte"
+                          aria-labelledby="ProductStoryPanel-{{ section.id }}-0-title"
+                        >
+                          <p>
+                            Add entries to <strong>product_stories</strong> on this product (list of product story metaobjects).
+                            Fields: <code>story_type</code>, <code>title</code>, <code>content</code>, <code>image</code>.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="product-story-scroll__col product-story-scroll__col--media"></div>
+                  </div>
+                </article>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+      {% if curtain_mode %}
+        </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+  {% if curtain_mode %}
+    <script src="{{ 'product-story-scroll.js' | asset_url }}" defer></script>
+  {% endif %}
+{% endif %}
+
+{% stylesheet %}
+  .product-story-scroll {
+    --product-story-card-bg-fallback: rgb(var(--color-background));
+    --product-story-sticky-top: var(--header-group-height, var(--header-height, 0px));
+    --product-story-sticky-gap: 0px;
+    --product-story-height-offset: clamp(16px, 3vh, 28px);
+    --product-story-heading-space: clamp(1.75rem, 4vh, 3rem);
+    --product-story-viewport-height: min(100svh, var(--product-story-max-height));
+    --product-story-viewport-height: min(100dvh, var(--product-story-max-height));
+    --product-story-effective-top: calc(var(--product-story-sticky-top) + var(--product-story-sticky-gap));
+    --product-story-sticky-region-height: calc(var(--product-story-viewport-height) - var(--product-story-effective-top));
+    --product-story-frame-scale: 0.9;
+    --product-story-frame-height: calc((var(--product-story-sticky-region-height) - var(--product-story-height-offset)) * var(--product-story-frame-scale));
+    --product-story-visible-height: calc(var(--product-story-frame-height) - var(--product-story-heading-space));
+    --product-story-card-min-height: var(--product-story-visible-height);
+  }
+
+  .product-story-scroll__container {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: min(var(--product-story-max-width), 100%);
+    margin-inline: auto;
+    padding-left: var(--product-story-outer-left-desktop, 0px);
+    padding-right: var(--product-story-outer-right-desktop, 0px);
+    padding-top: var(--product-story-outer-top-desktop, 0px);
+    padding-bottom: var(--product-story-outer-bottom-desktop, 0px);
+  }
+
+  /* Typography: default theme h2 (see base.css h2); only spacing here */
+  .product-story-scroll__heading {
+    margin: 0 0 var(--padding-md);
+  }
+
+  /* Stage: clips one card on desktop; mobile overflow comes from .carousel */
+  .product-story-scroll__stage {
+    position: relative;
+    width: 100%;
+  }
+
+  .product-story-scroll__carousel {
+    width: 100%;
+  }
+
+  .product-story-scroll__track {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .product-story-scroll__panel {
+    position: relative;
+    min-width: 0;
+  }
+
+  .product-story-scroll__card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--product-story-card-bg, var(--product-story-card-bg-fallback));
+    min-height: var(--product-story-card-min-height);
+  }
+
+  .product-story-scroll__card-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr minmax(0, min(calc(var(--story-media-pct, 50) * 1%), 40rem));
+    gap: 0;
+    align-items: stretch;
+    align-content: stretch;
+    min-height: inherit;
+    padding: 0;
+  }
+
+  .product-story-scroll__col {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-story-scroll__col--copy {
+    justify-content: center;
+    padding: var(--product-story-copy-pad, 1.25rem);
+    overflow: hidden;
+  }
+
+  .product-story-scroll__col--copy::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--product-story-card-bg, var(--product-story-card-bg-fallback));
+    opacity: 0;
+  }
+
+  .product-story-scroll__col--media {
+    justify-content: stretch;
+    align-self: stretch;
+    min-height: 100%;
+  }
+
+  .product-story-scroll__decor-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    user-select: none;
+    background-repeat: no-repeat;
+  }
+
+  .product-story-scroll__decor-bg--left {
+    background-position: calc(0% + var(--product-story-left-decor-offset-x, 0px)) 50%;
+    background-size: auto 118%;
+  }
+
+  .product-story-scroll__decor-bg--right {
+    background-position: right top;
+    background-size: auto 38%;
+  }
+
+  .product-story-scroll__copy {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  .product-story-scroll__figure {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 auto;
+    min-height: 12rem;
+    height: 100%;
+    border-radius: 0;
+    overflow: hidden;
+    background: rgb(var(--color-background));
+  }
+
+  @media screen and (min-width: 750px) {
+    .product-story-scroll__figure {
+      min-height: 0;
+      border-radius: 0 1rem 1rem 0;
+    }
+  }
+
+  @media screen and (min-width: 750px) and (max-height: 760px) {
+    .product-story-scroll {
+      --product-story-sticky-gap: 0px;
+      --product-story-height-offset: 32px;
+      --product-story-heading-space: 2rem;
+      --product-story-frame-scale: 0.86;
+      --product-story-frame-height: calc((var(--product-story-sticky-region-height) - var(--product-story-height-offset)) * var(--product-story-frame-scale));
+      --product-story-visible-height: calc(var(--product-story-frame-height) - var(--product-story-heading-space));
+    }
+
+    .product-story-scroll__container {
+      padding-top: min(var(--product-story-outer-top-desktop, 0px), 0.25rem);
+      padding-bottom: var(--product-story-outer-bottom-desktop, 0px);
+    }
+
+    .product-story-scroll__col--copy {
+      padding: min(var(--product-story-copy-pad, 1.25rem), 1rem);
+    }
+  }
+
+  @media screen and (min-width: 750px) and (max-height: 590px) {
+    .product-story-scroll {
+      --product-story-sticky-gap: 0px;
+      --product-story-height-offset: 24px;
+      --product-story-heading-space: 1.5rem;
+      --product-story-frame-scale: 0.8;
+      --product-story-frame-height: calc((var(--product-story-sticky-region-height) - var(--product-story-height-offset)) * var(--product-story-frame-scale));
+      --product-story-visible-height: calc(var(--product-story-frame-height) - var(--product-story-heading-space));
+    }
+
+    .product-story-scroll__container {
+      padding-top: min(var(--product-story-outer-top-desktop, 0px), 0.125rem);
+      padding-bottom: var(--product-story-outer-bottom-desktop, 0px);
+    }
+
+    .product-story-scroll__col--copy {
+      padding: min(var(--product-story-copy-pad, 1.25rem), 0.875rem);
+    }
+
+    .product-story-scroll__story-title {
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .product-story-scroll__body {
+      font-size: 0.9375rem;
+      line-height: 1.45;
+    }
+  }
+
+  .product-story-scroll__story-title {
+    margin: 0 0 var(--padding-sm);
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.125rem, 1.8vw, 1.5rem);
+    font-weight: var(--font-heading--weight);
+    line-height: 1.25;
+    color: rgb(var(--color-foreground));
+  }
+
+  .product-story-scroll__story-type {
+    color: rgb(var(--color-foreground));
+    opacity: 0.85;
+  }
+
+  .product-story-scroll__body {
+    font-family: var(--font-body--family);
+    font-size: var(--font-paragraph--size);
+    line-height: 1.55;
+    color: rgb(var(--color-foreground));
+  }
+
+  .product-story-scroll__body p:first-child {
+    margin-top: 0;
+  }
+
+  .product-story-scroll__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .product-story-scroll__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 12rem;
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  /* Desktop: sticky scroll chapters — story 1 full on load; scroll drives next stories (requires product-story-scroll.js) */
+  @media screen and (min-width: 750px) {
+    /*
+      Scroll length ≈ one viewport for the sticky card + (N-1) transition bands.
+      Single story: no extra scroll runway (removes huge empty gap below).
+    */
+    .product-story-scroll--curtain[data-stories='1'] .product-story-scroll__scrolly {
+      min-height: var(--product-story-sticky-region-height);
+    }
+
+    .product-story-scroll--curtain:not([data-stories='1']) .product-story-scroll__scrolly {
+      /* Sticky stage + compressed transition runway. Keep enough scroll distance for the curtain effect without leaving a large visible gap below the card. */
+      min-height: calc(
+        var(--product-story-sticky-region-height) +
+        (var(--story-transitions, 0) * var(--scroll-depth-vh, 36) * 0.55vh)
+      );
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__sticky {
+      position: sticky;
+      top: var(--product-story-effective-top);
+      z-index: 2;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: var(--padding-md);
+      width: 100%;
+      height: var(--product-story-sticky-region-height);
+      align-items: start;
+      overflow: clip;
+      background: rgb(var(--color-background));
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__heading {
+      margin-bottom: 0;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__stage {
+      height: var(--product-story-frame-height);
+      min-height: 0;
+      align-self: start;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__carousel,
+    .product-story-scroll--curtain .product-story-scroll__track {
+      position: relative;
+      /* Panels are position:absolute; without this the track collapses to 0. */
+      height: 100%;
+      min-height: 100%;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__track {
+      display: block;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__card,
+    .product-story-scroll--curtain .product-story-scroll__card-inner {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-future {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-past,
+    .product-story-scroll--curtain .product-story-scroll__panel.is-active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-past {
+      pointer-events: none;
+    }
+
+    /* Stacked entries (2nd+ story): transparent card so previous story’s media can show under the curtain */
+    .product-story-scroll--curtain .product-story-scroll__panel.is-active.is-stacked .product-story-scroll__card {
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-active.is-stacked .product-story-scroll__col--media {
+      background: transparent;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-active.is-stacked .product-story-scroll__col--copy {
+      align-self: stretch;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-active.is-stacked .product-story-scroll__col--copy::before,
+    .product-story-scroll--curtain .product-story-scroll__panel.is-past .product-story-scroll__col--copy::before {
+      opacity: var(--story-copy-bg-opacity, var(--story-past-copy-bg-opacity, 1));
+      border-radius: 1rem 0 0 1rem;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-past .product-story-scroll__figure--curtain {
+      clip-path: none;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__figure--curtain {
+      clip-path: inset(var(--story-curtain-inset-top, 100%) 0 0 0);
+      will-change: clip-path;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__copy {
+      opacity: var(--story-copy-opacity, var(--story-past-copy-opacity, 0));
+      will-change: opacity;
+    }
+
+    .product-story-scroll--curtain .product-story-scroll__panel.is-past .product-story-scroll__copy {
+      opacity: var(--story-past-copy-opacity, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .product-story-scroll--curtain .product-story-scroll__scrolly {
+        min-height: 0;
+      }
+
+      .product-story-scroll--curtain .product-story-scroll__sticky {
+        position: relative;
+        top: auto;
+      }
+
+      .product-story-scroll--curtain .product-story-scroll__panel {
+        position: relative;
+        inset: auto;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto;
+      }
+
+      .product-story-scroll--curtain .product-story-scroll__figure--curtain {
+        clip-path: none;
+      }
+
+      .product-story-scroll--curtain .product-story-scroll__copy {
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  /* Desktop: single visible panel when curtain scroll is off */
+  @media screen and (min-width: 750px) {
+    .product-story-scroll:not(.product-story-scroll--curtain) .product-story-scroll__stage {
+      min-height: var(--product-story-visible-height);
+    }
+
+    .product-story-scroll:not(.product-story-scroll--curtain) .product-story-scroll__track {
+      display: block;
+    }
+
+    .product-story-scroll:not(.product-story-scroll--curtain) .product-story-scroll__panel {
+      display: none;
+    }
+
+    .product-story-scroll:not(.product-story-scroll--curtain) .product-story-scroll__panel.is-active {
+      display: block;
+    }
+  }
+
+  /* Mobile: horizontal carousel — one card per viewport width; no-JS: native scroll + snap */
+  @media screen and (max-width: 749px) {
+    .product-story-scroll__container {
+      padding-left: var(--product-story-outer-left-mobile, 0px);
+      padding-right: var(--product-story-outer-right-mobile, 0px);
+      padding-top: var(--product-story-outer-top-mobile, 0px);
+      padding-bottom: var(--product-story-outer-bottom-mobile, 0px);
+    }
+
+    .product-story-scroll__heading {
+      text-align: center;
+    }
+
+    .product-story-scroll__card-inner {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .product-story-scroll__col--media {
+      order: -1;
+    }
+
+    .product-story-scroll__figure {
+      min-height: 14rem;
+      max-height: 45vh;
+      border-radius: 1rem 1rem 0 0;
+    }
+
+    .product-story-scroll__decor-bg--left {
+      background-size: auto 92%;
+    }
+
+    .product-story-scroll__decor-bg--right {
+      background-size: auto 42%;
+    }
+
+    .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__carousel {
+      overflow: hidden;
+    }
+
+    .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__track {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      gap: var(--gap-md);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--page-margin, 1rem);
+      padding-block: 0 0.75rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__panel {
+      display: block;
+      flex: 0 0 100%;
+      width: 100%;
+      min-width: 100%;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+    }
+
+    .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__card {
+      min-height: max(24rem, min(var(--product-story-visible-height), 85dvh));
+    }
+
+    /* Optional: stacked stories on small screens */
+    .product-story-scroll--carousel-off .product-story-scroll__track {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-lg);
+    }
+
+    .product-story-scroll--carousel-off .product-story-scroll__panel {
+      display: block;
+    }
+
+    .product-story-scroll--carousel-off .product-story-scroll__panel:not(.is-active) {
+      display: block;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product story scroll",
+  "tag": "section",
+  "class": "product-story-scroll-section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "Heading",
+      "default": "A Tea with a Story"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_decorative_bg",
+      "label": "Left column decorative background",
+      "info": "Optional artwork behind the text column. Not read as page content."
+    },
+    {
+      "type": "range",
+      "id": "left_decorative_offset_x",
+      "label": "Left decorative image horizontal offset",
+      "min": -320,
+      "max": 320,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "image_picker",
+      "id": "right_decorative_bg",
+      "label": "Right-side decorative background",
+      "info": "Optional artwork on the right side of the text column. Not read as page content."
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background",
+      "default": "#f7f3eb"
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Max width",
+      "min": 1200,
+      "max": 2400,
+      "step": 40,
+      "unit": "px",
+      "default": 1600
+    },
+    {
+      "type": "range",
+      "id": "section_max_height",
+      "label": "Max height",
+      "min": 560,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "default": 960
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_left",
+      "label": "Desktop padding left",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_right",
+      "label": "Desktop padding right",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_top",
+      "label": "Desktop padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_bottom",
+      "label": "Desktop padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_left",
+      "label": "Mobile padding left",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_right",
+      "label": "Mobile padding right",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "label": "Mobile padding top",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "label": "Mobile padding bottom",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "copy_column_padding",
+      "label": "Text column padding",
+      "info": "Padding around title and body only. Media stays flush to the card edge.",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "media_column_max_percent",
+      "label": "Image column width (max)",
+      "min": 38,
+      "max": 62,
+      "step": 1,
+      "unit": "%",
+      "default": 50
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Section color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_scroll_animation",
+      "label": "Sticky scroll stories (desktop)",
+      "info": "Each story uses page scroll: image reveals bottom-to-top, then text. After the last story, normal scrolling continues. Uses extra vertical space (about one viewport per story). Mobile keeps the carousel/stack layout.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "scroll_start_anchor",
+      "label": "Start story scroll when section top reaches",
+      "info": "0% = top of browser, 50% = middle of screen. Higher values delay the animation until you scroll further (card sits higher before stories advance).",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "scroll_depth_vh",
+      "label": "Scroll distance per story transition",
+      "min": 22,
+      "max": 56,
+      "step": 2,
+      "unit": "vh",
+      "default": 36
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_enable_carousel",
+      "label": "Horizontal scroll on mobile",
+      "info": "When off, stories stack vertically on small screens.",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product story scroll",
+      "category": "Story"
+    }
+  ]
+}
+{% endschema %}

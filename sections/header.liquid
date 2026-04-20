@@ -54,15 +54,27 @@
 
   # theme-check-disable UniqueStaticBlockId
   capture menu
-    content_for 'block', type: '_header-menu', id: 'header-menu'
+    if section.settings.menu_block_type == '_header-menu-editorial'
+      content_for 'block', type: '_header-menu-editorial', id: 'header-menu'
+    else
+      content_for 'block', type: '_header-menu', id: 'header-menu'
+    endif
   endcapture
 
   capture drawer_menu
-    content_for 'block', type: '_header-menu', id: 'header-menu', variant: 'mobile'
+    if section.settings.menu_block_type == '_header-menu-editorial'
+      content_for 'block', type: '_header-menu-editorial', id: 'header-menu', variant: 'mobile'
+    else
+      content_for 'block', type: '_header-menu', id: 'header-menu', variant: 'mobile'
+    endif
   endcapture
 
   capture navigation_bar
-    content_for 'block', type: '_header-menu', id: 'header-menu', variant: 'navigation_bar', transparent: transparent
+    if section.settings.menu_block_type == '_header-menu-editorial'
+      content_for 'block', type: '_header-menu-editorial', id: 'header-menu', variant: 'navigation_bar', transparent: transparent
+    else
+      content_for 'block', type: '_header-menu', id: 'header-menu', variant: 'navigation_bar', transparent: transparent
+    endif
   endcapture
   # theme-check-enable UniqueStaticBlockId
 
@@ -1157,6 +1169,23 @@
     {
       "type": "header",
       "content": "t:content.menu"
+    },
+    {
+      "type": "select",
+      "id": "menu_block_type",
+      "label": "Menu block type",
+      "info": "Must match the Menu block in the header: use _header-menu (Horizon) or _header-menu-editorial (sidebar mega). After changing this, set the same block type under Header → blocks → Menu, or edit theme JSON.",
+      "options": [
+        {
+          "value": "_header-menu",
+          "label": "Horizon (default grid mega menu)"
+        },
+        {
+          "value": "_header-menu-editorial",
+          "label": "Editorial (sidebar mega menu)"
+        }
+      ],
+      "default": "_header-menu"
     },
     {
       "type": "select",

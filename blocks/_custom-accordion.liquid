@@ -1,0 +1,271 @@
+
+{% assign block_settings = block.settings %}
+<div
+  class="custom-accordion custom-accordion--{{ block.id }} custom-accordion--plus-only border-style spacing-style{% if block_settings.inherit_color_scheme == false %} color-{{ block_settings.color_scheme }}{% endif %}{% if block_settings.dividers %} custom-accordion--dividers{% endif %}"
+  style="
+    --custom-accordion-header-mobile: {{ block_settings.header_font_size_mobile }}px;
+    --custom-accordion-header-desktop: {{ block_settings.header_font_size_desktop }}px;
+    {% render 'spacing-style', settings: block_settings %}
+    {% render 'border-override', settings: block_settings %}
+  "
+  {{ block.shopify_attributes }}
+>
+  {% content_for 'blocks' %}
+</div>
+
+{% stylesheet %}
+  .custom-accordion {
+    flex: 1;
+    width: 100%;
+  }
+
+  .custom-accordion--dividers accordion-custom:not(:first-child) .details {
+    border-block-start: var(--style-border-width) solid var(--color-border);
+  }
+
+  .custom-accordion--dividers {
+    /* stylelint-disable-next-line declaration-property-value-disallowed-list */
+    --show-fallback-borders: 0;
+  }
+
+  .custom-accordion--dividers:not([class*='color-'])[style*='--border-width: 0'],
+  .custom-accordion--dividers:not([class*='color-'])[style*='--border-style: none'] {
+    --show-fallback-borders: 1;
+  }
+
+  .custom-accordion--dividers accordion-custom:first-child .details {
+    border-block-start: calc(var(--style-border-width) * var(--show-fallback-borders)) solid var(--color-border);
+  }
+
+  .custom-accordion--dividers accordion-custom:last-child .details {
+    border-block-end: calc(var(--style-border-width) * var(--show-fallback-borders)) solid var(--color-border);
+  }
+
+  .custom-accordion--dividers .details-content {
+    padding-block-end: var(--padding-sm);
+  }
+
+  /* Plus-only: hide caret (arrow); _accordion-row still outputs both icons */
+  .custom-accordion--plus-only .details__header .svg-wrapper.icon-caret {
+    display: none !important;
+  }
+
+  .custom-accordion--plus-only .details__header .svg-wrapper.icon-plus {
+    display: flex !important;
+  }
+
+  .custom-accordion .details__header {
+    font-family: var(--font-body--family);
+    font-style: normal;
+    font-weight: 500;
+    font-size: var(--custom-accordion-header-mobile, 16px);
+    line-height: 1.4;
+    text-transform: none;
+    min-height: var(--minimum-touch-target);
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-accordion .details__header {
+      font-size: var(--custom-accordion-header-desktop, 18px);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom accordion",
+  "tag": null,
+  "class": "custom-accordion",
+  "blocks": [
+    {
+      "type": "_accordion-row"
+    }
+  ],
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Uses the same accordion rows and expand/collapse behavior. Headers use the plus icon only (no arrow). Adjust header font sizes below; weight is medium (500)."
+    },
+    {
+      "type": "header",
+      "content": "Header text size"
+    },
+    {
+      "type": "range",
+      "id": "header_font_size_mobile",
+      "label": "Mobile font size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "header_font_size_desktop",
+      "label": "Desktop font size",
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "checkbox",
+      "id": "dividers",
+      "label": "t:settings.dividers",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "inherit_color_scheme",
+      "label": "t:settings.inherit_color_scheme",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1",
+      "visible_if": "{{ block.settings.inherit_color_scheme == false }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.borders"
+    },
+    {
+      "type": "select",
+      "id": "border",
+      "label": "t:settings.style",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:options.none"
+        },
+        {
+          "value": "solid",
+          "label": "t:options.solid"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "t:settings.thickness",
+      "default": 1,
+      "visible_if": "{{ block.settings.border != \"none\" }}"
+    },
+    {
+      "type": "range",
+      "id": "border_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "t:settings.opacity",
+      "default": 100,
+      "visible_if": "{{ block.settings.border != \"none\" }}"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "t:settings.border_radius",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom accordion",
+      "category": "t:categories.product",
+      "blocks": {
+        "row-1": {
+          "type": "_accordion-row",
+          "settings": {
+            "open_by_default": false,
+            "heading": "Details"
+          },
+          "blocks": {
+            "text-1": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Add accordion content in the theme editor.</p>",
+                "width": "100%"
+              }
+            }
+          },
+          "block_order": ["text-1"]
+        },
+        "row-2": {
+          "type": "_accordion-row",
+          "settings": {
+            "heading": "Shipping"
+          },
+          "blocks": {
+            "text-1": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Shipping information placeholder.</p>",
+                "width": "100%"
+              }
+            }
+          },
+          "block_order": ["text-1"]
+        }
+      },
+      "block_order": ["row-1", "row-2"]
+    }
+  ]
+}
+{% endschema %}

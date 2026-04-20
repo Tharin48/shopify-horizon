@@ -1,0 +1,496 @@
+{% doc %}
+  Button with optional theme icon (Horizon icon set) or custom image, left/right placement.
+
+  Icons come from snippets/icon.liquid via snippets/icon-or-image.liquid — same as the Icon block.
+  Color scheme: optional inherit from parent section, or assign a scheme; button fill can use primary/secondary
+  theme button tokens (from that scheme) or custom colors.
+{% enddoc %}
+
+{% liquid
+  assign wrapper_class = 'icon-button-block'
+  if block.settings.inherit_color_scheme == false
+    assign wrapper_class = wrapper_class | append: ' color-' | append: block.settings.color_scheme
+  endif
+
+  assign link_class = 'icon-button-block__link'
+  if block.settings.icon_position == 'right'
+    assign link_class = link_class | append: ' icon-button-block__link--icon-right'
+  endif
+  case block.settings.color_mode
+    when 'primary_button'
+      assign link_class = link_class | append: ' icon-button-block__link--theme-primary'
+    when 'secondary_button'
+      assign link_class = link_class | append: ' icon-button-block__link--theme-secondary'
+  endcase
+
+  assign link_class = link_class | append: ' icon-button-block__link--width-' | append: block.settings.width_mode
+  if block.settings.full_width_mobile_tablet and block.settings.width_mode != 'full'
+    assign link_class = link_class | append: ' icon-button-block__link--stretch-narrow'
+  endif
+%}
+
+<div
+  class="{{ wrapper_class }} icon-button-block--width-{{ block.settings.width_mode }}"
+  style="
+    --ib-pad-y: {{ block.settings.padding_vertical }}px;
+    --ib-pad-x: {{ block.settings.padding_horizontal }}px;
+    --ib-gap: {{ block.settings.icon_spacing }}px;
+    --ib-radius: {{ block.settings.border_radius }}px;
+    --ib-border-w: {{ block.settings.border_width }}px;
+    --ib-font-size: {{ block.settings.font_size }}px;
+    {%- if block.settings.width_mode == 'percent' -%}
+    --ib-width-pct: {{ block.settings.desktop_width_percent }}%;
+    {%- endif -%}
+    {%- if block.settings.color_mode == 'custom' -%}
+    --ib-bg: {{ block.settings.background }};
+    --ib-fg: {{ block.settings.text_color }};
+    --ib-border: {{ block.settings.border_color }};
+    --ib-bg-hover: {{ block.settings.hover_background }};
+    --ib-fg-hover: {{ block.settings.hover_text_color }};
+    --ib-border-hover: {{ block.settings.hover_border_color }};
+    {%- endif -%}
+  "
+  {{ block.shopify_attributes }}
+>
+  <a
+    href="{{ block.settings.link | default: '#' }}"
+    class="{{ link_class }}"
+    {% if block.settings.link == blank %}
+      role="link"
+      aria-disabled="true"
+    {% endif %}
+    {% if block.settings.open_in_new_tab and block.settings.link != blank %}
+      target="_blank"
+      rel="noopener noreferrer"
+    {% endif %}
+  >
+    {% if block.settings.show_icon %}
+      {% liquid
+        assign icon_name = block.settings.icon
+        if block.settings.custom_image != blank
+          assign icon_name = 'none'
+        endif
+      %}
+      <span class="icon-button-block__icon-wrap" aria-hidden="true">
+        {% render 'icon-or-image',
+          icon: icon_name,
+          image_upload: block.settings.custom_image,
+          width: block.settings.icon_size,
+          class_name: 'icon-button-block__icon'
+        %}
+      </span>
+    {% endif %}
+    <span class="icon-button-block__label">{{ block.settings.label | escape }}</span>
+  </a>
+</div>
+
+{% stylesheet %}
+  .icon-button-block {
+    display: block;
+  }
+
+  .icon-button-block--width-auto {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .icon-button-block--width-full,
+  .icon-button-block--width-percent {
+    width: 100%;
+  }
+
+  .icon-button-block__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ib-gap, 8px);
+    padding: var(--ib-pad-y, 14px) var(--ib-pad-x, 32px);
+    border-radius: var(--ib-radius, 14px);
+    border: var(--ib-border-w, 0) solid var(--ib-border, transparent);
+    background-color: var(--ib-bg, #000);
+    color: var(--ib-fg, #fff);
+    font-size: var(--ib-font-size, 16px);
+    text-decoration: none;
+    cursor: pointer;
+    max-width: 100%;
+    line-height: 1.2;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  /* Theme color scheme: primary / secondary button tokens from .color-* or inherited context */
+  .icon-button-block__link--theme-primary {
+    --ib-bg: var(--color-primary-button-background);
+    --ib-fg: var(--color-primary-button-text);
+    --ib-border: var(--color-primary-button-border);
+    --ib-bg-hover: var(--color-primary-button-hover-background);
+    --ib-fg-hover: var(--color-primary-button-hover-text);
+    --ib-border-hover: var(--color-primary-button-hover-border);
+    background-color: var(--ib-bg);
+    color: var(--ib-fg);
+    border-color: var(--ib-border);
+  }
+
+  .icon-button-block__link--theme-secondary {
+    --ib-bg: var(--color-secondary-button-background);
+    --ib-fg: var(--color-secondary-button-text);
+    --ib-border: var(--color-secondary-button-border);
+    --ib-bg-hover: var(--color-secondary-button-hover-background);
+    --ib-fg-hover: var(--color-secondary-button-hover-text);
+    --ib-border-hover: var(--color-secondary-button-hover-border);
+    background-color: var(--ib-bg);
+    color: var(--ib-fg);
+    border-color: var(--ib-border);
+  }
+
+  .icon-button-block__link--icon-right {
+    flex-direction: row-reverse;
+  }
+
+  .icon-button-block__link:hover {
+    background-color: var(--ib-bg-hover, #333);
+    color: var(--ib-fg-hover, #fff);
+    border-color: var(--ib-border-hover, #333);
+  }
+
+  .icon-button-block__link:focus-visible {
+    outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .icon-button-block__link[aria-disabled='true'] {
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  .icon-button-block__icon-wrap {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-button-block__icon {
+    display: block;
+  }
+
+  .icon-button-block__icon.icon-default {
+    color: currentcolor;
+  }
+
+  .icon-button-block__link--width-auto {
+    width: max-content;
+  }
+
+  .icon-button-block__link--width-full {
+    width: 100%;
+  }
+
+  .icon-button-block__link--width-percent {
+    width: var(--ib-width-pct, 100%);
+  }
+
+  /*
+   * Optional: stretch to full width on mobile + tablet (≤989px), same breakpoint as explore / teamakers pick.
+   */
+  @media screen and (max-width: 989px) {
+    .icon-button-block__link--stretch-narrow {
+      width: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Icon button",
+  "tag": null,
+  "class": "icon-button-block-root",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "Link"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_in_new_tab",
+      "label": "Open link in new tab",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_vertical",
+      "label": "Vertical padding",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "padding_horizontal",
+      "label": "Horizontal padding",
+      "min": 16,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "width_mode",
+      "label": "Button width",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Auto (fit content)"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        },
+        {
+          "value": "percent",
+          "label": "Percentage of row"
+        }
+      ],
+      "default": "percent",
+      "info": "Auto sizes to the label and icon. Full spans the block. Percentage sets a fixed share of the row (desktop)."
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Width",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 40,
+      "visible_if": "{{ block.settings.width_mode == 'percent' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width_mobile_tablet",
+      "label": "Full width on mobile and tablet (≤989px)",
+      "default": true,
+      "visible_if": "{{ block.settings.width_mode == 'auto' or block.settings.width_mode == 'percent' }}",
+      "info": "When on, the button spans the row on small screens. Turn off to keep Auto or the same percentage at every size."
+    },
+    {
+      "type": "header",
+      "content": "t:content.appearance"
+    },
+    {
+      "type": "checkbox",
+      "id": "inherit_color_scheme",
+      "label": "t:settings.inherit_color_scheme",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1",
+      "visible_if": "{{ block.settings.inherit_color_scheme == false }}"
+    },
+    {
+      "type": "header",
+      "content": "Icon"
+    },
+    {
+      "type": "paragraph",
+      "content": "Uses the same icon set as the Icon block (snippets/icon.liquid). Upload a custom image below to override."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show icon",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "Icon",
+      "options": [
+        { "value": "arrow", "label": "Arrow" },
+        { "value": "heart", "label": "Heart" },
+        { "value": "star", "label": "Star" },
+        { "value": "leaf", "label": "Leaf" },
+        { "value": "plant", "label": "Plant" },
+        { "value": "box", "label": "Box" },
+        { "value": "price_tag", "label": "Price tag" },
+        { "value": "truck", "label": "Truck" },
+        { "value": "return", "label": "Return" },
+        { "value": "chat_bubble", "label": "Chat" },
+        { "value": "check_box", "label": "Check" },
+        { "value": "question_mark", "label": "Question" },
+        { "value": "lock", "label": "Lock" },
+        { "value": "map_pin", "label": "Map pin" },
+        { "value": "plane", "label": "Plane" },
+        { "value": "recycle", "label": "Recycle" }
+      ],
+      "default": "arrow"
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_image",
+      "label": "Custom icon image",
+      "info": "Optional. Replaces the selected icon when set."
+    },
+    {
+      "type": "select",
+      "id": "icon_position",
+      "label": "Icon position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "icon_spacing",
+      "label": "Space between icon and label",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "select",
+      "id": "color_mode",
+      "label": "Button colors",
+      "options": [
+        {
+          "value": "primary_button",
+          "label": "Primary button (theme)"
+        },
+        {
+          "value": "secondary_button",
+          "label": "Secondary button (theme)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom colors"
+        }
+      ],
+      "default": "primary_button",
+      "info": "Theme options use the color scheme in this section (or the scheme selected above when “Inherit color scheme” is off)."
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#121212",
+      "visible_if": "{{ block.settings.color_mode == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff",
+      "visible_if": "{{ block.settings.color_mode == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border",
+      "default": "#121212",
+      "visible_if": "{{ block.settings.color_mode == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "hover_background",
+      "label": "Hover background",
+      "default": "#333333",
+      "visible_if": "{{ block.settings.color_mode == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "hover_text_color",
+      "label": "Hover text",
+      "default": "#ffffff",
+      "visible_if": "{{ block.settings.color_mode == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "hover_border_color",
+      "label": "Hover border",
+      "default": "#333333",
+      "visible_if": "{{ block.settings.color_mode == 'custom' }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Icon button",
+      "category": "t:categories.basic",
+      "settings": {
+        "label": "Shop now",
+        "icon": "arrow",
+        "inherit_color_scheme": true,
+        "color_mode": "primary_button",
+        "width_mode": "percent",
+        "full_width_mobile_tablet": true
+      }
+    }
+  ]
+}
+{% endschema %}
