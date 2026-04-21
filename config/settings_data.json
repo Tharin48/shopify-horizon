@@ -80,6 +80,24 @@
     "variant_button_radius": 14,
     "variant_button_width": "equal-width-buttons",
     "content_for_index": [],
+    "blocks": {
+      "pagefly-page-builder": {
+        "type": "shopify://apps/pagefly-page-builder/blocks/app-embed/83e179f7-59a0-4589-8c66-c0dddf959200",
+        "disabled": false,
+        "settings": {}
+      },
+      "6159598353363395418": {
+        "type": "shopify://apps/google-youtube/blocks/store_widget/14ec7bd0-ac77-49a9-9417-90752398bdff",
+        "disabled": false,
+        "settings": {
+          "widget_position": "LEFT_BOTTOM",
+          "side_margin": 36,
+          "bottom_margin": 36,
+          "mobile_side_margin": 16,
+          "mobile_bottom_margin": 46
+        }
+      }
+    },
     "color_schemes": {
       "scheme-1": {
         "settings": {
@@ -356,7 +374,7 @@
       },
       "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81": {
         "settings": {
-          "background": "#ffffff00",
+          "background": "rgba(0,0,0,0)",
           "foreground_heading": "#222829",
           "foreground": "#222829",
           "primary": "#bc9407",
@@ -385,12 +403,12 @@
           "variant_hover_background_color": "#f5f5f5",
           "variant_hover_text_color": "#000000",
           "variant_hover_border_color": "#e6e6e6",
-          "selected_variant_background_color": "#000000",
+          "selected_variant_background_color": "#ffffff",
           "selected_variant_text_color": "#ffffff",
           "selected_variant_border_color": "#000000",
           "selected_variant_hover_background_color": "#1a1a1a",
           "selected_variant_hover_text_color": "#ffffff",
-          "selected_variant_hover_border_color": "#1a1a1a"
+          "selected_variant_hover_border_color": "#0000000f"
         }
       },
       "scheme-a377faa7-3f9f-48ec-9711-70de223da5e6": {

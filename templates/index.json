@@ -69,7 +69,7 @@
           "name": "Icon button",
           "settings": {
             "label": "Explore All",
-            "link": "",
+            "link": "shopify://collections/all-products",
             "open_in_new_tab": false,
             "font_size": 16,
             "padding_vertical": 14,
@@ -713,9 +713,7 @@
       "name": "Vison Section",
       "settings": {
         "show_leaf_top_left": true,
-        "leaf_image_top_left": "shopify://shop_images/Group.png",
         "show_leaf_bottom_right": true,
-        "leaf_image_bottom_right": "shopify://shop_images/Group_1.png",
         "leaf_opacity": 100,
         "leaf_mobile_max_width_vw": 56,
         "leaf_mobile_max_width_px": 288,
@@ -776,14 +774,14 @@
           "type": "_category-explore-card",
           "settings": {
             "grid_position": "featured",
-            "title": "Wellness",
+            "title": "Wellness Tea",
             "link": "shopify://collections/arana-herbal-infusions",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
             "card_min_height_desktop": 0,
             "card_max_width": 0,
-            "show_overlay": false,
-            "overlay_color": "",
+            "show_overlay": true,
+            "overlay_color": "linear-gradient(21deg, rgba(242, 226, 219, 1), rgba(238, 231, 226, 1) 8%, rgba(238, 231, 226, 1) 11%, rgba(238, 231, 226, 0) 24%)",
             "label_color": "#222829",
             "icon_color": "#222829",
             "label_size": 24,
@@ -791,8 +789,8 @@
             "label_row_position": "bottom",
             "show_arrow_desktop": true,
             "show_arrow_mobile": false,
-            "image": "shopify://shop_images/Rectangle_10-1.jpg",
-            "image_hover": "shopify://shop_images/Rectangle_10.jpg",
+            "image": "shopify://shop_images/Innovation_of_Tea_WT_-_Small_16d24c6a-9b21-4721-a050-ec98ee8aca1d.png",
+            "image_hover": "shopify://shop_images/AranaNaturalInfusions-LifestyleImage-PaperCanister-20TeaBags-Revive-003-Large.jpg",
             "image_alt": ""
           },
           "blocks": {}
@@ -816,9 +814,9 @@
             "label_row_position": "bottom",
             "show_arrow_desktop": true,
             "show_arrow_mobile": false,
-            "image": "shopify://shop_images/Rectangle_10_1.jpg",
-            "image_hover": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_09_27_37_AM.png",
-            "image_alt": ""
+            "image": "shopify://shop_images/ChatGPT_Image_Apr_21_2026_01_55_37_PM.png",
+            "image_hover": "shopify://shop_images/ChatGPT_Image_Apr_21_2026_01_55_37_PM.png",
+            "image_alt": "Pure Single Orgine Sri Lankan Ice tea"
           },
           "blocks": {}
         },
@@ -826,7 +824,7 @@
           "type": "_category-explore-card",
           "settings": {
             "grid_position": "compact_1",
-            "title": "Single garden tea",
+            "title": "Garden Fresh Tea",
             "link": "",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
@@ -841,9 +839,9 @@
             "label_row_position": "bottom",
             "show_arrow_desktop": true,
             "show_arrow_mobile": false,
-            "image": "shopify://shop_images/ChatGPT_Image_Mar_14_2026_09_12_02_PM.png",
-            "image_hover": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_04_19_42_PM.png",
-            "image_alt": ""
+            "image": "shopify://shop_images/Dilmah_Tea_Estate_-_Maskeliya_Region_-_Small_b16fc13b-a36a-470b-abbd-07e8ed39a5a9.png",
+            "image_hover": "shopify://shop_images/Watte_infor_graphic_-07_WT_-_Small_49c0c9a9-ace3-44c3-a3ba-df4e3addec24.png",
+            "image_alt": "Single Garden Dilmah tea"
           },
           "blocks": {}
         },
@@ -851,7 +849,7 @@
           "type": "_category-explore-card",
           "settings": {
             "grid_position": "compact_2",
-            "title": "Gift of tea",
+            "title": "Gift of Tea",
             "link": "",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
@@ -866,9 +864,9 @@
             "label_row_position": "bottom",
             "show_arrow_desktop": true,
             "show_arrow_mobile": false,
-            "image": "shopify://shop_images/Rectangle_11_5ca6a862-558c-4b2a-a1f0-1a4e32022db5.jpg",
-            "image_hover": "shopify://shop_images/Dilmah_Inteamate_Gifts_bb762389-1dc4-4750-9e02-8e087b6c4f64.png",
-            "image_alt": ""
+            "image": "shopify://shop_images/Dilmah_Lifestyle_Image_-_Christmas_-_Advent_Calendar_-_0I1A6426_-_Small_d7ab31d1-4f37-4bcd-aee1-47ab8e568712.jpg",
+            "image_hover": "shopify://shop_images/Dilmah_Lifestyle_Image_-_Christmas_-_Advent_Calendar_-_0I1A6432.jpg_-_Small_2217e4ff-569c-4fdd-b3cb-ffa3088d06f1.jpg",
+            "image_alt": "Gift of Tea | Dilmah Sri Lanka"
           },
           "blocks": {}
         },
@@ -876,7 +874,7 @@
           "type": "_category-explore-card",
           "settings": {
             "grid_position": "compact_3",
-            "title": "Luxury tea",
+            "title": "Luxury Tea",
             "link": "",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
@@ -891,8 +889,8 @@
             "label_row_position": "bottom",
             "show_arrow_desktop": true,
             "show_arrow_mobile": false,
-            "image": "shopify://shop_images/ChatGPT_Image_Mar_6_2026_03_41_40_PM.png",
-            "image_hover": "shopify://shop_images/DEC_2025_85_Detox_digest_guide_2.jpg",
+            "image": "shopify://shop_images/Vanilla_Ceylon_Tea_-_Small_14db8e34-c64c-48ed-bc00-84ae50a28518.png",
+            "image_hover": "shopify://shop_images/85_Reserve_Peppermint_and_Cinnamon_20_Tea_Bags_-_Small_20ebae1a-b3c8-4159-8b81-f5ed1257ee6f.png",
             "image_alt": ""
           },
           "blocks": {}
@@ -1007,7 +1005,7 @@
         "show_quick_add": true,
         "show_sale_badge": true,
         "show_decorative_artwork": true,
-        "decorative_artwork": "shopify://shop_images/Group_1.png",
+        "decorative_artwork": "shopify://shop_images/x31_1_1_1.png",
         "decorative_artwork_position": "center-right",
         "decorative_artwork_opacity": 100,
         "decorative_artwork_max_width": 140,
@@ -1092,7 +1090,7 @@
       "settings": {
         "color_scheme": "scheme-24415183-8fcb-4e95-92af-1c60b1ea7a34",
         "section_width": "full-width",
-        "collection": "luxury-leaf-tea-bags",
+        "collection": "very-rare-special-tea",
         "products_limit": 5,
         "section_subheading": "Editorial selection",
         "show_section_subheading": false,
@@ -1100,10 +1098,10 @@
         "show_section_heading": false,
         "show_vendor": true,
         "use_custom_eyebrow_label": false,
-        "custom_eyebrow_label": "Rare find",
+        "custom_eyebrow_label": "Very Rare find",
         "show_review_placeholder": true,
         "show_quick_cart": true,
-        "banner_image": "shopify://shop_images/lux-banner.png",
+        "banner_image": "shopify://shop_images/Sep_2024_Social_Media_EFT_Mango_and_Strawberry_WT-1_-_Small_631b0966-0051-4315-94fa-43fa0bd78c30.png",
         "subtitle": "",
         "title": "Our Rare finds",
         "button_label": "Shop now",
@@ -1119,6 +1117,7 @@
         "banner_button_font_size": 14,
         "show_banner_button_icon": true,
         "banner_button_icon": "arrow",
+        "banner_button_icon_image": "shopify://shop_images/x31_1_1_1.png",
         "banner_button_icon_position": "right",
         "banner_button_icon_size": 18,
         "banner_button_icon_gap": 6,
@@ -1158,8 +1157,8 @@
         "arrow_border_color": "#d8cdbf",
         "show_left_leaf": true,
         "show_right_leaf": true,
-        "left_leaf_image": "shopify://shop_images/Group.png",
-        "right_leaf_image": "shopify://shop_images/Group_1.png",
+        "left_leaf_image": "shopify://shop_images/x31_1_1_1.png",
+        "right_leaf_image": "shopify://shop_images/x31_1_1.png",
         "left_leaf_offset_x": 0,
         "left_leaf_offset_y": 0,
         "right_leaf_offset_x": 0,
@@ -1242,7 +1241,7 @@
           "type": "_slide",
           "settings": {
             "media_type_1": "image",
-            "image_1": "shopify://shop_images/ChatGPT_Image_Mar_6_2026_04_28_13_PM.png",
+            "image_1": "shopify://shop_images/Sri_Lanka_Paradise_Tea_Selection_-_Loose_Leaf_Tea_-_Black_Tea_with_Creamy_Earl_Grey_-_Global_Version_-_002_-_Large_0a76acd4-3cf1-4842-87cd-b99dc98e020d.jpg",
             "content_direction": "column",
             "vertical_on_mobile": true,
             "horizontal_alignment": "flex-start",
@@ -1253,9 +1252,9 @@
             "gap": 12,
             "inherit_color_scheme": false,
             "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-            "toggle_overlay": false,
-            "overlay_color": "#00000026",
-            "overlay_style": "solid",
+            "toggle_overlay": true,
+            "overlay_color": "#faebe0a3",
+            "overlay_style": "gradient",
             "gradient_direction": "to top",
             "padding-block-start": 48,
             "padding-block-end": 48,
@@ -1267,7 +1266,7 @@
               "type": "text",
               "name": "t:names.text",
               "settings": {
-                "text": "<p>NATURAL INFUSION COLLECTION</p>",
+                "text": "<p>PARADISE COLLECTION</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1293,7 +1292,7 @@
               "type": "text",
               "name": "t:names.heading",
               "settings": {
-                "text": "<p>Discover the Perfect</p><p>Tea for Every Mood</p>",
+                "text": "<p>Discover the spirited </p><p>flavours of Sri Lanka </p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1318,7 +1317,7 @@
             "text_Nhcj3F": {
               "type": "text",
               "settings": {
-                "text": "<p>Introducing our latest products, made especially for the season. Shop your favorites before they're gone!</p>",
+                "text": "<p>an uplifting selection of teas inspired by the island’s sun-kissed orchards, fragrant spice gardens, and rich tea heritage. Each brew brings together delicious tropical fruit, aromatic spices, and the purity of fresh Ceylon tea, crafted using artisanal orthodox methods to ensure richer flavour, natural goodness, and unmistakable authenticity<br/><br/></p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1345,7 +1344,7 @@
               "name": "Icon button",
               "settings": {
                 "label": "Explore",
-                "link": "",
+                "link": "shopify://collections/paradise-range",
                 "open_in_new_tab": false,
                 "font_size": 16,
                 "padding_vertical": 14,
@@ -1384,7 +1383,7 @@
           "type": "_slide",
           "settings": {
             "media_type_1": "image",
-            "image_1": "shopify://shop_images/ChatGPT_Image_Mar_6_2026_04_28_13_PM.png",
+            "image_1": "shopify://shop_images/ChatGPT_Image_Mar_6_2026_04_28_13_PM_1.png",
             "content_direction": "column",
             "vertical_on_mobile": true,
             "horizontal_alignment": "flex-start",
@@ -1487,7 +1486,7 @@
               "name": "Icon button",
               "settings": {
                 "label": "Explore",
-                "link": "",
+                "link": "shopify://collections/herbal-tea-infusion",
                 "open_in_new_tab": false,
                 "font_size": 16,
                 "padding_vertical": 14,
@@ -1526,7 +1525,7 @@
           "type": "_slide",
           "settings": {
             "media_type_1": "image",
-            "image_1": "shopify://shop_images/ChatGPT_Image_Mar_6_2026_04_28_13_PM.png",
+            "image_1": "shopify://shop_images/Exquisitely_Flavoured_Tea_-_Lifestyle_Image_-_20_string_tag_tea_bags_-_Passionfruit_Pomegranate_Honeysuckle_-_001_-_Large_113b3a71-f004-40b4-a061-407bf2e09338.jpg",
             "content_direction": "column",
             "vertical_on_mobile": true,
             "horizontal_alignment": "flex-start",
@@ -1551,7 +1550,7 @@
               "type": "text",
               "name": "t:names.text",
               "settings": {
-                "text": "<p>NATURAL INFUSION COLLECTION</p>",
+                "text": "<p>EXQUISITELY FLAVOURED TEAS</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1577,7 +1576,7 @@
               "type": "text",
               "name": "t:names.heading",
               "settings": {
-                "text": "<p>Discover the Perfect</p><p>Tea for Every Mood</p>",
+                "text": "<p>Heart of gastronomy </p><p>is the harmony of flavours on the tongue<br/><br/></p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1602,7 +1601,7 @@
             "text_3xgVyQ": {
               "type": "text",
               "settings": {
-                "text": "<p>Introducing our latest products, made especially for the season. Shop your favorites before they're gone!</p>",
+                "text": "<p>It is with this principle in mind that the selection of Dilmah Exquisitely Flavoured Tea was crafted. Each tea is designed to offer a taste experience that is as pleasurable as it is authentic and functional.</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1629,7 +1628,7 @@
               "name": "Icon button",
               "settings": {
                 "label": "Explore",
-                "link": "",
+                "link": "shopify://collections/dilmah-exquisitely-flavoured-tea-eft",
                 "open_in_new_tab": false,
                 "font_size": 16,
                 "padding_vertical": 14,
@@ -1910,7 +1909,6 @@
                           "settings": {
                             "show_icon": true,
                             "icon": "recycle",
-                            "icon_image": "shopify://shop_images/Recycle.svg",
                             "icon_container_size": 64,
                             "icon_graphic_size": 32,
                             "icon_container_size_mobile": 40,
@@ -1947,13 +1945,13 @@
                           "settings": {
                             "show_icon": true,
                             "icon": "recycle",
-                            "icon_image": "shopify://shop_images/Recycle.svg",
+                            "icon_image": "shopify://shop_images/CloudArrowDown.svg",
                             "icon_container_size": 64,
                             "icon_graphic_size": 32,
                             "icon_container_size_mobile": 40,
                             "icon_graphic_size_mobile": 16,
-                            "sub_text": "Plastic eliminated",
-                            "count_text": "421,052 kg+",
+                            "sub_text": "CO₂ Emissions Reduced",
+                            "count_text": "2,137 Tons+",
                             "card_background": "#ffffff",
                             "icon_background": "#e6f2ef",
                             "icon_graphic_color": "#1a6b5c",
@@ -2030,13 +2028,13 @@
                           "settings": {
                             "show_icon": true,
                             "icon": "recycle",
-                            "icon_image": "shopify://shop_images/Recycle.svg",
+                            "icon_image": "shopify://shop_images/Tree.svg",
                             "icon_container_size": 64,
                             "icon_graphic_size": 32,
                             "icon_container_size_mobile": 40,
                             "icon_graphic_size_mobile": 16,
-                            "sub_text": "Plastic eliminated",
-                            "count_text": "421,052 kg+",
+                            "sub_text": "Trees Impact Equivalent",
+                            "count_text": "43 000+",
                             "card_background": "#ffffff",
                             "icon_background": "#e6f2ef",
                             "icon_graphic_color": "#1a6b5c",
@@ -2067,13 +2065,13 @@
                           "settings": {
                             "show_icon": true,
                             "icon": "recycle",
-                            "icon_image": "shopify://shop_images/Recycle.svg",
+                            "icon_image": "shopify://shop_images/GraduationCap.svg",
                             "icon_container_size": 64,
                             "icon_graphic_size": 32,
                             "icon_container_size_mobile": 40,
                             "icon_graphic_size_mobile": 16,
-                            "sub_text": "Plastic eliminated",
-                            "count_text": "421,052 kg+",
+                            "sub_text": "People Educated",
+                            "count_text": "15,000+",
                             "card_background": "#ffffff",
                             "icon_background": "#e6f2ef",
                             "icon_graphic_color": "#1a6b5c",
@@ -2115,8 +2113,8 @@
                   "name": "Icon button",
                   "settings": {
                     "label": "Read More",
-                    "link": "",
-                    "open_in_new_tab": false,
+                    "link": "https://www.mjffoundation.org/",
+                    "open_in_new_tab": true,
                     "font_size": 14,
                     "padding_vertical": 12,
                     "padding_horizontal": 16,

@@ -1,0 +1,98 @@
+{%- doc -%}
+  Collection sort control — same details/panel pattern as custom-catalog-facet-dropdown.
+  Builds URLs from collection.url query (preserves storefront filters; replaces sort_by, drops page).
+
+  @param {string} section_id - Section id for DOM uniqueness
+  @param {object} collection - Current collection
+  @param {string} catalog_sort_by - Active sort value
+  @param {string} sort_label_prefix - Visible prefix before current sort name in summary
+{%- enddoc -%}
+{%- if collection.sort_options.size > 0 -%}
+  {%- liquid
+    assign sort_prefix = sort_label_prefix | strip | default: 'Sort'
+    assign sort_status_name = ''
+    for option in collection.sort_options
+      if option.value == catalog_sort_by
+        assign sort_status_name = option.name
+        break
+      endif
+    endfor
+    if sort_status_name == blank
+      for option in collection.sort_options
+        assign sort_status_name = option.name
+        break
+      endfor
+    endif
+
+    assign cu_parts = collection.url | split: '?'
+    assign sort_base_path = cu_parts | first
+    if sort_base_path == blank
+      assign sort_base_path = request.path | split: '?' | first
+    endif
+    assign q = ''
+    if cu_parts.size > 1
+      assign q = cu_parts | last | split: '#' | first
+    endif
+
+    assign sort_q_kept = ''
+    if q != blank
+      assign q_parts = q | split: '&'
+      for part in q_parts
+        if part != blank
+          assign skip_part = false
+          if part contains 'sort_by='
+            assign skip_part = true
+          endif
+          if part contains 'page='
+            assign skip_part = true
+          endif
+          unless skip_part
+            if sort_q_kept != blank
+              assign sort_q_kept = sort_q_kept | append: '&'
+            endif
+            assign sort_q_kept = sort_q_kept | append: part
+          endunless
+        endif
+      endfor
+    endif
+
+    assign panel_id = 'FacetPanel-' | append: section_id | append: '-catalog-sort'
+  -%}
+  <details class="custom-catalog__facet-dd custom-catalog__sort-dd" name="catalog-toolbar-facets" data-catalog-facet-dd>
+    <summary class="custom-catalog__facet-dd-summary">
+      <span class="custom-catalog__facet-dd-summary-label">
+        {{- sort_prefix | escape }}: {{ sort_status_name | escape -}}
+      </span>
+      <span class="custom-catalog__facet-dd-chevron" aria-hidden="true">▾</span>
+    </summary>
+    <div
+      id="{{ panel_id }}"
+      class="custom-catalog__facet-dd-panel color-{{ settings.popover_color_scheme }}"
+      role="group"
+      aria-label="{{ 'actions.sort' | t | escape }}"
+    >
+      <div class="custom-catalog__facet-dd-scroll">
+        {%- for option in collection.sort_options -%}
+          {%- assign sv = option.value | url_encode -%}
+          {%- if sort_q_kept == blank -%}
+            {%- assign option_href = sort_base_path | append: '?sort_by=' | append: sv -%}
+          {%- else -%}
+            {%- assign option_href = sort_base_path
+              | append: '?'
+              | append: sort_q_kept
+              | append: '&sort_by='
+              | append: sv
+            -%}
+          {%- endif -%}
+          <a
+            href="{{ option_href }}"
+            class="custom-catalog__facet-dd-row custom-catalog__facet-dd-row--sort{% if option.value == catalog_sort_by %} is-selected{% endif %}"
+          >
+            <span class="custom-catalog__facet-dd-check" aria-hidden="true"></span>
+            <span class="custom-catalog__facet-dd-text">{{ option.name | escape }}</span>
+          </a>
+        {%- endfor -%}
+      </div>
+    </div>
+  </details>
+{%- endif -%}

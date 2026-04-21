@@ -1,0 +1,38 @@
+{%- doc -%}
+  Multi-select style dropdown for a storefront collection filter.
+  Each row is a link using Shopify’s url_to_add / url_to_remove (source of truth).
+
+  @param {object} filter - Liquid filter from collection.filters
+  @param {string} section_id - section.id for unique DOM ids
+  @param {string} facet_key - Short slug, e.g. tea-type (unique per dropdown)
+{%- enddoc -%}
+{%- if filter and filter.values.size > 0 -%}
+  {%- liquid
+    assign panel_id = 'FacetPanel-' | append: section_id | append: '-' | append: facet_key
+  -%}
+  <details class="custom-catalog__facet-dd" name="catalog-toolbar-facets" data-catalog-facet-dd>
+    <summary class="custom-catalog__facet-dd-summary">
+      <span class="custom-catalog__facet-dd-summary-label">{{ filter.label | escape }}</span>
+      <span class="custom-catalog__facet-dd-chevron" aria-hidden="true">▾</span>
+    </summary>
+    <div
+      id="{{ panel_id }}"
+      class="custom-catalog__facet-dd-panel color-{{ settings.popover_color_scheme }}"
+      role="group"
+      aria-label="{{ filter.label | escape }}"
+    >
+      <div class="custom-catalog__facet-dd-scroll">
+        {%- for fv in filter.values -%}
+          <a
+            href="{% if fv.active %}{{ fv.url_to_remove }}{% else %}{{ fv.url_to_add }}{% endif %}"
+            class="custom-catalog__facet-dd-row{% if fv.active %} is-selected{% endif %}"
+          >
+            <span class="custom-catalog__facet-dd-check" aria-hidden="true"></span>
+            <span class="custom-catalog__facet-dd-text">{{ fv.label | escape }}</span>
+            <span class="custom-catalog__facet-dd-count">({{ fv.count }})</span>
+          </a>
+        {%- endfor -%}
+      </div>
+    </div>
+  </details>
+{%- endif -%}

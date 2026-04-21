@@ -1,0 +1,93 @@
+{%- doc -%}
+  Renders one tea-type circle for the custom catalog when the row uses Tea Type metaobjects.
+  @param {object} mo_entry - Metaobject entry (tea type).
+  @param {object} section - Parent section.
+  @param {object} catalog_filter_tea_type - Storefront filter for Tea type, or false.
+{%- enddoc -%}
+{%- liquid
+  assign mo_name = mo_entry.name.value | default: mo_entry.name | strip
+  assign mo_opt = mo_entry.optional_display_label.value | default: mo_entry.optional_display_label | strip
+  assign mo_label = mo_opt
+  if mo_label == blank
+    assign mo_label = mo_name
+  endif
+  assign mo_def_img = mo_entry.default_image.value | default: mo_entry.default_image
+  assign mo_hov_img = mo_entry.hover_image.value | default: mo_entry.hover_image
+  assign mo_handle = mo_entry.system.handle | strip
+  assign block_key = mo_handle | downcase
+  assign title_key = mo_label | strip | downcase
+  assign name_key = mo_name | strip | downcase
+  assign name_h = name_key | handleize
+  assign mo_system_id = mo_entry.system.id
+  assign tea_matched_fv = false
+  if catalog_filter_tea_type
+    for fv in catalog_filter_tea_type.values
+      assign fv_raw = fv.value | strip
+      assign fv_val = fv_raw | downcase
+      assign fv_lbl = fv.label | strip | downcase
+      assign fv_lbl_h = fv_lbl | handleize
+      assign block_h = block_key | handleize
+      assign title_h = title_key | handleize
+      assign tea_match = false
+
+      if block_key != blank
+        if block_key == fv_val or block_key == fv_lbl
+          assign tea_match = true
+        elsif block_h != blank and block_h == fv_lbl_h
+          assign tea_match = true
+        elsif block_h.size >= 4 and fv_lbl_h contains block_h
+          assign tea_match = true
+        elsif block_key.size >= 4 and fv_lbl contains block_key
+          assign tea_match = true
+        elsif block_key.size >= 6 and fv_val contains block_key
+          assign tea_match = true
+        endif
+      endif
+
+      if tea_match == false and title_key != blank
+        if title_key == fv_lbl or title_key == fv_val
+          assign tea_match = true
+        elsif title_h != blank and title_h == fv_lbl_h
+          assign tea_match = true
+        elsif title_key.size >= 4 and fv_lbl contains title_key
+          assign tea_match = true
+        elsif fv_lbl.size >= 4 and title_key contains fv_lbl
+          assign tea_match = true
+        endif
+      endif
+
+      if tea_match == false and name_key != blank
+        if name_key == fv_lbl or name_key == fv_val
+          assign tea_match = true
+        elsif name_h != blank and name_h == fv_lbl_h
+          assign tea_match = true
+        elsif name_key.size >= 4 and fv_lbl contains name_key
+          assign tea_match = true
+        elsif fv_lbl.size >= 4 and name_key contains fv_lbl
+          assign tea_match = true
+        endif
+      endif
+
+      if tea_match == false and mo_system_id != blank
+        assign mid = mo_system_id | append: ''
+        if fv_raw contains mid
+          assign tea_match = true
+        endif
+      endif
+
+      if tea_match
+        assign tea_matched_fv = fv
+        break
+      endif
+    endfor
+  endif
+-%}
+{% render 'custom-catalog-tea-type-tile',
+  section: section,
+  display_title: mo_label,
+  filter_value_attr: mo_handle,
+  tea_matched_fv: tea_matched_fv,
+  catalog_filter_tea_type: catalog_filter_tea_type,
+  default_image: mo_def_img,
+  hover_image: mo_hov_img
+%}
