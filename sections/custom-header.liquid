@@ -50,39 +50,31 @@
   if active_menu_handle != blank
     assign active_menu = linklists[active_menu_handle] | default: active_menu
   endif
+
+  comment
+    Theme blocks resolve menu from block settings; do not gate content_for on section.settings.menu.handle.
+  endcomment
+
+  # theme-check-disable UniqueStaticBlockId
+  capture custom_header_horizon_menu
+    if desktop_navigation == 'editorial'
+      content_for 'block', type: '_header-menu-editorial', id: 'custom-header-menu-editorial'
+    elsif desktop_navigation == 'horizon'
+      content_for 'block', type: '_header-menu', id: 'custom-header-menu-horizon'
+    endif
+  endcapture
+  assign custom_header_mega_stripped = custom_header_horizon_menu | strip
+
+  capture custom_header_mobile_drawer
+    if desktop_navigation == 'editorial'
+      content_for 'block', type: '_header-menu-editorial', id: 'custom-header-menu-editorial', variant: 'custom_mobile', drawer_title_id: custom_header_drawer_title_id
+    elsif desktop_navigation == 'horizon'
+      content_for 'block', type: '_header-menu', id: 'custom-header-menu-horizon', variant: 'custom_mobile', drawer_title_id: custom_header_drawer_title_id
+    endif
+  endcapture
+  # theme-check-enable UniqueStaticBlockId
+  assign custom_header_mobile_drawer_stripped = custom_header_mobile_drawer | strip
 %}
-
-{% comment %}
-  Theme blocks resolve their own menu from block settings; do not gate content_for on section.settings.menu.handle
-  (that can be blank in edge cases and hides the entire mega menu).
-{% endcomment %}
-{% capture custom_header_horizon_menu %}
-  {% if desktop_navigation == 'editorial' %}
-    {% content_for 'block', type: '_header-menu-editorial', id: 'custom-header-menu-editorial' %}
-  {% elsif desktop_navigation == 'horizon' %}
-    {% content_for 'block', type: '_header-menu', id: 'custom-header-menu-horizon' %}
-  {% endif %}
-{% endcapture %}
-{% assign custom_header_mega_stripped = custom_header_horizon_menu | strip %}
-
-{% capture custom_header_mobile_drawer %}
-  {% if desktop_navigation == 'editorial' %}
-    {% content_for 'block',
-      type: '_header-menu-editorial',
-      id: 'custom-header-menu-editorial',
-      variant: 'custom_mobile',
-      drawer_title_id: custom_header_drawer_title_id
-    %}
-  {% elsif desktop_navigation == 'horizon' %}
-    {% content_for 'block',
-      type: '_header-menu',
-      id: 'custom-header-menu-horizon',
-      variant: 'custom_mobile',
-      drawer_title_id: custom_header_drawer_title_id
-    %}
-  {% endif %}
-{% endcapture %}
-{% assign custom_header_mobile_drawer_stripped = custom_header_mobile_drawer | strip %}
 
 {% if load_search_assets %}
   {% render 'predictive-search-styles' %}

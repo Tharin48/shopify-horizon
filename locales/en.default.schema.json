@@ -1068,6 +1068,8 @@
     "desktop_search_placeholder": "Search bar placeholder text",
     "homepage_search_typing_enabled": "Typewriter placeholder on homepage",
     "homepage_search_typing_enabled_info": "Animates the main search placeholder text one character at a time on the home page (custom dropdown search only).",
+    "homepage_search_typing_text": "Typewriter text",
+    "homepage_search_typing_text_info": "Shown as the animated hint. Leave blank to use the search placeholder text above when that field is blank.",
     "homepage_search_typing_color": "Animated placeholder color",
     "homepage_search_typing_color_info": "Optional color for the animated placeholder text. Leave unset to use the main search text color.",
     "homepage_search_typing_loop": "Loop typewriter animation",

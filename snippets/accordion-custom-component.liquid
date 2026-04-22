@@ -13,6 +13,7 @@
   @param {boolean} [disable_animation_on_desktop] - Disables animation on desktop (for horizontal filters)
   @param {boolean} [close_with_escape] - Enables closing with escape key
   @param {string} [data_filter_param_name] - Filter param name for facet identification
+  @param {boolean} [remove_if_panel_empty] - Remove the whole accordion when .details-content has no visible content (e.g. brewing tabs hidden)
 
   @example
   {% capture accordion_content %}
@@ -54,6 +55,9 @@
   {% endif %}
   {% if data_filter_param_name %}
     data-filter-param-name="{{ data_filter_param_name }}"
+  {% endif %}
+  {% if remove_if_panel_empty %}
+    data-remove-if-panel-empty="true"
   {% endif %}
 >
   {{ children }}

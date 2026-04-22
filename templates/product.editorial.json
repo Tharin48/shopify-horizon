@@ -294,7 +294,6 @@
                 },
                 "accelerated-checkout": {
                   "type": "accelerated-checkout",
-                  "disabled": true,
                   "static": true,
                   "settings": {},
                   "blocks": {}
@@ -588,7 +587,9 @@
       "name": "Product story scroll",
       "settings": {
         "section_heading": "A Tea with a Story",
+        "left_decorative_bg": "shopify://shop_images/Group_1272628375.svg",
         "left_decorative_offset_x": 24,
+        "right_decorative_bg": "shopify://shop_images/Group.svg",
         "card_background_color": "#f7f3eb",
         "section_max_width": 1920,
         "section_max_height": 1400,
@@ -635,7 +636,7 @@
         "blog": "recipes",
         "post_limit": 4,
         "button_label": "View More Recipes",
-        "button_link": "shopify://blogs/recipes",
+        "button_link": "shopify://blogs/tea-mixology",
         "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
         "section_max_width": 1600,
         "padding_inline_desktop": 32,

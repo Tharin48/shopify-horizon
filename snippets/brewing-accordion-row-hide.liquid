@@ -1,0 +1,194 @@
+{%- doc -%}
+  Outputs "1" when the parent accordion row should be omitted: same conditions as
+  _custom-brewing-tabs would render nothing on the storefront (not theme editor preview).
+
+  @param {object} brewing_block - The _custom-brewing-tabs block
+  @param {object} [product_resource] - Resolved product (template product or closest.product)
+
+  Keep assigns through hide_block in sync with blocks/_custom-brewing-tabs.liquid.
+{%- enddoc -%}
+{%- liquid
+  assign product = product_resource | default: product
+  assign s = brewing_block.settings
+
+  assign has_product_brewing_backend = false
+  if product != blank
+    assign bm_pf = product.metafields.custom.brewing_methods
+    if bm_pf != blank and bm_pf.value != blank
+      assign has_product_brewing_backend = true
+    endif
+    assign btm_pf = product.metafields.custom.brewing_tabs_mode
+    if btm_pf != blank and btm_pf.value != blank
+      assign has_product_brewing_backend = true
+    endif
+  endif
+
+  assign skip_brewing_without_backend = false
+  if product != blank and has_product_brewing_backend == false
+    assign skip_brewing_without_backend = true
+  endif
+
+  assign want_hot = true
+  assign want_cold = true
+  assign mode_raw = ''
+  assign methods_from_list = false
+
+  if product != blank
+    assign bm = product.metafields.custom.brewing_methods
+    if bm != blank and bm.value != blank
+      assign bm_type = bm.type | default: ''
+      if bm_type contains 'list'
+        assign methods_from_list = true
+        assign want_hot = false
+        assign want_cold = false
+        for slot in bm.value
+          assign tok = slot | strip | downcase | replace: ' ', '_' | replace: '-', '_'
+          if tok == 'hot' or tok == 'hot_only'
+            assign want_hot = true
+          endif
+          if tok == 'cold' or tok == 'cold_only'
+            assign want_cold = true
+          endif
+        endfor
+        if want_hot == false and want_cold == false
+          assign want_hot = true
+          assign want_cold = true
+        endif
+      else
+        assign mode_raw = bm.value | strip | downcase | replace: ' ', '_' | replace: '-', '_'
+      endif
+    endif
+
+    if methods_from_list == false
+      if mode_raw == blank
+        assign mode_raw = product.metafields.custom.brewing_tabs_mode.value | default: product.metafields.custom.brewing_tabs_mode | strip | downcase | replace: ' ', '_' | replace: '-', '_'
+      endif
+      assign want_hot = true
+      assign want_cold = true
+      if mode_raw == 'hot' or mode_raw == 'hot_only'
+        assign want_cold = false
+      elsif mode_raw == 'cold' or mode_raw == 'cold_only'
+        assign want_hot = false
+      endif
+    endif
+  endif
+
+  assign nested_hot = 0
+  assign nested_cold = 0
+  assign hot_step_filled = 0
+  assign cold_step_filled = 0
+  for child in brewing_block.blocks
+    if child.type == '_brewing-step-card'
+      assign bt = child.settings.brewing_tab | default: 'hot' | strip | downcase
+      assign has_step = false
+      if child.settings.step_text != blank or child.settings.custom_image != blank
+        assign has_step = true
+      endif
+      if bt == 'cold'
+        assign nested_cold = nested_cold | plus: 1
+        if has_step
+          assign cold_step_filled = cold_step_filled | plus: 1
+        endif
+      else
+        assign nested_hot = nested_hot | plus: 1
+        if has_step
+          assign hot_step_filled = hot_step_filled | plus: 1
+        endif
+      endif
+    endif
+  endfor
+
+  assign use_nested_hot = false
+  assign use_nested_cold = false
+  if nested_hot > 0
+    assign use_nested_hot = true
+  endif
+  if nested_cold > 0
+    assign use_nested_cold = true
+  endif
+
+  if nested_hot > 0 and hot_step_filled == 0
+    assign use_nested_hot = false
+  endif
+  if nested_cold > 0 and cold_step_filled == 0
+    assign use_nested_cold = false
+  endif
+
+  assign hot_intro_show = s.hot_intro
+  assign cold_intro_show = s.cold_intro
+
+  assign legacy_hot_filled = false
+  if s.hot_card_1 != blank or s.hot_card_2 != blank or s.hot_card_3 != blank or s.hot_footer != blank or s.hot_link_label != blank
+    assign legacy_hot_filled = true
+  elsif s.hot_card_1_media != blank or s.hot_card_2_media != blank or s.hot_card_3_media != blank
+    assign legacy_hot_filled = true
+  endif
+
+  assign legacy_cold_filled = false
+  if s.cold_card_1 != blank or s.cold_card_2 != blank or s.cold_card_3 != blank or s.cold_card_4 != blank or s.cold_footer != blank or s.cold_link_label != blank
+    assign legacy_cold_filled = true
+  elsif s.cold_card_1_media != blank or s.cold_card_2_media != blank or s.cold_card_3_media != blank or s.cold_card_4_media != blank
+    assign legacy_cold_filled = true
+  endif
+  if cold_intro_show != blank
+    assign legacy_cold_filled = true
+  endif
+
+  assign hot_has_content = false
+  if use_nested_hot and hot_step_filled > 0
+    assign hot_has_content = true
+  elsif use_nested_hot == false and legacy_hot_filled
+    assign hot_has_content = true
+  elsif use_nested_hot == false and hot_intro_show != blank
+    assign hot_has_content = true
+  endif
+
+  assign cold_has_content = false
+  if use_nested_cold and cold_step_filled > 0
+    assign cold_has_content = true
+  elsif use_nested_cold == false and legacy_cold_filled
+    assign cold_has_content = true
+  endif
+
+  assign pair_tabs = false
+  if want_hot and want_cold
+    assign pair_tabs = true
+  endif
+
+  assign show_hot_tab = false
+  assign show_cold_tab = false
+  if pair_tabs
+    if want_hot
+      if hot_has_content
+        assign show_hot_tab = true
+      elsif cold_has_content
+        assign show_hot_tab = true
+      endif
+    endif
+    if want_cold
+      if cold_has_content
+        assign show_cold_tab = true
+      elsif hot_has_content
+        assign show_cold_tab = true
+      endif
+    endif
+  else
+    if want_hot and hot_has_content
+      assign show_hot_tab = true
+    endif
+    if want_cold and cold_has_content
+      assign show_cold_tab = true
+    endif
+  endif
+
+  assign hide_block = false
+  if show_hot_tab == false and show_cold_tab == false
+    assign hide_block = true
+  endif
+
+  assign hide_accordion_row = false
+  if skip_brewing_without_backend or hide_block
+    assign hide_accordion_row = true
+  endif
+-%}
+{%- if hide_accordion_row -%}1{%- endif -%}

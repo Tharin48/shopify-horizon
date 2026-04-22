@@ -22,18 +22,9 @@
     endif
   endif
 
-  assign show_placeholder = false
-  if has_stories == false
-    if request.design_mode or request.visual_preview_mode
-      assign show_placeholder = true
-    endif
-  endif
-
   assign story_count = 0
   if has_stories
-    assign story_count = stories.size
-  elsif show_placeholder
-    assign story_count = 1
+    assign story_count = stories.size | default: stories.count
   endif
 
   assign curtain_mode = false
@@ -68,7 +59,7 @@
   endcapture
 -%}
 
-{% if has_stories or show_placeholder %}
+{% if has_stories %}
   <div class="section-background color-{{ section.settings.color_scheme }}"></div>
   <section
     class="section section--full-width disable-section-top-offset product-story-scroll{{ carousel_off_class }}{{ section_modifiers }} color-{{ section.settings.color_scheme }}"
@@ -112,11 +103,7 @@
         class="product-story-scroll__stage"
         data-product-story-stage
         data-section-id="{{ section.id }}"
-        {% if has_stories %}
-          data-story-count="{{ stories.size }}"
-        {% else %}
-          data-story-count="0"
-        {% endif %}
+        data-story-count="{{ story_count }}"
       >
         {% comment %} Carousel region: mobile horizontal scroll; desktop track is non-scrolling {% endcomment %}
         <div
@@ -128,8 +115,7 @@
             class="product-story-scroll__track"
             role="list"
           >
-            {% if has_stories %}
-              {% for story in stories %}
+            {% for story in stories %}
                 {% liquid
                   assign story_type = story.story_type.value | default: story.story_type | default: ''
                   assign story_title = story.title.value | default: story.title | default: ''
@@ -209,58 +195,7 @@
                     </div>
                   </article>
                 </li>
-              {% endfor %}
-
-            {% elsif show_placeholder %}
-              <li
-                id="ProductStoryPanel-{{ section.id }}-0"
-                class="product-story-scroll__panel is-active product-story-scroll__panel--placeholder"
-                role="listitem"
-                data-story-index="0"
-                data-product-story-panel
-                {% if curtain_mode %}
-                  aria-hidden="false"
-                {% endif %}
-              >
-                <article class="product-story-scroll__card">
-                  <div class="product-story-scroll__card-inner">
-                    <div class="product-story-scroll__col product-story-scroll__col--copy">
-                      {% if section.settings.left_decorative_bg != blank %}
-                        <div
-                          class="product-story-scroll__decor-bg product-story-scroll__decor-bg--left"
-                          style="background-image: url('{{ section.settings.left_decorative_bg | image_url: width: 1200 }}');"
-                          role="presentation"
-                          aria-hidden="true"
-                        ></div>
-                      {% endif %}
-                      {% if section.settings.right_decorative_bg != blank %}
-                        <div
-                          class="product-story-scroll__decor-bg product-story-scroll__decor-bg--right"
-                          style="background-image: url('{{ section.settings.right_decorative_bg | image_url: width: 1200 }}');"
-                          role="presentation"
-                          aria-hidden="true"
-                        ></div>
-                      {% endif %}
-                      <div class="product-story-scroll__copy">
-                        <h3 class="product-story-scroll__story-title" id="ProductStoryPanel-{{ section.id }}-0-title">
-                          Story type — Story title
-                        </h3>
-                        <div
-                          class="product-story-scroll__body rte"
-                          aria-labelledby="ProductStoryPanel-{{ section.id }}-0-title"
-                        >
-                          <p>
-                            Add entries to <strong>product_stories</strong> on this product (list of product story metaobjects).
-                            Fields: <code>story_type</code>, <code>title</code>, <code>content</code>, <code>image</code>.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="product-story-scroll__col product-story-scroll__col--media"></div>
-                  </div>
-                </article>
-              </li>
-            {% endif %}
+            {% endfor %}
           </ul>
         </div>
       </div>

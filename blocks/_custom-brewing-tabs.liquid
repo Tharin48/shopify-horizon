@@ -1,10 +1,27 @@
 {%- liquid
   assign s = block.settings
   assign uid = block.id | replace: '-', ''
-  assign product = closest.product
+  assign product = product | default: closest.product
   assign preview = false
   if request.design_mode or request.visual_preview_mode
     assign preview = true
+  endif
+
+  assign has_product_brewing_backend = false
+  if product != blank
+    assign bm_pf = product.metafields.custom.brewing_methods
+    if bm_pf != blank and bm_pf.value != blank
+      assign has_product_brewing_backend = true
+    endif
+    assign btm_pf = product.metafields.custom.brewing_tabs_mode
+    if btm_pf != blank and btm_pf.value != blank
+      assign has_product_brewing_backend = true
+    endif
+  endif
+
+  assign skip_brewing_without_backend = false
+  if product != blank and has_product_brewing_backend == false
+    assign skip_brewing_without_backend = true
   endif
 
   comment
@@ -202,7 +219,8 @@
   assign card_width_custom = s.card_width_custom | default: 160
 -%}
 
-{%- if hide_block and preview == false -%}
+{%- if skip_brewing_without_backend -%}
+{%- elsif hide_block and preview == false -%}
 {%- elsif hide_block and preview -%}
   <div class="custom-brewing-tabs custom-brewing-tabs--empty" {{ block.shopify_attributes }}>
     <p class="custom-brewing-tabs__empty-hint">Add brewing step blocks or set <code>custom.brewing_methods</code> (list: Hot and/or Cold).</p>
