@@ -8,6 +8,38 @@
   color: var(--tp-card-text, rgb(var(--color-foreground)));
 }
 
+.teamakers-pick__horizon-product-card {
+  display: block;
+}
+
+/* Horizon quick-add in Teamaker + Editorial + Custom Catalog cards: always-visible icon button (not hover-only). */
+:is(.teamakers-pick, .featured-editorial-carousel, .custom-catalog) .teamakers-pick__card .quick-add__button {
+  opacity: 1 !important;
+  inline-size: 2.1rem;
+  block-size: 2.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 0.2rem 0.6rem rgb(0 0 0 / 0.12);
+}
+
+:is(.teamakers-pick, .featured-editorial-carousel, .custom-catalog) .teamakers-pick__card .quick-add__button .add-to-cart-text {
+  inline-size: 100%;
+}
+
+:is(.teamakers-pick, .featured-editorial-carousel, .custom-catalog) .teamakers-pick__card .quick-add__button .add-to-cart-text__content {
+  display: none !important;
+}
+
+:is(.teamakers-pick, .featured-editorial-carousel, .custom-catalog) .teamakers-pick__card .quick-add__button .add-to-cart-icon {
+  inline-size: 100%;
+}
+
+:is(.teamakers-pick, .featured-editorial-carousel, .custom-catalog) .teamakers-pick__card .quick-add__button:is(:hover, :focus-visible) {
+  scale: 1.03;
+}
+
 .teamakers-pick__card-link {
   position: absolute;
   inset: 0;

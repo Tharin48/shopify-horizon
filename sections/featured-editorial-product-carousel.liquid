@@ -50,6 +50,7 @@
 %}
 
 {% # theme-check-disable MissingAsset %}
+{{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}
 {{ 'featured-editorial-product-carousel.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'featured-editorial-product-carousel.js' | asset_url }}" defer></script>
 {% # theme-check-enable MissingAsset %}
@@ -291,6 +292,8 @@
                     show_vendor: section.settings.show_vendor,
                     show_review: section.settings.show_review_placeholder,
                     show_quick_add: section.settings.show_quick_cart,
+                    quick_add_mode: 'horizon',
+                    section_id: section.id,
                     image_sizes: '(max-width: 989px) min(78vw, 340px), 18vw',
                     placeholder: false
                   %}

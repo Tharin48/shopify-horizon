@@ -124,6 +124,8 @@
                     show_vendor: section.settings.show_vendor,
                     show_review: section.settings.show_ratings,
                     show_quick_add: section.settings.show_quick_add,
+                    quick_add_mode: 'horizon',
+                    section_id: section.id,
                     show_sale_badge: section.settings.show_sale_badge,
                     image_sizes: '(max-width: 989px) 44vw, 20vw'
                   %}
@@ -158,8 +160,6 @@
     </div>
   {% endif %}
 </section>
-
-<script src="{{ 'teamakers-quick-add.js' | asset_url }}" type="module"></script>
 
 <script>
   (() => {

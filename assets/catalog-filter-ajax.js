@@ -66,10 +66,15 @@ class CatalogFilterAjax {
     this.#root = root;
     this.#sectionId = root.dataset.sectionId ?? '';
 
+    if (this.#root.dataset.catalogAjaxInitialized === 'true') {
+      return;
+    }
+
     if (!this.#sectionId) {
       return;
     }
 
+    this.#root.dataset.catalogAjaxInitialized = 'true';
     this.#init();
   }
 

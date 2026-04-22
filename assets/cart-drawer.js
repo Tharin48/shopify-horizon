@@ -2,6 +2,18 @@ import { DialogComponent, DialogOpenEvent, DialogCloseEvent } from '@theme/dialo
 import { CartAddEvent } from '@theme/events';
 import { isMobileBreakpoint } from '@theme/utilities';
 
+const TEMP_CART_DEBUG_PREFIX = '[TEMP CART DEBUG]';
+
+const shouldLogTempCartDebug = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return false;
+  return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
+};
+
+const logTempCartDebug = (...args) => {
+  if (!shouldLogTempCartDebug()) return;
+  console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
+};
+
 /**
  * A custom element that manages a cart drawer.
  *
@@ -20,6 +32,9 @@ class CartDrawerComponent extends DialogComponent {
 
   connectedCallback() {
     super.connectedCallback();
+    logTempCartDebug('cart drawer init', {
+      autoOpen: this.hasAttribute('auto-open'),
+    });
     document.addEventListener(CartAddEvent.eventName, this.#handleCartAdd);
     this.addEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
     this.addEventListener(DialogOpenEvent.eventName, this.#handleHistoryOpen);
@@ -70,7 +85,18 @@ class CartDrawerComponent extends DialogComponent {
    * @param {CustomEvent<{ resource?: { item_count?: number } }>} event
    */
   #handleCartAdd = (event) => {
+    logTempCartDebug('cart drawer open trigger', {
+      source: event.detail.data?.source || null,
+      sourceId: event.detail.sourceId || null,
+      itemCount: event.detail.data?.itemCount || null,
+      hasSections: Boolean(event.detail.data?.sections),
+      autoOpen: this.hasAttribute('auto-open'),
+    });
+
     if (this.hasAttribute('auto-open')) {
+      logTempCartDebug('cart drawer showDialog call', {
+        source: 'cart:add event',
+      });
       this.showDialog();
     }
 
@@ -89,6 +115,9 @@ class CartDrawerComponent extends DialogComponent {
   }
 
   open() {
+    logTempCartDebug('cart drawer showDialog call', {
+      source: 'header cart trigger',
+    });
     this.showDialog();
 
     /**
@@ -123,6 +152,11 @@ class CartDrawerComponent extends DialogComponent {
     const summaryHeight = summary.getBoundingClientRect().height;
     const ratio = summaryHeight / drawerHeight;
     dialog.setAttribute('cart-summary-sticky', ratio > this.#summaryThreshold ? 'false' : 'true');
+    logTempCartDebug('cart drawer sticky state updated', {
+      drawerHeight,
+      summaryHeight,
+      ratio,
+    });
   }
 }
 

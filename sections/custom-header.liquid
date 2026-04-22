@@ -390,6 +390,21 @@
     pointer-events: none;
   }
 
+  /*
+   * Keep cart drawer interactions reliable when the custom header is in hidden state.
+   * The drawer lives inside header actions, so if the hidden header (or its sticky section)
+   * is non-interactive, the drawer can appear but feel frozen.
+   * This override only applies while the cart drawer dialog is open.
+   */
+  .custom-header:has(.cart-drawer__dialog[open]) {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  #header-group > .shopify-section:has(.custom-header):has(.cart-drawer__dialog[open]) {
+    pointer-events: auto;
+  }
+
   .custom-header[data-header-state='hidden'] .custom-header__primary {
     min-height: var(--custom-header-minimized-height);
     max-height: var(--custom-header-minimized-height);

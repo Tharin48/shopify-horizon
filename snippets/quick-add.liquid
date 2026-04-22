@@ -8,7 +8,8 @@
 {%- enddoc -%}
 
 {% liquid
-  assign product_form_id = 'QuickAdd-ProductForm-' | append: product.id | append: '-' | append: block.id
+  assign product_form_instance_id = block.id | default: section_id | default: product.id
+  assign product_form_id = 'QuickAdd-ProductForm-' | append: product.id | append: '-' | append: product_form_instance_id
   assign add_to_cart_text = 'actions.add' | t
   assign choose_options_text = 'actions.choose' | t
   assign color_scheme = color_scheme | default: settings.quick_add_color_scheme

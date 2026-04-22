@@ -9,6 +9,8 @@
   @param {boolean} [show_sale_badge] - When false, hide sale pill (oos still shows). Default true.
   @param {string} [image_sizes]
   @param {boolean} [placeholder]
+  @param {string} [quick_add_mode] - `legacy` (custom form) or `horizon` (native Horizon quick add).
+  @param {string} [section_id] - Section id forwarded to Horizon quick add form.
 {% enddoc %}
 
 {% liquid
@@ -17,9 +19,32 @@
   assign first_variant = blank
   assign card_show_sale_badge = show_sale_badge | default: true
   assign secondary_media = blank
+  assign quick_add_mode = quick_add_mode | default: 'legacy'
+  assign use_horizon_quick_add = false
+  assign quick_add_section_id = section_id | default: 'custom-catalog'
+  assign card_link_url = card_product.url
+  assign has_horizon_quick_add = false
+  assign has_horizon_mobile_quick_add = false
+  assign product_card_anchor = blank
+
+  if quick_add_mode == 'horizon'
+    assign use_horizon_quick_add = true
+  endif
 
   if is_placeholder == false and card_product != blank
     assign first_variant = card_product.selected_or_first_available_variant
+    if first_variant != blank and first_variant.url != blank
+      assign card_link_url = first_variant.url
+    endif
+
+    if use_horizon_quick_add and show_quick_add and card_product.available
+      assign has_horizon_quick_add = true
+      if settings.mobile_quick_add
+        assign has_horizon_mobile_quick_add = true
+      endif
+    endif
+
+    assign product_card_anchor = 'teamakers-product-card-link-' | append: card_product.id | append: '-' | append: quick_add_section_id | md5
     assign image_count = 0
     for m in card_product.media
       if m.media_type == 'image'
@@ -40,8 +65,33 @@
 
 <article class="teamakers-pick__card">
   {% if is_placeholder == false and card_product != blank %}
-    <div class="teamakers-pick__image-wrap{% if secondary_media != blank %} teamakers-pick__image-wrap--has-secondary{% endif %}">
-      <a class="teamakers-pick__card-link" href="{{ card_product.url }}">
+    {% if use_horizon_quick_add %}
+      <product-card
+        class="teamakers-pick__horizon-product-card"
+        data-product-id="{{ card_product.id }}"
+      >
+    {% endif %}
+    <div
+      class="teamakers-pick__image-wrap{% if secondary_media != blank %} teamakers-pick__image-wrap--has-secondary{% endif %}"
+      {% if use_horizon_quick_add %}
+        style="
+          --quick-add-display: {% if has_horizon_quick_add %}flex{% else %}none{% endif %};
+          --quick-add-mobile-display: {% if has_horizon_mobile_quick_add %}flex{% else %}none{% endif %};
+          --quick-add-mobile-opacity: {% if has_horizon_mobile_quick_add %}1{% else %}0{% endif %};
+          --padding-inline-end: 0px;
+          --padding-block-end: 0px;
+          --border-radius: var(--tp-img-radius, 10px);
+        "
+      {% endif %}
+    >
+      <a
+        class="teamakers-pick__card-link"
+        href="{{ card_link_url }}"
+        {% if use_horizon_quick_add %}
+          id="{{ product_card_anchor }}"
+          ref="productCardLink"
+        {% endif %}
+      >
         {% if card_product.available == false %}
           <span class="teamakers-pick__pill teamakers-pick__pill--oos">Out of stock</span>
         {% elsif card_show_sale_badge and card_product.compare_at_price > card_product.price %}
@@ -79,7 +129,12 @@
         </span>
       </a>
 
-      {% if show_quick_add and card_product.available and first_variant != blank %}
+      {% if has_horizon_quick_add %}
+        {% render 'quick-add',
+          product: card_product,
+          section_id: quick_add_section_id
+        %}
+      {% elsif show_quick_add and card_product.available and first_variant != blank %}
         <form method="post" action="{{ routes.cart_add_url }}" class="teamakers-pick__quick-add-form">
           <input type="hidden" name="id" value="{{ first_variant.id }}">
           <input type="hidden" name="quantity" value="1">
@@ -96,6 +151,9 @@
         </form>
       {% endif %}
     </div>
+    {% if use_horizon_quick_add %}
+      </product-card>
+    {% endif %}
 
     <div class="teamakers-pick__meta">
       {% if eyebrow_text != blank %}
