@@ -592,7 +592,10 @@
 
   .featured-editorial-carousel .teamakers-pick__vendor { font-size: 0.65rem; }
   .featured-editorial-carousel .teamakers-pick__rating { font-size: 0.72rem; gap: 0.25rem; }
-  .featured-editorial-carousel .teamakers-pick__price { font-size: 1rem; }
+  .featured-editorial-carousel .teamakers-pick__price {
+    font-size: 14px;
+    font-weight: 600;
+  }
 
   .featured-editorial-carousel .fepc__leaf--hide-mobile {
     display: none;

@@ -543,7 +543,7 @@
               "settings": {
                 "heading": "Pair With",
                 "items_to_show": 2,
-                "fallback_collection": "",
+                "fallback_collection": "best-sellers",
                 "show_price": true,
                 "show_add_to_cart": true,
                 "enable_quick_add": true,
@@ -588,9 +588,7 @@
       "name": "Product story scroll",
       "settings": {
         "section_heading": "A Tea with a Story",
-        "left_decorative_bg": "shopify://shop_images/Group_1272628375.svg",
         "left_decorative_offset_x": 24,
-        "right_decorative_bg": "shopify://shop_images/Group.svg",
         "card_background_color": "#f7f3eb",
         "section_max_width": 1920,
         "section_max_height": 1400,

@@ -1,7 +1,8 @@
 import { fetchConfig } from '@theme/utilities';
 import { CartAddEvent, CartErrorEvent } from '@theme/events';
 
-const BOUND = '__teamakersQuickAddBound';
+/** Ensures the document submit listener is registered only once per module evaluation. */
+let teamakersQuickAddListenerBound = false;
 
 function getCartSectionIds() {
   /** @type {string[]} */
@@ -82,11 +83,6 @@ async function onTeamakersQuickAddSubmit(event) {
         submitButton.removeAttribute('data-added');
       }, 800);
     }
-
-    const drawer = document.querySelector('cart-drawer-component');
-    if (drawer && 'showDialog' in drawer && typeof drawer.showDialog === 'function') {
-      drawer.showDialog();
-    }
   } catch (err) {
     console.error('Teamakers quick add:', err);
   } finally {
@@ -94,7 +90,7 @@ async function onTeamakersQuickAddSubmit(event) {
   }
 }
 
-if (!globalThis[BOUND]) {
-  globalThis[BOUND] = true;
+if (!teamakersQuickAddListenerBound) {
+  teamakersQuickAddListenerBound = true;
   document.addEventListener('submit', onTeamakersQuickAddSubmit);
 }

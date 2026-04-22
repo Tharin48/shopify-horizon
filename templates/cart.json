@@ -48,7 +48,7 @@
           "settings": {
             "extend_summary": true,
             "inherit_color_scheme": false,
-            "color_scheme": "scheme-2",
+            "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
             "border": "none",
             "border_width": 1,
             "border_opacity": 100,
@@ -59,7 +59,7 @@
       },
       "settings": {
         "section_width": "page-width",
-        "color_scheme": "",
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
         "padding-block-start": 24,
         "padding-block-end": 0
       }
@@ -202,7 +202,13 @@
                 "padding-block-start": 4,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
-                "padding-inline-end": 0
+                "padding-inline-end": 0,
+                "show_collection_link": false,
+                "collection_link_target": "",
+                "collection_link_font_size": 14,
+                "collection_link_text_color": "#6b6b6b",
+                "collection_link_padding_top": 12,
+                "collection_link_padding_bottom": 0
               },
               "blocks": {}
             },

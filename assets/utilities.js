@@ -354,6 +354,19 @@ export function isDesktopBreakpoint() {
 }
 
 /**
+ * Large desktop and up (990px+). Used for auto-opening the cart after add: skip on phone/tablet.
+ * @type {MediaQueryList}
+ */
+export const mediaQueryMinWidth990 = matchMedia('(min-width: 990px)');
+
+/**
+ * @returns {boolean} True when the viewport is 990px wide or more
+ */
+export function isMinWidth990() {
+  return mediaQueryMinWidth990.matches;
+}
+
+/**
  * Check if the device is a touch device independently ot the screen size
  * @returns {boolean} True if the device is a touch device, false otherwise
  */

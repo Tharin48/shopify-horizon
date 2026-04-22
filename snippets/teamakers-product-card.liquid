@@ -39,9 +39,7 @@
 
     if use_horizon_quick_add and show_quick_add and card_product.available
       assign has_horizon_quick_add = true
-      if settings.mobile_quick_add
-        assign has_horizon_mobile_quick_add = true
-      endif
+      assign has_horizon_mobile_quick_add = true
     endif
 
     assign product_card_anchor = 'teamakers-product-card-link-' | append: card_product.id | append: '-' | append: quick_add_section_id | md5

@@ -1,6 +1,6 @@
 import { DialogComponent, DialogOpenEvent, DialogCloseEvent } from '@theme/dialog';
 import { CartAddEvent } from '@theme/events';
-import { isMobileBreakpoint } from '@theme/utilities';
+import { isMobileBreakpoint, isMinWidth990 } from '@theme/utilities';
 
 const TEMP_CART_DEBUG_PREFIX = '[TEMP CART DEBUG]';
 
@@ -9,10 +9,14 @@ const shouldLogTempCartDebug = () => {
   return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
 };
 
-const logTempCartDebug = (...args) => {
+/**
+ * @param {...unknown} args
+ * @returns {void}
+ */
+function logTempCartDebug(...args) {
   if (!shouldLogTempCartDebug()) return;
   console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
-};
+}
 
 /**
  * A custom element that manages a cart drawer.
@@ -81,26 +85,31 @@ class CartDrawerComponent extends DialogComponent {
   };
 
   /**
-   * Handles cart add events - opens drawer if auto-open and announces count when open.
-   * @param {CustomEvent<{ resource?: { item_count?: number } }>} event
+   * Handles cart add events - opens drawer if auto-open (990px+ only) and announces count when open.
+   * @param {Event} event
    */
   #handleCartAdd = (event) => {
+    const detail =
+      /** @type {{ resource?: { item_count?: number }; sourceId?: string; data?: { source?: string; itemCount?: number; sections?: unknown } }} */ (
+        'detail' in event ? event.detail : undefined
+      ) || {};
     logTempCartDebug('cart drawer open trigger', {
-      source: event.detail.data?.source || null,
-      sourceId: event.detail.sourceId || null,
-      itemCount: event.detail.data?.itemCount || null,
-      hasSections: Boolean(event.detail.data?.sections),
+      source: detail.data?.source || null,
+      sourceId: detail.sourceId || null,
+      itemCount: detail.data?.itemCount || null,
+      hasSections: Boolean(detail.data?.sections),
       autoOpen: this.hasAttribute('auto-open'),
+      isMinWidth990: isMinWidth990(),
     });
 
-    if (this.hasAttribute('auto-open')) {
+    if (this.hasAttribute('auto-open') && isMinWidth990()) {
       logTempCartDebug('cart drawer showDialog call', {
         source: 'cart:add event',
       });
       this.showDialog();
     }
 
-    this.#announceCartCount(event.detail.resource?.item_count);
+    this.#announceCartCount(detail.resource?.item_count);
   };
 
   /**

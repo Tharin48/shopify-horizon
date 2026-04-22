@@ -13,6 +13,7 @@
  * Swapped regions (identified by data attributes on stable wrapper elements):
  *   [data-catalog-tea-types]      — tea type <ul> (active/inactive states)
  *   [data-catalog-pills-region]   — format pills + active chips bar
+ *   [data-catalog-toolbar-region] — toolbar + mobile filter drawer markup
  *   [data-catalog-results-region] — product grid (+ bottom pagination only when infinite scroll is off)
  */
 
@@ -25,6 +26,7 @@ const FILTER_LINK_ROOTS = [
   '[data-catalog-tea-types]',
   '[data-catalog-pills-region]',
   '[data-catalog-toolbar]',
+  '[data-catalog-mobile-drawer]',
   '[data-catalog-results-region]',
 ];
 
@@ -110,7 +112,13 @@ class CatalogFilterAjax {
     if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
 
     e.preventDefault();
-    this.#navigate(href, true);
+    this.#closeContainingDialog(link)
+      .catch(() => {
+        // Ignore close animation/DOM race errors and continue navigation.
+      })
+      .finally(() => {
+        this.#navigate(href, true);
+      });
   }
 
   /** @param {PopStateEvent} e */
@@ -270,6 +278,42 @@ class CatalogFilterAjax {
     const rect = results.getBoundingClientRect();
     if (rect.top < 0) {
       results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  /**
+   * Close a parent dialog (if any) before replacing DOM regions.
+   * This avoids leaving mobile drawer scroll-lock styles behind when
+   * a filter link is clicked from inside an open drawer.
+   *
+   * @param {Element} source
+   * @returns {Promise<void>}
+   */
+  async #closeContainingDialog(source) {
+    const dialog = source.closest('dialog[open]');
+    if (!(dialog instanceof HTMLDialogElement)) return;
+
+    const dialogComponent = dialog.closest('dialog-component');
+
+    if (
+      dialogComponent &&
+      'closeDialog' in dialogComponent &&
+      typeof dialogComponent.closeDialog === 'function'
+    ) {
+      await dialogComponent.closeDialog();
+      return;
+    }
+
+    dialog.close();
+
+    const topOffset = Number.parseInt(document.body.style.top || '0', 10);
+    document.body.style.width = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.documentElement.removeAttribute('scroll-lock');
+
+    if (Number.isFinite(topOffset) && topOffset !== 0) {
+      window.scrollTo({ top: Math.abs(topOffset), behavior: 'instant' });
     }
   }
 }

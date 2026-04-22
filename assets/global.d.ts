@@ -37,6 +37,8 @@ declare global {
 
   interface Window {
     Shopify: Shopify;
+    /** Opt-in: set on `window` in devtools to log cart / catalog AJAX debug. */
+    __HORIZON_TEMP_CART_DEBUG__?: boolean;
   }
 
   declare const Shopify: Shopify;

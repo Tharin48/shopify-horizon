@@ -5,19 +5,35 @@
   @param {object} filter - Liquid filter from collection.filters
   @param {string} section_id - section.id for unique DOM ids
   @param {string} facet_key - Short slug, e.g. tea-type (unique per dropdown)
+  @param {boolean} drawer_mode - Optional. Renders drawer-friendly accordion styling.
 {%- enddoc -%}
 {%- if filter and filter.values.size > 0 -%}
   {%- liquid
+    assign is_drawer_mode = drawer_mode | default: false
+    assign active_value_count = filter.active_values | size
     assign panel_id = 'FacetPanel-' | append: section_id | append: '-' | append: facet_key
+    if is_drawer_mode
+      assign panel_id = panel_id | append: '-drawer'
+    endif
   -%}
-  <details class="custom-catalog__facet-dd" name="catalog-toolbar-facets" data-catalog-facet-dd>
+  <details
+    class="custom-catalog__facet-dd{% if is_drawer_mode %} custom-catalog__facet-dd--drawer{% endif %}"
+    name="{% if is_drawer_mode %}catalog-drawer-facets{% else %}catalog-toolbar-facets{% endif %}"
+    data-catalog-facet-dd
+    {% if is_drawer_mode and active_value_count > 0 %}
+      open
+    {% endif %}
+  >
     <summary class="custom-catalog__facet-dd-summary">
       <span class="custom-catalog__facet-dd-summary-label">{{ filter.label | escape }}</span>
+      {%- if is_drawer_mode and active_value_count > 0 -%}
+        <span class="custom-catalog__facet-dd-summary-count">{{ active_value_count }}</span>
+      {%- endif -%}
       <span class="custom-catalog__facet-dd-chevron" aria-hidden="true">▾</span>
     </summary>
     <div
       id="{{ panel_id }}"
-      class="custom-catalog__facet-dd-panel color-{{ settings.popover_color_scheme }}"
+      class="custom-catalog__facet-dd-panel{% unless is_drawer_mode %} color-{{ settings.popover_color_scheme }}{% endunless %}"
       role="group"
       aria-label="{{ filter.label | escape }}"
     >

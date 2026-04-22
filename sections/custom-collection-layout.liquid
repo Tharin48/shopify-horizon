@@ -171,9 +171,11 @@
   endif
 
   assign catalog_has_active_chips = false
+  assign catalog_total_active_values = 0
   for f in collection.filters
     for av in f.active_values
       assign catalog_has_active_chips = true
+      assign catalog_total_active_values = catalog_total_active_values | plus: 1
     endfor
   endfor
 
@@ -185,6 +187,10 @@
   assign catalog_clear_href = collection.url
   assign catalog_sort_by = collection.sort_by | default: collection.default_sort_by
   assign catalog_results_list_id = 'custom-catalog-results-' | append: section.id
+  assign catalog_filters_drawer_id = 'custom-catalog-filters-drawer-' | append: section.id
+  assign catalog_filters_drawer_heading_id = 'custom-catalog-filters-heading-' | append: section.id
+  assign catalog_sort_sheet_id = 'custom-catalog-sort-sheet-' | append: section.id
+  assign catalog_sort_sheet_heading_id = 'custom-catalog-sort-sheet-heading-' | append: section.id
 -%}
 
 <div
@@ -485,6 +491,28 @@
           -%}
 
           <div class="custom-catalog__toolbar" data-catalog-toolbar>
+            <div class="custom-catalog__toolbar-mobile-filter">
+              <button
+                class="button custom-catalog__mobile-filter-toggle button-unstyled{% if catalog_total_active_values > 0 %} is-active{% endif %}"
+                on:click="#{{ catalog_filters_drawer_id }}/showDialog"
+                type="button"
+                aria-haspopup="dialog"
+              >
+                <span class="custom-catalog__mobile-filter-toggle-label">{{ 'actions.show_filters' | t }}</span>
+                <span class="svg-wrapper custom-catalog__mobile-filter-toggle-icon" aria-hidden="true">
+                  {{ 'icon-filter.svg' | inline_asset_content }}
+                </span>
+                {%- if catalog_total_active_values > 0 -%}
+                  <span
+                    class="filter-count-bubble custom-catalog__mobile-filter-bubble"
+                    aria-label="{{ 'accessibility.filter_count' | t: count: catalog_total_active_values }}"
+                  >
+                    <span class="filter-count-bubble__background"></span>
+                    <span class="filter-count-bubble__text" aria-hidden="true">{{ catalog_total_active_values }}</span>
+                  </span>
+                {%- endif -%}
+              </button>
+            </div>
             <div class="custom-catalog__toolbar-left custom-catalog__toolbar-facets" data-catalog-toolbar-facets>
               {%- if catalog_filter_our_ranges and catalog_filter_our_ranges.values.size > 0 -%}
                 {%- render 'custom-catalog-facet-dropdown'
@@ -542,12 +570,7 @@
             </div>
             <div class="custom-catalog__toolbar-right" data-catalog-toolbar-meta>
               <span class="custom-catalog__toolbar-count" data-catalog-item-count>{{ count_text | escape }}</span>
-              {%- render 'custom-catalog-sort-dropdown'
-                , section_id: section.id
-                , collection: collection
-                , catalog_sort_by: catalog_sort_by
-                , sort_label_prefix: section.settings.sort_label_prefix
-              -%}
+              <div class="custom-catalog__toolbar-right-actions" data-catalog-toolbar-right-actions>
               <fieldset class="custom-catalog__grid-toggle">
                 <legend class="visually-hidden">{{ section.settings.grid_toggle_aria_label | escape }}</legend>
                 <label class="custom-catalog__grid-toggle-option">
@@ -652,8 +675,218 @@
                   </span>
                 </label>
               </fieldset>
+              <button
+                class="button custom-catalog__mobile-sort-toggle button-unstyled"
+                on:click="#{{ catalog_sort_sheet_id }}/showDialog"
+                type="button"
+                aria-haspopup="dialog"
+                aria-label="{{ 'actions.sort' | t | escape }}"
+              >
+                <span class="svg-wrapper custom-catalog__mobile-sort-toggle-icon" aria-hidden="true">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false">
+                    <path
+                      d="M7 8.5L11.2 4l4.2 4.5M7 15.5L11.2 20l4.2-4.5"
+                      stroke="currentColor"
+                      stroke-width="1.65"
+                      stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </button>
+              {%- render 'custom-catalog-sort-dropdown',
+                section_id: section.id,
+                collection: collection,
+                catalog_sort_by: catalog_sort_by,
+                sort_label_prefix: section.settings.sort_label_prefix
+              -%}
+              </div>
             </div>
           </div>
+
+          <dialog-component
+            id="{{ catalog_sort_sheet_id }}"
+            class="custom-catalog__mobile-sort-dialog color-{{ settings.drawer_color_scheme }}"
+            dialog-active-max-width="989"
+            data-catalog-mobile-drawer
+          >
+            <dialog
+              ref="dialog"
+              class="custom-catalog__mobile-sort-sheet dialog-modal dialog-drawer"
+              scroll-lock
+              aria-labelledby="{{ catalog_sort_sheet_heading_id }}"
+            >
+              <div class="custom-catalog__mobile-sort-sheet-header">
+                <h2 id="{{ catalog_sort_sheet_heading_id }}" class="custom-catalog__mobile-sort-sheet-title h4">
+                  {{ 'actions.sort' | t }}
+                </h2>
+                <button
+                  class="custom-catalog__mobile-sort-sheet-close button-unstyled close-button"
+                  on:click="dialog-component/closeDialog"
+                  type="button"
+                  aria-label="{{ 'actions.close' | t }}"
+                  autofocus
+                >
+                  <span class="svg-wrapper svg-wrapper--small">
+                    {{ 'icon-close.svg' | inline_asset_content }}
+                  </span>
+                </button>
+              </div>
+
+              <div class="custom-catalog__mobile-sort-sheet-body">
+                {%- render 'custom-catalog-sort-dropdown',
+                  section_id: section.id,
+                  collection: collection,
+                  catalog_sort_by: catalog_sort_by,
+                  sort_label_prefix: section.settings.sort_label_prefix,
+                  sheet_mode: true
+                -%}
+              </div>
+            </dialog>
+          </dialog-component>
+
+          <dialog-component
+            id="{{ catalog_filters_drawer_id }}"
+            class="custom-catalog__mobile-filters-dialog color-{{ settings.drawer_color_scheme }}"
+            dialog-active-max-width="989"
+            data-catalog-mobile-drawer
+          >
+            <dialog
+              ref="dialog"
+              class="custom-catalog__mobile-filters-drawer dialog-modal drawer dialog-drawer"
+              scroll-lock
+              aria-labelledby="{{ catalog_filters_drawer_heading_id }}"
+            >
+              <div class="custom-catalog__mobile-filters-header">
+                <h2 id="{{ catalog_filters_drawer_heading_id }}" class="custom-catalog__mobile-filters-title h4">
+                  {{ 'actions.show_filters' | t }}
+                  {%- if catalog_total_active_values > 0 -%}
+                    <span class="bubble custom-catalog__mobile-filters-title-bubble" aria-hidden="true">{{ catalog_total_active_values }}</span>
+                  {%- endif -%}
+                </h2>
+                <button
+                  class="custom-catalog__mobile-filters-close button-unstyled close-button"
+                  on:click="dialog-component/closeDialog"
+                  type="button"
+                  aria-label="{{ 'actions.close' | t }}"
+                  autofocus
+                >
+                  <span class="svg-wrapper svg-wrapper--small">
+                    {{ 'icon-close.svg' | inline_asset_content }}
+                  </span>
+                </button>
+              </div>
+
+              <div class="custom-catalog__mobile-filters-body">
+                <div class="custom-catalog__mobile-filters-list">
+                  {%- if catalog_show_pills_bar -%}
+                    <div class="custom-catalog__mobile-drawer-pills-bar">
+                      {%- if catalog_has_active_chips -%}
+                        <div class="custom-catalog__filters custom-catalog__filters--drawer" data-catalog-active-filters-region>
+                          <ul
+                            class="custom-catalog__chips"
+                            role="list"
+                            aria-label="{{ section.settings.active_filters_aria_label | escape }}">
+                            {%- for filter in collection.filters -%}
+                              {%- for active_value in filter.active_values -%}
+                                <li role="listitem">
+                                  <a
+                                    href="{{ active_value.url_to_remove }}"
+                                    class="custom-catalog__chip"
+                                    aria-label="{{ active_value.label | escape }} — {{ section.settings.chip_remove_sr_suffix | escape }}">
+                                    <span class="custom-catalog__chip-label">{{ active_value.label | escape }}</span>
+                                    <span class="custom-catalog__chip-remove" aria-hidden="true">{{ section.settings.chip_remove_character | escape }}</span>
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            {%- endfor -%}
+                          </ul>
+                          <a href="{{ catalog_clear_href }}" class="custom-catalog__clear">{{ section.settings.clear_all_label | escape }}</a>
+                        </div>
+                      {%- endif -%}
+
+                      {%- unless section.settings.show_availability_toggle == false -%}
+                        {%- if catalog_filter_availability -%}
+                          <div class="custom-catalog__mobile-filters-availability custom-catalog__mobile-filters-availability--top">
+                            {%- render 'custom-catalog-availability-toggle'
+                              , filter: catalog_filter_availability
+                              , availability_label: section.settings.availability_toggle_label
+                            -%}
+                          </div>
+                        {%- endif -%}
+                      {%- endunless -%}
+                    </div>
+                  {%- endif -%}
+
+                  {%- if catalog_filter_our_ranges and catalog_filter_our_ranges.values.size > 0 -%}
+                    {%- render 'custom-catalog-facet-dropdown'
+                      , filter: catalog_filter_our_ranges
+                      , section_id: section.id
+                      , facet_key: 'our-ranges'
+                      , drawer_mode: true
+                    -%}
+                  {%- endif -%}
+                  {%- if catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0 -%}
+                    {%- render 'custom-catalog-facet-dropdown'
+                      , filter: catalog_filter_tea_type
+                      , section_id: section.id
+                      , facet_key: 'tea-type'
+                      , drawer_mode: true
+                    -%}
+                  {%- endif -%}
+                  {%- if catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0 -%}
+                    {%- render 'custom-catalog-facet-dropdown'
+                      , filter: catalog_filter_tea_format
+                      , section_id: section.id
+                      , facet_key: 'tea-format'
+                      , drawer_mode: true
+                    -%}
+                  {%- endif -%}
+                  {%- if catalog_filter_flavor and catalog_filter_flavor.values.size > 0 -%}
+                    {%- render 'custom-catalog-facet-dropdown'
+                      , filter: catalog_filter_flavor
+                      , section_id: section.id
+                      , facet_key: 'flavor'
+                      , drawer_mode: true
+                    -%}
+                  {%- endif -%}
+                  {%- if catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0 -%}
+                    {%- render 'custom-catalog-facet-dropdown'
+                      , filter: catalog_filter_time_of_day
+                      , section_id: section.id
+                      , facet_key: 'time-of-day'
+                      , drawer_mode: true
+                    -%}
+                  {%- endif -%}
+                  <div class="custom-catalog__mobile-filters-sort">
+                    {%- render 'custom-catalog-sort-dropdown'
+                      , section_id: section.id
+                      , collection: collection
+                      , catalog_sort_by: catalog_sort_by
+                      , sort_label_prefix: section.settings.sort_label_prefix
+                      , drawer_mode: true
+                    -%}
+                  </div>
+                </div>
+              </div>
+
+              <div class="custom-catalog__mobile-filters-actions">
+                <button
+                  class="button custom-catalog__mobile-filters-see-results"
+                  type="button"
+                  on:click="dialog-component/closeDialog"
+                >
+                  {{- 'actions.see_items' | t: count: paginate.items -}}
+                </button>
+              </div>
+            </dialog>
+          </dialog-component>
         </div>
       </div>
 

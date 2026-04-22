@@ -6,9 +6,13 @@
   @param {object} collection - Current collection
   @param {string} catalog_sort_by - Active sort value
   @param {string} sort_label_prefix - Visible prefix before current sort name in summary
+  @param {boolean} drawer_mode - Optional. Renders drawer-friendly accordion styling.
+  @param {boolean} sheet_mode - Optional. Renders option rows directly for a mobile bottom sheet.
 {%- enddoc -%}
 {%- if collection.sort_options.size > 0 -%}
   {%- liquid
+    assign is_drawer_mode = drawer_mode | default: false
+    assign is_sheet_mode = sheet_mode | default: false
     assign sort_prefix = sort_label_prefix | strip | default: 'Sort'
     assign sort_status_name = ''
     for option in collection.sort_options
@@ -57,42 +61,97 @@
     endif
 
     assign panel_id = 'FacetPanel-' | append: section_id | append: '-catalog-sort'
+    if is_drawer_mode
+      assign panel_id = panel_id | append: '-drawer'
+    endif
   -%}
-  <details class="custom-catalog__facet-dd custom-catalog__sort-dd" name="catalog-toolbar-facets" data-catalog-facet-dd>
-    <summary class="custom-catalog__facet-dd-summary">
-      <span class="custom-catalog__facet-dd-summary-label">
-        {{- sort_prefix | escape }}: {{ sort_status_name | escape -}}
-      </span>
-      <span class="custom-catalog__facet-dd-chevron" aria-hidden="true">▾</span>
-    </summary>
-    <div
-      id="{{ panel_id }}"
-      class="custom-catalog__facet-dd-panel color-{{ settings.popover_color_scheme }}"
-      role="group"
-      aria-label="{{ 'actions.sort' | t | escape }}"
-    >
-      <div class="custom-catalog__facet-dd-scroll">
-        {%- for option in collection.sort_options -%}
-          {%- assign sv = option.value | url_encode -%}
-          {%- if sort_q_kept == blank -%}
-            {%- assign option_href = sort_base_path | append: '?sort_by=' | append: sv -%}
-          {%- else -%}
-            {%- assign option_href = sort_base_path
-              | append: '?'
-              | append: sort_q_kept
-              | append: '&sort_by='
-              | append: sv
-            -%}
-          {%- endif -%}
-          <a
-            href="{{ option_href }}"
-            class="custom-catalog__facet-dd-row custom-catalog__facet-dd-row--sort{% if option.value == catalog_sort_by %} is-selected{% endif %}"
-          >
-            <span class="custom-catalog__facet-dd-check" aria-hidden="true"></span>
-            <span class="custom-catalog__facet-dd-text">{{ option.name | escape }}</span>
-          </a>
-        {%- endfor -%}
-      </div>
+  {%- if is_sheet_mode -%}
+    <div class="custom-catalog__sort-sheet-options" role="group" aria-label="{{ 'actions.sort' | t | escape }}">
+      {%- for option in collection.sort_options -%}
+        {%- assign sv = option.value | url_encode -%}
+        {%- if sort_q_kept == blank -%}
+          {%- assign option_href = sort_base_path | append: '?sort_by=' | append: sv -%}
+        {%- else -%}
+          {%- assign option_href = sort_base_path
+            | append: '?'
+            | append: sort_q_kept
+            | append: '&sort_by='
+            | append: sv
+          -%}
+        {%- endif -%}
+        <a
+          href="{{ option_href }}"
+          class="custom-catalog__facet-dd-row custom-catalog__facet-dd-row--sort custom-catalog__sort-sheet-row{% if option.value == catalog_sort_by %} is-selected{% endif %}"
+        >
+          <span class="custom-catalog__facet-dd-check" aria-hidden="true"></span>
+          <span class="custom-catalog__facet-dd-text">{{ option.name | escape }}</span>
+        </a>
+      {%- endfor -%}
     </div>
-  </details>
+  {%- else -%}
+    <details
+      class="custom-catalog__facet-dd custom-catalog__sort-dd{% if is_drawer_mode %} custom-catalog__facet-dd--drawer{% endif %}"
+      name="{% if is_drawer_mode %}catalog-drawer-facets{% else %}catalog-toolbar-facets{% endif %}"
+      data-catalog-facet-dd
+    >
+      <summary
+        class="custom-catalog__facet-dd-summary custom-catalog__sort-dd-summary"
+        aria-label="{{ sort_prefix | escape }}: {{ sort_status_name | escape }}"
+      >
+        <span class="custom-catalog__sort-dd-icon" aria-hidden="true">
+          <svg
+            class="custom-catalog__sort-dd-icon-svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7 8.5L11.2 4l4.2 4.5M7 15.5L11.2 20l4.2-4.5"
+              stroke="currentColor"
+              stroke-width="1.65"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        <span class="custom-catalog__sort-dd-label-group">
+          <span class="custom-catalog__facet-dd-summary-label">
+            {{- sort_prefix | escape }}: {{ sort_status_name | escape -}}
+          </span>
+          <span class="custom-catalog__facet-dd-chevron" aria-hidden="true">▾</span>
+        </span>
+      </summary>
+      <div
+        id="{{ panel_id }}"
+        class="custom-catalog__facet-dd-panel{% unless is_drawer_mode %} color-{{ settings.popover_color_scheme }}{% endunless %}"
+        role="group"
+        aria-label="{{ 'actions.sort' | t | escape }}"
+      >
+        <div class="custom-catalog__facet-dd-scroll">
+          {%- for option in collection.sort_options -%}
+            {%- assign sv = option.value | url_encode -%}
+            {%- if sort_q_kept == blank -%}
+              {%- assign option_href = sort_base_path | append: '?sort_by=' | append: sv -%}
+            {%- else -%}
+              {%- assign option_href = sort_base_path
+                | append: '?'
+                | append: sort_q_kept
+                | append: '&sort_by='
+                | append: sv
+              -%}
+            {%- endif -%}
+            <a
+              href="{{ option_href }}"
+              class="custom-catalog__facet-dd-row custom-catalog__facet-dd-row--sort{% if option.value == catalog_sort_by %} is-selected{% endif %}"
+            >
+              <span class="custom-catalog__facet-dd-check" aria-hidden="true"></span>
+              <span class="custom-catalog__facet-dd-text">{{ option.name | escape }}</span>
+            </a>
+          {%- endfor -%}
+        </div>
+      </div>
+    </details>
+  {%- endif -%}
 {%- endif -%}
