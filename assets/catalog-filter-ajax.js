@@ -2,7 +2,8 @@
  * catalog-filter-ajax.js
  *
  * Progressively enhances the custom catalog collection page so that clicking
- * any filter link (tea types, format pills, chips, clear-all, pagination) fetches
+ * any filter link (tea types, format pills, chips, clear-all, and bottom pagination
+ * when infinite scroll is off) fetches
  * only the section HTML via the Shopify Section Rendering API and swaps the
  * relevant DOM regions in-place — no full page reload.
  *
@@ -12,7 +13,7 @@
  * Swapped regions (identified by data attributes on stable wrapper elements):
  *   [data-catalog-tea-types]      — tea type <ul> (active/inactive states)
  *   [data-catalog-pills-region]   — format pills + active chips bar
- *   [data-catalog-results-region] — toolbar (count, facet pills) + product grid + pagination
+ *   [data-catalog-results-region] — product grid (+ bottom pagination only when infinite scroll is off)
  */
 
 /**
@@ -28,6 +29,17 @@ const FILTER_LINK_ROOTS = [
 ];
 
 /**
+ * CSS selectors whose descendant <a> elements are NEVER intercepted.
+ * Product card links live inside the results region but must navigate to the PDP,
+ * not re-render the section. Takes priority over FILTER_LINK_ROOTS.
+ * @type {string[]}
+ */
+const FILTER_LINK_EXCLUDE = [
+  '[data-catalog-product-grid]',
+  'results-list',
+];
+
+/**
  * data-* attribute names for regions that are replaced in the live DOM
  * after each successful fetch. Order does not matter.
  * @type {string[]}
@@ -35,6 +47,7 @@ const FILTER_LINK_ROOTS = [
 const SWAPPABLE_REGIONS = [
   'data-catalog-tea-types',
   'data-catalog-pills-region',
+  'data-catalog-toolbar-region',
   'data-catalog-results-region',
 ];
 
@@ -78,6 +91,11 @@ class CatalogFilterAjax {
 
     const link = /** @type {Element} */ (e.target).closest('a[href]');
     if (!link) return;
+
+    // Never intercept product card links (or anything inside the results-list element) —
+    // those must navigate to the PDP normally. Check this before the filter-root match
+    // because [data-catalog-results-region] wraps the product grid.
+    if (FILTER_LINK_EXCLUDE.some((sel) => link.closest(sel) !== null)) return;
 
     // Only intercept links that live inside a recognized filter container.
     const isFilterLink = FILTER_LINK_ROOTS.some((sel) => link.closest(sel) !== null);
@@ -135,6 +153,7 @@ class CatalogFilterAjax {
 
       const freshDoc = new DOMParser().parseFromString(sectionHtml, 'text/html');
       this.#swapRegions(freshDoc);
+      this.#restoreCatalogProductGridView();
 
       if (push) {
         history.pushState({ catalogFilterUrl: url }, '', url);
@@ -182,6 +201,30 @@ class CatalogFilterAjax {
         live.replaceWith(fresh.cloneNode(true));
       }
     }
+  }
+
+  /**
+   * After swapping results HTML, re-apply grid vs list preference from sessionStorage
+   * (same keys as Horizon results-list / product grid).
+   */
+  #restoreCatalogProductGridView() {
+    const resultsList = this.#root.querySelector(
+      'results-list.custom-catalog__results-list[id^="custom-catalog-results-"]'
+    );
+    if (!resultsList) return;
+
+    const grid = resultsList.querySelector('[ref="grid"]');
+    if (!(grid instanceof HTMLElement)) return;
+
+    const viewport = window.matchMedia('(min-width: 750px)').matches ? 'desktop' : 'mobile';
+    const stored = sessionStorage.getItem(`product-grid-view-${viewport}`) || 'default';
+    if (stored !== 'list' && stored !== 'default') return;
+
+    grid.setAttribute('product-grid-view', stored);
+    const radio = this.#root.querySelector(
+      `input[type="radio"][name="catalog-grid-${this.#sectionId}"][value="${stored}"]`
+    );
+    if (radio instanceof HTMLInputElement) radio.checked = true;
   }
 
   /**

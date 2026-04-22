@@ -38,7 +38,8 @@
   flex-direction: column;
   min-height: 100%;
   border-radius: 1.5rem;
-  background: rgb(var(--color-background-rgb));
+  /* Transparent color schemes: --color-background-rgb is 0 0 0 without alpha → avoid rgb() form */
+  background: var(--color-background);
   color: rgb(var(--color-foreground-rgb));
   box-shadow: 0 0.8rem 2rem rgb(0 0 0 / 0.08);
   overflow: hidden;

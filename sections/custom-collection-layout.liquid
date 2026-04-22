@@ -6,6 +6,16 @@
 {{ 'custom-collection-layout.css' | asset_url | stylesheet_tag }}
 {{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}
 
+<script
+  src="{{ 'results-list.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+<script src="{{ 'teamakers-quick-add.js' | asset_url }}" type="module"></script>
+{% # theme-check-disable %}
+<script src="{{ 'catalog-filter-ajax.js' | asset_url }}" defer></script>
+{% # theme-check-enable %}
+
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 
 {%- liquid
@@ -40,23 +50,27 @@
   assign mt_tea_format = section.settings.facet_label_tea_format | default: 'Tea format' | downcase | strip
   assign mt_flavor = section.settings.facet_label_flavor | default: 'Flavor' | downcase | strip
   assign mt_tod = section.settings.facet_label_time_of_day | default: 'Time of day' | downcase | strip
+  assign mt_av = section.settings.facet_label_availability | strip | downcase
 
   assign ph_our_ranges = section.settings.facet_param_hint_our_ranges | strip | downcase
   assign ph_tea_type = section.settings.facet_param_hint_tea_type | strip | downcase
   assign ph_tea_format = section.settings.facet_param_hint_tea_format | strip | downcase
   assign ph_flavor = section.settings.facet_param_hint_flavor | strip | downcase
   assign ph_tod = section.settings.facet_param_hint_time_of_day | strip | downcase
+  assign ph_av = section.settings.facet_param_hint_availability | strip | downcase
 
   assign catalog_filter_our_ranges = false
   assign catalog_filter_tea_type = false
   assign catalog_filter_tea_format = false
   assign catalog_filter_flavor = false
   assign catalog_filter_time_of_day = false
+  assign catalog_filter_availability = false
   assign got_or = false
   assign got_tt = false
   assign got_tf = false
   assign got_fl = false
   assign got_tod = false
+  assign got_av = false
 
   for f in collection.filters
     assign fl = f.label | downcase | strip
@@ -126,6 +140,29 @@
         assign got_tod = true
       endif
     endunless
+    unless got_av
+      comment
+        Default on when setting omitted from JSON (new checkbox). Only hide when explicitly false.
+      endcomment
+      unless section.settings.show_availability_toggle == false
+        assign match_av = false
+        if mt_av != blank and fl == mt_av
+          assign match_av = true
+        endif
+        if ph_av != blank and pn contains ph_av
+          assign match_av = true
+        endif
+        if mt_av == blank and ph_av == blank and pn contains 'availability'
+          assign match_av = true
+        endif
+        if match_av
+          if f.type == 'boolean' or f.type == 'list'
+            assign catalog_filter_availability = f
+            assign got_av = true
+          endif
+        endif
+      endunless
+    endunless
   endfor
 
   assign catalog_show_format_pills = false
@@ -149,6 +186,7 @@
 
   assign catalog_clear_href = collection.url
   assign catalog_sort_by = collection.sort_by | default: collection.default_sort_by
+  assign catalog_results_list_id = 'custom-catalog-results-' | append: section.id
 -%}
 
 <div
@@ -336,10 +374,18 @@
     {%- endif -%}
 
     {%- comment -%}
-      3) Tea-format pills (storefront) + active filter chips — one row, divider when both groups show.
-      data-catalog-pills-region is always present so AJAX can swap it when chip state changes.
+      3) Tea-format pills + toolbar: sticky below header (see .custom-catalog__filters-sticky).
+      4) Product grid in data-catalog-results-region — infinite scroll matches main-collection (results-list + PaginatedList).
     {%- endcomment -%}
-    <div data-catalog-pills-region>
+    {%- liquid
+      assign catalog_products_per_page = 24
+      if section.settings.enable_infinite_scroll == false
+        assign catalog_products_per_page = section.settings.products_per_page
+      endif
+    -%}
+    {% paginate collection.products by catalog_products_per_page %}
+    <div class="custom-catalog__filters-sticky">
+      <div data-catalog-pills-region>
       {%- if catalog_show_pills_bar -%}
         <div class="custom-catalog__pills-bar" data-catalog-pills-row>
           {%- if catalog_show_format_pills -%}
@@ -426,19 +472,9 @@
           {%- endif -%}
         </div>
       {%- endif -%}
-    </div>
+      </div>
 
-    {%- comment -%} Accessible live region — updated by JS after each AJAX swap {%- endcomment -%}
-    <p
-      class="visually-hidden"
-      data-catalog-live-region
-      aria-live="polite"
-      aria-atomic="true"
-    ></p>
-
-    {%- comment -%} 4) Toolbar → 5) Product grid (paginate wraps toolbar + grid + pagination) {%- endcomment -%}
-    {% paginate collection.products by section.settings.products_per_page %}
-    <div data-catalog-results-region>
+      <div data-catalog-toolbar-region>
       {%- liquid
         assign count_text = section.settings.item_count_template
         if paginate.items == 0
@@ -502,6 +538,14 @@
           {%- else -%}
             <span class="custom-catalog__toolbar-placeholder">{{ section.settings.toolbar_time_of_day | escape }}</span>
           {%- endif -%}
+          {%- unless section.settings.show_availability_toggle == false -%}
+            {%- if catalog_filter_availability -%}
+              {%- render 'custom-catalog-availability-toggle',
+                filter: catalog_filter_availability,
+                availability_label: section.settings.availability_toggle_label
+              -%}
+            {%- endif -%}
+          {%- endunless -%}
         </div>
         <div class="custom-catalog__toolbar-right" data-catalog-toolbar-meta>
           <span class="custom-catalog__toolbar-count" data-catalog-item-count>{{ count_text | escape }}</span>
@@ -511,95 +555,156 @@
             catalog_sort_by: catalog_sort_by,
             sort_label_prefix: section.settings.sort_label_prefix
           -%}
-          <div
-            class="custom-catalog__grid-toggle"
-            role="group"
-            aria-label="{{ section.settings.grid_toggle_aria_label | escape }}"
-            data-catalog-view-toggle-mock
-          >
-            <button
-              type="button"
-              class="custom-catalog__grid-toggle-btn is-active"
-              aria-pressed="true"
-              aria-label="{{ section.settings.grid_toggle_grid_label | escape }}"
-            >
-              <svg
-                class="custom-catalog__grid-toggle-icon"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-                focusable="false"
+          <fieldset class="custom-catalog__grid-toggle">
+            <legend class="visually-hidden">{{ section.settings.grid_toggle_aria_label | escape }}</legend>
+            <label class="custom-catalog__grid-toggle-option">
+              <input
+                type="radio"
+                name="catalog-grid-{{ section.id }}"
+                value="default"
+                class="custom-catalog__grid-toggle-input"
+                checked
+                aria-label="{{ section.settings.grid_toggle_grid_label | escape }}"
+                on:change="#{{ catalog_results_list_id }}/updateLayout"
+                data-skip-node-update
               >
-                <rect x="3" y="3" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
-                <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
-                <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
-                <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
-              </svg>
-            </button>
-            <button
-              type="button"
-              class="custom-catalog__grid-toggle-btn"
-              aria-pressed="false"
-              aria-label="{{ section.settings.grid_toggle_list_label | escape }}"
-            >
-              <svg
-                class="custom-catalog__grid-toggle-icon"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-                focusable="false"
+              <span class="custom-catalog__grid-toggle-btn">
+                <svg
+                  class="custom-catalog__grid-toggle-icon"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <rect x="3" y="3" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
+                  <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
+                  <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
+                  <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.25" stroke="currentColor" stroke-width="1.75"/>
+                </svg>
+              </span>
+            </label>
+            <label class="custom-catalog__grid-toggle-option">
+              <input
+                type="radio"
+                name="catalog-grid-{{ section.id }}"
+                value="list"
+                class="custom-catalog__grid-toggle-input"
+                aria-label="{{ section.settings.grid_toggle_list_label | escape }}"
+                on:change="#{{ catalog_results_list_id }}/updateLayout"
+                data-skip-node-update
               >
-                <line x1="4" y1="6.5" x2="20" y2="6.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-                <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-                <line x1="4" y1="17.5" x2="20" y2="17.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
+              <span class="custom-catalog__grid-toggle-btn">
+                <svg
+                  class="custom-catalog__grid-toggle-icon"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <line x1="4" y1="6.5" x2="20" y2="6.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                  <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                  <line x1="4" y1="17.5" x2="20" y2="17.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </label>
+          </fieldset>
         </div>
       </div>
+      </div>
+    </div>
 
+    {%- comment -%} Accessible live region — updated by JS after each AJAX swap {%- endcomment -%}
+    <p
+      class="visually-hidden"
+      data-catalog-live-region
+      aria-live="polite"
+      aria-atomic="true"
+    ></p>
+
+    <div data-catalog-results-region>
       {%- if collection.products.size == 0 -%}
         <p class="custom-catalog__empty">{{ section.settings.empty_collection_message | escape }}</p>
       {%- else -%}
         {%- liquid
           assign catalog_card_sizes = '(min-width: 1200px) 22vw, (min-width: 990px) 30vw, (min-width: 750px) 45vw, 90vw'
         -%}
-        <ul class="custom-catalog__grid" role="list" data-catalog-product-grid>
-          {%- for product in collection.products -%}
-            <li class="custom-catalog__grid-item" role="listitem" data-product-id="{{ product.id }}">
-              {%- render 'teamakers-product-card',
-                product: product,
-                show_vendor: section.settings.card_show_vendor,
-                show_review: section.settings.card_show_reviews,
-                show_quick_add: section.settings.card_show_quick_add,
-                show_sale_badge: section.settings.card_show_sale_badge,
-                image_sizes: catalog_card_sizes
-              -%}
-            </li>
-          {%- endfor -%}
-        </ul>
-      {%- endif -%}
+        <results-list
+          id="{{ catalog_results_list_id }}"
+          class="custom-catalog__results-list"
+          section-id="{{ section.id }}"
+          infinite-scroll="{{ section.settings.enable_infinite_scroll }}"
+        >
+          {%- if section.settings.enable_infinite_scroll -%}
+            <span ref="viewMorePrevious"></span>
+          {%- endif -%}
+          <ul
+            class="custom-catalog__grid"
+            ref="grid"
+            role="list"
+            product-grid-view="default"
+            data-last-page="{{ paginate.pages }}"
+            data-catalog-product-grid
+          >
+            {%- for product in collection.products -%}
+              <li
+                class="custom-catalog__grid-item"
+                role="listitem"
+                ref="cards[]"
+                data-page="{{ paginate.current_page }}"
+                data-product-id="{{ product.id }}"
+              >
+                {%- render 'teamakers-product-card',
+                  product: product,
+                  show_vendor: section.settings.card_show_vendor,
+                  show_review: section.settings.card_show_reviews,
+                  show_quick_add: section.settings.card_show_quick_add,
+                  show_sale_badge: section.settings.card_show_sale_badge,
+                  image_sizes: catalog_card_sizes
+                -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+          {%- unless request.design_mode -%}
+            <script>
+              (() => {
+                const id = {{ catalog_results_list_id | json }};
+                const sectionId = {{ section.id | json }};
+                const root = document.getElementById(id);
+                const grid = root?.querySelector?.('[ref="grid"]');
+                if (!grid) return;
 
-      {%- if paginate.pages > 1 -%}
-        <nav class="custom-catalog__pagination" aria-label="{{ section.settings.pagination_aria_label | escape }}">
-          {{- paginate | default_pagination -}}
-        </nav>
+                const viewport = window.innerWidth >= 750 ? 'desktop' : 'mobile';
+                const stored =
+                  sessionStorage.getItem(`product-grid-view-${viewport}`) || 'default';
+                if (stored !== 'list' && stored !== 'default') return;
+
+                grid.setAttribute('product-grid-view', stored);
+                const radio = document.querySelector(
+                  `input[type="radio"][name="catalog-grid-${sectionId}"][value="${stored}"]`
+                );
+                if (radio) radio.checked = true;
+              })();
+            </script>
+          {%- endunless -%}
+          {%- if section.settings.enable_infinite_scroll -%}
+            <span ref="viewMoreNext"></span>
+          {%- elsif paginate.pages > 1 -%}
+            <nav class="custom-catalog__pagination" aria-label="{{ section.settings.pagination_aria_label | escape }}">
+              {{- paginate | default_pagination -}}
+            </nav>
+          {%- endif -%}
+        </results-list>
       {%- endif -%}
     </div>
     {% endpaginate %}
   </div>
 </div>
-
-<script src="{{ 'teamakers-quick-add.js' | asset_url }}" type="module"></script>
-{% # theme-check-disable %}
-<script src="{{ 'catalog-filter-ajax.js' | asset_url }}" defer></script>
-{% # theme-check-enable %}
 
 {% schema %}
 {
@@ -628,7 +733,7 @@
       "max": 120,
       "step": 4,
       "unit": "px",
-      "default": 32
+      "default": 24
     },
     {
       "type": "range",
@@ -638,7 +743,7 @@
       "max": 120,
       "step": 4,
       "unit": "px",
-      "default": 64
+      "default": 48
     },
     {
       "type": "range",
@@ -694,13 +799,21 @@
       "default": 20
     },
     {
+      "type": "checkbox",
+      "id": "enable_infinite_scroll",
+      "label": "Auto-load more products on scroll",
+      "default": true,
+      "info": "Matches default collection behavior: loads the next page as the customer scrolls. When off, uses numbered pagination at the bottom."
+    },
+    {
       "type": "range",
       "id": "products_per_page",
       "label": "Products per page",
       "min": 8,
       "max": 48,
       "step": 4,
-      "default": 24
+      "default": 24,
+      "visible_if": "{{ section.settings.enable_infinite_scroll == false }}"
     },
     {
       "type": "header",
@@ -825,7 +938,7 @@
     },
     {
       "type": "paragraph",
-      "content": "Filters are resolved from collection.filters. Match each facet by admin label (case-insensitive) and/or by URL param containing the hint string (e.g. metafield key). First matching filter wins."
+      "content": "Filters are resolved from collection.filters. Match each facet by admin label (case-insensitive) and/or by URL param containing the hint string (e.g. metafield key). First matching filter wins. Availability uses the storefront boolean filter from Search & Discovery (enable “Availability” in the app); it appears as a toggle after Time of day."
     },
     {
       "type": "text",
@@ -888,6 +1001,32 @@
       "id": "facet_param_hint_time_of_day",
       "label": "Time of day — param hint",
       "default": "custom.time_of_day"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_availability_toggle",
+      "label": "Show availability (in stock) toggle",
+      "default": true,
+      "info": "Uses the Search & Discovery availability filter (boolean or list, e.g. “In stock”). Appears after Time of day in the toolbar."
+    },
+    {
+      "type": "text",
+      "id": "facet_label_availability",
+      "label": "Availability — filter label (optional)",
+      "info": "Match filter.label, case-insensitive. Leave empty to match by param only (see below)."
+    },
+    {
+      "type": "text",
+      "id": "facet_param_hint_availability",
+      "label": "Availability — param hint (optional)",
+      "info": "filter.param_name must contain this substring (e.g. availability). If both label and hint are empty, matches boolean filters whose param contains “availability”."
+    },
+    {
+      "type": "text",
+      "id": "availability_toggle_label",
+      "label": "Availability toggle — visible label",
+      "default": "In stock",
+      "info": "Shown next to the switch. The filter value label is used if this is empty."
     },
     {
       "type": "text",

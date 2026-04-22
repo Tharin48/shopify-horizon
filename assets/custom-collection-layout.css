@@ -10,6 +10,16 @@
   --custom-catalog-pill-radius: 999px;
   --custom-catalog-border-minimal: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
   --custom-catalog-border-minimal-hover: 1px solid rgb(var(--color-foreground-rgb) / 0.22);
+  /* Sticky filter strip: full-bleed bar (tokens used inside .custom-catalog__filters-sticky) */
+  --custom-catalog-strip-bg: #ffffff;
+  --custom-catalog-strip-foreground-rgb: 33 37 41;
+  /* Toolbar row (facet labels, count, sort, availability): explicit legibility */
+  --custom-catalog-toolbar-font-size: 14px;
+  --custom-catalog-toolbar-text: #000000;
+  /* Added to --header-group-height (Horizon / default sticky inset). */
+  --custom-catalog-sticky-top-nudge: 0px;
+  /* Gap between custom header (e.g. minimized) and sticky filter strip. */
+  --custom-catalog-sticky-custom-header-clearance: 1px;
 }
 
 /* Inner column: centered in the section grid column; optional max-width cap + separate inline padding (mobile / desktop) */
@@ -26,6 +36,74 @@
   .custom-catalog__inner {
     padding-inline: var(--custom-catalog-padding-inline-desktop, 2.5rem);
   }
+}
+
+/*
+ * Format pills + facet toolbar: stick below the visible header.
+ * --header-group-height is maintained by Horizon (header-component) and custom-header.js.
+ * When the header is scroll-hidden (invisible bar but layout may still reserve space),
+ * dock this strip to the viewport top so it “hits the top”; when minimized / full, keep
+ * clearance under the real header + announcement.
+ */
+.custom-catalog__filters-sticky {
+  position: sticky;
+  top: calc(
+    var(--header-group-height, var(--header-height, 0px)) + var(--custom-catalog-sticky-top-nudge, 0px)
+  );
+  /*
+   * Default: just under sticky header (layer-sticky) so header/mega-menu stay clickable.
+   * When Horizon header is scroll-up "idle" it is opacity:0 but still stacks at layer-sticky
+   * and captures clicks — bump this strip above only in that case (see rules below).
+   */
+  z-index: calc(var(--layer-sticky, 8) - 1);
+  box-sizing: border-box;
+  /* Full viewport width like the header; align inset with theme page margins */
+  width: 100vw;
+  max-width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  padding-inline: var(--page-margin, 16px);
+  padding-block-start: 0;
+  /* Light toolbar: not the section color scheme (often dark on this template) */
+  background-color: var(--custom-catalog-strip-bg);
+  --color-foreground-rgb: var(--custom-catalog-strip-foreground-rgb);
+  --color-background-rgb: 255 255 255;
+  color: rgb(var(--color-foreground-rgb));
+  --color-border: rgb(var(--color-foreground-rgb) / 0.14);
+  border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+  isolation: isolate;
+  transition: top 0.2s ease;
+}
+
+/*
+ * Custom header (visible): --header-height can sit slightly short of the painted bar — add clearance.
+ */
+body:has([data-custom-header]):not(:has([data-custom-header][data-header-state='hidden']))
+  .custom-catalog__filters-sticky {
+  top: calc(
+    var(--header-height, 0px) + var(--custom-catalog-sticky-custom-header-clearance, 4px) +
+      var(--custom-catalog-sticky-top-nudge, 0px)
+  );
+}
+
+/* Custom header: hidden = opacity 0 — no visible bar, strip aligns to top */
+body:has([data-custom-header][data-header-state='hidden']) .custom-catalog__filters-sticky {
+  top: 0;
+}
+
+/* Horizon header-component (scroll-up): idle = header row hidden while scrolling down */
+body:has(#header-group #header-component[sticky='scroll-up'][data-sticky-state='idle'])
+  .custom-catalog__filters-sticky {
+  top: 0;
+  /* Idle header is invisible but still hit-tests above strip at z = layer-sticky − 1 */
+  z-index: calc(var(--layer-sticky, 8) + 1);
+}
+
+/*
+ * Custom header (z-index 400): .custom-header gets pointer-events:none when hidden, but the
+ * sticky .shopify-section wrapper can still receive clicks — pass through to the catalog strip.
+ */
+body:has(.custom-header[data-header-state='hidden']) #header-group > .shopify-section:has(.custom-header[data-header-state='hidden']) {
+  pointer-events: none;
 }
 
 /* Breadcrumb */
@@ -82,7 +160,6 @@
 .custom-catalog__tea-type-region {
   margin: 0;
   padding-block: clamp(0.75rem, 2.5vw, 1rem);
-  border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
 }
 
 /*
@@ -273,14 +350,14 @@ a.custom-catalog__tea-type-btn:visited {
   column-gap: clamp(1rem, 2.5vw, 1.75rem);
   row-gap: 0.75rem;
   width: 100%;
-  margin: 0 0 clamp(0.5rem, 1.25vw, 0.875rem);
+  margin: 0 0 clamp(0.5rem, 1.25vw, 0.5rem);
   padding: 0.625rem 0;
-  border-block: var(--custom-catalog-border-minimal);
+  border-block-end: var(--custom-catalog-border-minimal);
 }
 
-/* Tea format pills stay left; when chips exist, push the chip group to the end of the row */
-.custom-catalog__pills-bar:has(.custom-catalog__filters) .custom-catalog__filters {
-  margin-inline-start: auto;
+/* Tighter top edge when pills sit under the sticky header (no extra band above Loose leaf / Tea bags) */
+.custom-catalog__filters-sticky .custom-catalog__pills-bar {
+  padding-block-start: 0.2rem;
 }
 
 .custom-catalog__pills-divider {
@@ -390,12 +467,12 @@ a.custom-catalog__format-pill:focus-visible {
 a.custom-catalog__format-pill.is-active {
   border-color: transparent;
   background-color: var(--color-primary-button-background, rgb(var(--color-foreground-rgb) / 0.82));
-  color: var(--color-primary-button-text, rgb(var(--color-background-rgb)));
+  color: var(--color-primary-button-text, #ffffff);
   box-shadow: 0 1px 0 rgb(var(--color-foreground-rgb) / 0.06);
 }
 
 a.custom-catalog__format-pill.is-active .custom-catalog__format-pill__count {
-  color: var(--color-primary-button-text, rgb(var(--color-background-rgb)));
+  color: var(--color-primary-button-text, #ffffff);
   opacity: 0.92;
 }
 
@@ -507,10 +584,12 @@ a.custom-catalog__clear:focus-visible {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem 1.5rem;
+  gap: 0.75rem 1.25rem;
   width: 100%;
-  margin: 0 0 clamp(1.25rem, 2.5vw, 1.75rem);
-  min-height: 2.75rem;
+  padding-block-end: clamp(0.45rem, 1vw, 0.5rem);
+  border-bottom: none;
+  margin: 0 0 clamp(0.85rem, 1.75vw);
+  min-height: 2.35rem;
 }
 
 .custom-catalog__toolbar-left {
@@ -539,9 +618,160 @@ a.custom-catalog__clear:focus-visible {
   text-align: end;
 }
 
+/* Toolbar row on sticky strip: 14px + black (facet summaries, sort, count, availability) */
+.custom-catalog__filters-sticky .custom-catalog__toolbar {
+  font-family: var(--font-body--family);
+  font-size: var(--custom-catalog-toolbar-font-size, 14px);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--custom-catalog-toolbar-text, #000000);
+}
+
+.custom-catalog__filters-sticky .custom-catalog__facet-dd-summary,
+.custom-catalog__filters-sticky .custom-catalog__facet-dd-summary-label,
+.custom-catalog__filters-sticky .custom-catalog__toolbar-count,
+.custom-catalog__filters-sticky .custom-catalog__availability-toggle,
+.custom-catalog__filters-sticky .custom-catalog__toolbar-placeholder {
+  font-size: inherit;
+  color: var(--custom-catalog-toolbar-text, #000000);
+}
+
+.custom-catalog__filters-sticky .custom-catalog__availability-toggle:hover {
+  color: rgb(0 0 0 / 0.82);
+}
+
+/*
+ * Caret (▾): base rule used opacity 0.65 + sticky used 0.55 — compounded to nearly invisible.
+ * Match label: solid toolbar color, full opacity (open + closed accordion items).
+ */
+.custom-catalog__filters-sticky .custom-catalog__toolbar .custom-catalog__facet-dd-chevron {
+  color: var(--custom-catalog-toolbar-text, #000000);
+  opacity: 1;
+  font-size: 0.75em;
+  line-height: 1;
+}
+
+@media screen and (max-width: 749px) {
+  .custom-catalog__filters-sticky .custom-catalog__toolbar-placeholder {
+    font-size: inherit;
+  }
+}
+
+.custom-catalog__filters-sticky .custom-catalog__grid-toggle-btn {
+  color: rgb(0 0 0 / 0.5);
+}
+
+.custom-catalog__filters-sticky .custom-catalog__grid-toggle-input:checked + .custom-catalog__grid-toggle-btn {
+  color: var(--custom-catalog-toolbar-text, #000000);
+}
+
+.custom-catalog__filters-sticky .custom-catalog__grid-toggle-option:hover .custom-catalog__grid-toggle-btn {
+  color: rgb(0 0 0 / 0.72);
+}
+
 /* Toolbar facet strip — multi-select dropdowns (checkbox rows) */
 .custom-catalog__toolbar-facets {
   align-items: center;
+}
+
+/* Availability (boolean / in stock) — toggle next to facet dropdowns */
+.custom-catalog__availability {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.custom-catalog__availability-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0;
+  margin: 0;
+  font-family: var(--font-body--family);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: rgb(var(--color-foreground-rgb) / 0.78);
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.custom-catalog__availability-toggle:hover {
+  color: rgb(var(--color-foreground-rgb) / 0.92);
+}
+
+.custom-catalog__availability-toggle:focus-visible {
+  outline: 2px solid rgb(var(--color-foreground-rgb) / 0.4);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.custom-catalog__availability-toggle--disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.custom-catalog__availability-label {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.custom-catalog__availability-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 2.35rem;
+  height: 1.28rem;
+  border-radius: 999px;
+  background: rgb(var(--color-foreground-rgb) / 0.16);
+  border: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  box-sizing: border-box;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.custom-catalog__availability-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0.14rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-top: -0.475rem;
+  border-radius: 50%;
+  background: var(--color-background);
+  box-shadow: 0 1px 3px rgb(var(--color-foreground-rgb) / 0.2);
+  transition: transform 0.2s ease;
+}
+
+.custom-catalog__availability-toggle.is-active .custom-catalog__availability-track {
+  background-color: var(--custom-catalog-toolbar-accent, var(--color-primary));
+  border-color: transparent;
+}
+
+.custom-catalog__availability-toggle.is-active .custom-catalog__availability-thumb {
+  transform: translateX(1.05rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-catalog__availability-track,
+  .custom-catalog__availability-thumb {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .custom-catalog__availability-toggle.is-active .custom-catalog__availability-track {
+    forced-color-adjust: none;
+    background: CanvasText;
+    border: 1px solid CanvasText;
+  }
+
+  .custom-catalog__availability-thumb {
+    forced-color-adjust: none;
+    background: Canvas;
+  }
 }
 
 .custom-catalog__facet-dd {
@@ -577,7 +807,9 @@ a.custom-catalog__clear:focus-visible {
 .custom-catalog__facet-dd-chevron {
   display: inline-block;
   font-size: 0.65em;
-  opacity: 0.65;
+  line-height: 1;
+  color: inherit;
+  opacity: 1;
   transition: transform 0.2s ease;
 }
 
@@ -786,8 +1018,35 @@ a.custom-catalog__toolbar-facet-pill.is-active {
   display: inline-flex;
   gap: 0.1rem;
   padding: 0.2rem;
+  margin: 0;
   border-radius: 0.4rem;
   border: var(--custom-catalog-border-minimal);
+  background: transparent;
+}
+
+.custom-catalog__grid-toggle-option {
+  position: relative;
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+}
+
+/* Radio covers the icon hit target (Horizon column-options pattern) */
+.custom-catalog__grid-toggle-input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+  appearance: auto;
+  display: block;
+  border: none;
+  border-radius: 0;
   background: transparent;
 }
 
@@ -801,7 +1060,7 @@ a.custom-catalog__toolbar-facet-pill.is-active {
   border-radius: 0.3rem;
   background: transparent;
   color: rgb(var(--color-foreground-rgb) / 0.48);
-  cursor: pointer;
+  pointer-events: none;
   line-height: 0;
   -webkit-tap-highlight-color: transparent;
   transition:
@@ -809,18 +1068,18 @@ a.custom-catalog__toolbar-facet-pill.is-active {
     color 0.15s ease;
 }
 
-.custom-catalog__grid-toggle-btn:hover {
+.custom-catalog__grid-toggle-option:hover .custom-catalog__grid-toggle-btn {
   color: rgb(var(--color-foreground-rgb) / 0.72);
 }
 
-.custom-catalog__grid-toggle-btn:focus-visible {
-  outline: 2px solid rgb(var(--color-foreground-rgb) / 0.4);
-  outline-offset: 2px;
-}
-
-.custom-catalog__grid-toggle-btn.is-active {
+.custom-catalog__grid-toggle-input:checked + .custom-catalog__grid-toggle-btn {
   background: rgb(var(--color-foreground-rgb) / 0.08);
   color: rgb(var(--color-foreground-rgb) / 0.88);
+}
+
+.custom-catalog__grid-toggle-input:focus-visible + .custom-catalog__grid-toggle-btn {
+  outline: 2px solid rgb(var(--color-foreground-rgb) / 0.4);
+  outline-offset: 2px;
 }
 
 .custom-catalog__grid-toggle-icon {
@@ -831,9 +1090,15 @@ a.custom-catalog__toolbar-facet-pill.is-active {
 }
 
 @media (forced-colors: active) {
-  .custom-catalog__grid-toggle-btn:focus-visible {
+  .custom-catalog__grid-toggle-input:focus-visible + .custom-catalog__grid-toggle-btn {
     outline: 2px solid transparent;
   }
+}
+
+/* Infinite scroll host (results-list custom element) — block layout, full width */
+.custom-catalog__results-list {
+  display: block;
+  width: 100%;
 }
 
 /*
@@ -878,6 +1143,52 @@ a.custom-catalog__toolbar-facet-pill.is-active {
   .custom-catalog__grid {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+/*
+ * List view — single column, horizontal cards (Horizon-style product-grid-view,
+ * catalog-specific layout for teamakers-product-card).
+ */
+.custom-catalog__grid[product-grid-view='list'] {
+  grid-template-columns: 1fr;
+  gap: var(--custom-catalog-grid-gap-mobile, 1.25rem);
+}
+
+@media screen and (min-width: 750px) {
+  .custom-catalog__grid[product-grid-view='list'] {
+    gap: var(--custom-catalog-grid-gap-tablet, var(--custom-catalog-grid-gap-mobile, 1.25rem));
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .custom-catalog__grid[product-grid-view='list'] {
+    gap: var(--custom-catalog-grid-gap-desktop, 1.75rem);
+  }
+}
+
+.custom-catalog__grid[product-grid-view='list'] .teamakers-pick__card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: clamp(0.75rem, 2.5vw, 1.25rem);
+  height: auto;
+}
+
+.custom-catalog__grid[product-grid-view='list'] .teamakers-pick__image-wrap {
+  width: clamp(6.5rem, 22vw, 10.5rem);
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.custom-catalog__grid[product-grid-view='list'] .teamakers-pick__meta {
+  margin-top: 0;
+  flex: 1;
+  min-width: 0;
+  align-self: center;
+}
+
+.custom-catalog__grid[product-grid-view='list'] .teamakers-pick__name {
+  min-height: 0;
 }
 
 .custom-catalog__empty {
