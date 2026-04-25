@@ -131,7 +131,7 @@
                   "type": "_product-rating-summary",
                   "name": "Rating",
                   "settings": {
-                    "integration_mode": "placeholder",
+                    "integration_mode": "yotpo_star_rating",
                     "placeholder_rating": 4.5,
                     "placeholder_review_count": 5,
                     "shopify_fallback_to_placeholder": true,
@@ -610,6 +610,68 @@
         "mobile_enable_carousel": true
       }
     },
+    "section_JyTyxe": {
+      "type": "section",
+      "blocks": {
+        "text_j6m3jV": {
+          "type": "text",
+          "name": "Alt Prodcut Info",
+          "settings": {
+            "text": "{{ closest.product.metafields.custom.alternative_description | metafield_tag }}",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 20,
+            "padding-inline-end": 20
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_j6m3jV"
+      ],
+      "name": "Alternative info",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
     "tea_origin_map_ewBtD4": {
       "type": "tea-origin-map",
       "name": "Tea origin map",
@@ -660,6 +722,7 @@
   "order": [
     "main",
     "product_story_scroll_jHfTGB",
+    "section_JyTyxe",
     "tea_origin_map_ewBtD4",
     "custom_blog_recipes_B8B4a8"
   ]

@@ -20,6 +20,8 @@
   --custom-catalog-sticky-top-nudge: 0px;
   /* Gap between custom header (e.g. minimized) and sticky filter strip. */
   --custom-catalog-sticky-custom-header-clearance: 1px;
+  /* Space below the sticky filter strip (after its border) before the product grid. */
+  --custom-catalog-results-gap: clamp(1rem, 2.5vw, 1.75rem);
 }
 
 /* Inner column: centered in the section grid column; optional max-width cap + separate inline padding (mobile / desktop) */
@@ -72,6 +74,15 @@
   border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
   isolation: isolate;
   transition: top 0.2s ease;
+}
+
+/*
+ * Space between the filter strip’s bottom border and the product grid.
+ * (Toolbar margin only affects the inside of the strip; the line is on this box.)
+ * --custom-catalog-results-gap is set on .custom-catalog above.
+ */
+.custom-catalog [data-catalog-results-region] {
+  margin-top: var(--custom-catalog-results-gap);
 }
 
 /*
@@ -702,7 +713,8 @@ a.custom-catalog__clear:focus-visible {
   width: 100%;
   padding-block-end: clamp(0.45rem, 1vw, 0.5rem);
   border-bottom: none;
-  margin: 0 0 clamp(0.85rem, 1.75vw);
+  /* Three-arg clamp: two-arg form is invalid and browsers ignore the margin. */
+  margin: 0 0 clamp(0.85rem, 1.75vw, 1.5rem);
   min-height: 2.35rem;
 }
 

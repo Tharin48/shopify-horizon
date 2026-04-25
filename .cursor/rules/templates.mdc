@@ -79,6 +79,10 @@ All JSON templates must follow this exact structure:
 - `cart.json` - Shopping cart
 - `search.json` - Search results
 
+**All templates — modularity, Horizon-first duplication, custom-prefixed section/block/template names:** `horizon-modular-naming.mdc`.
+
+**Collection / catalog** specifics: `collection-template-modularity.mdc`.
+
 **Alternate Templates:**
 Alternative templates may exist for any of the standard templates, following the structure `template-name.template-suffix.template-file-type`, for example: `product.alternate.json`
 

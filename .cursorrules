@@ -3,6 +3,8 @@
 ## Core objective
 Build custom UI/UX on top of Horizon while keeping the theme update-safe, modular, editor-friendly, and easy to maintain.
 
+**Accessibility:** Always follow WCAG-oriented, keyboard-first practices. See `.cursor/rules/accessibility.mdc` and `.cursor/rules/global-accessibility-standards.mdc` (and component-specific `*-accessibility.mdc` rules when they apply).
+
 ## Architecture rules
 - Treat Horizon as the upstream base theme, not as a blank custom theme.
 - Prefer additive customization over invasive modification.
@@ -32,6 +34,7 @@ Build custom UI/UX on top of Horizon while keeping the theme update-safe, modula
   - predictive search
   - section/block rendering
 - Before creating a new section/snippet/block, search the Horizon codebase for an existing equivalent and adapt it.
+- Prefer **duplicate Horizon file → rename with a custom prefix → modify** over greenfield files. Naming: see `.cursor/rules/horizon-modular-naming.mdc` (always-on).
 - Do not rewrite Horizon core files unless there is no safe extension path.
 
 ## Update-safe customization rules

@@ -1,0 +1,41 @@
+{%- doc -%}
+  One trust/USP item: circular icon, heading (serif), body text — used in custom-footer-trust-banner.
+{%- enddoc -%}
+
+{% render 'custom-trust-point',
+  trust_block: block,
+  icon: block.settings.icon,
+  heading: block.settings.heading,
+  text: block.settings.text
+%}
+
+{% schema %}
+{
+  "name": "Trust point",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "t:settings.icon"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "default": "Feature title"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:settings.text",
+      "default": "<p>Short supporting description.</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust point"
+    }
+  ]
+}
+{% endschema %}

@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "names": {
     "404": "404",
@@ -189,6 +198,8 @@
     "hotspot_product": "í«ì¤í",
     "product_sku": "SKU(ì¬ê³  ê´ë¦¬ ì½ë)",
     "layered_slideshow": "ë ì´ì´ë ì¬ë¼ì´ë ì¼",
+    "custom_footer_trust_banner": "Footer trust banner",
+    "custom_trust_point": "Trust point",
     "custom_header": "Custom header",
     "tea_club": "Tea Club",
     "leaf_story": "Leaf story",
@@ -701,7 +712,13 @@
     "custom_frame_max_width": "Max content width",
     "custom_frame_inset_start_desktop": "Inset start (large screens)",
     "custom_frame_inset_end_desktop": "Inset end (large screens)",
-    "custom_frame_inset_mobile": "Horizontal inset (small screens)"
+    "custom_frame_inset_mobile": "Horizontal inset (small screens)",
+    "custom_footer_trust_autoplay": "Autoplay slides on small screens",
+    "custom_footer_trust_bg_image": "Background pattern image",
+    "custom_footer_trust_home_only": "Show on home page only",
+    "custom_footer_trust_home_only_info": "When enabled, this banner is not shown on collection, product, and other pages—only on the home page footer.",
+    "custom_footer_trust_region_heading": "Region title (screen readers)",
+    "custom_footer_trust_region_heading_info": "Announced as the section title for assistive technology. Not required to be visible."
   },
   "options": {
     "apple": "Apple",
@@ -1112,7 +1129,8 @@
     "category_explore_section_height": "Section height",
     "category_explore_grid_mobile": "Mobile and tablet grid",
     "custom_product_page_frame": "Custom product page frame",
-    "custom_product_page_frame_info": "Caps content width and sets horizontal insets. The Editorial product template uses this automatically; enable here for other product templates or to match a saved toggle to the storefront."
+    "custom_product_page_frame_info": "Caps content width and sets horizontal insets. The Editorial product template uses this automatically; enable here for other product templates or to match a saved toggle to the storefront.",
+    "custom_footer_trust_mobile_carousel": "Mobile (single card & autoplay)"
   },
   "html_defaults": {
     "share_information_about_your": "<p>ê³ ê°ê³¼ ë¸ëëì ëí ì ë³´ë¥¼ ê³µì íì¸ì. ì íì ì¤ëªíê±°ë, ê³µì§ ì¬í­ì ìë¦¬ê±°ë, ì¤í ì´ë¥¼ ë°©ë¬¸íë ê³ ê°ì íìí  ì ììµëë¤.</p>",
