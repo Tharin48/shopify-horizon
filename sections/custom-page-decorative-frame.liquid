@@ -1,0 +1,484 @@
+{%- comment -%}
+  Sits as the first section on policy-style templates. Absolutely positioned to cover
+  the full <main> height so decorative leaves span Custom policy + FAQ / shipping /
+  any following sections. Images are configured here, not in Custom policy page.
+
+  data-art-mode: zigzag | repeat. data-art-spacing. data-art-gap-extra: 0–400 px (theme range).
+{%- endcomment -%}
+
+{%- liquid
+  assign art_spacing = 'default'
+  if section.settings.leaf_vertical_spacing == 'auto' or section.settings.leaf_vertical_spacing == blank
+    if template.suffix == 'policy-privacy' or template.suffix == 'policy-terms'
+      assign art_spacing = 'compact'
+    elsif template.suffix == 'policy-shipping' or template.suffix == 'policy-faq'
+      assign art_spacing = 'spread'
+    endif
+  else
+    assign art_spacing = section.settings.leaf_vertical_spacing
+  endif
+
+  assign art_mode = 'zigzag'
+  if section.settings.decorative_art_mode == 'auto' or section.settings.decorative_art_mode == blank
+    if template.suffix == 'policy-faq' or template.suffix == 'policy-shipping'
+      assign art_mode = 'zigzag'
+    else
+      assign art_mode = 'repeat'
+    endif
+  else
+    assign art_mode = section.settings.decorative_art_mode
+  endif
+
+  assign gap_extra_px = section.settings.decorative_gap_extra | default: 0 | plus: 0
+  if gap_extra_px < 0
+    assign gap_extra_px = 0
+  endif
+  if gap_extra_px > 400
+    assign gap_extra_px = 400
+  endif
+-%}
+
+<div class="custom-page-decorative-frame-host" {{ section.shopify_attributes }}>
+{%- if section.settings.decorative_left_image != blank or section.settings.decorative_right_image != blank -%}
+  <div
+    class="custom-page-decorative-frame"
+    data-custom-page-decorative-frame
+    data-art-mode="{{ art_mode }}"
+    data-art-spacing="{{ art_spacing }}"
+    data-art-gap-extra="{{ gap_extra_px }}"
+    style="--custom-policy-page-accent: {{ section.settings.accent_color }};"
+  >
+    <div class="custom-policy-page__art-layer" aria-hidden="true">
+      {%- if section.settings.decorative_left_image != blank -%}
+        <div class="custom-policy-page__art-rail custom-policy-page__art-rail--left" data-art-rail data-art-side="left">
+          <div class="custom-policy-page__art-template" data-art-template>
+            {{
+              section.settings.decorative_left_image
+              | image_url: width: 900
+              | image_tag:
+                loading: 'lazy',
+                widths: '200, 280, 360, 480, 640, 900',
+                sizes: '(min-width: 990px) 9rem, 24vw',
+                class: 'custom-policy-page__art-img',
+                alt: ''
+            }}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.decorative_right_image != blank -%}
+        <div class="custom-policy-page__art-rail custom-policy-page__art-rail--right" data-art-rail data-art-side="right">
+          <div class="custom-policy-page__art-template" data-art-template>
+            {{
+              section.settings.decorative_right_image
+              | image_url: width: 900
+              | image_tag:
+                loading: 'lazy',
+                widths: '200, 280, 360, 480, 640, 900',
+                sizes: '(min-width: 990px) 9rem, 24vw',
+                class: 'custom-policy-page__art-img',
+                alt: ''
+            }}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- elsif request.design_mode -%}
+  <div class="custom-page-decorative-frame custom-page-decorative-frame--empty" data-custom-page-decorative-frame>
+    <p class="custom-page-decorative-frame__placeholder">Add left or right decorative images in this section to span the full page (policy + content below).</p>
+  </div>
+{%- endif -%}
+</div>
+
+<script>
+  (() => {
+    const sectionId = '{{ section.id }}';
+    const frameSelector = '[data-custom-page-decorative-frame]';
+    let resizeFrame = null;
+    let mainResizeBound = false;
+
+    const getMain = () => document.querySelector('#MainContent, main#MainContent, main[role="main"]');
+
+    /**
+     * Top offset (px) so art sits below Custom policy page tabs/breadcrumb, relative to the frame.
+     */
+    const readGapExtraPx = (frameRoot) => {
+      const n = parseInt(frameRoot.dataset.artGapExtra || '0', 10);
+      if (Number.isNaN(n) || n < 0) return 0;
+      return Math.min(400, n);
+    };
+
+    const getArtRegionTop = (frameRoot) => {
+      const mainEl = getMain();
+      if (!mainEl) return 0;
+      const policy = mainEl.querySelector('.custom-policy-page');
+      if (!policy) return 0;
+      const frameRect = frameRoot.getBoundingClientRect();
+      const tabs = policy.querySelector('.custom-policy-page__tabs-shell');
+      const crumb = policy.querySelector('.custom-policy-page__breadcrumb');
+      const target = tabs || crumb;
+      if (target) {
+        return Math.max(0, target.getBoundingClientRect().bottom - frameRect.top + 8);
+      }
+      return 0;
+    };
+
+    /**
+     * Zigzag: one left (upper band) + one right (lower band) in the first viewport — not on the same row.
+     * Enforces min vertical gap so the two images do not overlap when the band is short.
+     */
+    const measureZigZagLayout = (frameRoot) => {
+      const mainEl = getMain();
+      const isMobile = window.matchMedia('(max-width: 749px)').matches;
+      const width = isMobile ? 90 : 144;
+      const imageFootprint = width * 1.35;
+      const vh = window.innerHeight;
+      const topLimit = getArtRegionTop(frameRoot);
+      const sectionHeight = mainEl ? mainEl.offsetHeight : frameRoot.offsetHeight;
+      const bottomLimit = sectionHeight - imageFootprint;
+      const fullSpan = Math.max(0, bottomLimit - topLimit);
+      const span = Math.max(0, Math.min(fullSpan, vh - topLimit - imageFootprint - 16));
+      const spacing = (frameRoot.dataset.artSpacing || 'default').toLowerCase();
+      const gapExtraPx = readGapExtraPx(frameRoot);
+
+      let leftT = 0.12;
+      let rightT = 0.65;
+      if (spacing === 'compact') {
+        leftT = 0.1;
+        rightT = 0.63;
+      } else if (spacing === 'spread') {
+        leftT = 0.14;
+        rightT = 0.68;
+      }
+
+      const minFrac = (imageFootprint + 20 + gapExtraPx) / Math.max(span, 1);
+      if (rightT - leftT < minFrac) {
+        rightT = Math.min(1, leftT + minFrac);
+        if (rightT > 0.98) {
+          leftT = Math.max(0, rightT - minFrac);
+        }
+      }
+
+      return { isMobile, width, topLimit, span, leftT, rightT };
+    };
+
+    const buildRail = (frameRoot, rail, layout) => {
+      const template = rail.querySelector('[data-art-template]');
+      if (!template || !template.firstElementChild) return;
+
+      rail.querySelectorAll('[data-art-item]').forEach((item) => item.remove());
+
+      const side = rail.dataset.artSide || 'left';
+      const positionT = side === 'left' ? layout.leftT : layout.rightT;
+      const { isMobile, width, topLimit, span } = layout;
+
+      rail.style.setProperty('--custom-policy-page-art-width', `${width}px`);
+
+      const item = document.createElement('div');
+      const image = template.firstElementChild.cloneNode(true);
+      const index = 0;
+      const shiftBase = side === 'left' ? (isMobile ? -28 : -22) : isMobile ? 28 : 24;
+      const shift = shiftBase + ((index % 3) - 1) * (isMobile ? 4 : 6);
+      const rotateBase = side === 'left' ? -5 : 5;
+      const rotate = rotateBase + ((index % 3) - 1) * 1.6;
+      const topPx = topLimit + positionT * span;
+
+      item.className = `custom-policy-page__art-item custom-policy-page__art-item--${side}`;
+      item.dataset.artItem = '';
+      item.style.top = `${Math.round(topPx)}px`;
+      item.style.setProperty('--custom-policy-page-art-shift', `${shift}%`);
+      item.style.setProperty('--custom-policy-page-art-rotate', `${rotate}deg`);
+      item.appendChild(image);
+      rail.appendChild(item);
+    };
+
+    /**
+     * Long pages: alternating left / right rows down full <main> height (no pair on one row).
+     */
+    const measureRepeatLayout = (frameRoot) => {
+      const mainEl = getMain();
+      const isMobile = window.matchMedia('(max-width: 749px)').matches;
+      const width = isMobile ? 90 : 144;
+      const imageFootprint = width * 1.35;
+      const topLimit = getArtRegionTop(frameRoot);
+      const sectionHeight = mainEl ? mainEl.offsetHeight : frameRoot.offsetHeight;
+      const bottomLimit = sectionHeight - imageFootprint;
+      const span = Math.max(0, bottomLimit - topLimit);
+      const spacing = (frameRoot.dataset.artSpacing || 'default').toLowerCase();
+      const gapExtraPx = readGapExtraPx(frameRoot);
+      let gapExtra = 40;
+      if (spacing === 'compact') gapExtra = 36;
+      if (spacing === 'spread') gapExtra = 44;
+      const minGap = imageFootprint + gapExtra + gapExtraPx;
+      const maxRows = Math.max(2, Math.min(24, Math.floor(span / Math.max(minGap, 1))));
+
+      return { isMobile, width, topLimit, span, maxRows };
+    };
+
+    const buildRailRepeat = (rail, layout) => {
+      const template = rail.querySelector('[data-art-template]');
+      if (!template || !template.firstElementChild) return;
+
+      rail.querySelectorAll('[data-art-item]').forEach((item) => item.remove());
+
+      const side = rail.dataset.artSide || 'left';
+      const { isMobile, width, topLimit, span, maxRows } = layout;
+
+      rail.style.setProperty('--custom-policy-page-art-width', `${width}px`);
+
+      let itemIndex = 0;
+      for (let i = 0; i < maxRows; i++) {
+        const rowIsLeft = i % 2 === 0;
+        if (side === 'left' && !rowIsLeft) continue;
+        if (side === 'right' && rowIsLeft) continue;
+
+        const t = (i + 1) / (maxRows + 1);
+        const topPx = topLimit + t * span;
+
+        const item = document.createElement('div');
+        const image = template.firstElementChild.cloneNode(true);
+        const index = itemIndex;
+        itemIndex += 1;
+        const shiftBase = side === 'left' ? (isMobile ? -28 : -22) : isMobile ? 28 : 24;
+        const shift = shiftBase + ((index % 3) - 1) * (isMobile ? 4 : 6);
+        const rotateBase = side === 'left' ? -5 : 5;
+        const rotate = rotateBase + ((index % 3) - 1) * 1.6;
+
+        item.className = `custom-policy-page__art-item custom-policy-page__art-item--${side}`;
+        item.dataset.artItem = '';
+        item.style.top = `${Math.round(topPx)}px`;
+        item.style.setProperty('--custom-policy-page-art-shift', `${shift}%`);
+        item.style.setProperty('--custom-policy-page-art-rotate', `${rotate}deg`);
+        item.appendChild(image);
+        rail.appendChild(item);
+      }
+    };
+
+    const initFrame = (root) => {
+      if (!root || root.classList.contains('custom-page-decorative-frame--empty')) return;
+      const mode = (root.dataset.artMode || 'zigzag').toLowerCase();
+      if (mode === 'repeat') {
+        const layout = measureRepeatLayout(root);
+        root.querySelectorAll('[data-art-rail]').forEach((rail) => buildRailRepeat(rail, layout));
+      } else {
+        const layout = measureZigZagLayout(root);
+        root.querySelectorAll('[data-art-rail]').forEach((rail) => buildRail(root, rail, layout));
+      }
+    };
+
+    const initAll = () => {
+      document.querySelectorAll(frameSelector).forEach((el) => initFrame(el));
+    };
+
+    const scheduleInitAll = () => {
+      if (resizeFrame) window.cancelAnimationFrame(resizeFrame);
+      resizeFrame = window.requestAnimationFrame(() => initAll());
+    };
+
+    const initById = (id) => {
+      const sectionWrapper = document.getElementById(`shopify-section-${id}`);
+      const root = sectionWrapper ? sectionWrapper.querySelector(frameSelector) : document.querySelector(frameSelector);
+      initFrame(root);
+    };
+
+    const ensureMainResizeObserver = () => {
+      if (mainResizeBound) return;
+      const mainEl = getMain();
+      if (mainEl && window.ResizeObserver) {
+        const ro = new window.ResizeObserver(() => scheduleInitAll());
+        ro.observe(mainEl);
+        mainResizeBound = true;
+      }
+    };
+
+    window.CustomPolicyPageArt = window.CustomPolicyPageArt || {};
+    window.CustomPolicyPageArt.initFrameAll = initAll;
+    window.CustomPolicyPageArt.initFrameById = initById;
+
+    if (!window.__customPageDecorativeFrameBound) {
+      window.__customPageDecorativeFrameBound = true;
+      document.addEventListener('DOMContentLoaded', () => {
+        initAll();
+        ensureMainResizeObserver();
+      });
+      window.addEventListener('load', scheduleInitAll);
+      window.addEventListener('resize', scheduleInitAll);
+      document.addEventListener('shopify:section:load', initAll);
+      document.addEventListener('shopify:section:select', initAll);
+      document.addEventListener('shopify:block:select', initAll);
+    }
+
+    window.CustomPolicyPageArt.initFrameById(sectionId);
+  })();
+</script>
+
+{% stylesheet %}
+  /* Full-height overlay: first child of <main>, out of flow so following sections stack normally. */
+  main#MainContent.content-for-layout,
+  main.content-for-layout[role='main'] {
+    position: relative;
+  }
+
+  .shopify-section.custom-page-decorative-frame-section {
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    min-height: 0;
+    pointer-events: none;
+  }
+
+  .content-for-layout > .shopify-section:not(.custom-page-decorative-frame-section) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .custom-page-decorative-frame-host {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .custom-page-decorative-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+
+  .custom-page-decorative-frame--empty {
+    position: relative;
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+    pointer-events: auto;
+  }
+
+  .custom-page-decorative-frame__placeholder {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgb(var(--color-foreground-rgb) / 0.55);
+  }
+
+  .custom-page-decorative-frame .custom-policy-page__art-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .custom-page-decorative-frame .custom-policy-page__art-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--custom-policy-page-art-width, 9rem);
+  }
+
+  .custom-page-decorative-frame .custom-policy-page__art-rail--left {
+    left: 0;
+  }
+
+  .custom-page-decorative-frame .custom-policy-page__art-rail--right {
+    right: 0;
+  }
+
+  .custom-page-decorative-frame .custom-policy-page__art-template {
+    display: none;
+  }
+
+  .custom-page-decorative-frame .custom-policy-page__art-item {
+    position: absolute;
+    width: 100%;
+    transform: translateX(var(--custom-policy-page-art-shift, 0%)) rotate(var(--custom-policy-page-art-rotate, 0deg));
+  }
+
+  .custom-page-decorative-frame .custom-policy-page__art-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Page decorative frame",
+  "class": "section-wrapper custom-page-decorative-frame-section",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Place at the top of the page. Choose zigzag (short pages) or repeating rows (long policy text). Configure images here, not in Custom policy page."
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent (for other components)",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "header",
+      "content": "Decorative artwork"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_left_image",
+      "label": "Decorative left image"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_right_image",
+      "label": "Decorative right image"
+    },
+    {
+      "type": "select",
+      "id": "decorative_art_mode",
+      "label": "Decorative art layout",
+      "default": "auto",
+      "info": "Auto: one zigzag pair on FAQ and Shipping; repeating left/right rows on Privacy, Terms, and other long pages. Override per template as needed.",
+      "options": [
+        { "value": "auto", "label": "Auto (by page template)" },
+        { "value": "zigzag", "label": "Zigzag — one pair, first screen" },
+        { "value": "repeat", "label": "Repeating rows (full page height)" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "leaf_vertical_spacing",
+      "label": "Leaf vertical spacing",
+      "info": "Tighter, balanced, or wider bands. Applies to both zigzag (first screen) and repeat (row density) modes when layout is Auto or overridden here.",
+      "default": "auto",
+      "options": [
+        { "value": "auto", "label": "Auto (by page template)" },
+        { "value": "compact", "label": "Tighter" },
+        { "value": "default", "label": "Balanced" },
+        { "value": "spread", "label": "Wider" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "decorative_gap_extra",
+      "min": 0,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "label": "Extra vertical gap",
+      "default": 0,
+      "info": "Adds space between leaves on top of Leaf vertical spacing. Affects zigzag (first screen) and repeating rows."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Page decorative frame"
+    }
+  ]
+}
+{% endschema %}

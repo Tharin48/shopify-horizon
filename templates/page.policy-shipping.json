@@ -1,0 +1,127 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "page_decorative_frame": {
+      "type": "custom-page-decorative-frame",
+      "settings": {
+        "accent_color": "#b08a2f",
+        "decorative_left_image": "shopify://shop_images/x31_1_1.png",
+        "decorative_right_image": "shopify://shop_images/Group.svg",
+        "decorative_art_mode": "zigzag",
+        "leaf_vertical_spacing": "spread",
+        "decorative_gap_extra": 200
+      }
+    },
+    "policy_shell": {
+      "type": "custom-policy-page",
+      "blocks": {
+        "breadcrumb": {
+          "type": "breadcrumb",
+          "settings": {
+            "show_home": true,
+            "home_label": "Home",
+            "separator_style": "slash"
+          }
+        },
+        "page_tabs": {
+          "type": "page_tabs",
+          "settings": {
+            "nav_label": "Policy pages",
+            "alignment": "center"
+          }
+        },
+        "faq_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "faq-new",
+            "label": "FAQ",
+            "icon": "question"
+          }
+        },
+        "shipping_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "shipping-and-delivery-new",
+            "label": "Shipping & Delivery Policy",
+            "icon": "truck"
+          }
+        },
+        "terms_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "terms-conditions",
+            "label": "Terms & Conditions",
+            "icon": "document"
+          }
+        },
+        "privacy_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "privacy-and-cookie-policy",
+            "label": "Privacy Policy",
+            "icon": "shield"
+          }
+        },
+        "page_heading": {
+          "type": "page_heading",
+          "settings": {
+            "heading_source": "custom",
+            "custom_heading": "Shipping & Delivery",
+            "intro": "<p>We offer free international shipping on all orders over USD $49. Shipping availability depends on courier coverage in your delivery location.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "breadcrumb",
+        "page_tabs",
+        "faq_tab",
+        "shipping_tab",
+        "terms_tab",
+        "privacy_tab",
+        "page_heading"
+      ],
+      "settings": {
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "accent_color": "#b08a2f",
+        "page_max_width": 1920,
+        "padding_top": 40,
+        "padding_bottom": 24,
+        "padding_inline": 80,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 20,
+        "padding_inline_mobile": 16
+      }
+    },
+    "shipping_availability": {
+      "type": "shipping-availability",
+      "settings": {
+        "global_notice": "<ul><li>Free shipping is available for orders over USD $49.</li><li>Local customs authorities may impose duties, taxes, or inspection charges.</li><li>These charges are not included in the tea price.</li><li>Please contact your nearest agent with your airway bill number.</li><li>Refunds may exclude charges already paid to authorities.</li></ul>",
+        "fallback_contact_email": "orders@dilmahtea.com",
+        "search_label": "Check Shipping Availability",
+        "search_placeholder": "Search your country",
+        "no_results_text": "We couldn’t find this country. Please contact [email] for help.",
+        "default_result_text": "Search for your country to check shipping availability.",
+        "show_global_notice": true,
+        "accent_color": "#b08a2f",
+        "max_width": 900,
+        "padding_top": 12,
+        "padding_bottom": 120,
+        "padding_top_mobile": 12,
+        "padding_bottom_mobile": 80
+      }
+    }
+  },
+  "order": [
+    "page_decorative_frame",
+    "policy_shell",
+    "shipping_availability"
+  ]
+}

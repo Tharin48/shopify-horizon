@@ -1,0 +1,634 @@
+{%- liquid
+  assign current_page_id = page.id
+  assign current_page_handle = page.handle | default: blank
+  assign current_page_url = page.url | default: request.path | split: '#' | first | split: '?' | first
+  assign current_request_path = request.path | split: '#' | first | split: '?' | first
+  assign page_intro_markup = blank
+  assign tab_blocks = section.blocks | where: 'type', 'page_tab'
+
+  if page.metafields.custom.policy_intro != blank
+    assign page_intro_markup = page.metafields.custom.policy_intro | metafield_tag
+  elsif page.metafields.custom.intro_text != blank
+    assign page_intro_markup = page.metafields.custom.intro_text | metafield_tag
+  elsif page.metafields.custom.subheading != blank
+    assign page_intro_markup = page.metafields.custom.subheading | metafield_tag
+  endif
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+<section
+  class="section page-width-content color-{{ section.settings.color_scheme }} custom-policy-page"
+  data-custom-policy-page
+  style="
+    max-width: {{ section.settings.page_max_width }}px;
+    --custom-policy-page-padding-top: {{ section.settings.padding_top }}px;
+    --custom-policy-page-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-policy-page-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-policy-page-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-policy-page-padding-inline: {{ section.settings.padding_inline }}px;
+    --custom-policy-page-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-policy-page-accent: {{ section.settings.accent_color }};
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-policy-page__inner">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'breadcrumb' -%}
+          {% render 'custom-breadcrumb', block: block, page: page %}
+
+        {%- when 'page_tabs' -%}
+          {% render 'custom-page-tabs',
+            block: block,
+            tab_blocks: tab_blocks,
+            current_page_id: current_page_id,
+            current_page_handle: current_page_handle,
+            current_page_url: current_page_url,
+            current_request_path: current_request_path
+          %}
+
+        {%- when 'page_heading' -%}
+          {%- liquid
+            assign heading_text = page.title
+            assign intro_markup = block.settings.intro
+
+            if block.settings.heading_source == 'custom' and block.settings.custom_heading != blank
+              assign heading_text = block.settings.custom_heading
+            endif
+
+            if intro_markup == blank
+              assign intro_markup = page_intro_markup
+            endif
+          -%}
+
+          <header class="custom-policy-page__header" {{ block.shopify_attributes }}>
+            {%- if heading_text != blank -%}
+              <h1 class="custom-policy-page__title">{{ heading_text | escape }}</h1>
+            {%- endif -%}
+
+            {%- if intro_markup != blank -%}
+              <div class="custom-policy-page__intro rte">
+                {{ intro_markup }}
+              </div>
+            {%- endif -%}
+          </header>
+
+        {%- when 'rich_content' -%}
+          {%- if page.content != blank -%}
+            <div class="custom-policy-page__content rte" role="document" {{ block.shopify_attributes }}>
+              {{ page.content }}
+            </div>
+          {%- elsif request.design_mode -%}
+            <div class="custom-policy-page__empty" {{ block.shopify_attributes }}>
+              This block renders the current page content when the page body is not empty.
+            </div>
+          {%- endif -%}
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-policy-page {
+    position: relative;
+    overflow: visible;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns:
+      var(--custom-policy-page-padding-inline-mobile)
+      1fr
+      var(--custom-policy-page-padding-inline-mobile);
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-policy-page {
+      grid-template-columns:
+        var(--custom-policy-page-padding-inline)
+        1fr
+        var(--custom-policy-page-padding-inline);
+    }
+  }
+
+  .custom-policy-page__inner {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    padding-block: var(--custom-policy-page-padding-top-mobile) var(--custom-policy-page-padding-bottom-mobile);
+  }
+
+  .custom-policy-page__breadcrumb,
+  .custom-policy-page__tabs-shell,
+  .custom-policy-page__header,
+  .custom-policy-page__content,
+  .custom-policy-page__empty {
+    width: 100%;
+  }
+
+  .custom-policy-page__breadcrumb {
+    margin-bottom: 1.25rem;
+  }
+
+  .custom-policy-page__breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: rgb(var(--color-foreground-rgb) / 0.72);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .custom-policy-page__breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .custom-policy-page__breadcrumb[data-separator-style='slash'] .custom-policy-page__breadcrumb-item:not(:last-child)::after {
+    content: "/";
+    color: rgb(var(--color-foreground-rgb) / 0.42);
+  }
+
+  .custom-policy-page__breadcrumb[data-separator-style='chevron'] .custom-policy-page__breadcrumb-item:not(:last-child)::after {
+    content: "›";
+    color: rgb(var(--color-foreground-rgb) / 0.42);
+  }
+
+  .custom-policy-page__breadcrumb[data-separator-style='dot'] .custom-policy-page__breadcrumb-item:not(:last-child)::after {
+    content: "•";
+    color: rgb(var(--color-foreground-rgb) / 0.42);
+  }
+
+  .custom-policy-page__breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .custom-policy-page__breadcrumb a:hover,
+  .custom-policy-page__breadcrumb a:focus-visible {
+    color: var(--custom-policy-page-accent);
+  }
+
+  .custom-policy-page__tabs-shell {
+    margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+    border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  }
+
+  .custom-policy-page__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: var(--custom-policy-tabs-justify, center);
+    gap: 0.75rem 1rem;
+    margin: 0;
+    padding: 0 0 0.75rem;
+    list-style: none;
+  }
+
+  .custom-policy-page__tab-item {
+    min-width: 0;
+  }
+
+  .custom-policy-page__tab-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.5rem;
+    padding: 0.35rem 0.2rem;
+    color: rgb(var(--color-foreground-rgb));
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .custom-policy-page__tab-link:hover,
+  .custom-policy-page__tab-link:focus-visible {
+    color: var(--custom-policy-page-accent);
+  }
+
+  .custom-policy-page__tab-link.is-active {
+    color: var(--custom-policy-page-accent);
+    border-color: var(--custom-policy-page-accent);
+  }
+
+  .custom-policy-page__tab-icon {
+    display: inline-flex;
+    inline-size: 1.15rem;
+    block-size: 1.15rem;
+    flex-shrink: 0;
+  }
+
+  .custom-policy-page__tab-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.55;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .custom-policy-page__tab-label {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .custom-policy-page__tab-placeholder {
+    color: rgb(var(--color-foreground-rgb) / 0.68);
+    font-size: 0.95rem;
+  }
+
+  .custom-policy-page__header {
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    text-align: center;
+  }
+
+  .custom-policy-page__title {
+    margin: 0;
+  }
+
+  .custom-policy-page__intro {
+    max-width: 50rem;
+    margin: 1rem auto 0;
+    color: rgb(var(--color-foreground-rgb) / 0.8);
+  }
+
+  .custom-policy-page__content,
+  .custom-policy-page__empty {
+    max-width: 54rem;
+    margin-inline: auto;
+  }
+
+  .custom-policy-page__content a,
+  .custom-policy-page__intro a {
+    color: var(--custom-policy-page-accent);
+  }
+
+  .custom-policy-page__content {
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .custom-policy-page__content > :is(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, table, figure, .rte-table) {
+    margin-left: 0;
+    margin-right: 0;
+    text-align: left;
+  }
+
+  .custom-policy-page__content li,
+  .custom-policy-page__content td,
+  .custom-policy-page__content th {
+    text-align: left;
+  }
+
+  .custom-policy-page__content .rte-table-wrapper,
+  .custom-policy-page__content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-policy-page__content table {
+    width: max-content !important;
+    min-width: 100%;
+    border-collapse: collapse;
+  }
+
+  .custom-policy-page__content th,
+  .custom-policy-page__content td {
+    min-width: 8rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .custom-policy-page__empty {
+    padding: 1rem 1.25rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.22);
+    border-radius: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.68);
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-policy-page__inner {
+      padding-block: var(--custom-policy-page-padding-top) var(--custom-policy-page-padding-bottom);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-policy-page {
+      overflow-x: clip;
+    }
+
+    .custom-policy-page__title {
+      font-size: 1.125rem;
+      line-height: 1.35;
+    }
+
+    .custom-policy-page__tabs-shell {
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .custom-policy-page__tabs-shell::-webkit-scrollbar {
+      display: none;
+    }
+
+    .custom-policy-page__tabs {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      width: max-content;
+      min-width: max-content;
+      padding-bottom: 0.55rem;
+      padding-right: 1rem;
+    }
+
+    .custom-policy-page__tab-link {
+      white-space: nowrap;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .custom-policy-page__breadcrumb a,
+    .custom-policy-page__tab-link {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom policy page",
+  "class": "section-wrapper",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 32,
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "paragraph",
+      "content": "For full-page leaf artwork (policy + FAQ/shipping below), use the Page decorative frame section at the top of the template."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "page_max_width",
+      "label": "Section max width",
+      "min": 600,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1400
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top",
+      "min": 0,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_inline",
+      "label": "Left / right",
+      "min": 0,
+      "max": 500,
+      "step": 5,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top",
+      "min": 0,
+      "max": 280,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom",
+      "min": 0,
+      "max": 280,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Left / right",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "blocks": [
+    {
+      "type": "breadcrumb",
+      "name": "Breadcrumb",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_home",
+          "label": "Show home link",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "home_label",
+          "label": "Home label",
+          "default": "Home"
+        },
+        {
+          "type": "select",
+          "id": "separator_style",
+          "label": "Separator style",
+          "default": "slash",
+          "options": [
+            { "value": "slash", "label": "Slash" },
+            { "value": "chevron", "label": "Chevron" },
+            { "value": "dot", "label": "Dot" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "page_tabs",
+      "name": "Page tabs",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "nav_label",
+          "label": "Navigation label",
+          "default": "Related pages"
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Tab alignment",
+          "default": "center",
+          "options": [
+            { "value": "flex-start", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "flex-end", "label": "Right" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "page_tab",
+      "name": "Page tab",
+      "settings": [
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Page"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Custom label",
+          "info": "Leave blank to use the selected page title."
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "none",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "question", "label": "Question" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "document", "label": "Document" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "info", "label": "Info" },
+            { "value": "page", "label": "Page" },
+            { "value": "lock", "label": "Lock" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "page_heading",
+      "name": "Page heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "heading_source",
+          "label": "Heading source",
+          "default": "page_title",
+          "options": [
+            { "value": "page_title", "label": "Page title" },
+            { "value": "custom", "label": "Custom heading" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "custom_heading",
+          "label": "Custom heading"
+        },
+        {
+          "type": "richtext",
+          "id": "intro",
+          "label": "Intro text"
+        }
+      ]
+    },
+    {
+      "type": "rich_content",
+      "name": "Rich content",
+      "limit": 1,
+      "settings": []
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom policy page",
+      "blocks": [
+        {
+          "type": "breadcrumb"
+        },
+        {
+          "type": "page_tabs"
+        },
+        {
+          "type": "page_tab"
+        },
+        {
+          "type": "page_tab"
+        },
+        {
+          "type": "page_tab"
+        },
+        {
+          "type": "page_tab"
+        },
+        {
+          "type": "page_heading"
+        },
+        {
+          "type": "rich_content"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

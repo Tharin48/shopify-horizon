@@ -1,0 +1,631 @@
+{%- liquid
+  assign faq_items_metafield = blank
+  assign faq_items = blank
+  assign category_registry = '|'
+  assign category_entries_string = blank
+  assign valid_item_count = 0
+  assign first_visible_open_assigned = false
+  assign requested_default_category = section.settings.default_selected_category | strip
+  assign requested_default_key = requested_default_category | handleize
+  assign initial_selected_key = blank
+
+  if page != blank
+    assign faq_items_metafield = page.metafields.custom.faq_items
+    if faq_items_metafield != blank and faq_items_metafield.value != blank
+      assign faq_items = faq_items_metafield.value
+    endif
+  endif
+
+  if faq_items != blank
+    for faq_item in faq_items
+      assign is_enabled = true
+      if faq_item.enabled != blank and faq_item.enabled.value == false
+        assign is_enabled = false
+      endif
+
+      assign question_text = faq_item.question.value | default: faq_item.question | default: ''
+      assign answer_field = faq_item.answer
+
+      if is_enabled and question_text != blank and answer_field != blank
+        assign valid_item_count = valid_item_count | plus: 1
+
+        assign category_label = faq_item.category.value | default: faq_item.category | default: 'General' | strip
+        if category_label == blank
+          assign category_label = 'General'
+        endif
+
+        assign category_key = category_label | handleize
+        assign registry_token = '|' | append: category_key | append: '|'
+
+        unless category_registry contains registry_token
+          assign category_registry = category_registry | append: category_key | append: '|'
+
+          capture category_entries_string
+            echo category_entries_string
+            unless category_entries_string == blank
+              echo '||'
+            endunless
+            echo category_key
+            echo '::'
+            echo category_label
+          endcapture
+        endunless
+      endif
+    endfor
+  endif
+
+  assign category_entries = blank
+  if category_entries_string != blank
+    assign category_entries = category_entries_string | split: '||'
+  endif
+
+  if section.settings.show_category_filters and category_entries != blank and category_entries.size > 0
+    if requested_default_key != blank
+      for entry in category_entries
+        assign entry_parts = entry | split: '::'
+        assign entry_key = entry_parts[0]
+        if entry_key == requested_default_key
+          assign initial_selected_key = entry_key
+          break
+        endif
+      endfor
+    endif
+
+    if initial_selected_key == blank
+      assign first_entry_parts = category_entries.first | split: '::'
+      assign initial_selected_key = first_entry_parts[0]
+    endif
+  endif
+-%}
+
+{%- if valid_item_count > 0 or request.design_mode -%}
+  <div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+  <section
+    class="section color-{{ section.settings.color_scheme }} custom-faq-accordion"
+    data-custom-faq-accordion
+    data-section-id="{{ section.id }}"
+    data-open-behavior="{{ section.settings.open_behavior | default: 'first_open' }}"
+    data-show-filters="{% if section.settings.show_category_filters and category_entries != blank and category_entries.size > 0 %}true{% else %}false{% endif %}"
+    data-initial-category="{{ initial_selected_key }}"
+    style="
+      --custom-faq-accordion-accent: {{ section.settings.accent_color }};
+      --custom-faq-accordion-max-width: {{ section.settings.max_width }}px;
+      --custom-faq-accordion-padding-top: {{ section.settings.padding_top }}px;
+      --custom-faq-accordion-padding-bottom: {{ section.settings.padding_bottom }}px;
+      --custom-faq-accordion-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+      --custom-faq-accordion-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    "
+    {{ section.shopify_attributes }}
+  >
+    <div class="custom-faq-accordion__inner">
+      {%- if section.settings.heading != blank or section.settings.intro != blank -%}
+        <header class="custom-faq-accordion__header">
+          {%- if section.settings.heading != blank -%}
+            <h2 class="custom-faq-accordion__heading">{{ section.settings.heading | escape }}</h2>
+          {%- endif -%}
+
+          {%- if section.settings.intro != blank -%}
+            <div class="custom-faq-accordion__intro rte">
+              {{ section.settings.intro }}
+            </div>
+          {%- endif -%}
+        </header>
+      {%- endif -%}
+
+      {%- if valid_item_count > 0 -%}
+        {%- if section.settings.show_category_filters and category_entries != blank and category_entries.size > 0 -%}
+          {% render 'custom-faq-filter-pills',
+            category_entries: category_entries,
+            selected_key: initial_selected_key
+          %}
+        {%- endif -%}
+
+        <div class="custom-faq-accordion__list" data-faq-list>
+          {%- for faq_item in faq_items -%}
+            {%- liquid
+              assign is_enabled = true
+              if faq_item.enabled != blank and faq_item.enabled.value == false
+                assign is_enabled = false
+              endif
+
+              assign question_text = faq_item.question.value | default: faq_item.question | default: ''
+              assign answer_field = faq_item.answer
+
+              if is_enabled == false or question_text == blank or answer_field == blank
+                continue
+              endif
+
+              assign category_label = faq_item.category.value | default: faq_item.category | default: 'General' | strip
+              if category_label == blank
+                assign category_label = 'General'
+              endif
+
+              assign category_key = category_label | handleize
+              assign open_by_default = false
+
+              if section.settings.open_behavior == 'first_open' and first_visible_open_assigned == false
+                if initial_selected_key == blank or initial_selected_key == category_key
+                  assign open_by_default = true
+                  assign first_visible_open_assigned = true
+                endif
+              endif
+            -%}
+
+            {% render 'custom-faq-item',
+              faq_item: faq_item,
+              index: forloop.index0,
+              section_id: section.id,
+              category_key: category_key,
+              category_label: category_label,
+              open_by_default: open_by_default
+            %}
+          {%- endfor -%}
+        </div>
+      {%- elsif request.design_mode -%}
+        <div class="custom-faq-accordion__empty">
+          Connect the page metafield `custom.faq_items` to a list of FAQ Item metaobjects to populate this section.
+        </div>
+      {%- endif -%}
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const sectionId = '{{ section.id }}';
+
+      if (!window.CustomFaqAccordion) {
+        const rootSelector = '[data-custom-faq-accordion]';
+
+        const getRootById = (id) => document.querySelector(`${rootSelector}[data-section-id="${id}"]`);
+        const getItems = (root) => Array.from(root.querySelectorAll('[data-faq-item]'));
+        const getPills = (root) => Array.from(root.querySelectorAll('[data-faq-category]'));
+        const getDetails = (item) => item.querySelector('details');
+        const getVisibleItems = (root) => getItems(root).filter((item) => !item.hidden);
+
+        const sortItems = (root) => {
+          const list = root.querySelector('[data-faq-list]');
+          if (!list) return;
+
+          const items = getItems(root);
+          items
+            .sort((firstItem, secondItem) => {
+              const firstSortOrder = Number(firstItem.dataset.sortOrder || 9999);
+              const secondSortOrder = Number(secondItem.dataset.sortOrder || 9999);
+
+              if (firstSortOrder !== secondSortOrder) return firstSortOrder - secondSortOrder;
+
+              const firstIndex = Number(firstItem.dataset.originalIndex || 0);
+              const secondIndex = Number(secondItem.dataset.originalIndex || 0);
+              return firstIndex - secondIndex;
+            })
+            .forEach((item) => list.appendChild(item));
+        };
+
+        const syncPills = (root, activeCategory) => {
+          getPills(root).forEach((pill) => {
+            const isActive = pill.dataset.faqCategory === activeCategory;
+            pill.classList.toggle('is-active', isActive);
+            pill.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          });
+        };
+
+        const closeAllVisible = (root, exceptDetails) => {
+          getVisibleItems(root).forEach((item) => {
+            const details = getDetails(item);
+            if (!details || details === exceptDetails) return;
+            details.open = false;
+          });
+        };
+
+        const setDefaultOpenState = (root, forceFirstOpen) => {
+          const openBehavior = root.dataset.openBehavior || 'first_open';
+          const visibleItems = getVisibleItems(root);
+
+          if (!visibleItems.length) return;
+
+          if (openBehavior === 'allow_multiple') return;
+
+          if (openBehavior === 'all_closed') {
+            closeAllVisible(root);
+            return;
+          }
+
+          const openDetails = visibleItems
+            .map((item) => getDetails(item))
+            .filter((details) => details && details.open);
+
+          if (forceFirstOpen || !openDetails.length) {
+            closeAllVisible(root);
+            const firstVisibleDetails = getDetails(visibleItems[0]);
+            if (firstVisibleDetails) firstVisibleDetails.open = true;
+            return;
+          }
+
+          closeAllVisible(root, openDetails[0]);
+        };
+
+        const setActiveCategory = (root, requestedCategory) => {
+          const showFilters = root.dataset.showFilters === 'true';
+          const pills = getPills(root);
+          let activeCategory = requestedCategory || root.dataset.initialCategory || '';
+
+          if (showFilters && pills.length) {
+            const hasMatchingPill = pills.some((pill) => pill.dataset.faqCategory === activeCategory);
+            if (!hasMatchingPill) {
+              activeCategory = pills[0].dataset.faqCategory || '';
+            }
+          } else {
+            activeCategory = '';
+          }
+
+          root.dataset.activeCategory = activeCategory;
+
+          getItems(root).forEach((item) => {
+            const matchesCategory = !showFilters || !activeCategory || item.dataset.category === activeCategory;
+            item.hidden = !matchesCategory;
+
+            if (!matchesCategory) {
+              const details = getDetails(item);
+              if (details) details.open = false;
+            }
+          });
+
+          syncPills(root, activeCategory);
+          setDefaultOpenState(root, true);
+        };
+
+        const bindRoot = (root) => {
+          if (root.dataset.customFaqBound === 'true') return;
+          root.dataset.customFaqBound = 'true';
+
+          getPills(root).forEach((pill) => {
+            pill.addEventListener('click', () => {
+              setActiveCategory(root, pill.dataset.faqCategory || '');
+            });
+          });
+
+          getItems(root).forEach((item) => {
+            const details = getDetails(item);
+            if (!details) return;
+
+            details.addEventListener('toggle', () => {
+              if (!details.open) return;
+
+              const openBehavior = root.dataset.openBehavior || 'first_open';
+              if (openBehavior === 'allow_multiple') return;
+
+              closeAllVisible(root, details);
+            });
+          });
+        };
+
+        const initRoot = (root) => {
+          if (!root) return;
+          sortItems(root);
+          bindRoot(root);
+          setActiveCategory(root, root.dataset.activeCategory || root.dataset.initialCategory || '');
+        };
+
+        const initAll = (scope = document) => {
+          let roots = [];
+
+          if (scope && typeof scope.matches === 'function' && scope.matches(rootSelector)) {
+            roots = [scope];
+          } else if (scope && typeof scope.querySelectorAll === 'function') {
+            roots = Array.from(scope.querySelectorAll(rootSelector));
+          }
+
+          roots.forEach(initRoot);
+        };
+
+        window.CustomFaqAccordion = {
+          initAll,
+          initBySectionId(id) {
+            initRoot(getRootById(id));
+          }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => initAll(document));
+        document.addEventListener('shopify:section:load', () => initAll(document));
+        document.addEventListener('shopify:section:select', () => initAll(document));
+        document.addEventListener('shopify:block:select', () => initAll(document));
+      }
+
+      window.CustomFaqAccordion.initBySectionId(sectionId);
+    })();
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .custom-faq-accordion {
+    position: relative;
+  }
+
+  .custom-faq-accordion__inner {
+    width: min(100%, var(--custom-faq-accordion-max-width));
+    margin-inline: auto;
+    padding-block: var(--custom-faq-accordion-padding-top-mobile) var(--custom-faq-accordion-padding-bottom-mobile);
+  }
+
+  .custom-faq-accordion__header {
+    max-width: 52rem;
+    margin: 0 auto 1.5rem;
+    text-align: center;
+  }
+
+  .custom-faq-accordion__heading {
+    margin: 0;
+  }
+
+  .custom-faq-accordion__intro {
+    margin-top: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.8);
+  }
+
+  .custom-faq-accordion__intro a {
+    color: var(--custom-faq-accordion-accent);
+  }
+
+  .custom-faq-accordion__filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .custom-faq-accordion__filter-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.2);
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(var(--color-foreground-rgb));
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .custom-faq-accordion__filter-pill.is-active {
+    background: var(--custom-faq-accordion-accent);
+    border-color: var(--custom-faq-accordion-accent);
+    color: var(--color-primary-button-text, var(--color-white));
+  }
+
+  .custom-faq-accordion__list {
+    display: grid;
+    gap: 0;
+  }
+
+  .custom-faq-accordion__item[hidden] {
+    display: none;
+  }
+
+  .custom-faq-accordion__accordion-node {
+    display: block;
+    border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  }
+
+  .custom-faq-accordion__details {
+    width: 100%;
+  }
+
+  .custom-faq-accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .custom-faq-accordion__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .custom-faq-accordion__question {
+    font-size: 1.05rem;
+    line-height: 1.45;
+  }
+
+  .custom-faq-accordion__chevron {
+    display: inline-flex;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .custom-faq-accordion__chevron svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .custom-faq-accordion__details[open] .custom-faq-accordion__chevron {
+    transform: rotate(180deg);
+    color: var(--custom-faq-accordion-accent);
+  }
+
+  .custom-faq-accordion__answer {
+    padding: 0 0 1.25rem;
+    color: rgb(var(--color-foreground-rgb) / 0.82);
+  }
+
+  .custom-faq-accordion__answer > :first-child {
+    margin-top: 0;
+  }
+
+  .custom-faq-accordion__answer > :last-child {
+    margin-bottom: 0;
+  }
+
+  .custom-faq-accordion__empty {
+    max-width: 48rem;
+    margin-inline: auto;
+    padding: 1rem 1.25rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.22);
+    border-radius: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.68);
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-faq-accordion__inner {
+      padding-block: var(--custom-faq-accordion-padding-top) var(--custom-faq-accordion-padding-bottom);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-faq-accordion__filters {
+      justify-content: flex-start;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding-bottom: 0.25rem;
+    }
+
+    .custom-faq-accordion__filter-pill {
+      white-space: nowrap;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .custom-faq-accordion__filter-pill,
+    .custom-faq-accordion__chevron {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom FAQ accordion",
+  "class": "section-wrapper",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "FAQ"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Intro text"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_category_filters",
+      "label": "Show category filters",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "default_selected_category",
+      "label": "Default selected category",
+      "info": "Enter the FAQ category label to preselect. Leave blank to use the first category."
+    },
+    {
+      "type": "select",
+      "id": "open_behavior",
+      "label": "Accordion open behavior",
+      "default": "all_closed",
+      "options": [
+        { "value": "first_open", "label": "First open" },
+        { "value": "all_closed", "label": "All closed" },
+        { "value": "allow_multiple", "label": "Allow multiple" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 480,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 900
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 88
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom FAQ accordion"
+    }
+  ]
+}
+{% endschema %}

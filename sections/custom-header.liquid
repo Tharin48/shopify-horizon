@@ -427,6 +427,97 @@
 
   .custom-header__actions cart-icon.header-actions__cart-icon {
     color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--button-size);
+    min-height: var(--button-size);
+    line-height: normal;
+    overflow: visible;
+  }
+
+  /*
+   * Cart icon + count bubble.
+   * The stock header uses a mask cutout behind the bubble, but in this custom header
+   * that can over-clip the bag icon on storefront carts with live counts, especially
+   * when the count is double-digit. Keep the bubble layered above the icon instead of
+   * masking the SVG so the bag remains visible reliably on live theme.
+   */
+  .custom-header .header-actions__cart-icon {
+    --cart-bubble-size: 20px;
+    --cart-bubble-top: 4.5px;
+    --cart-bubble-right: 2.5px;
+
+    position: relative;
+  }
+
+  .custom-header .header-actions__cart-icon .cart-bubble {
+    position: absolute;
+    width: var(--cart-bubble-size, 20px);
+    top: var(--cart-bubble-top);
+    right: var(--cart-bubble-right);
+    z-index: 1;
+  }
+
+  .custom-header .header-actions__action {
+    --button-color: currentColor;
+    color: var(--button-color);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--button-size);
+    min-height: var(--button-size);
+    line-height: normal;
+  }
+
+  .custom-header .header-actions__action:not(.account-button) .svg-wrapper {
+    width: var(--button-size);
+    height: var(--button-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .custom-header .header-actions__action:not(.account-button) svg {
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
+    flex: 0 0 auto;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-header .header-actions__cart-icon--text.header-actions__cart-icon .cart-bubble {
+      position: relative;
+      top: 0;
+    }
+  }
+
+  .custom-header .header-actions__cart-icon .cart-bubble__text {
+    font-family: var(--font-paragraph--family);
+    font-weight: var(--font-paragraph--weight);
+  }
+
+  .custom-header .header-actions__cart-icon.header-actions__cart-icon--has-cart svg {
+    -webkit-mask: none;
+    mask: none;
+  }
+
+  .custom-header cart-icon:has(.cart-bubble__text-count:empty) {
+    --cart-bubble-size: 10px;
+    --cart-bubble-top: 9px;
+    --cart-bubble-right: 9px;
+  }
+
+  .custom-header cart-icon:has(.cart-bubble__text-count:empty) .svg-wrapper {
+    --cart-bubble-top: 4px;
+    --cart-bubble-right: 4px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-header cart-icon.header-actions__cart-icon--text:has(.cart-bubble__text-count:empty) {
+      --cart-bubble-right: 2.5px;
+    }
   }
 
   /*
@@ -660,6 +751,10 @@
     align-items: center;
     gap: var(--gap-sm);
     order: 2;
+    /* Keep icon + bubble + flag row from shrinking in grid (preview iframe / narrow viewports) */
+    overflow: visible;
+    min-width: min-content;
+    flex: 0 1 auto;
   }
 
   .custom-header__search-slot {
@@ -673,6 +768,7 @@
     justify-content: center;
     color: inherit;
     text-decoration: none;
+    flex-shrink: 0;
   }
 
   .custom-header__wishlist-icon {
@@ -687,14 +783,183 @@
   .custom-header__actions-icons cart-drawer-component,
   .custom-header__actions-icons > a.action__cart {
     order: 3;
+    flex-shrink: 0;
+    overflow: visible;
   }
 
   .custom-header__actions-icons .custom-header__localization {
     order: 4;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+
+  /*
+   * Country / currency dropdown: same markup as sections/header.liquid
+   * (dropdown-localization-component + .dropdown-localization__button).
+   * Those rules live in the stock header section stylesheet; when that section
+   * is disabled, that CSS is not on the storefront and the trigger falls back
+   * to global .button (solid box). Mirror the styles here.
+   */
+  .custom-header .dropdown-localization__button {
+    display: flex;
+    position: relative;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--menu-localization-font);
+    font-size: var(--menu-localization-font-size);
+    font-weight: var(--menu-top-level-font-weight, 400);
+    padding-inline: var(--padding-2xs);
+    margin-inline: calc(-1 * var(--padding-2xs));
+  }
+
+  .custom-header .dropdown-localization__button .svg-wrapper.icon-caret {
+    height: var(--icon-size-xs);
+    width: var(--icon-size-xs);
+    right: var(--margin-xs);
+    top: calc(50% - var(--padding-2xs));
+    flex-shrink: 0;
+    transition: transform var(--animation-speed) var(--animation-easing);
+  }
+
+  .custom-header .dropdown-localization__button .icon-flag {
+    width: var(--menu-localization-font-size, var(--icon-size-sm));
+    height: var(--menu-localization-font-size, var(--icon-size-sm));
+    clip-path: circle(50%); /* stylelint-disable-line */
+    background-position: center;
+    background-size: cover;
+    margin-inline-end: 4px;
+    position: relative;
+  }
+
+  .custom-header .dropdown-localization__button .icon-flag::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 var(--size-shadow) var(--color-shadow);
+    border-radius: 50%;
+  }
+
+  .custom-header .dropdown-localization__button[aria-expanded='true'] .icon-caret svg {
+    transform: rotate(180deg);
+  }
+
+  .custom-header .dropdown-localization__button,
+  .custom-header .dropdown-localization__button:hover {
+    box-shadow: none;
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  .custom-header dropdown-localization-component .localization-form__list {
+    max-height: 20.5rem;
+  }
+
+  .custom-header .localization-wrapper {
+    position: fixed;
+    z-index: var(--layer-raised);
+    border-radius: var(--style-border-radius-popover);
+    transition-property: display, opacity, translate;
+    transition-duration: 0.3s;
+    transition-timing-function: var(--ease-out-quad);
+    transition-behavior: allow-discrete;
+    translate: 0 20px;
+    opacity: 0;
+  }
+
+  .custom-header .localization-wrapper:not([hidden]) {
+    translate: 0 0;
+    opacity: 1;
+  }
+
+  @starting-style {
+    .custom-header .localization-wrapper:not([hidden]) {
+      translate: 0 20px;
+      opacity: 0;
+    }
+  }
+
+  .custom-header dropdown-localization-component {
+    position: relative;
+    background-color: transparent;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+
+  .custom-header dropdown-localization-component .country-filter {
+    position: relative;
+    padding: 8px;
+  }
+
+  .custom-header dropdown-localization-component .country-filter__input {
+    border: none;
+  }
+
+  .custom-header dropdown-localization-component .localization-form__list-item {
+    margin-inline: 8px;
+  }
+
+  .custom-header dropdown-localization-component .localization-wrapper {
+    box-shadow: var(--shadow-popover);
+    border: var(--style-border-popover);
+    background-color: var(--color-background);
+    max-height: 27.5rem;
+    position: absolute;
+    top: calc(100% + 10px);
+    z-index: calc(var(--layer-header-menu) + 1);
+  }
+
+  .custom-header dropdown-localization-component .localization-wrapper.right-bound {
+    right: 0;
+    left: unset;
+  }
+
+  .custom-header dropdown-localization-component .localization-wrapper.left-bound {
+    left: -8px;
+    right: unset;
+  }
+
+  .custom-header dropdown-localization-component .language-selector.language-selector {
+    padding: 10px 8px 10px 16px;
+  }
+
+  .custom-header dropdown-localization-component .localization-form__currency {
+    width: max-content;
+    opacity: 0;
+    visibility: hidden;
+    transition: none;
+  }
+
+  .custom-header dropdown-localization-component .localization-form__select:hover {
+    background-color: rgb(var(--color-primary-hover-rgb) / var(--opacity-8));
+  }
+
+  .custom-header
+    dropdown-localization-component
+    :is(
+      .localization-form__list-item:hover,
+      .localization-form__list-item[aria-selected='true'],
+      .localization-form__list-item[aria-current='true']
+    )
+    .localization-form__currency {
+    opacity: 1;
+    color: var(--color-foreground-muted);
+    transition: opacity var(--animation-speed-slow) var(--animation-easing);
+    visibility: visible;
+  }
+
+  .custom-header .dropdown-localization .language-selector:where(:not(.top-shadow)) {
+    font-weight: var(--menu-top-level-font-weight, 400);
+  }
+
+  .custom-header .dropdown-localization:not(dropdown-localization-component) .language-selector {
+    font-family: var(--menu-localization-font);
+    font-size: var(--menu-localization-font-size);
   }
 
   .custom-header__actions-icons .account-button {
     order: 6;
+    flex-shrink: 0;
+    overflow: visible;
   }
 
   @media screen and (max-width: 749px) {
@@ -736,7 +1001,8 @@
 
     .custom-header__lower {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      /* minmax(0) left allows shrink; right column keeps room for search + cart + currency */
+      grid-template-columns: minmax(0, 1fr) auto minmax(min-content, 1fr);
       /* Top-align so wrapped nav + utility icons share one baseline row */
       align-items: start;
       gap: var(--gap-md);
@@ -762,6 +1028,8 @@
       flex: 0 0 auto;
       margin-inline-start: auto;
       max-width: none;
+      min-width: min-content;
+      overflow: visible;
     }
 
     .custom-header__menu-list {

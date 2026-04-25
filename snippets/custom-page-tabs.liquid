@@ -1,0 +1,96 @@
+{%- liquid
+  assign visible_tabs = 0
+
+  for tab_block in tab_blocks
+    assign linked_page = tab_block.settings.page
+    if linked_page != blank and linked_page.url != blank
+      assign visible_tabs = visible_tabs | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if visible_tabs > 0 or request.design_mode -%}
+  <nav
+    class="custom-policy-page__tabs-shell"
+    aria-label="{{ block.settings.nav_label | default: 'Related pages' | escape }}"
+    style="--custom-policy-tabs-justify: {{ block.settings.alignment | default: 'center' }};"
+    {{ block.shopify_attributes }}
+  >
+    <ul class="custom-policy-page__tabs" role="list">
+      {%- for tab_block in tab_blocks -%}
+        {%- liquid
+          assign linked_page = tab_block.settings.page
+          if linked_page == blank or linked_page.url == blank
+            continue
+          endif
+
+          assign linked_page_url = linked_page.url | split: '#' | first | split: '?' | first
+          assign tab_label = tab_block.settings.label | default: linked_page.title
+          assign is_active = false
+
+          if current_page_id != blank and linked_page.id == current_page_id
+            assign is_active = true
+          elsif current_page_handle != blank and linked_page.handle == current_page_handle
+            assign is_active = true
+          elsif linked_page_url == current_page_url or linked_page_url == current_request_path
+            assign is_active = true
+          endif
+        -%}
+
+        <li class="custom-policy-page__tab-item" {{ tab_block.shopify_attributes }}>
+          <a
+            class="custom-policy-page__tab-link{% if is_active %} is-active{% endif %}"
+            href="{{ linked_page.url }}"
+            {% if is_active %}
+              aria-current="page"
+            {% else %}
+              {%- unless request.design_mode -%}rel="prefetch"{%- endunless -%}
+            {% endif %}
+          >
+            {%- case tab_block.settings.icon -%}
+              {%- when 'question' -%}
+                <span class="custom-policy-page__tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="8.75"></circle><path d="M9.9 9.15a2.43 2.43 0 0 1 2.29-1.34c1.47 0 2.56.88 2.56 2.18 0 1.25-.78 1.86-1.68 2.52-.86.62-1.43 1.16-1.43 2.26v.2"></path><circle cx="12" cy="17.8" r="0.7" fill="currentColor" stroke="none"></circle></svg>
+                </span>
+              {%- when 'truck' -%}
+                <span class="custom-policy-page__tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M3.5 6.5h10v7.25H3.5z"></path><path d="M13.5 9.25h3.2l2.3 2.55v1.95h-5.5z"></path><circle cx="8" cy="15.75" r="1.75"></circle><circle cx="17.25" cy="15.75" r="1.75"></circle></svg>
+                </span>
+              {%- when 'document' -%}
+                <span class="custom-policy-page__tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M8 3.75h5.9l3.35 3.36v12.9H8z"></path><path d="M13.9 3.75v3.45h3.45"></path><path d="M10.25 11h4.75"></path><path d="M10.25 14h4.75"></path></svg>
+                </span>
+              {%- when 'shield' -%}
+                <span class="custom-policy-page__tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3.75 18 6v4.62c0 3.96-2.27 6.76-6 8.63-3.73-1.87-6-4.67-6-8.63V6z"></path><path d="m9.65 11.9 1.55 1.55 3.15-3.25"></path></svg>
+                </span>
+              {%- when 'info' -%}
+                <span class="custom-policy-page__tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="8.75"></circle><path d="M12 10.25v5.1"></path><circle cx="12" cy="7.55" r="0.7" fill="currentColor" stroke="none"></circle></svg>
+                </span>
+              {%- when 'page' -%}
+                <span class="custom-policy-page__tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><rect x="6.25" y="3.75" width="11.5" height="16.5" rx="1.6"></rect><path d="M9.5 8.5h5"></path><path d="M9.5 11.75h5"></path><path d="M9.5 15h3.4"></path></svg>
+                </span>
+              {%- when 'lock' -%}
+                <span class="custom-policy-page__tab-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><rect x="7" y="10.25" width="10" height="8.25" rx="1.6"></rect><path d="M9 10.25V8.8a3 3 0 0 1 6 0v1.45"></path></svg>
+                </span>
+            {%- endcase -%}
+
+            <span class="custom-policy-page__tab-label">{{ tab_label | escape }}</span>
+          </a>
+        </li>
+      {%- endfor -%}
+
+      {%- if visible_tabs == 0 and request.design_mode -%}
+        <li class="custom-policy-page__tab-placeholder">
+          Add one or more `Page tab` blocks and choose a page for each tab.
+        </li>
+      {%- endif -%}
+    </ul>
+  </nav>
+  {%- unless request.design_mode -%}
+    <script src="{{ 'custom-policy-page-tabs-prefetch.js' | asset_url }}" defer></script>
+  {%- endunless -%}
+{%- endif -%}
