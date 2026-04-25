@@ -1,0 +1,46 @@
+{%- liquid
+  assign menu = block.settings.menu
+  assign heading = block.settings.heading | default: menu.title
+  assign custom_width = block.settings.custom_width | default: 0
+  assign max_links = block.settings.max_links | default: 0
+-%}
+
+{%- if menu != blank or heading != blank -%}
+  <div
+    class="custom-footer__column custom-footer__column--menu"
+    {% if custom_width > 0 %}
+      style="--custom-footer-column-width: {{ custom_width }}px;"
+    {% endif %}
+    {{ block.shopify_attributes }}
+  >
+    <details class="custom-footer__menu-details" {% unless mobile_accordion %}open{% endunless %}>
+      <summary class="custom-footer__column-heading custom-footer__column-heading--summary">
+        <span>{{ heading | escape }}</span>
+        <span class="custom-footer__accordion-toggle" aria-hidden="true">
+          <svg viewBox="0 0 20 20" focusable="false">
+            {% render 'icon', icon: 'plus' %}
+          </svg>
+        </span>
+      </summary>
+      <div class="custom-footer__menu-panel">
+        {%- if menu != blank -%}
+          <ul class="custom-footer__menu-list" role="list">
+            {%- if max_links > 0 -%}
+              {%- for link in menu.links limit: max_links -%}
+                <li class="custom-footer__menu-item">
+                  <a href="{{ link.url }}">{{ link.title | escape }}</a>
+                </li>
+              {%- endfor -%}
+            {%- else -%}
+              {%- for link in menu.links -%}
+                <li class="custom-footer__menu-item">
+                  <a href="{{ link.url }}">{{ link.title | escape }}</a>
+                </li>
+              {%- endfor -%}
+            {%- endif -%}
+          </ul>
+        {%- endif -%}
+      </div>
+    </details>
+  </div>
+{%- endif -%}

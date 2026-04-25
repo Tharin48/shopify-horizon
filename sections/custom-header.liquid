@@ -65,6 +65,7 @@
   endcapture
   assign custom_header_mega_stripped = custom_header_horizon_menu | strip
 
+  # theme-check-disable UnrecognizedContentForArguments
   capture custom_header_mobile_drawer
     if desktop_navigation == 'editorial'
       content_for 'block', type: '_header-menu-editorial', id: 'custom-header-menu-editorial', variant: 'custom_mobile', drawer_title_id: custom_header_drawer_title_id
@@ -72,6 +73,7 @@
       content_for 'block', type: '_header-menu', id: 'custom-header-menu-horizon', variant: 'custom_mobile', drawer_title_id: custom_header_drawer_title_id
     endif
   endcapture
+  # theme-check-enable UnrecognizedContentForArguments
   # theme-check-enable UniqueStaticBlockId
   assign custom_header_mobile_drawer_stripped = custom_header_mobile_drawer | strip
 %}

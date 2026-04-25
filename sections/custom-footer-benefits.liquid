@@ -1,0 +1,418 @@
+{{ 'custom-footer-benefits.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'custom-footer-benefits.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign is_homepage = false
+
+  if request.page_type == 'index'
+    assign is_homepage = true
+  endif
+
+  assign benefit_count = section.blocks.size
+  assign enable_mobile_slider = section.settings.enable_mobile_slider
+  assign enable_autoplay = section.settings.enable_autoplay
+  assign should_render_section = true
+
+  if section.settings.show_on_homepage_only and is_homepage == false
+    assign should_render_section = false
+  endif
+
+  if benefit_count <= 1
+    assign enable_mobile_slider = false
+    assign enable_autoplay = false
+  endif
+-%}
+
+{%- if should_render_section -%}
+  <section
+    class="custom-footer-benefits-section"
+    {{ section.shopify_attributes }}
+  >
+    <div
+      class="custom-footer-benefits"
+      data-custom-footer-benefits
+      data-section-id="{{ section.id }}"
+      data-is-homepage="{{ is_homepage }}"
+      data-hide-previous-section-on-homepage="{{ section.settings.hide_previous_footer_section_on_homepage }}"
+      data-mobile-slider-enabled="{{ enable_mobile_slider }}"
+      data-autoplay-enabled="{{ enable_autoplay }}"
+      data-autoplay-speed="{{ section.settings.autoplay_speed | times: 1000 }}"
+      data-show-arrows-mobile="{{ section.settings.show_arrows_mobile }}"
+      style="
+        --custom-footer-benefits-background: {{ section.settings.background_color }};
+        --custom-footer-benefits-max-width: {{ section.settings.max_width }}px;
+        --custom-footer-benefits-padding-top-desktop: {{ section.settings.padding_top_desktop }}px;
+        --custom-footer-benefits-padding-bottom-desktop: {{ section.settings.padding_bottom_desktop }}px;
+        --custom-footer-benefits-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+        --custom-footer-benefits-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+        --custom-footer-benefits-bg-position: {{ section.settings.background_image_position }};
+        --custom-footer-benefits-bg-size: {{ section.settings.background_image_size }};
+        --custom-footer-benefits-bg-opacity: {{ section.settings.background_image_opacity | divided_by: 100.0 }};
+        --custom-footer-benefits-arrow-color: {{ section.settings.arrow_color }};
+        --custom-footer-benefits-title-color: {{ section.settings.title_color }};
+        --custom-footer-benefits-text-color: {{ section.settings.text_color }};
+        --custom-footer-benefits-icon-circle-bg: {{ section.settings.icon_circle_background_color }};
+        --custom-footer-benefits-icon-circle-border: {{ section.settings.icon_circle_border_color }};
+        {% if section.settings.background_image != blank %}
+          --custom-footer-benefits-bg-image: url({{ section.settings.background_image | image_url: width: 1800 }});
+        {% endif %}
+      "
+    >
+      <div class="custom-footer-benefits__background" aria-hidden="true"></div>
+
+      <div class="custom-footer-benefits__container">
+        <div class="custom-footer-benefits__slider" data-benefits-slider>
+          <button
+            type="button"
+            class="custom-footer-benefits__arrow custom-footer-benefits__arrow--prev"
+            data-benefits-prev
+            aria-label="Previous benefit"
+            {% if benefit_count <= 1 or section.settings.show_arrows_mobile == false or enable_mobile_slider == false %}
+              hidden
+            {% endif %}
+          >
+            <span class="svg-wrapper icon-caret icon-caret--backward">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </button>
+
+          <div class="custom-footer-benefits__viewport" data-benefits-viewport>
+            <div class="custom-footer-benefits__track" data-benefits-track role="list">
+              {%- for block in section.blocks -%}
+                {%- liquid
+                  assign benefit_link = block.settings.link
+                -%}
+
+                {%- capture benefit_content -%}
+                  <div class="custom-footer-benefits__item-inner">
+                    <div class="custom-footer-benefits__icon-circle">
+                      {%- if block.settings.icon != blank -%}
+                        {{
+                          block.settings.icon
+                          | image_url: width: 320
+                          | image_tag:
+                            class: 'custom-footer-benefits__icon-image',
+                            loading: 'lazy',
+                            widths: '60, 80, 120, 180, 240, 320',
+                            sizes: '72px',
+                            alt: block.settings.icon_alt
+                        }}
+                      {%- endif -%}
+                    </div>
+
+                    <div class="custom-footer-benefits__copy">
+                      {%- if block.settings.title != blank -%}
+                        <h3 class="custom-footer-benefits__title">{{ block.settings.title | escape }}</h3>
+                      {%- endif -%}
+                      {%- if block.settings.description != blank -%}
+                        <p class="custom-footer-benefits__description">{{ block.settings.description | escape }}</p>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                {%- endcapture -%}
+
+                <div
+                  class="custom-footer-benefits__slide"
+                  data-benefit-slide
+                  data-block-id="{{ block.id }}"
+                  role="listitem"
+                  {{ block.shopify_attributes }}
+                >
+                  {%- if benefit_link != blank -%}
+                    <a class="custom-footer-benefits__item custom-footer-benefits__item--linked" href="{{ benefit_link }}">
+                      {{ benefit_content }}
+                    </a>
+                  {%- else -%}
+                    <div class="custom-footer-benefits__item">
+                      {{ benefit_content }}
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="custom-footer-benefits__arrow custom-footer-benefits__arrow--next"
+            data-benefits-next
+            aria-label="Next benefit"
+            {% if benefit_count <= 1 or section.settings.show_arrows_mobile == false or enable_mobile_slider == false %}
+              hidden
+            {% endif %}
+          >
+            <span class="svg-wrapper icon-caret icon-caret--forward">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Custom footer benefits",
+  "tag": "section",
+  "class": "section-wrapper",
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Visibility"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_homepage_only",
+      "label": "Show on homepage only",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_previous_footer_section_on_homepage",
+      "label": "Hide previous footer section on homepage",
+      "info": "Use this when the impact banner sits directly above this section in the Footer group.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fbfaf5"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "background_image_position",
+      "label": "Background image position",
+      "default": "center center"
+    },
+    {
+      "type": "select",
+      "id": "background_image_size",
+      "label": "Background image size",
+      "options": [
+        {
+          "value": "contain",
+          "label": "Contain"
+        },
+        {
+          "value": "cover",
+          "label": "Cover"
+        },
+        {
+          "value": "auto",
+          "label": "Auto"
+        }
+      ],
+      "default": "contain"
+    },
+    {
+      "type": "range",
+      "id": "background_image_opacity",
+      "label": "Background image opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 960,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1240
+    },
+    {
+      "type": "range",
+      "id": "padding_top_desktop",
+      "label": "Padding top desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_desktop",
+      "label": "Padding bottom desktop",
+      "min": 0,
+      "max": 140,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Mobile slider"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_mobile_slider",
+      "label": "Enable mobile slider",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "label": "Enable autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows_mobile",
+      "label": "Show arrows on mobile",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow color",
+      "default": "#1f2628"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#007378"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#2d2d2d"
+    },
+    {
+      "type": "color",
+      "id": "icon_circle_background_color",
+      "label": "Icon circle background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "icon_circle_border_color",
+      "label": "Icon circle border color",
+      "default": "#d9ddd8"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit_item",
+      "name": "Benefit item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "icon_alt",
+          "label": "Icon alt text"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Garden Fresh"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Carefully selected and freshly packed at the origin for the finest quality."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Optional link URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom footer benefits",
+      "category": "Footer",
+      "blocks": {
+        "benefit_1": {
+          "type": "benefit_item",
+          "settings": {
+            "title": "Garden Fresh",
+            "description": "Carefully selected and freshly packed at the origin for the finest quality."
+          }
+        },
+        "benefit_2": {
+          "type": "benefit_item",
+          "settings": {
+            "title": "Free Delivery",
+            "description": "Enjoy free shipping on orders over $75."
+          }
+        },
+        "benefit_3": {
+          "type": "benefit_item",
+          "settings": {
+            "title": "Worldwide Shipping",
+            "description": "Delivering authentic Ceylon tea to customers across the globe."
+          }
+        }
+      },
+      "block_order": ["benefit_1", "benefit_2", "benefit_3"]
+    }
+  ]
+}
+{% endschema %}

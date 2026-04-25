@@ -1,0 +1,39 @@
+{%- liquid
+  assign copyright_text = block.settings.copyright_text | strip
+  assign current_year = 'now' | date: '%Y'
+  if copyright_text == blank
+    capture copyright_text
+      echo 'Copyright © '
+      echo current_year
+      echo ' '
+      echo shop.name
+      echo '. All Rights Reserved.'
+    endcapture
+  endif
+-%}
+
+<div class="custom-footer__legal-row" {{ block.shopify_attributes }}>
+  <div class="custom-footer__legal-copy">
+    {{ copyright_text | escape }}
+  </div>
+
+  {%- if block.settings.show_policy_links and shop.policies.size > 0 -%}
+    <div class="custom-footer__legal-policies">
+      {%- for policy in shop.policies -%}
+        {%- if policy != blank -%}
+          <a href="{{ policy.url }}">{{ policy.title | escape }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  {%- if block.settings.ecommerce_text != blank -%}
+    <div class="custom-footer__legal-ecommerce">
+      {%- if block.settings.ecommerce_link != blank -%}
+        <a href="{{ block.settings.ecommerce_link }}">{{ block.settings.ecommerce_text | escape }}</a>
+      {%- else -%}
+        <span>{{ block.settings.ecommerce_text | escape }}</span>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>

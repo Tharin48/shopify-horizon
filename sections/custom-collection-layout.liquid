@@ -519,6 +519,7 @@
                   , filter: catalog_filter_our_ranges
                   , section_id: section.id
                   , facet_key: 'our-ranges'
+                  , drawer_mode: false
                 -%}
               {%- else -%}
                 <span class="custom-catalog__toolbar-placeholder">{{ section.settings.toolbar_our_ranges | escape }}</span>
@@ -528,6 +529,7 @@
                   , filter: catalog_filter_tea_type
                   , section_id: section.id
                   , facet_key: 'tea-type'
+                  , drawer_mode: false
                 -%}
               {%- else -%}
                 <span class="custom-catalog__toolbar-placeholder">{{ section.settings.toolbar_tea_type | escape }}</span>
@@ -537,6 +539,7 @@
                   , filter: catalog_filter_tea_format
                   , section_id: section.id
                   , facet_key: 'tea-format'
+                  , drawer_mode: false
                 -%}
               {%- else -%}
                 <span class="custom-catalog__toolbar-placeholder">{{ section.settings.toolbar_tea_format | escape }}</span>
@@ -546,6 +549,7 @@
                   , filter: catalog_filter_flavor
                   , section_id: section.id
                   , facet_key: 'flavor'
+                  , drawer_mode: false
                 -%}
               {%- else -%}
                 <span class="custom-catalog__toolbar-placeholder">{{ section.settings.toolbar_flavors | escape }}</span>
@@ -555,6 +559,7 @@
                   , filter: catalog_filter_time_of_day
                   , section_id: section.id
                   , facet_key: 'time-of-day'
+                  , drawer_mode: false
                 -%}
               {%- else -%}
                 <span class="custom-catalog__toolbar-placeholder">{{ section.settings.toolbar_time_of_day | escape }}</span>
@@ -704,7 +709,9 @@
                 section_id: section.id,
                 collection: collection,
                 catalog_sort_by: catalog_sort_by,
-                sort_label_prefix: section.settings.sort_label_prefix
+                sort_label_prefix: section.settings.sort_label_prefix,
+                drawer_mode: false,
+                sheet_mode: false
               -%}
               </div>
             </div>
@@ -745,6 +752,7 @@
                   collection: collection,
                   catalog_sort_by: catalog_sort_by,
                   sort_label_prefix: section.settings.sort_label_prefix,
+                  drawer_mode: false,
                   sheet_mode: true
                 -%}
               </div>
@@ -871,6 +879,7 @@
                       , catalog_sort_by: catalog_sort_by
                       , sort_label_prefix: section.settings.sort_label_prefix
                       , drawer_mode: true
+                      , sheet_mode: false
                     -%}
                   </div>
                 </div>

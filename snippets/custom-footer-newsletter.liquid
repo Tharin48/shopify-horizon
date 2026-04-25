@@ -1,0 +1,46 @@
+{%- if block.settings.enable_newsletter -%}
+  <div class="custom-footer__connect-block custom-footer__connect-block--newsletter" {{ block.shopify_attributes }}>
+    {%- if block.settings.heading != blank -%}
+      <h3 class="custom-footer__newsletter-heading">{{ block.settings.heading | escape }}</h3>
+    {%- endif -%}
+
+    {%- form 'customer', class: 'custom-footer__newsletter-form' -%}
+      <input type="hidden" name="contact[tags]" value="newsletter">
+      <label class="visually-hidden" for="CustomFooterEmail-{{ block.id }}">Email</label>
+      <div class="custom-footer__newsletter-field">
+        <input
+          id="CustomFooterEmail-{{ block.id }}"
+          class="custom-footer__newsletter-input"
+          type="email"
+          name="contact[email]"
+          placeholder="{{ block.settings.placeholder | escape }}"
+          autocorrect="off"
+          autocapitalize="off"
+          autocomplete="email"
+          required
+          {% if form.errors %}
+            aria-invalid="true"
+          {% endif %}
+        >
+        <button class="custom-footer__newsletter-button" type="submit">
+          {%- if block.settings.button_label != blank -%}
+            <span>{{ block.settings.button_label | escape }}</span>
+          {%- endif -%}
+          {%- if block.settings.button_icon == 'arrow' -%}
+            <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">{% render 'icon', icon: 'arrow' %}</svg>
+          {%- endif -%}
+        </button>
+      </div>
+
+      {%- if form.errors -%}
+        <p class="custom-footer__newsletter-message custom-footer__newsletter-message--error">
+          {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
+        </p>
+      {%- elsif form.posted_successfully? -%}
+        <p class="custom-footer__newsletter-message custom-footer__newsletter-message--success">
+          Thanks for subscribing.
+        </p>
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+{%- endif -%}

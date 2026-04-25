@@ -2,6 +2,9 @@
   Availability filter as a toolbar toggle (Search & Discovery).
   Supports boolean filters and list filters (e.g. “In stock” as one option).
   Uses url_to_add / url_to_remove so catalog-filter-ajax keeps working.
+
+  @param {object} filter - Storefront collection filter
+  @param {string} [availability_label] - Optional visible label; falls back to filter value label
 {%- enddoc -%}
 {%- if filter and filter.values.size > 0 -%}
   {%- liquid
