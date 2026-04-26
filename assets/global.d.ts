@@ -35,10 +35,33 @@ declare global {
     };
   }
 
+  interface CustomShippingAvailabilityApi {
+    initAll: (root: HTMLElement) => void;
+  }
+
+  interface CustomFaqAccordionApi {
+    initAll: (root: HTMLElement) => void;
+  }
+
+  interface CustomPolicyPageArtApi {
+    initFrameAll: () => void;
+  }
+
   interface Window {
     Shopify: Shopify;
     /** Opt-in: set on `window` in devtools to log cart / catalog AJAX debug. */
     __HORIZON_TEMP_CART_DEBUG__?: boolean;
+    /** Set by `custom-policy-page-spa.js` to avoid double init. */
+    __customPolicyPageSpaInit?: boolean;
+    /** Theme scripts attached by `custom-shipping-availability.js` and section inlines. */
+    CustomShippingAvailability?: CustomShippingAvailabilityApi;
+    CustomFaqAccordion?: CustomFaqAccordionApi;
+    CustomPolicyPageArt?: CustomPolicyPageArtApi;
+    /** Contact page section — `assets/custom-contact-page.js` */
+    CustomContactPage?: {
+      initAll: (container?: ParentNode | Document) => void;
+      destroy: (root: HTMLElement) => void;
+    };
   }
 
   declare const Shopify: Shopify;

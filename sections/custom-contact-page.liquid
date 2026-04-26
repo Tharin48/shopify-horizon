@@ -1,0 +1,794 @@
+{{ 'custom-contact-page.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'custom-contact-page.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign page_heading = section.settings.page_heading | strip
+  assign breadcrumb_home_label = section.settings.breadcrumb_home_label | default: 'Home'
+  assign breadcrumb_current_label = section.settings.breadcrumb_current_label | default: page.title
+  assign form_heading = section.settings.form_heading | default: 'Get in touch'
+  assign submit_button_label = section.settings.submit_button_label | default: 'Submit'
+  assign success_message = section.settings.success_message | default: "Thanks for reaching out. We'll get back to you soon."
+  assign error_message = section.settings.error_message | default: 'Please review the form and try again.'
+  assign full_name_label = section.settings.full_name_label | default: 'Full Name'
+  assign telephone_label = section.settings.telephone_label | default: 'Telephone (Optional)'
+  assign email_label = section.settings.email_label | default: 'Email'
+  assign subject_label = section.settings.subject_label | default: 'Subject'
+  assign subject_placeholder_label = section.settings.subject_placeholder_label | default: 'Select a subject'
+  assign message_label = section.settings.message_label | default: 'Message'
+  assign message_placeholder = section.settings.message_placeholder | default: 'How can we help?'
+  assign form_id = 'CustomContactPageForm-' | append: section.id
+  assign email_error_id = form_id | append: '-email-error'
+  assign form_status_id = form_id | append: '-status'
+  assign message_counter_id = form_id | append: '-message-counter'
+
+  if page_heading == blank
+    assign page_heading = page.title
+  endif
+-%}
+
+<div
+  class="section-background color-{{ section.settings.color_scheme }} custom-contact-page__section-background"
+  style="background-color: {{ section.settings.background_color }};"
+></div>
+
+<section
+  class="section page-width-wide color-{{ section.settings.color_scheme }} custom-contact-page__section"
+  data-custom-contact-page
+  data-section-id="{{ section.id }}"
+  data-mobile-contact-layout="{{ section.settings.mobile_contact_layout | default: 'accordion' }}"
+  style="
+    --custom-contact-page-max-width: {{ section.settings.page_max_width }}px;
+    --custom-contact-page-padding-top: {{ section.settings.padding_top }}px;
+    --custom-contact-page-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-contact-page-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-contact-page-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-contact-page-background: {{ section.settings.background_color }};
+    {%- if section.settings.subject_use_custom_dropdown_colors -%}
+      --cp-subject-dd-border: {{ section.settings.subject_dd_border }};
+      --cp-subject-dd-bg: {{ section.settings.subject_dd_background }};
+      --cp-subject-dd-text: {{ section.settings.subject_dd_text }};
+      --cp-subject-dd-border-focus: {{ section.settings.subject_dd_border_focus }};
+      --cp-subject-dd-list-bg: {{ section.settings.subject_dd_list_background }};
+      --cp-subject-dd-list-border: {{ section.settings.subject_dd_list_border }};
+      --cp-subject-dd-option-hover: {{ section.settings.subject_dd_option_hover }};
+    {%- endif -%}
+  "
+  {{ section.shopify_attributes }}
+>
+  {%- if section.settings.enable_decorative_images -%}
+    {%- if section.settings.left_decorative_image != blank -%}
+      <div class="custom-contact-page__decor custom-contact-page__decor--left" aria-hidden="true">
+        {{
+          section.settings.left_decorative_image
+          | image_url: width: 720
+          | image_tag:
+            class: 'custom-contact-page__decor-image',
+            loading: 'lazy',
+            widths: '160, 240, 320, 480, 640, 720',
+            sizes: '(min-width: 990px) 16rem, 10rem',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.right_decorative_image != blank -%}
+      <div class="custom-contact-page__decor custom-contact-page__decor--right" aria-hidden="true">
+        {{
+          section.settings.right_decorative_image
+          | image_url: width: 720
+          | image_tag:
+            class: 'custom-contact-page__decor-image',
+            loading: 'lazy',
+            widths: '160, 240, 320, 480, 640, 720',
+            sizes: '(min-width: 990px) 16rem, 10rem',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+
+  <div class="custom-contact-page__inner">
+    {%- if section.settings.enable_breadcrumb -%}
+      <nav class="custom-contact-page__breadcrumb-nav" aria-label="Breadcrumb">
+        <ol class="custom-contact-page__breadcrumb-list">
+          <li class="custom-contact-page__breadcrumb-item">
+            <a class="custom-contact-page__breadcrumb-link" href="{{ routes.root_url }}">{{ breadcrumb_home_label | escape }}</a>
+          </li>
+          <li class="custom-contact-page__breadcrumb-item">
+            <span aria-current="page">{{ breadcrumb_current_label | escape }}</span>
+          </li>
+        </ol>
+      </nav>
+    {%- endif -%}
+
+    <div class="custom-contact-page__layout">
+      <div class="custom-contact-page__content-column">
+        <h1 class="custom-contact-page__page-title">{{ page_heading | escape }}</h1>
+
+        <div class="custom-contact-page__info-stack">
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              {% render 'custom-contact-info-block', block: block %}
+            {%- endfor -%}
+          {%- elsif request.design_mode -%}
+            <div class="custom-contact-page__empty-state">
+              Add content blocks to build the left column for this contact page.
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="custom-contact-page__form-column">
+        {%- if form_heading != blank -%}
+          <h2 class="custom-contact-page__form-heading">{{ form_heading | escape }}</h2>
+        {%- endif -%}
+
+        <div class="custom-contact-page__form-card">
+          <div class="custom-contact-page__form-card-inner">
+            {%- form 'contact', id: form_id, class: 'custom-contact-page__form' -%}
+              {%- liquid
+                assign message_count = form.body | default: '' | size
+                assign selected_subject = form.subject | default: ''
+              -%}
+
+              <input type="hidden" name="contact[page]" value="{{ page.title | escape }}">
+
+              {%- if form.posted_successfully? -%}
+                <div
+                  id="{{ form_status_id }}"
+                  class="custom-contact-page__form-message custom-contact-page__form-message--success"
+                  role="status"
+                  aria-live="polite"
+                  tabindex="-1"
+                >
+                  {{ success_message | escape }}
+                </div>
+              {%- endif -%}
+
+              {%- if form.errors -%}
+                <div
+                  id="{{ form_status_id }}"
+                  class="custom-contact-page__form-message custom-contact-page__form-message--error"
+                  role="alert"
+                  aria-live="assertive"
+                  tabindex="-1"
+                >
+                  <p class="custom-contact-page__form-message-copy">{{ error_message | escape }}</p>
+                  <ul class="custom-contact-page__form-message-list" role="list">
+                    {%- for field in form.errors -%}
+                      <li
+                        class="custom-contact-page__form-message-item"
+                        {% if field == 'email' %}
+                          id="{{ email_error_id }}"
+                        {% endif %}
+                      >
+                        {%- if field == 'form' -%}
+                          {{ form.errors.messages[field] }}
+                        {%- else -%}
+                          {{ form.errors.translated_fields[field] | capitalize }} {{ form.errors.messages[field] }}
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              {%- endif -%}
+
+              <div class="custom-contact-page__field">
+                <label class="custom-contact-page__label" for="{{ form_id }}-name">
+                  {{ full_name_label | escape }}<span aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="{{ form_id }}-name"
+                  class="custom-contact-page__input"
+                  type="text"
+                  name="contact[name]"
+                  autocomplete="name"
+                  value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+                  required
+                  aria-required="true"
+                >
+              </div>
+
+            <div class="custom-contact-page__field-row">
+              <div class="custom-contact-page__field">
+                <label class="custom-contact-page__label" for="{{ form_id }}-phone">
+                  {{ telephone_label | escape }}
+                </label>
+                <input
+                  id="{{ form_id }}-phone"
+                  class="custom-contact-page__input"
+                  type="tel"
+                  name="contact[phone]"
+                  autocomplete="tel"
+                  value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+                >
+              </div>
+
+              <div class="custom-contact-page__field">
+                <label class="custom-contact-page__label" for="{{ form_id }}-email">
+                  {{ email_label | escape }}<span aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="{{ form_id }}-email"
+                  class="custom-contact-page__input"
+                  type="email"
+                  name="contact[email]"
+                  autocomplete="email"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+                  required
+                  aria-required="true"
+                  {% if form.errors contains 'email' %}
+                    aria-invalid="true"
+                    aria-describedby="{{ email_error_id }}"
+                  {% endif %}
+                >
+              </div>
+            </div>
+
+            {%- if section.settings.subject_use_custom_dropdown_colors -%}
+              {%- assign combobox_class = 'custom-contact-page__combobox custom-contact-page__combobox--custom' -%}
+            {%- else -%}
+              {%- assign combobox_class = 'custom-contact-page__combobox' -%}
+            {%- endif -%}
+            <div class="custom-contact-page__field custom-contact-page__field--subject">
+              <input
+                type="hidden"
+                name="contact[subject]"
+                id="{{ form_id }}-subject-value"
+                value="{% if selected_subject != blank %}{{ selected_subject | escape }}{% endif %}"
+                data-subject-combobox-hidden
+              >
+              <label class="custom-contact-page__label" id="{{ form_id }}-subject-label" for="{{ form_id }}-subject-trigger">
+                {{ subject_label | escape }}<span aria-hidden="true">*</span>
+              </label>
+              <p
+                id="{{ form_id }}-subject-hint"
+                class="visually-hidden"
+                data-subject-combobox-hint
+              >
+                {{ subject_placeholder_label | escape }}
+              </p>
+              <p
+                id="{{ form_id }}-subject-error"
+                class="custom-contact-page__combobox-error"
+                role="alert"
+                data-subject-combobox-error
+                hidden
+              ></p>
+              <div
+                class="{{ combobox_class }}"
+                data-subject-combobox
+                data-subject-missing="{{ section.settings.subject_error_message | default: 'Please select a subject.' | escape }}"
+              >
+                <button
+                  type="button"
+                  class="custom-contact-page__combobox-button custom-contact-page__input"
+                  id="{{ form_id }}-subject-trigger"
+                  data-subject-combobox-trigger
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="{{ form_id }}-subject-list"
+                  aria-describedby="{{ form_id }}-subject-hint"
+                >
+                  <span
+                    class="custom-contact-page__combobox-button-text"
+                    data-subject-combobox-label
+                    data-subject-default-placeholder="{{ subject_placeholder_label | escape }}"
+                    {%- if selected_subject == blank -%}
+                      data-placeholder-shown
+                    {%- endif -%}
+                  >
+                    {%- if selected_subject != blank -%}
+                      {{ selected_subject | escape }}
+                    {%- else -%}
+                      {{ subject_placeholder_label | escape }}
+                    {%- endif -%}
+                  </span>
+                  <span class="custom-contact-page__combobox-chevron" aria-hidden="true">
+                    <svg width="12" height="8" viewBox="0 0 12 8" focusable="false">
+                      <path
+                        d="M1 1.5L6 6.5L11 1.5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  class="custom-contact-page__combobox-backdrop"
+                  data-subject-combobox-backdrop
+                  aria-hidden="true"
+                  tabindex="-1"
+                  hidden
+                ></button>
+                <ul
+                  id="{{ form_id }}-subject-list"
+                  class="custom-contact-page__combobox-list"
+                  role="listbox"
+                  aria-labelledby="{{ form_id }}-subject-label"
+                  data-subject-combobox-list
+                  hidden
+                >
+                  {%- for index in (1..7) -%}
+                    {%- assign option_key = 'subject_option_' | append: index -%}
+                    {%- assign option_label = section.settings[option_key] | strip -%}
+                    {%- if option_label != blank -%}
+                      <li
+                        class="custom-contact-page__combobox-option"
+                        id="{{ form_id }}-subject-opt-{{ index }}"
+                        role="option"
+                        tabindex="-1"
+                        data-value="{{ option_label | escape }}"
+                        {%- if selected_subject == option_label -%}
+                          aria-selected="true"
+                        {%- else -%}
+                          aria-selected="false"
+                        {%- endif -%}
+                      >
+                        {{ option_label | escape }}
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </div>
+
+            <div class="custom-contact-page__field">
+              <label class="custom-contact-page__label" for="{{ form_id }}-body">
+                {{ message_label | escape }}<span aria-hidden="true">*</span>
+              </label>
+              <textarea
+                id="{{ form_id }}-body"
+                class="custom-contact-page__input custom-contact-page__textarea"
+                name="contact[body]"
+                rows="8"
+                maxlength="500"
+                placeholder="{{ message_placeholder | escape }}"
+                required
+                aria-required="true"
+                aria-describedby="{{ message_counter_id }}"
+                data-custom-contact-page-message
+              >{{- form.body -}}</textarea>
+              <div
+                id="{{ message_counter_id }}"
+                class="custom-contact-page__message-counter"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <span data-custom-contact-page-count>{{ message_count }}</span>/500
+              </div>
+            </div>
+
+              <button class="button custom-contact-page__submit" type="submit">
+                {{ submit_button_label | escape }}
+              </button>
+            {%- endform -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Custom Contact Page",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "page_heading",
+      "label": "Page heading",
+      "default": "We're Here to Help"
+    },
+    {
+      "type": "range",
+      "id": "page_max_width",
+      "label": "Section max width",
+      "min": 900,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1240
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding desktop",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding desktop",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding mobile",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding mobile",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_breadcrumb",
+      "label": "Enable breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_home_label",
+      "label": "Breadcrumb home label",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_current_label",
+      "label": "Breadcrumb current label",
+      "default": "Contact Us"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_decorative_images",
+      "label": "Enable decorative images",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "left_decorative_image",
+      "label": "Left decorative image"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_decorative_image",
+      "label": "Right decorative image"
+    },
+    {
+      "type": "select",
+      "id": "mobile_contact_layout",
+      "label": "Mobile contact item layout",
+      "default": "accordion",
+      "options": [
+        {
+          "value": "accordion",
+          "label": "Accordion"
+        },
+        {
+          "value": "expanded",
+          "label": "Expanded like desktop"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Form content"
+    },
+    {
+      "type": "text",
+      "id": "form_heading",
+      "label": "Form heading",
+      "default": "Get in touch"
+    },
+    {
+      "type": "text",
+      "id": "full_name_label",
+      "label": "Full name label",
+      "default": "Full Name"
+    },
+    {
+      "type": "text",
+      "id": "telephone_label",
+      "label": "Telephone label",
+      "default": "Telephone (Optional)"
+    },
+    {
+      "type": "text",
+      "id": "email_label",
+      "label": "Email label",
+      "default": "Email"
+    },
+    {
+      "type": "text",
+      "id": "subject_label",
+      "label": "Subject label",
+      "default": "Subject"
+    },
+    {
+      "type": "text",
+      "id": "subject_placeholder_label",
+      "label": "Subject placeholder label",
+      "default": "Select a subject"
+    },
+    {
+      "type": "text",
+      "id": "message_label",
+      "label": "Message label",
+      "default": "Message"
+    },
+    {
+      "type": "text",
+      "id": "message_placeholder",
+      "label": "Message placeholder",
+      "default": "How can we help?"
+    },
+    {
+      "type": "text",
+      "id": "submit_button_label",
+      "label": "Submit button label",
+      "default": "Submit"
+    },
+    {
+      "type": "textarea",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thanks for reaching out. We'll get back to you soon."
+    },
+    {
+      "type": "textarea",
+      "id": "error_message",
+      "label": "Error message",
+      "default": "Please review the form and try again."
+    },
+    {
+      "type": "header",
+      "content": "Subject options"
+    },
+    {
+      "type": "text",
+      "id": "subject_option_1",
+      "label": "Subject option 1",
+      "default": "Order Support"
+    },
+    {
+      "type": "text",
+      "id": "subject_option_2",
+      "label": "Subject option 2",
+      "default": "Product Recommendation"
+    },
+    {
+      "type": "text",
+      "id": "subject_option_3",
+      "label": "Subject option 3",
+      "default": "Website Issue"
+    },
+    {
+      "type": "text",
+      "id": "subject_option_4",
+      "label": "Subject option 4",
+      "default": "Wholesale Inquiry"
+    },
+    {
+      "type": "text",
+      "id": "subject_option_5",
+      "label": "Subject option 5",
+      "default": "General Request"
+    },
+    {
+      "type": "text",
+      "id": "subject_option_6",
+      "label": "Subject option 6",
+      "default": "Compliment"
+    },
+    {
+      "type": "text",
+      "id": "subject_option_7",
+      "label": "Subject option 7",
+      "default": "Complaint"
+    },
+    {
+      "type": "text",
+      "id": "subject_error_message",
+      "label": "Subject required error message",
+      "default": "Please select a subject.",
+      "info": "Shown when the form is submitted before a subject is chosen."
+    },
+    {
+      "type": "header",
+      "content": "Subject dropdown colors"
+    },
+    {
+      "type": "paragraph",
+      "content": "Enable custom colors to style the subject field separately. When disabled, the subject control matches your other form fields."
+    },
+    {
+      "type": "checkbox",
+      "id": "subject_use_custom_dropdown_colors",
+      "label": "Use custom subject dropdown colors",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "subject_dd_border",
+      "label": "Trigger border",
+      "default": "#d4d4d4"
+    },
+    {
+      "type": "color",
+      "id": "subject_dd_background",
+      "label": "Trigger background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "subject_dd_text",
+      "label": "Trigger text",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "subject_dd_border_focus",
+      "label": "Trigger border (focus)",
+      "default": "#2c2c2c"
+    },
+    {
+      "type": "color",
+      "id": "subject_dd_list_background",
+      "label": "List background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "subject_dd_list_border",
+      "label": "List border",
+      "default": "#e5e5e5"
+    },
+    {
+      "type": "color",
+      "id": "subject_dd_option_hover",
+      "label": "Option hover background",
+      "default": "#f5f5f5"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "rich_text",
+      "name": "Rich text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "We're here to help"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content",
+          "default": "<p>Whether it’s your order, a tea recommendation, or a special request, our team is here to assist you.</p><p>Please allow up to 3 business days for a response.</p>"
+        }
+      ]
+    },
+    {
+      "type": "support_hours",
+      "name": "Support hours",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Support Hours"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Our Customer Care team is available Monday to Friday, 8.30am - 5pm SLST (excluding public holidays).</p><p><em>We typically respond within 24-48 hours.</em></p>"
+        }
+      ]
+    },
+    {
+      "type": "contact_item",
+      "name": "Contact item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Phone"
+        },
+        {
+          "type": "textarea",
+          "id": "value",
+          "label": "Value",
+          "default": "+94 11 482 2000"
+        },
+        {
+          "type": "select",
+          "id": "link_type",
+          "label": "Link type",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "email",
+              "label": "Email"
+            },
+            {
+              "value": "phone",
+              "label": "Phone"
+            },
+            {
+              "value": "url",
+              "label": "URL"
+            }
+          ],
+          "default": "phone"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        }
+      ]
+    },
+    {
+      "type": "faq_link",
+      "name": "FAQ link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Check our FAQ page"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Contact Page",
+      "category": "Custom"
+    }
+  ]
+}
+{% endschema %}

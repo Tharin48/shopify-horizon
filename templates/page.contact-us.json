@@ -1,0 +1,121 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "custom-contact-page",
+      "blocks": {
+        "intro": {
+          "type": "rich_text",
+          "settings": {
+            "heading": "",
+            "content": "<p>Whether it’s your order, a tea recommendation, or a special request, our team is here to assist you.</p><p>Still have questions? We’d love to hear from you. To contact us, simply fill out the form and hit submit.</p><p>Please allow up to 3 business days for a response. Prefer talking? Call us during our support hours and our team will be happy to help.</p>"
+          }
+        },
+        "faq": {
+          "type": "faq_link",
+          "settings": {
+            "text": "Visit our FAQ page",
+            "url": "/pages/policy-faq"
+          }
+        },
+        "hours": {
+          "type": "support_hours",
+          "settings": {
+            "heading": "Support Hours",
+            "description": "<p>Our Customer Care team is available Monday to Friday, 8.30am - 5pm SLST (excluding public holidays).</p><p><em>We typically respond within 24-48 hours.</em></p>"
+          }
+        },
+        "phone": {
+          "type": "contact_item",
+          "settings": {
+            "label": "Phone",
+            "value": "+94 11 482 2000",
+            "link_type": "phone",
+            "url": ""
+          }
+        },
+        "email": {
+          "type": "contact_item",
+          "settings": {
+            "label": "Email",
+            "value": "orders@dilmahtea.com",
+            "link_type": "email",
+            "url": ""
+          }
+        },
+        "address": {
+          "type": "contact_item",
+          "settings": {
+            "label": "Address",
+            "value": "Dilmah Ceylon Tea Company PLC,\n111 Negombo Road,\nPeliyagoda 11830,\nSri Lanka.",
+            "link_type": "none",
+            "url": ""
+          }
+        }
+      },
+      "block_order": [
+        "intro",
+        "faq",
+        "hours",
+        "phone",
+        "email",
+        "address"
+      ],
+      "settings": {
+        "page_heading": "We're Here to Help",
+        "page_max_width": 1240,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "padding_top": 56,
+        "padding_bottom": 96,
+        "padding_top_mobile": 32,
+        "padding_bottom_mobile": 56,
+        "background_color": "#fffdf8",
+        "enable_breadcrumb": true,
+        "breadcrumb_home_label": "Home",
+        "breadcrumb_current_label": "Contact Us",
+        "enable_decorative_images": true,
+        "left_decorative_image": "shopify://shop_images/x31_1_1_1.png",
+        "right_decorative_image": "shopify://shop_images/Group.svg",
+        "mobile_contact_layout": "expanded",
+        "form_heading": "Get in touch",
+        "full_name_label": "Full Name",
+        "telephone_label": "Telephone (Optional)",
+        "email_label": "Email",
+        "subject_label": "Subject",
+        "subject_placeholder_label": "Select a subject",
+        "message_label": "Message",
+        "message_placeholder": "How can we help?",
+        "submit_button_label": "Submit",
+        "success_message": "Thanks for reaching out. We'll get back to you soon.",
+        "error_message": "Please review the form and try again.",
+        "subject_option_1": "Order Support",
+        "subject_option_2": "Product Recommendation",
+        "subject_option_3": "Website Issue",
+        "subject_option_4": "Wholesale Inquiry",
+        "subject_option_5": "General Request",
+        "subject_option_6": "Compliment",
+        "subject_option_7": "Complaint",
+        "subject_error_message": "Please select a subject.",
+        "subject_use_custom_dropdown_colors": false,
+        "subject_dd_border": "#d4d4d4",
+        "subject_dd_background": "#ffffff",
+        "subject_dd_text": "#1a1a1a",
+        "subject_dd_border_focus": "#2c2c2c",
+        "subject_dd_list_background": "#ffffff",
+        "subject_dd_list_border": "#e5e5e5",
+        "subject_dd_option_hover": "#f5f5f5"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

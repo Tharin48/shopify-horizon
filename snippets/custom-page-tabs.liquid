@@ -12,6 +12,7 @@
 {%- if visible_tabs > 0 or request.design_mode -%}
   <nav
     class="custom-policy-page__tabs-shell"
+    data-policy-tabs-spa
     aria-label="{{ block.settings.nav_label | default: 'Related pages' | escape }}"
     style="--custom-policy-tabs-justify: {{ block.settings.alignment | default: 'center' }};"
     {{ block.shopify_attributes }}
@@ -41,11 +42,7 @@
           <a
             class="custom-policy-page__tab-link{% if is_active %} is-active{% endif %}"
             href="{{ linked_page.url }}"
-            {% if is_active %}
-              aria-current="page"
-            {% else %}
-              {%- unless request.design_mode -%}rel="prefetch"{%- endunless -%}
-            {% endif %}
+            {% if is_active %}aria-current="page"{% endif %}
           >
             {%- case tab_block.settings.icon -%}
               {%- when 'question' -%}
@@ -91,6 +88,7 @@
     </ul>
   </nav>
   {%- unless request.design_mode -%}
-    <script src="{{ 'custom-policy-page-tabs-prefetch.js' | asset_url }}" defer></script>
+    {{ 'custom-policy-page-spa.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'custom-policy-page-spa.js' | asset_url }}" defer></script>
   {%- endunless -%}
 {%- endif -%}
