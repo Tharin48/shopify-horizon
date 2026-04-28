@@ -35,6 +35,7 @@
     --tp-review-color: {{ section.settings.review_text_color }};
     --tp-star-color: {{ section.settings.rating_star_color }};
     --tp-badge-bg: {{ section.settings.sale_badge_color }};
+    {% if section.settings.product_card_image_background != blank %}--tp-card-media-bg: {{ section.settings.product_card_image_background }};{% endif %}
     --tp-columns-desktop: {{ section.settings.products_per_row_desktop }};
     --tp-columns-mobile: {{ section.settings.products_per_row_mobile }};
     --tp-img-radius: {{ section.settings.image_border_radius }}px;
@@ -567,6 +568,7 @@
     { "type": "checkbox", "id": "show_vendor", "label": "Show vendor/label", "default": true },
     { "type": "checkbox", "id": "show_quick_add", "label": "Show quick add button", "default": true },
     { "type": "checkbox", "id": "show_sale_badge", "label": "Show sale badge", "default": true },
+    { "type": "color_background", "id": "product_card_image_background", "label": "Product card image background" },
     { "type": "checkbox", "id": "show_decorative_artwork", "label": "Show right-side background image", "default": false },
     { "type": "image_picker", "id": "decorative_artwork", "label": "Right-side background image" },
     {

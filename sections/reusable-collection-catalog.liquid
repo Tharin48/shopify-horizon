@@ -231,18 +231,24 @@
   assign catalog_sort_sheet_id = 'custom-catalog-sort-sheet-' | append: section.id
   assign catalog_sort_sheet_heading_id = 'custom-catalog-sort-sheet-heading-' | append: section.id
   assign catalog_show_filter_controls = false
-  if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0
-    assign catalog_show_filter_controls = true
-  elsif catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0
-    assign catalog_show_filter_controls = true
-  elsif catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0
-    assign catalog_show_filter_controls = true
-  elsif catalog_filter_flavor and catalog_filter_flavor.values.size > 0
-    assign catalog_show_filter_controls = true
-  elsif catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0
-    assign catalog_show_filter_controls = true
-  elsif section.settings.show_availability_toggle != false and catalog_filter_availability
-    assign catalog_show_filter_controls = true
+  if section.settings.show_toolbar_facets
+    if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_flavor and catalog_filter_flavor.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif section.settings.show_availability_toggle != false and catalog_filter_availability
+      assign catalog_show_filter_controls = true
+    endif
+  endif
+  assign catalog_show_toolbar_right = false
+  if section.settings.show_item_count or section.settings.show_grid_toggle or section.settings.show_sort_control
+    assign catalog_show_toolbar_right = true
   endif
 -%}
 
@@ -557,23 +563,21 @@
                   class="button custom-catalog__mobile-filter-toggle button-unstyled{% if catalog_total_active_values > 0 %} is-active{% endif %}"
                   on:click="#{{ catalog_filters_drawer_id }}/showDialog"
                   type="button"
-                  aria-haspopup="dialog"
-                >
+                  aria-haspopup="dialog">
                   <span class="custom-catalog__mobile-filter-toggle-label">{{ 'actions.show_filters' | t }}</span>
                   <span class="svg-wrapper custom-catalog__mobile-filter-toggle-icon" aria-hidden="true">
                     {{ 'icon-filter.svg' | inline_asset_content }}
                   </span>
                   {%- if catalog_total_active_values > 0 -%}
-                    <span
-                      class="filter-count-bubble custom-catalog__mobile-filter-bubble"
-                      aria-label="{{ 'accessibility.filter_count' | t: count: catalog_total_active_values }}"
-                    >
+                    <span class="filter-count-bubble custom-catalog__mobile-filter-bubble" aria-label="{{ 'accessibility.filter_count' | t: count: catalog_total_active_values }}">
                       <span class="filter-count-bubble__background"></span>
                       <span class="filter-count-bubble__text" aria-hidden="true">{{ catalog_total_active_values }}</span>
                     </span>
                   {%- endif -%}
                 </button>
               </div>
+            {%- endif -%}
+            {%- if section.settings.show_toolbar_facets and catalog_show_filter_controls -%}
               <div class="custom-catalog__toolbar-left custom-catalog__toolbar-facets" data-catalog-toolbar-facets>
                 {%- if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0 -%}
                   {%- render 'custom-catalog-facet-dropdown'
@@ -626,330 +630,336 @@
                 {%- endunless -%}
               </div>
             {%- endif -%}
-            <div class="custom-catalog__toolbar-right" data-catalog-toolbar-meta>
-              <span class="custom-catalog__toolbar-count" data-catalog-item-count>{{ count_text | escape }}</span>
-              <div class="custom-catalog__toolbar-right-actions" data-catalog-toolbar-right-actions>
-                <button
-                  class="button custom-catalog__mobile-sort-toggle button-unstyled"
-                  on:click="#{{ catalog_sort_sheet_id }}/showDialog"
-                  type="button"
-                  aria-haspopup="dialog"
-                  aria-label="{{ 'actions.sort' | t | escape }}"
-                >
-                  <span class="svg-wrapper custom-catalog__mobile-sort-toggle-icon" aria-hidden="true">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-hidden="true"
-                      focusable="false">
-                      <path
-                        d="M7 8.5L11.2 4l4.2 4.5M7 15.5L11.2 20l4.2-4.5"
-                        stroke="currentColor"
-                        stroke-width="1.65"
-                        stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    </svg>
-                  </span>
-                </button>
-                {%- render 'custom-catalog-sort-dropdown',
-                  section_id: section.id,
-                  collection: collection,
-                  catalog_sort_by: catalog_sort_by,
-                  sort_label_prefix: section.settings.sort_label_prefix,
-                  drawer_mode: false,
-                  sheet_mode: false
-                -%}
-                <fieldset class="custom-catalog__grid-toggle">
-                  <legend class="visually-hidden">{{ section.settings.grid_toggle_aria_label | escape }}</legend>
-                  <label class="custom-catalog__grid-toggle-option">
-                    <input
-                      type="radio"
-                      name="catalog-grid-{{ section.id }}"
-                      value="default"
-                      class="custom-catalog__grid-toggle-input"
-                      checked
-                      aria-label="{{ section.settings.grid_toggle_grid_label | escape }}"
-                      on:change="#{{ catalog_results_list_id }}/updateLayout"
-                      data-skip-node-update>
-                    <span class="custom-catalog__grid-toggle-btn">
-                      <svg
-                        class="custom-catalog__grid-toggle-icon"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                        focusable="false">
-                        <rect
-                          x="3"
-                          y="3"
-                          width="7.5"
-                          height="7.5"
-                          rx="1.25"
-                          stroke="currentColor"
-                          stroke-width="1.75" />
-                        <rect
-                          x="13.5"
-                          y="3"
-                          width="7.5"
-                          height="7.5"
-                          rx="1.25"
-                          stroke="currentColor"
-                          stroke-width="1.75" />
-                        <rect
-                          x="3"
-                          y="13.5"
-                          width="7.5"
-                          height="7.5"
-                          rx="1.25"
-                          stroke="currentColor"
-                          stroke-width="1.75" />
-                        <rect
-                          x="13.5"
-                          y="13.5"
-                          width="7.5"
-                          height="7.5"
-                          rx="1.25"
-                          stroke="currentColor"
-                          stroke-width="1.75" />
-                      </svg>
-                    </span>
-                  </label>
-                  <label class="custom-catalog__grid-toggle-option">
-                    <input
-                      type="radio"
-                      name="catalog-grid-{{ section.id }}"
-                      value="list"
-                      class="custom-catalog__grid-toggle-input"
-                      aria-label="{{ section.settings.grid_toggle_list_label | escape }}"
-                      on:change="#{{ catalog_results_list_id }}/updateLayout"
-                      data-skip-node-update>
-                    <span class="custom-catalog__grid-toggle-btn">
-                      <svg
-                        class="custom-catalog__grid-toggle-icon"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                        focusable="false">
-                        <line
-                          x1="4"
-                          y1="6.5"
-                          x2="20"
-                          y2="6.5"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          stroke-linecap="round" />
-                        <line
-                          x1="4"
-                          y1="12"
-                          x2="20"
-                          y2="12"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          stroke-linecap="round" />
-                        <line
-                          x1="4"
-                          y1="17.5"
-                          x2="20"
-                          y2="17.5"
-                          stroke="currentColor"
-                          stroke-width="1.75"
-                          stroke-linecap="round" />
-                      </svg>
-                    </span>
-                  </label>
-                </fieldset>
-              </div>
-            </div>
-          </div>
-
-          <dialog-component
-            id="{{ catalog_sort_sheet_id }}"
-            class="custom-catalog__mobile-sort-dialog color-{{ settings.drawer_color_scheme }}"
-            dialog-active-max-width="989"
-            data-catalog-mobile-drawer
-          >
-            <dialog
-              ref="dialog"
-              class="custom-catalog__mobile-sort-sheet dialog-modal dialog-drawer"
-              scroll-lock
-              aria-labelledby="{{ catalog_sort_sheet_heading_id }}"
-            >
-              <div class="custom-catalog__mobile-sort-sheet-header">
-                <h2 id="{{ catalog_sort_sheet_heading_id }}" class="custom-catalog__mobile-sort-sheet-title h4">
-                  {{ 'actions.sort' | t }}
-                </h2>
-                <button
-                  class="custom-catalog__mobile-sort-sheet-close button-unstyled close-button"
-                  on:click="dialog-component/closeDialog"
-                  type="button"
-                  aria-label="{{ 'actions.close' | t }}"
-                  autofocus
-                >
-                  <span class="svg-wrapper svg-wrapper--small">
-                    {{ 'icon-close.svg' | inline_asset_content }}
-                  </span>
-                </button>
-              </div>
-
-              <div class="custom-catalog__mobile-sort-sheet-body">
-                {%- render 'custom-catalog-sort-dropdown',
-                  section_id: section.id,
-                  collection: collection,
-                  catalog_sort_by: catalog_sort_by,
-                  sort_label_prefix: section.settings.sort_label_prefix,
-                  drawer_mode: false,
-                  sheet_mode: true
-                -%}
-              </div>
-            </dialog>
-          </dialog-component>
-
-          <dialog-component
-            id="{{ catalog_filters_drawer_id }}"
-            class="custom-catalog__mobile-filters-dialog color-{{ settings.drawer_color_scheme }}"
-            dialog-active-max-width="989"
-            data-catalog-mobile-drawer
-          >
-            <dialog
-              ref="dialog"
-              class="custom-catalog__mobile-filters-drawer dialog-modal drawer dialog-drawer"
-              scroll-lock
-              aria-labelledby="{{ catalog_filters_drawer_heading_id }}"
-            >
-              <div class="custom-catalog__mobile-filters-header">
-                <h2 id="{{ catalog_filters_drawer_heading_id }}" class="custom-catalog__mobile-filters-title h4">
-                  {{ 'actions.show_filters' | t }}
-                  {%- if catalog_total_active_values > 0 -%}
-                    <span class="bubble custom-catalog__mobile-filters-title-bubble" aria-hidden="true">{{ catalog_total_active_values }}</span>
-                  {%- endif -%}
-                </h2>
-                <button
-                  class="custom-catalog__mobile-filters-close button-unstyled close-button"
-                  on:click="dialog-component/closeDialog"
-                  type="button"
-                  aria-label="{{ 'actions.close' | t }}"
-                  autofocus
-                >
-                  <span class="svg-wrapper svg-wrapper--small">
-                    {{ 'icon-close.svg' | inline_asset_content }}
-                  </span>
-                </button>
-              </div>
-
-              <div class="custom-catalog__mobile-filters-body">
-                <div class="custom-catalog__mobile-filters-list">
-                  {%- if catalog_show_pills_bar -%}
-                    <div class="custom-catalog__mobile-drawer-pills-bar">
-                      {%- if catalog_has_active_chips -%}
-                        <div class="custom-catalog__filters custom-catalog__filters--drawer" data-catalog-active-filters-region>
-                          <ul
-                            class="custom-catalog__chips"
-                            role="list"
-                            aria-label="{{ section.settings.active_filters_aria_label | escape }}">
-                            {%- for filter in collection.filters -%}
-                              {%- for active_value in filter.active_values -%}
-                                <li role="listitem">
-                                  <a
-                                    href="{{ active_value.url_to_remove }}"
-                                    class="custom-catalog__chip"
-                                    aria-label="{{ active_value.label | escape }} — {{ section.settings.chip_remove_sr_suffix | escape }}">
-                                    <span class="custom-catalog__chip-label">{{ active_value.label | escape }}</span>
-                                    <span class="custom-catalog__chip-remove" aria-hidden="true">{{ section.settings.chip_remove_character | escape }}</span>
-                                  </a>
-                                </li>
-                              {%- endfor -%}
-                            {%- endfor -%}
-                          </ul>
-                          <a href="{{ catalog_clear_href }}" class="custom-catalog__clear">{{ section.settings.clear_all_label | escape }}</a>
-                        </div>
-                      {%- endif -%}
-
-                      {%- unless section.settings.show_availability_toggle == false -%}
-                        {%- if catalog_filter_availability -%}
-                          <div class="custom-catalog__mobile-filters-availability custom-catalog__mobile-filters-availability--top">
-                            {%- render 'custom-catalog-availability-toggle'
-                              , filter: catalog_filter_availability
-                              , availability_label: section.settings.availability_toggle_label
-                            -%}
-                          </div>
-                        {%- endif -%}
-                      {%- endunless -%}
-                    </div>
-                  {%- endif -%}
-
-                  {%- if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0 -%}
-                    {%- render 'custom-catalog-facet-dropdown'
-                      , filter: catalog_filter_our_ranges
-                      , section_id: section.id
-                      , facet_key: 'our-ranges'
-                      , drawer_mode: true
-                      , allowed_collections: catalog_allowed_range_collections
-                    -%}
-                  {%- endif -%}
-                  {%- if catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0 -%}
-                    {%- render 'custom-catalog-facet-dropdown'
-                      , filter: catalog_filter_tea_type
-                      , section_id: section.id
-                      , facet_key: 'tea-type'
-                      , drawer_mode: true
-                    -%}
-                  {%- endif -%}
-                  {%- if catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0 -%}
-                    {%- render 'custom-catalog-facet-dropdown'
-                      , filter: catalog_filter_tea_format
-                      , section_id: section.id
-                      , facet_key: 'tea-format'
-                      , drawer_mode: true
-                    -%}
-                  {%- endif -%}
-                  {%- if catalog_filter_flavor and catalog_filter_flavor.values.size > 0 -%}
-                    {%- render 'custom-catalog-facet-dropdown'
-                      , filter: catalog_filter_flavor
-                      , section_id: section.id
-                      , facet_key: 'flavor'
-                      , drawer_mode: true
-                    -%}
-                  {%- endif -%}
-                  {%- if catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0 -%}
-                    {%- render 'custom-catalog-facet-dropdown'
-                      , filter: catalog_filter_time_of_day
-                      , section_id: section.id
-                      , facet_key: 'time-of-day'
-                      , drawer_mode: true
-                    -%}
-                  {%- endif -%}
-                  <div class="custom-catalog__mobile-filters-sort">
+            {%- if catalog_show_toolbar_right -%}
+              <div class="custom-catalog__toolbar-right" data-catalog-toolbar-meta>
+                {%- if section.settings.show_item_count -%}
+                  <span class="custom-catalog__toolbar-count" data-catalog-item-count>{{ count_text | escape }}</span>
+                {%- endif -%}
+                <div class="custom-catalog__toolbar-right-actions" data-catalog-toolbar-right-actions>
+                  {%- if section.settings.show_sort_control -%}
+                    <button
+                      class="button custom-catalog__mobile-sort-toggle button-unstyled"
+                      on:click="#{{ catalog_sort_sheet_id }}/showDialog"
+                      type="button"
+                      aria-haspopup="dialog"
+                      aria-label="{{ 'actions.sort' | t | escape }}">
+                      <span class="svg-wrapper custom-catalog__mobile-sort-toggle-icon" aria-hidden="true">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                          focusable="false">
+                          <path
+                            d="M7 8.5L11.2 4l4.2 4.5M7 15.5L11.2 20l4.2-4.5"
+                            stroke="currentColor"
+                            stroke-width="1.65"
+                            stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                    </button>
                     {%- render 'custom-catalog-sort-dropdown'
                       , section_id: section.id
                       , collection: collection
                       , catalog_sort_by: catalog_sort_by
                       , sort_label_prefix: section.settings.sort_label_prefix
-                      , drawer_mode: true
+                      , drawer_mode: false
                       , sheet_mode: false
                     -%}
-                  </div>
+                  {%- endif -%}
+                  {%- if section.settings.show_grid_toggle -%}
+                    <fieldset class="custom-catalog__grid-toggle">
+                      <legend class="visually-hidden">{{ section.settings.grid_toggle_aria_label | escape }}</legend>
+                      <label class="custom-catalog__grid-toggle-option">
+                        <input
+                          type="radio"
+                          name="catalog-grid-{{ section.id }}"
+                          value="default"
+                          class="custom-catalog__grid-toggle-input"
+                          checked
+                          aria-label="{{ section.settings.grid_toggle_grid_label | escape }}"
+                          on:change="#{{ catalog_results_list_id }}/updateLayout"
+                          data-skip-node-update>
+                        <span class="custom-catalog__grid-toggle-btn">
+                          <svg
+                            class="custom-catalog__grid-toggle-icon"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                            focusable="false">
+                            <rect
+                              x="3"
+                              y="3"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                            <rect
+                              x="13.5"
+                              y="3"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                            <rect
+                              x="3"
+                              y="13.5"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                            <rect
+                              x="13.5"
+                              y="13.5"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                          </svg>
+                        </span>
+                      </label>
+                      <label class="custom-catalog__grid-toggle-option">
+                        <input
+                          type="radio"
+                          name="catalog-grid-{{ section.id }}"
+                          value="list"
+                          class="custom-catalog__grid-toggle-input"
+                          aria-label="{{ section.settings.grid_toggle_list_label | escape }}"
+                          on:change="#{{ catalog_results_list_id }}/updateLayout"
+                          data-skip-node-update>
+                        <span class="custom-catalog__grid-toggle-btn">
+                          <svg
+                            class="custom-catalog__grid-toggle-icon"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                            focusable="false">
+                            <line
+                              x1="4"
+                              y1="6.5"
+                              x2="20"
+                              y2="6.5"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round" />
+                            <line
+                              x1="4"
+                              y1="12"
+                              x2="20"
+                              y2="12"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round" />
+                            <line
+                              x1="4"
+                              y1="17.5"
+                              x2="20"
+                              y2="17.5"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round" />
+                          </svg>
+                        </span>
+                      </label>
+                    </fieldset>
+                  {%- endif -%}
                 </div>
               </div>
+            {%- endif -%}
+          </div>
 
-              <div class="custom-catalog__mobile-filters-actions">
-                <button
-                  class="button custom-catalog__mobile-filters-see-results"
-                  type="button"
-                  on:click="dialog-component/closeDialog"
-                >
-                  {{- 'actions.see_items' | t: count: paginate.items -}}
-                </button>
-              </div>
-            </dialog>
-          </dialog-component>
+          {%- if section.settings.show_sort_control -%}
+            <dialog-component
+              id="{{ catalog_sort_sheet_id }}"
+              class="custom-catalog__mobile-sort-dialog color-{{ settings.drawer_color_scheme }}"
+              dialog-active-max-width="989"
+              data-catalog-mobile-drawer>
+              <dialog
+                ref="dialog"
+                class="custom-catalog__mobile-sort-sheet dialog-modal dialog-drawer"
+                scroll-lock
+                aria-labelledby="{{ catalog_sort_sheet_heading_id }}">
+                <div class="custom-catalog__mobile-sort-sheet-header">
+                  <h2 id="{{ catalog_sort_sheet_heading_id }}" class="custom-catalog__mobile-sort-sheet-title h4">
+                    {{ 'actions.sort' | t }}
+                  </h2>
+                  <button
+                    class="custom-catalog__mobile-sort-sheet-close button-unstyled close-button"
+                    on:click="dialog-component/closeDialog"
+                    type="button"
+                    aria-label="{{ 'actions.close' | t }}"
+                    autofocus>
+                    <span class="svg-wrapper svg-wrapper--small">
+                      {{ 'icon-close.svg' | inline_asset_content }}
+                    </span>
+                  </button>
+                </div>
+
+                <div class="custom-catalog__mobile-sort-sheet-body">
+                  {%- render 'custom-catalog-sort-dropdown'
+                    , section_id: section.id
+                    , collection: collection
+                    , catalog_sort_by: catalog_sort_by
+                    , sort_label_prefix: section.settings.sort_label_prefix
+                    , drawer_mode: false
+                    , sheet_mode: true
+                  -%}
+                </div>
+              </dialog>
+            </dialog-component>
+          {%- endif -%}
+
+          {%- if catalog_show_filter_controls -%}
+            <dialog-component
+              id="{{ catalog_filters_drawer_id }}"
+              class="custom-catalog__mobile-filters-dialog color-{{ settings.drawer_color_scheme }}"
+              dialog-active-max-width="989"
+              data-catalog-mobile-drawer>
+              <dialog
+                ref="dialog"
+                class="custom-catalog__mobile-filters-drawer dialog-modal drawer dialog-drawer"
+                scroll-lock
+                aria-labelledby="{{ catalog_filters_drawer_heading_id }}">
+                <div class="custom-catalog__mobile-filters-header">
+                  <h2 id="{{ catalog_filters_drawer_heading_id }}" class="custom-catalog__mobile-filters-title h4">
+                    {{ 'actions.show_filters' | t }}
+                    {%- if catalog_total_active_values > 0 -%}
+                      <span class="bubble custom-catalog__mobile-filters-title-bubble" aria-hidden="true">{{ catalog_total_active_values }}</span>
+                    {%- endif -%}
+                  </h2>
+                  <button
+                    class="custom-catalog__mobile-filters-close button-unstyled close-button"
+                    on:click="dialog-component/closeDialog"
+                    type="button"
+                    aria-label="{{ 'actions.close' | t }}"
+                    autofocus>
+                    <span class="svg-wrapper svg-wrapper--small">
+                      {{ 'icon-close.svg' | inline_asset_content }}
+                    </span>
+                  </button>
+                </div>
+
+                <div class="custom-catalog__mobile-filters-body">
+                  <div class="custom-catalog__mobile-filters-list">
+                    {%- if catalog_show_pills_bar -%}
+                      <div class="custom-catalog__mobile-drawer-pills-bar">
+                        {%- if catalog_has_active_chips -%}
+                          <div class="custom-catalog__filters custom-catalog__filters--drawer" data-catalog-active-filters-region>
+                            <ul
+                              class="custom-catalog__chips"
+                              role="list"
+                              aria-label="{{ section.settings.active_filters_aria_label | escape }}">
+                              {%- for filter in collection.filters -%}
+                                {%- for active_value in filter.active_values -%}
+                                  <li role="listitem">
+                                    <a
+                                      href="{{ active_value.url_to_remove }}"
+                                      class="custom-catalog__chip"
+                                      aria-label="{{ active_value.label | escape }} — {{ section.settings.chip_remove_sr_suffix | escape }}">
+                                      <span class="custom-catalog__chip-label">{{ active_value.label | escape }}</span>
+                                      <span class="custom-catalog__chip-remove" aria-hidden="true">{{ section.settings.chip_remove_character | escape }}</span>
+                                    </a>
+                                  </li>
+                                {%- endfor -%}
+                              {%- endfor -%}
+                            </ul>
+                            <a href="{{ catalog_clear_href }}" class="custom-catalog__clear">{{ section.settings.clear_all_label | escape }}</a>
+                          </div>
+                        {%- endif -%}
+
+                        {%- unless section.settings.show_availability_toggle == false -%}
+                          {%- if catalog_filter_availability -%}
+                            <div class="custom-catalog__mobile-filters-availability custom-catalog__mobile-filters-availability--top">
+                              {%- render 'custom-catalog-availability-toggle'
+                                , filter: catalog_filter_availability
+                                , availability_label: section.settings.availability_toggle_label
+                              -%}
+                            </div>
+                          {%- endif -%}
+                        {%- endunless -%}
+                      </div>
+                    {%- endif -%}
+
+                    {%- if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_our_ranges
+                        , section_id: section.id
+                        , facet_key: 'our-ranges'
+                        , drawer_mode: true
+                        , allowed_collections: catalog_allowed_range_collections
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_tea_type
+                        , section_id: section.id
+                        , facet_key: 'tea-type'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_tea_format
+                        , section_id: section.id
+                        , facet_key: 'tea-format'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_flavor and catalog_filter_flavor.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_flavor
+                        , section_id: section.id
+                        , facet_key: 'flavor'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_time_of_day
+                        , section_id: section.id
+                        , facet_key: 'time-of-day'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if section.settings.show_sort_control -%}
+                      <div class="custom-catalog__mobile-filters-sort">
+                        {%- render 'custom-catalog-sort-dropdown'
+                          , section_id: section.id
+                          , collection: collection
+                          , catalog_sort_by: catalog_sort_by
+                          , sort_label_prefix: section.settings.sort_label_prefix
+                          , drawer_mode: true
+                          , sheet_mode: false
+                        -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                </div>
+
+                <div class="custom-catalog__mobile-filters-actions">
+                  <button
+                    class="button custom-catalog__mobile-filters-see-results"
+                    type="button"
+                    on:click="dialog-component/closeDialog">
+                    {{- 'actions.see_items' | t: count: paginate.items -}}
+                  </button>
+                </div>
+              </dialog>
+            </dialog-component>
+          {%- endif -%}
         </div>
       </div>
 
@@ -1040,7 +1050,7 @@
 
 {% schema %}
   {
-    "name": "Custom catalog layout",
+    "name": "Reusable catalog",
     "tag": "section",
     "class": "section-wrapper",
     "enabled_on": {
@@ -1419,6 +1429,29 @@
         "default": "Clear all"
       }, {
         "type": "header",
+        "content": "Toolbar visibility"
+      }, {
+        "type": "checkbox",
+        "id": "show_toolbar_facets",
+        "label": "Show toolbar filter controls",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_item_count",
+        "label": "Show item count",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_grid_toggle",
+        "label": "Show grid/list toggle",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_sort_control",
+        "label": "Show sort controls",
+        "default": true
+      }, {
+        "type": "header",
         "content": "Toolbar (fallback labels)"
       }, {
         "type": "paragraph",
@@ -1538,7 +1571,7 @@
     "max_blocks": 24,
     "presets": [
       {
-        "name": "Custom catalog layout",
+        "name": "Reusable catalog",
         "settings": {
           "tea_type_visual_source": "metaobjects",
           "tea_type_metaobject_definition": "tea_type"

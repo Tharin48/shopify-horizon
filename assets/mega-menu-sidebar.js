@@ -9,6 +9,12 @@ class MegaMenuSidebar extends HTMLElement {
   /** @type {AbortController | undefined} */
   #abortController;
 
+  /** @type {number | null} */
+  #pendingActivateTimer = null;
+
+  /** @type {number | null} */
+  #pendingResetTimer = null;
+
   connectedCallback() {
     this.#abortController?.abort();
     this.#abortController = new AbortController();
@@ -28,6 +34,8 @@ class MegaMenuSidebar extends HTMLElement {
     this.#abortController = undefined;
     this.#resizeObserver?.disconnect();
     this.#resizeObserver = undefined;
+    this.#clearActivateTimer();
+    this.#clearResetTimer();
   }
 
   /**
@@ -37,25 +45,43 @@ class MegaMenuSidebar extends HTMLElement {
     const tabs = this.querySelectorAll('[data-mega-sidebar-tab]');
     const panels = this.querySelectorAll('[data-mega-sidebar-panel]');
     const defaultPanel = this.querySelector('[data-mega-sidebar-default-panel]');
+    const directLinks = this.querySelectorAll('[data-mega-sidebar-direct-link]');
 
     if (!tabs.length || !panels.length) return;
 
-    const showDefault = () => {
-      if (!(defaultPanel instanceof HTMLElement)) return;
+    const fallbackToDefault = () => {
+      if (defaultPanel instanceof HTMLElement) {
+        for (const tab of tabs) {
+          tab.setAttribute('aria-expanded', 'false');
+        }
 
+        defaultPanel.hidden = false;
+        for (const panel of panels) {
+          panel.hidden = true;
+        }
+
+        this.#syncSubmenuHeight();
+        return;
+      }
+
+      const firstTab = tabs[0];
+      if (!(firstTab instanceof HTMLElement)) return;
+      const firstIndex = Number(firstTab.getAttribute('data-mega-sidebar-index'));
+      if (!Number.isNaN(firstIndex)) {
+        activate(firstIndex);
+      }
+    };
+
+    const showDefault = () => {
       for (const tab of tabs) {
         tab.setAttribute('aria-expanded', 'false');
       }
 
-      defaultPanel.hidden = false;
-      for (const panel of panels) {
-        panel.hidden = true;
-      }
-
-      this.#syncSubmenuHeight();
+      fallbackToDefault();
     };
 
     const activate = (/** @type {number} */ index) => {
+      this.#clearResetTimer();
       if (defaultPanel instanceof HTMLElement) {
         defaultPanel.hidden = true;
       }
@@ -75,13 +101,32 @@ class MegaMenuSidebar extends HTMLElement {
       this.#syncSubmenuHeight();
     };
 
+    const scheduleActivate = (index) => {
+      this.#clearActivateTimer();
+      this.#clearResetTimer();
+      this.#pendingActivateTimer = window.setTimeout(() => {
+        this.#pendingActivateTimer = null;
+        activate(index);
+      }, 110);
+    };
+
+    const scheduleReset = () => {
+      this.#clearActivateTimer();
+      this.#clearResetTimer();
+      this.#pendingResetTimer = window.setTimeout(() => {
+        this.#pendingResetTimer = null;
+        fallbackToDefault();
+      }, 140);
+    };
+
     if (defaultPanel instanceof HTMLElement) {
       showDefault();
     }
 
     for (const tab of tabs) {
       const idx = Number(tab.getAttribute('data-mega-sidebar-index'));
-      tab.addEventListener('pointerenter', () => activate(idx), { signal });
+      tab.addEventListener('pointerenter', () => scheduleActivate(idx), { signal });
+      tab.addEventListener('pointerleave', () => this.#clearActivateTimer(), { signal });
       tab.addEventListener('focus', () => activate(idx), { signal });
       tab.addEventListener(
         'click',
@@ -92,6 +137,32 @@ class MegaMenuSidebar extends HTMLElement {
         { signal }
       );
     }
+
+    for (const link of directLinks) {
+      link.addEventListener(
+        'pointerenter',
+        () => {
+          this.#clearActivateTimer();
+          this.#clearResetTimer();
+          fallbackToDefault();
+        },
+        { signal }
+      );
+      link.addEventListener('focus', () => fallbackToDefault(), { signal });
+    }
+
+    this.addEventListener('pointerenter', () => this.#clearResetTimer(), { signal });
+    this.addEventListener('pointerleave', () => scheduleReset(), { signal });
+    this.addEventListener(
+      'focusout',
+      (event) => {
+        const nextTarget = event.relatedTarget;
+        if (!(nextTarget instanceof Node) || !this.contains(nextTarget)) {
+          scheduleReset();
+        }
+      },
+      { signal }
+    );
 
     const onDocumentKeydown = (event) => {
       if (!this.contains(document.activeElement)) return;
@@ -120,6 +191,20 @@ class MegaMenuSidebar extends HTMLElement {
       }
     };
     document.addEventListener('keydown', onDocumentKeydown, { signal });
+  }
+
+  #clearActivateTimer() {
+    if (this.#pendingActivateTimer !== null) {
+      window.clearTimeout(this.#pendingActivateTimer);
+      this.#pendingActivateTimer = null;
+    }
+  }
+
+  #clearResetTimer() {
+    if (this.#pendingResetTimer !== null) {
+      window.clearTimeout(this.#pendingResetTimer);
+      this.#pendingResetTimer = null;
+    }
   }
 
   #syncSubmenuHeight() {

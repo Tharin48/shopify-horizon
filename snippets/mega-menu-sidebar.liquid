@@ -57,8 +57,13 @@
                 </button>
                 {% assign tab_idx = tab_idx | plus: 1 %}
               {% else %}
-                <a href="{{ l2.url }}" class="mega-menu-sidebar__tab mega-menu-sidebar__tab--link">
+                <a
+                  href="{{ l2.url }}"
+                  class="mega-menu-sidebar__tab mega-menu-sidebar__tab--link"
+                  data-mega-sidebar-direct-link
+                >
                   <span class="mega-menu-sidebar__tab-label">{{ l2.title | escape }}</span>
+                  <span class="mega-menu-sidebar__tab-arrow" aria-hidden="true">→</span>
                 </a>
               {% endif %}
             </li>

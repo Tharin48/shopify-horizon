@@ -6,6 +6,7 @@
   @param {string} section_id - section.id for unique DOM ids
   @param {string} facet_key - Short slug, e.g. tea-type (unique per dropdown)
   @param {boolean} drawer_mode - Optional. Renders drawer-friendly accordion styling.
+  @param {array} allowed_collections - Optional. Restricts rendered values to selected collections for range-style facets.
 {%- enddoc -%}
 {%- if filter and filter.values.size > 0 -%}
   {%- liquid
@@ -14,6 +15,14 @@
     assign panel_id = 'FacetPanel-' | append: section_id | append: '-' | append: facet_key
     if is_drawer_mode
       assign panel_id = panel_id | append: '-drawer'
+    endif
+    assign restrict_to_collections = false
+    assign restrict_to_range_tags = false
+    if facet_key == 'our-ranges' and allowed_collections != blank
+      assign restrict_to_collections = true
+    endif
+    if facet_key == 'our-ranges'
+      assign restrict_to_range_tags = true
     endif
   -%}
   <details
@@ -39,6 +48,36 @@
     >
       <div class="custom-catalog__facet-dd-scroll">
         {%- for fv in filter.values -%}
+          {%- liquid
+            assign show_value = true
+            assign fv_label_normalized = fv.label | strip | downcase
+            assign fv_label_handle = fv.label | handleize
+            assign fv_compare_value = fv_label_normalized
+            if fv_compare_value contains ':'
+              assign fv_compare_parts = fv_compare_value | split: ':'
+              assign fv_compare_prefix = fv_compare_parts | first | strip
+              assign fv_compare_value = fv_compare_parts | last | strip
+            else
+              assign fv_compare_prefix = ''
+            endif
+            assign fv_compare_handle = fv_compare_value | handleize
+            if restrict_to_range_tags and fv_compare_prefix != 'range'
+              assign show_value = false
+            elsif restrict_to_collections and fv.active == false
+              assign show_value = false
+              for allowed_collection in allowed_collections
+                assign allowed_title_normalized = allowed_collection.title | strip | downcase
+                assign allowed_handle = allowed_collection.handle | default: allowed_collection.title | handleize
+                if fv_compare_value == allowed_title_normalized or fv_compare_handle == allowed_handle
+                  assign show_value = true
+                  break
+                endif
+              endfor
+            endif
+          -%}
+          {%- unless show_value -%}
+            {% continue %}
+          {%- endunless -%}
           <a
             href="{% if fv.active %}{{ fv.url_to_remove }}{% else %}{{ fv.url_to_add }}{% endif %}"
             class="custom-catalog__facet-dd-row{% if fv.active %} is-selected{% endif %}"

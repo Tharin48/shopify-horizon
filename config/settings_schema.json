@@ -2103,6 +2103,11 @@
         "id": "product_card_carousel",
         "label": "t:settings.product_card_carousel",
         "default": true
+      },
+      {
+        "type": "color_background",
+        "id": "custom_product_card_image_background",
+        "label": "Custom product card image background"
       }
     ]
   },

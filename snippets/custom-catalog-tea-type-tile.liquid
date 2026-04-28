@@ -24,8 +24,8 @@
     endif
   endif
 -%}
-<li class="custom-catalog__tea-type" {{ block_shopify_attributes }}>
-  {%- if tea_matched_fv -%}
+{%- if tea_matched_fv -%}
+  <li class="custom-catalog__tea-type" {{ block_shopify_attributes }}>
     <a
       href="{{ tea_type_href }}"
       class="custom-catalog__tea-type-btn{% if tea_type_is_active %} is-active{% endif %}"
@@ -63,43 +63,5 @@
         <span class="custom-catalog__tea-type-label">{{ tea_type_tile_title | escape }}</span>
       {%- endif -%}
     </a>
-  {%- else -%}
-    <span
-      class="custom-catalog__tea-type-btn custom-catalog__tea-type-btn--disabled{% unless catalog_filter_tea_type %} custom-catalog__tea-type-btn--no-filter{% endunless %}"
-      tabindex="-1"
-      aria-disabled="true"
-      aria-label="{{ tea_btn_aria | escape }} — {{ section.settings.tea_type_unavailable_suffix | escape }}"
-      data-catalog-tea-filter-value="{{ filter_value_attr | escape }}"
-    >
-      <span class="custom-catalog__tea-type-media">
-        {%- if default_image != blank -%}
-          {{
-            default_image
-            | image_url: width: 400
-            | image_tag:
-              loading: 'lazy',
-              widths: '120,200,300,400',
-              sizes: '(min-width: 990px) 8.25rem, 28vw',
-              class: 'custom-catalog__tea-type-img custom-catalog__tea-type-img--default',
-              alt: tea_img_alt
-          }}
-        {%- endif -%}
-        {%- if hover_image != blank -%}
-          {{
-            hover_image
-            | image_url: width: 400
-            | image_tag:
-              loading: 'lazy',
-              widths: '120,200,300,400',
-              sizes: '(min-width: 990px) 8.25rem, 28vw',
-              class: 'custom-catalog__tea-type-img custom-catalog__tea-type-img--hover',
-              alt: tea_img_alt
-          }}
-        {%- endif -%}
-      </span>
-      {%- if tea_type_tile_title != blank -%}
-        <span class="custom-catalog__tea-type-label">{{ tea_type_tile_title | escape }}</span>
-      {%- endif -%}
-    </span>
-  {%- endif -%}
-</li>
+  </li>
+{%- endif -%}

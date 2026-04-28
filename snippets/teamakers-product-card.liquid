@@ -26,6 +26,7 @@
   assign has_horizon_quick_add = false
   assign has_horizon_mobile_quick_add = false
   assign product_card_anchor = blank
+  assign eyebrow_url = blank
 
   if quick_add_mode == 'horizon'
     assign use_horizon_quick_add = true
@@ -56,6 +57,14 @@
   endif
 
   assign eyebrow_text = eyebrow
+  if eyebrow_text == blank and card_product != blank
+    assign collection_link_metafield = card_product.metafields.custom.collection_link
+    if collection_link_metafield != blank and collection_link_metafield.value != blank
+      assign eyebrow_text = collection_link_metafield.value.title
+      assign eyebrow_url = collection_link_metafield.value.url
+    endif
+  endif
+
   if eyebrow_text == blank and show_vendor and card_product != blank and card_product.vendor != blank
     assign eyebrow_text = card_product.vendor
   endif
@@ -155,7 +164,13 @@
 
     <div class="teamakers-pick__meta">
       {% if eyebrow_text != blank %}
-        <p class="teamakers-pick__vendor">{{ eyebrow_text | escape }}</p>
+        <p class="teamakers-pick__vendor">
+          {% if eyebrow_url != blank %}
+            <a href="{{ eyebrow_url }}" class="teamakers-pick__vendor-link">{{ eyebrow_text | escape }}</a>
+          {% else %}
+            {{ eyebrow_text | escape }}
+          {% endif %}
+        </p>
       {% endif %}
 
       <h3 class="teamakers-pick__name">

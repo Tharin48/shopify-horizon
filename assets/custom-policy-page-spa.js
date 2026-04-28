@@ -260,7 +260,7 @@
         clearStaleBindingFlags(m);
         await activateScripts(m);
         runSectionInits(m);
-      } else {                                                                                                                                              
+      } else {
         showLoadingOverlay();
         try {
           const res = await fetch(key, {

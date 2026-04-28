@@ -5,7 +5,7 @@
   {% endif %}
   lang="{{ request.locale.iso_code }}"
 >
-  <head>
+  <head>{% render 'yoast-seo' %}
     {%- if settings.favicon != blank -%}
       <link
         rel="icon"

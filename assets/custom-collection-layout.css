@@ -751,6 +751,8 @@ a.custom-catalog__clear:focus-visible {
   align-items: center;
   justify-content: flex-end;
   gap: 0.35rem 1rem;
+  position: relative;
+  overflow: visible;
 }
 
 /* Toolbar sort: text row on desktop; icon is shown in mobile toolbar only (see max-width: 749px) */
@@ -867,12 +869,14 @@ a.custom-catalog__clear:focus-visible {
     margin-inline-start: 0;
     justify-content: flex-end;
     gap: 0;
+    overflow: visible;
   }
 
   .custom-catalog__toolbar-right-actions {
     flex-wrap: nowrap;
     gap: 0.2rem;
     align-items: center;
+    overflow: visible;
   }
 
   .custom-catalog__mobile-sort-toggle {
@@ -999,6 +1003,10 @@ a.custom-catalog__clear:focus-visible {
 }
 
 @media screen and (max-width: 989px) {
+  .custom-catalog__toolbar-right-actions > .custom-catalog__sort-dd[open] {
+    z-index: 50;
+  }
+
   .custom-catalog__filters-sticky .custom-catalog__toolbar-placeholder {
     font-size: inherit;
   }
@@ -1068,11 +1076,13 @@ a.custom-catalog__clear:focus-visible {
 .custom-catalog__availability-track {
   position: relative;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
   width: 2.35rem;
   height: 1.28rem;
   border-radius: 999px;
-  background: rgb(var(--color-foreground-rgb) / 0.16);
-  border: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  background: rgb(0 0 0 / 0.16);
+  border: 1px solid rgb(0 0 0 / 0.12);
   box-sizing: border-box;
   transition:
     background-color 0.2s ease,
@@ -1082,14 +1092,16 @@ a.custom-catalog__clear:focus-visible {
 .custom-catalog__availability-thumb {
   position: absolute;
   top: 50%;
-  left: 0.14rem;
+  left: 0.1rem;
   width: 0.95rem;
   height: 0.95rem;
-  margin-top: -0.475rem;
+  transform: translateY(-50%);
   border-radius: 50%;
-  background: var(--color-background);
-  box-shadow: 0 1px 3px rgb(var(--color-foreground-rgb) / 0.3);
-  transition: transform 0.2s ease;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
+  transition:
+    transform 0.2s ease,
+    left 0.2s ease;
 }
 
 .custom-catalog__availability-toggle.is-active .custom-catalog__availability-track {
@@ -1098,7 +1110,8 @@ a.custom-catalog__clear:focus-visible {
 }
 
 .custom-catalog__availability-toggle.is-active .custom-catalog__availability-thumb {
-  transform: translateX(1.05rem);
+  left: calc(100% - 0.1rem - 0.95rem);
+  transform: translateY(-50%);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1124,6 +1137,12 @@ a.custom-catalog__clear:focus-visible {
 .custom-catalog__facet-dd {
   position: relative;
   flex: 0 1 auto;
+  z-index: 1;
+  overflow: visible;
+}
+
+.custom-catalog__facet-dd[open] {
+  z-index: 40;
 }
 
 .custom-catalog__facet-dd-summary {

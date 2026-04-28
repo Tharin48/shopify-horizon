@@ -145,6 +145,7 @@
     --fepc-subheading: {{ section.settings.subtitle_color }};
     --fepc-card-bg: {{ section.settings.card_background }};
     --fepc-card-bg-solid: {{ section.settings.card_background | color_modify: 'alpha', section.settings.card_background_opacity | divided_by: 100.0 }};
+    {% if section.settings.product_card_image_background != blank %}--tp-card-media-bg: {{ section.settings.product_card_image_background }};{% endif %}
     --fepc-card-text: {{ section.settings.card_text_color }};
     --fepc-card-muted: {{ section.settings.card_muted_text_color }};
     --fepc-price: {{ section.settings.price_color }};
@@ -412,6 +413,11 @@
       "id": "show_quick_cart",
       "label": "Show quick cart button",
       "default": true
+    },
+    {
+      "type": "color_background",
+      "id": "product_card_image_background",
+      "label": "Product card image background"
     },
     {
       "type": "header",

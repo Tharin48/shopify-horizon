@@ -1,0 +1,339 @@
+<section
+  class="custom-editorial-image-overlay"
+  style="
+    --custom-editorial-image-overlay-max-width: {{ section.settings.max_width }}px;
+    --custom-editorial-image-overlay-background: {{ section.settings.background_color }};
+    --custom-editorial-image-overlay-card-background: {{ section.settings.card_background_color }};
+    --custom-editorial-image-overlay-padding-top: {{ section.settings.padding_top }}px;
+    --custom-editorial-image-overlay-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-editorial-image-overlay-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-editorial-image-overlay-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-editorial-image-overlay-card-radius: {{ section.settings.card_radius }}px;
+    --custom-editorial-image-overlay-image-radius: {{ section.settings.image_radius }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-editorial-image-overlay__inner">
+    <div class="custom-editorial-image-overlay__media-shell">
+      {%- if section.settings.image != blank -%}
+        <div class="custom-editorial-image-overlay__media">
+          <picture>
+            {%- if section.settings.mobile_image != blank -%}
+              <source media="(max-width: 749px)" srcset="{{ section.settings.mobile_image | image_url: width: 960 }}">
+            {%- endif -%}
+            {{
+              section.settings.image
+              | image_url: width: 2200
+              | image_tag:
+                loading: 'lazy',
+                widths: '480,720,960,1200,1600,1900,2200',
+                sizes: '100vw',
+                class: 'custom-editorial-image-overlay__image',
+                alt: section.settings.image.alt
+            }}
+          </picture>
+        </div>
+      {%- elsif request.design_mode -%}
+        <div class="custom-editorial-image-overlay__empty">Choose a full-width image for the overlay section.</div>
+      {%- endif -%}
+
+      <div class="custom-editorial-image-overlay__card">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="custom-editorial-image-overlay__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="custom-editorial-image-overlay__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <div class="custom-editorial-image-overlay__text rte">
+            {{ section.settings.text }}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.primary_button_label != blank or section.settings.secondary_button_label != blank -%}
+          <div class="custom-editorial-image-overlay__actions">
+            {%- if section.settings.primary_button_label != blank and section.settings.primary_button_url != blank -%}
+              <a class="custom-editorial-image-overlay__button custom-editorial-image-overlay__button--primary" href="{{ section.settings.primary_button_url }}">
+                {{ section.settings.primary_button_label | escape }}
+              </a>
+            {%- endif -%}
+            {%- if section.settings.secondary_button_label != blank and section.settings.secondary_button_url != blank -%}
+              <a class="custom-editorial-image-overlay__button custom-editorial-image-overlay__button--secondary" href="{{ section.settings.secondary_button_url }}">
+                {{ section.settings.secondary_button_label | escape }}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-editorial-image-overlay {
+    background: var(--custom-editorial-image-overlay-background);
+  }
+
+  .custom-editorial-image-overlay__inner {
+    max-width: var(--custom-editorial-image-overlay-max-width);
+    margin: 0 auto;
+    padding:
+      var(--custom-editorial-image-overlay-padding-top-mobile)
+      16px
+      var(--custom-editorial-image-overlay-padding-bottom-mobile);
+  }
+
+  .custom-editorial-image-overlay__media-shell {
+    position: relative;
+  }
+
+  .custom-editorial-image-overlay__media,
+  .custom-editorial-image-overlay__empty {
+    overflow: hidden;
+    border-radius: var(--custom-editorial-image-overlay-image-radius);
+    background: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .custom-editorial-image-overlay__empty {
+    display: grid;
+    place-items: center;
+    min-height: 18rem;
+    padding: 1.5rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.18);
+    color: rgb(var(--color-foreground-rgb) / 0.66);
+  }
+
+  .custom-editorial-image-overlay__media picture,
+  .custom-editorial-image-overlay__image {
+    display: block;
+    width: 100%;
+  }
+
+  .custom-editorial-image-overlay__image {
+    min-height: clamp(18rem, 50vw, 36rem);
+    object-fit: cover;
+  }
+
+  .custom-editorial-image-overlay__card {
+    margin: 1rem auto 0;
+    max-width: 42rem;
+    padding: 1.75rem;
+    border-radius: var(--custom-editorial-image-overlay-card-radius);
+    background: var(--custom-editorial-image-overlay-card-background);
+    box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.08);
+  }
+
+  .custom-editorial-image-overlay__eyebrow {
+    margin: 0 0 0.7rem;
+    color: #b08a2f;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.76rem;
+  }
+
+  .custom-editorial-image-overlay__heading {
+    margin: 0;
+  }
+
+  .custom-editorial-image-overlay__text {
+    margin-top: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.82);
+  }
+
+  .custom-editorial-image-overlay__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .custom-editorial-image-overlay__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.9rem;
+    padding: 0.75rem 1.4rem;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+
+  .custom-editorial-image-overlay__button--primary {
+    background: #b08a2f;
+    color: #ffffff;
+  }
+
+  .custom-editorial-image-overlay__button--secondary {
+    border: 1px solid #b08a2f;
+    color: #b08a2f;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-editorial-image-overlay__inner {
+      padding:
+        var(--custom-editorial-image-overlay-padding-top)
+        48px
+        var(--custom-editorial-image-overlay-padding-bottom);
+    }
+
+    .custom-editorial-image-overlay__card {
+      position: relative;
+      margin-top: -7rem;
+      width: min(100%, 44rem);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial image overlay",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Overlay section heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Add supporting content for the image overlay card.</p>"
+    },
+    {
+      "type": "text",
+      "id": "primary_button_label",
+      "label": "Primary button label"
+    },
+    {
+      "type": "url",
+      "id": "primary_button_url",
+      "label": "Primary button URL"
+    },
+    {
+      "type": "text",
+      "id": "secondary_button_label",
+      "label": "Secondary button label"
+    },
+    {
+      "type": "url",
+      "id": "secondary_button_url",
+      "label": "Secondary button URL"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 640,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image radius",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial image overlay"
+    }
+  ]
+}
+{% endschema %}

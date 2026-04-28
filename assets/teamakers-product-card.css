@@ -64,9 +64,10 @@
   position: relative;
   border-radius: var(--tp-img-radius, 10px);
   overflow: hidden;
-  background: rgb(var(--color-foreground) / 0.04);
+  background: var(--tp-card-media-bg, var(--custom-product-card-media-bg, rgb(var(--color-foreground) / 0.04)));
   aspect-ratio: var(--tp-image-ratio, 4 / 5);
-  border: var(--tp-image-border-width, 1px) solid var(--tp-image-border-color, rgb(var(--color-foreground) / 0.14));
+  border: var(--tp-image-border-width, 1px) solid
+    var(--tp-image-border-color, rgb(var(--color-foreground-rgb) / 0.08));
 }
 
 /* Placeholder / single asset without link wrapper */
@@ -198,6 +199,21 @@
   font-size: 0.68rem;
   color: var(--tp-label-color, var(--tp-tab-active, #b08a2f));
   font-weight: 400;
+}
+
+.teamakers-pick__vendor-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.teamakers-pick__vendor-link:hover {
+  text-decoration: underline;
+}
+
+.teamakers-pick__vendor-link:focus-visible {
+  outline: 2px solid rgb(var(--color-foreground-rgb) / 0.45);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .teamakers-pick__name {
