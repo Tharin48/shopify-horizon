@@ -4,6 +4,7 @@
     --custom-editorial-feature-grid-max-width: {{ section.settings.max_width }}px;
     --custom-editorial-feature-grid-background: {{ section.settings.background_color }};
     --custom-editorial-feature-grid-card-background: {{ section.settings.card_background_color }};
+    --custom-editorial-feature-grid-accent: {{ section.settings.accent_color }};
     --custom-editorial-feature-grid-padding-top: {{ section.settings.padding_top }}px;
     --custom-editorial-feature-grid-padding-bottom: {{ section.settings.padding_bottom }}px;
     --custom-editorial-feature-grid-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
@@ -94,7 +95,7 @@
 
   .custom-editorial-feature-grid__eyebrow {
     margin: 0 0 0.7rem;
-    color: #b08a2f;
+    color: var(--custom-editorial-feature-grid-accent);
     text-transform: uppercase;
     letter-spacing: 0.18em;
     font-size: 0.76rem;
@@ -155,7 +156,7 @@
   .custom-editorial-feature-grid__card-link {
     display: inline-flex;
     margin-top: 1rem;
-    color: #b08a2f;
+    color: var(--custom-editorial-feature-grid-accent);
     text-decoration: none;
   }
 
@@ -222,6 +223,12 @@
         { "value": "2", "label": "2 columns" },
         { "value": "4", "label": "4 columns" }
       ]
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
     },
     {
       "type": "color",

@@ -26,7 +26,7 @@
             "color": "",
             "text": "",
             "read_only": true,
-            "alignment": "left",
+            "alignment": "center",
             "show_alignment": true,
             "padding-block-start": 0,
             "padding-block-end": 0,
@@ -48,8 +48,8 @@
         }
       },
       "settings": {
-        "alignment": "flex-start",
-        "color_scheme": "scheme-1",
+        "alignment": "center",
+        "color_scheme": "scheme-5bf16c0f-71fe-4f88-a41b-39ff84fcf691",
         "padding-block-start": 40,
         "padding-block-end": 0
       }
@@ -59,6 +59,7 @@
       "blocks": {
         "filters": {
           "type": "filters",
+          "disabled": true,
           "static": true,
           "settings": {
             "enable_filtering": true,
@@ -82,6 +83,7 @@
         },
         "product-card": {
           "type": "_product-card",
+          "disabled": true,
           "static": true,
           "settings": {
             "product_card_gap": 4,
@@ -134,7 +136,13 @@
                 "padding-block-start": 4,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
-                "padding-inline-end": 0
+                "padding-inline-end": 0,
+                "show_collection_link": false,
+                "collection_link_target": "",
+                "collection_link_font_size": 14,
+                "collection_link_text_color": "#6b6b6b",
+                "collection_link_padding_top": 12,
+                "collection_link_padding_bottom": 0
               },
               "blocks": {}
             },
@@ -169,10 +177,13 @@
           ]
         }
       },
+      "disabled": true,
       "settings": {
         "layout_type": "grid",
         "product_card_size": "medium",
         "mobile_product_card_size": "small",
+        "enable_infinite_scroll": true,
+        "products_per_page": 24,
         "product_grid_width": "centered",
         "full_width_on_mobile": true,
         "columns_gap_horizontal": 16,
@@ -183,10 +194,156 @@
         "padding-block-start": 40,
         "padding-block-end": 40
       }
+    },
+    "reusable_search_catalog_pVyXXU": {
+      "type": "reusable-search-catalog",
+      "blocks": {
+        "tea_type_P3PKfW": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Black tea",
+            "filter_value": "black"
+          }
+        },
+        "tea_type_mmXjWj": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Oolong tea",
+            "filter_value": "oolong"
+          }
+        },
+        "tea_type_Et4McR": {
+          "type": "tea_type",
+          "settings": {
+            "title": "White tea",
+            "filter_value": "white"
+          }
+        },
+        "tea_type_4RXJEG": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Green tea",
+            "filter_value": "green"
+          }
+        },
+        "tea_type_GhGKVD": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Flavored tea",
+            "filter_value": "flavored"
+          }
+        },
+        "tea_type_4jE3Cc": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Herbal infusion tea",
+            "filter_value": "herbal"
+          }
+        },
+        "tea_type_PfnzK4": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Caffeine free",
+            "filter_value": "caffeine-free"
+          }
+        },
+        "tea_type_cR7iaa": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Chai",
+            "filter_value": "chai"
+          }
+        }
+      },
+      "block_order": [
+        "tea_type_P3PKfW",
+        "tea_type_mmXjWj",
+        "tea_type_Et4McR",
+        "tea_type_4RXJEG",
+        "tea_type_GhGKVD",
+        "tea_type_4jE3Cc",
+        "tea_type_PfnzK4",
+        "tea_type_cR7iaa"
+      ],
+      "name": "Reusable search catalog",
+      "settings": {
+        "color_scheme": "scheme-5bf16c0f-71fe-4f88-a41b-39ff84fcf691",
+        "padding_top": 24,
+        "padding_bottom": 48,
+        "content_max_width": 0,
+        "padding_inline_mobile": 16,
+        "padding_inline_desktop": 40,
+        "grid_gap_desktop": 28,
+        "grid_gap_mobile": 20,
+        "enable_infinite_scroll": true,
+        "products_per_page": 24,
+        "card_show_vendor": true,
+        "card_show_reviews": true,
+        "card_show_sale_badge": true,
+        "card_show_quick_add": true,
+        "product_card_image_background": "",
+        "show_breadcrumb": false,
+        "breadcrumb_home_label": "Home",
+        "show_tea_type_row": false,
+        "tea_type_visual_source": "metaobjects",
+        "tea_type_metaobject_definition": "tea_type",
+        "tea_type_metaobject_order": "",
+        "tea_type_metaobject_sort_key": "",
+        "tea_type_row_aria_label": "Shop by tea type",
+        "tea_type_button_fallback_aria": "Tea category",
+        "tea_type_unavailable_suffix": "Filter unavailable",
+        "facet_label_our_ranges": "Our ranges",
+        "facet_param_hint_our_ranges": "",
+        "our_ranges_dropdown_collections": [],
+        "facet_label_tea_type": "Tea type",
+        "facet_param_hint_tea_type": "custom.tea_type",
+        "facet_label_tea_format": "Tea format",
+        "facet_param_hint_tea_format": "custom.tea_format",
+        "facet_label_flavor": "Flavor",
+        "facet_param_hint_flavor": "custom.flavor",
+        "facet_label_time_of_day": "Time of day",
+        "facet_param_hint_time_of_day": "custom.time_of_day",
+        "show_availability_toggle": true,
+        "facet_label_availability": "",
+        "facet_param_hint_availability": "",
+        "availability_toggle_label": "In stock",
+        "active_filters_aria_label": "Active filters",
+        "chip_remove_character": "×",
+        "chip_remove_sr_suffix": "Remove filter",
+        "show_format_pills": false,
+        "show_format_pill_counts": true,
+        "format_pill_count_suffix": "products",
+        "format_pills_aria_label": "Tea format",
+        "format_pill_1": "Tea bags",
+        "format_pill_2": "Loose tea",
+        "format_pill_3": "Refills",
+        "format_pill_4": "Pyramid",
+        "format_pill_5": "Gift sets",
+        "mock_chip_1": "Origin: Ceylon",
+        "mock_chip_2": "Caffeine: Medium",
+        "clear_all_label": "Clear all",
+        "show_toolbar_facets": true,
+        "show_item_count": true,
+        "show_grid_toggle": true,
+        "show_sort_control": true,
+        "toolbar_our_ranges": "Our Ranges ▾",
+        "toolbar_tea_type": "Tea Type ▾",
+        "toolbar_tea_format": "Tea Format ▾",
+        "toolbar_flavors": "Flavors ▾",
+        "toolbar_time_of_day": "Time of Day ▾",
+        "sort_label_prefix": "Sort",
+        "item_count_template": "[start]–[end] of [total] products",
+        "grid_toggle_aria_label": "Product layout",
+        "grid_toggle_grid_label": "Grid view",
+        "grid_toggle_list_label": "List view",
+        "empty_collection_message": "No matching products found.",
+        "pagination_aria_label": "Pagination"
+      }
     }
   },
   "order": [
     "search",
-    "main"
+    "main",
+    "reusable_search_catalog_pVyXXU"
   ]
 }

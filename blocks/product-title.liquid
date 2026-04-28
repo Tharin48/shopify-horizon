@@ -2,9 +2,6 @@
 {% liquid
   assign show_collection_link = block.settings.show_collection_link
   assign collection_target = block.settings.collection_link_target
-  if show_collection_link and collection_target == blank and closest.product != blank and closest.product.collections.size > 0
-    assign collection_target = closest.product.collections | first
-  endif
 %}
 
 <div class="product-title-block">
@@ -47,6 +44,23 @@
         >
           <a href="{{ collection_target.url }}" class="product-title__collection-link-anchor">
             {{- collection_target.title | escape -}}
+          </a>
+        </div>
+      {%- elsif closest.product.vendor != blank -%}
+        <div
+          class="product-title__collection-link"
+          style="
+            --pcl-color: {{ block.settings.collection_link_text_color }};
+            --pcl-font-size: {{ block.settings.collection_link_font_size }}px;
+            padding-top: {{ block.settings.collection_link_padding_top }}px;
+            padding-bottom: {{ block.settings.collection_link_padding_bottom }}px;
+          "
+        >
+          <a
+            href="{{ closest.product.vendor | url_for_vendor }}"
+            class="product-title__collection-link-anchor"
+          >
+            {{- closest.product.vendor | escape -}}
           </a>
         </div>
       {%- elsif request.design_mode -%}
@@ -497,7 +511,7 @@
     {
       "type": "header",
       "content": "Collection link",
-      "info": "Optional line under the title linking to a collection (e.g. Paradise Collection)."
+      "info": "Optional line under the title linking to a collection (e.g. Paradise Collection), or the product vendor when no collection is selected."
     },
     {
       "type": "checkbox",
@@ -509,7 +523,7 @@
       "type": "collection",
       "id": "collection_link_target",
       "label": "Collection",
-      "info": "Shown when “Show collection link below title” is on. If empty, uses the product’s first collection."
+      "info": "Shown when “Show collection link below title” is on. If empty, uses the product vendor (linked) when set."
     },
     {
       "type": "range",

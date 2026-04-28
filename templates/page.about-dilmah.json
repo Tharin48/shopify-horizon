@@ -1,0 +1,442 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "editorial_shell": {
+      "type": "custom-editorial-page-shell",
+      "blocks": {
+        "breadcrumb": {
+          "type": "breadcrumb",
+          "settings": {
+            "show_breadcrumb": true,
+            "show_home": true,
+            "home_label": "Home",
+            "separator_style": "slash"
+          }
+        },
+        "about_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "about-us-test",
+            "label": "About Dilmah",
+            "style": "filled"
+          }
+        },
+        "family_commitment_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "family-commitment",
+            "label": "Family Commitment",
+            "style": "outline"
+          }
+        },
+        "hero_text": {
+          "type": "hero_text",
+          "settings": {
+            "eyebrow": "About US",
+            "heading_source": "custom",
+            "custom_heading": "Who We Are",
+            "intro": "<p><strong>Dilmah</strong> is a Sri Lankan family tea company built on a simple but powerful belief: tea should remain true to its origin. We are rooted in authenticity, committed to quality, and guided by respect for the leaf, the land, and the people behind every cup.We do not see tea as a commodity. We see it as something shaped by place, craft, and care. That is why our story begins not in a boardroom, but at origin — where tea is grown, understood, and brought to life.</p>"
+          }
+        },
+        "hero_image": {
+          "type": "hero_image",
+          "settings": {
+            "image": "shopify://shop_images/bbba18e68d1f40ed389f8ecc34eaa11385481c73.jpg",
+            "image_position": "right center",
+            "use_section_radius": true,
+            "border_radius": 28
+          }
+        }
+      },
+      "block_order": [
+        "breadcrumb",
+        "about_tab",
+        "family_commitment_tab",
+        "hero_text",
+        "hero_image"
+      ],
+      "name": "About Us",
+      "settings": {
+        "layout": "text_left_image_right",
+        "background_color": "#fffdf8",
+        "accent_color": "#b08a2f",
+        "decorative_left_image": "shopify://shop_images/x31_1_1_1.png",
+        "decorative_right_image": "shopify://shop_images/Group.svg",
+        "max_width": 1920,
+        "padding_top": 0,
+        "padding_bottom": 56,
+        "padding_inline": 80,
+        "desktop_gap": 48,
+        "padding_top_mobile": 0,
+        "padding_bottom_mobile": 32,
+        "padding_inline_mobile": 0,
+        "mobile_gap": 24,
+        "hero_image_radius": 28,
+        "mobile_tabs_layout": "scroll"
+      }
+    },
+    "custom_editorial_split_story_XCyX9m": {
+      "type": "custom-editorial-split-story",
+      "blocks": {
+        "text_content_gChnUT": {
+          "type": "text_content",
+          "settings": {
+            "column": "left",
+            "eyebrow": "",
+            "heading": "<h2>Why <br/><em>Dilmah</em> <br/>Was Created</h2>",
+            "text": "<p>For Merrill J. Fernando, tea was more than just a commodity; it was a way to serve humanity. He wanted to bring a cup of tea that wasn't just healthy and delicious, but also ethically sound.<br/><br/>The vision was to create a business that was a matter of human service. This philosophy continues to guide everything we do today, through our MJF Charitable Foundation and Dilmah Conservation.</p>"
+          }
+        },
+        "quote_card_tcQqRn": {
+          "type": "quote_card",
+          "settings": {
+            "column": "right",
+            "quote": "<p>\"Business is a matter of human service. To share the success of my business with the less fortunate, the poor and the needy.\"</p>",
+            "author": "Merrill J. Fernando",
+            "background_color": "",
+            "border_color": ""
+          }
+        }
+      },
+      "block_order": [
+        "text_content_gChnUT",
+        "quote_card_tcQqRn"
+      ],
+      "name": "Why Dilmah",
+      "settings": {
+        "mobile_layout": "text-first",
+        "background_color": "#fffdf8",
+        "accent_color": "#c6a34b",
+        "text_color": "#2b2a28",
+        "card_background_color": "#f7f1e0",
+        "card_border_color": "#ecdca8",
+        "decorative_left_image": "shopify://shop_images/x31_1_1_1.png",
+        "decorative_right_image": "shopify://shop_images/Group.svg",
+        "decorative_left_width": 120,
+        "decorative_right_width": 120,
+        "decorative_left_opacity": 100,
+        "decorative_right_opacity": 100,
+        "decorative_left_offset_x": 0,
+        "decorative_left_offset_y": 15,
+        "decorative_right_offset_x": 0,
+        "decorative_right_offset_y": 0,
+        "hide_left_decor_mobile": false,
+        "hide_right_decor_mobile": false,
+        "max_width": 1560,
+        "card_radius": 24,
+        "heading_size_desktop": 36,
+        "heading_size_mobile": 36,
+        "body_size_desktop": 14,
+        "body_size_mobile": 14,
+        "heading_gap": 24,
+        "quote_size_desktop": 18,
+        "quote_size_mobile": 16,
+        "quote_author_size_desktop": 12,
+        "quote_author_size_mobile": 12,
+        "padding_top": 72,
+        "padding_bottom": 72,
+        "padding_inline": 80,
+        "desktop_gap": 64,
+        "padding_top_mobile": 32,
+        "padding_bottom_mobile": 32,
+        "padding_inline_mobile": 16,
+        "mobile_gap": 24
+      }
+    },
+    "custom_editorial_overlay_card_8GxnwA": {
+      "type": "custom-editorial-overlay-card",
+      "blocks": {
+        "heading_rPTrUJ": {
+          "type": "heading",
+          "settings": {
+            "heading": "<p>Our Vision</p>"
+          }
+        },
+        "subheading_7zH64U": {
+          "type": "subheading",
+          "settings": {
+            "text": "<p>We believe in the transformative power of Tea</p>"
+          }
+        },
+        "text_L3T8N8": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Every cup of our Tea presents our respect for Nature, as the source of Taste and Goodness, and our uncompromising commitment to Quality, Integrity and Purpose. Our family business has its genesis in our Founder’s devotion to Tea, burnished by a heart of Kindness. <br/><br/>We stand firm with the same dedication to delivering great Taste and natural Goodness with Kindness. We honour the legacy of Merrill J. Fernando, in pursuit of our mission to positively impact People and Nature. <br/><br/>Every sip of Dilmah Tea is an assurance of compassion, hope, and a better world for present and future generations.We are Team Dilmah, one Team, united by one Vision, and working towards one Purpose. We continue our Founder’s mission. We are making a stand.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading_rPTrUJ",
+        "subheading_7zH64U",
+        "text_L3T8N8"
+      ],
+      "name": "Vison ",
+      "settings": {
+        "image": "shopify://shop_images/405127874fb9468c56024a43ba4681368ad98be5.png",
+        "image_position_desktop": "center center",
+        "image_position_mobile": "center center",
+        "background_color": "#fffdf8",
+        "card_background_color": "#ffffff",
+        "text_color": "#2b2a28",
+        "accent_color": "#c6a34b",
+        "max_width": 1560,
+        "image_height_desktop": 330,
+        "image_height_mobile": 280,
+        "image_radius": 18,
+        "card_alignment": "center",
+        "card_width_desktop": 1120,
+        "card_width_mobile": 680,
+        "content_max_width": 860,
+        "card_overlap_desktop": 116,
+        "card_overlap_mobile": 144,
+        "card_radius": 36,
+        "card_padding_desktop": 48,
+        "card_padding_mobile": 24,
+        "card_shadow_opacity": 8,
+        "heading_size_desktop": 36,
+        "heading_size_mobile": 18,
+        "subheading_size_desktop": 18,
+        "subheading_size_mobile": 16,
+        "body_size_desktop": 16,
+        "body_size_mobile": 14,
+        "content_gap": 20,
+        "button_gap": 12,
+        "padding_top": 40,
+        "padding_bottom": 72,
+        "padding_inline": 48,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 40,
+        "padding_inline_mobile": 16
+      }
+    },
+    "custom_editorial_expert_story_KfjR6K": {
+      "type": "custom-editorial-expert-story",
+      "blocks": {
+        "intro_Y9YEjG": {
+          "type": "intro",
+          "settings": {
+            "heading": "<p>Crafted by Leading Tea Experts</p>",
+            "text": "<p>We are a family with a love for tea, and on a mission to make the world better tea. Dilmah Founder, Merrill J. Fernando, was the first grower to offer tea grown, picked and perfected right here in Sri Lanka where we grow our tea, to tea drinkers around the world.</p>",
+            "image": "shopify://shop_images/219e7f5263a4f6dbbb095e05fc3bdf42849c7bfd.png",
+            "image_position_desktop": "center center",
+            "image_position_mobile": "center center"
+          }
+        },
+        "feature_item_rGp8eH": {
+          "type": "feature_item",
+          "settings": {
+            "icon": "shopify://shop_images/7910d1kcqvdmmu74v3b_1.svg",
+            "heading": "Handpicked Tea",
+            "text": "<p>Made from crackling fresh young buds of the tea plant, hand-picked and sun-dried.</p>"
+          }
+        },
+        "feature_item_nP8Vhh": {
+          "type": "feature_item",
+          "settings": {
+            "icon": "shopify://shop_images/vfwsatwayfmmmu760lm_1.svg",
+            "heading": "Packaged Fresh At The Source",
+            "text": "<p>Garden fresh, unblended tea is a hallmark of Dilmah and offers a unique taste of unblended Ceylon Tea packed at source.</p>"
+          }
+        },
+        "feature_item_fJVDRF": {
+          "type": "feature_item",
+          "settings": {
+            "icon": "shopify://shop_images/3sy3aj7zdzjmmu76l9w_1.svg",
+            "heading": "Climate & Plastic Neutral",
+            "text": "<p>We started our sustainability journey in 2000, since then we have eliminated 421,052Kgs of plastics.</p>"
+          }
+        },
+        "feature_item_EGpxmD": {
+          "type": "feature_item",
+          "settings": {
+            "icon": "shopify://shop_images/wdq34q3ckjpmmu7elq0_1.svg",
+            "heading": "Shipped Direct To Your Doorstep",
+            "text": "<p>Get your favorite Dilmah Tea delivered<br/>direct to your doorstep.</p>"
+          }
+        },
+        "spotlight_za3qHd": {
+          "type": "spotlight",
+          "settings": {
+            "heading": "<p>Master Tea Maker</p>",
+            "text": "<p>Dilmah Founder Merrill J. Fernando had a unique vision - he wanted to offer consumers the finest tea on earth and to do so with ethics and integrity.</p>",
+            "image": "shopify://shop_images/Founder_Portrait_Overlay.png"
+          }
+        }
+      },
+      "block_order": [
+        "intro_Y9YEjG",
+        "feature_item_rGp8eH",
+        "feature_item_nP8Vhh",
+        "feature_item_fJVDRF",
+        "feature_item_EGpxmD",
+        "spotlight_za3qHd"
+      ],
+      "name": "Editorial expert story",
+      "settings": {
+        "background_color": "#fffdf8",
+        "text_color": "#2b2a28",
+        "accent_color": "#7fae49",
+        "max_width": 1560,
+        "decorative_image_width": 180,
+        "decorative_image_opacity": 100,
+        "decorative_image_offset_x": 0,
+        "decorative_image_offset_y": 0,
+        "hide_decor_mobile": false,
+        "intro_image_height_desktop": 640,
+        "intro_image_height_mobile": 480,
+        "intro_image_radius": 20,
+        "feature_icon_size_desktop": 68,
+        "feature_icon_size_mobile": 42,
+        "spotlight_image_width_desktop": 270,
+        "spotlight_image_height_desktop": 300,
+        "spotlight_image_width_mobile": 200,
+        "spotlight_image_height_mobile": 250,
+        "intro_heading_size_desktop": 32,
+        "intro_heading_size_mobile": 20,
+        "intro_body_size_desktop": 14,
+        "intro_body_size_mobile": 14,
+        "feature_heading_size_desktop": 18,
+        "feature_heading_size_mobile": 16,
+        "feature_body_size_desktop": 14,
+        "feature_body_size_mobile": 14,
+        "spotlight_heading_size_desktop": 32,
+        "spotlight_heading_size_mobile": 18,
+        "spotlight_body_size_desktop": 14,
+        "spotlight_body_size_mobile": 14,
+        "padding_top": 40,
+        "padding_bottom": 72,
+        "padding_inline": 48,
+        "column_gap_desktop": 24,
+        "row_gap_desktop": 40,
+        "feature_gap_desktop": 48,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 32,
+        "padding_inline_mobile": 16,
+        "column_gap_mobile": 14,
+        "row_gap_mobile": 42,
+        "feature_gap_mobile": 16
+      }
+    },
+    "custom_editorial_service_cards_chGye7": {
+      "type": "custom-editorial-service-cards",
+      "blocks": {
+        "card_XUdhML": {
+          "type": "card",
+          "settings": {
+            "icon": "shopify://shop_images/2.svg",
+            "heading": "<p>For Tea Growers</p>",
+            "text": "<p>We uphold a model that values origin, producer ownership, and <br/>the dignity of tea at source.</p>"
+          }
+        },
+        "card_PahTnj": {
+          "type": "card",
+          "settings": {
+            "icon": "shopify://shop_images/i.svg",
+            "heading": "<p>For Tea Drinkers</p>",
+            "text": "<p>We offer tea that is fresher, more authentic, and more closely <br/>connected to where it was grown.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "card_XUdhML",
+        "card_PahTnj"
+      ],
+      "name": "Editorial service cards",
+      "settings": {
+        "heading": "<p>How We Serve as Tea Growers</p>",
+        "text": "<p>As tea growers, we serve by staying connected to source, protecting freshness, and sharing tea with integrity.</p><p>Our role is to preserve the authenticity of tea from garden to cup.</p>",
+        "background_color": "#fffbf7",
+        "card_background_color": "#ffffff",
+        "text_color": "#2b2a28",
+        "accent_color": "#c8a11d",
+        "max_width": 1560,
+        "left_decor_image": "shopify://shop_images/x31_1_1_1.png",
+        "right_decor_image": "shopify://shop_images/Group.svg",
+        "left_decor_width": 180,
+        "right_decor_width": 220,
+        "left_decor_opacity": 100,
+        "right_decor_opacity": 100,
+        "left_decor_offset_x": 0,
+        "left_decor_offset_y": 0,
+        "right_decor_offset_x": 0,
+        "right_decor_offset_y": 0,
+        "hide_left_decor_mobile": true,
+        "hide_right_decor_mobile": false,
+        "heading_size_desktop": 36,
+        "heading_size_mobile": 18,
+        "body_size_desktop": 14,
+        "body_size_mobile": 14,
+        "card_heading_size_desktop": 20,
+        "card_heading_size_mobile": 16,
+        "card_body_size_desktop": 14,
+        "card_body_size_mobile": 14,
+        "icon_size_desktop": 58,
+        "icon_size_mobile": 52,
+        "card_radius": 18,
+        "card_padding_desktop": 44,
+        "card_padding_mobile": 24,
+        "card_shadow_opacity": 8,
+        "header_gap": 16,
+        "grid_gap_desktop": 32,
+        "grid_gap_mobile": 16,
+        "padding_top": 72,
+        "padding_bottom": 64,
+        "padding_inline": 48,
+        "padding_top_mobile": 32,
+        "padding_bottom_mobile": 32,
+        "padding_inline_mobile": 16
+      }
+    },
+    "custom_editorial_purpose_banner_JRwM7f": {
+      "type": "custom-editorial-purpose-banner",
+      "name": "Editorial purpose banner",
+      "settings": {
+        "heading": "<p>“A Purpose Beyond Profit”</p>",
+        "text": "<p>“When you choose Dilmah, you choose a tea that cares. You support the people who grew it and the land that nurtured it.”</p>",
+        "primary_button_label": "Shop Now",
+        "primary_button_url": "shopify://collections/all",
+        "secondary_button_label": "Discover Our Commitment",
+        "secondary_button_url": "shopify://pages/family-commitment",
+        "decorative_pattern": "shopify://shop_images/bg-footer-strip.svg",
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "max_width": 1560,
+        "pattern_width_desktop": 1280,
+        "pattern_width_mobile": 740,
+        "pattern_offset_y_desktop": 0,
+        "pattern_offset_y_mobile": 0,
+        "pattern_opacity": 100,
+        "heading_size_desktop": 36,
+        "heading_size_mobile": 28,
+        "body_size_desktop": 14,
+        "body_size_mobile": 14,
+        "button_min_width_desktop": 320,
+        "button_min_width_mobile": 220,
+        "button_gap": 16,
+        "content_max_width": 860,
+        "content_gap": 24,
+        "padding_top": 120,
+        "padding_bottom": 96,
+        "padding_inline": 48,
+        "padding_top_mobile": 72,
+        "padding_bottom_mobile": 48,
+        "padding_inline_mobile": 16
+      }
+    }
+  },
+  "order": [
+    "editorial_shell",
+    "custom_editorial_split_story_XCyX9m",
+    "custom_editorial_overlay_card_8GxnwA",
+    "custom_editorial_expert_story_KfjR6K",
+    "custom_editorial_service_cards_chGye7",
+    "custom_editorial_purpose_banner_JRwM7f"
+  ]
+}

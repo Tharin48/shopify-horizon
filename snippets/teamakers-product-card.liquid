@@ -2,7 +2,7 @@
   Reusable Teamaker-style product card.
 
   @param {object} [product] - Shopify product object (optional for placeholder)
-  @param {string} [eyebrow] - Optional eyebrow text. Falls back to vendor when enabled.
+  @param {string} [eyebrow] - Optional eyebrow text. Falls back to metafield collection title, then vendor (linked via url_for_vendor) when enabled.
   @param {boolean} [show_vendor]
   @param {boolean} [show_review]
   @param {boolean} [show_quick_add]
@@ -67,6 +67,7 @@
 
   if eyebrow_text == blank and show_vendor and card_product != blank and card_product.vendor != blank
     assign eyebrow_text = card_product.vendor
+    assign eyebrow_url = card_product.vendor | url_for_vendor
   endif
 %}
 

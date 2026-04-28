@@ -3,6 +3,7 @@
   style="
     --custom-editorial-text-image-max-width: {{ section.settings.max_width }}px;
     --custom-editorial-text-image-background: {{ section.settings.background_color }};
+    --custom-editorial-text-image-accent: {{ section.settings.accent_color }};
     --custom-editorial-text-image-padding-top: {{ section.settings.padding_top }}px;
     --custom-editorial-text-image-padding-bottom: {{ section.settings.padding_bottom }}px;
     --custom-editorial-text-image-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
@@ -95,7 +96,7 @@
 
   .custom-editorial-text-image__eyebrow {
     margin: 0 0 0.7rem;
-    color: #b08a2f;
+    color: var(--custom-editorial-text-image-accent);
     letter-spacing: 0.18em;
     text-transform: uppercase;
     font-size: 0.76rem;
@@ -243,6 +244,12 @@
       "type": "text",
       "id": "quote_author",
       "label": "Quote author"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
     },
     {
       "type": "color",

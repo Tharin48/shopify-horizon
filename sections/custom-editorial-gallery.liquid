@@ -3,6 +3,7 @@
   style="
     --custom-editorial-gallery-max-width: {{ section.settings.max_width }}px;
     --custom-editorial-gallery-background: {{ section.settings.background_color }};
+    --custom-editorial-gallery-accent: {{ section.settings.accent_color }};
     --custom-editorial-gallery-padding-top: {{ section.settings.padding_top }}px;
     --custom-editorial-gallery-padding-bottom: {{ section.settings.padding_bottom }}px;
     --custom-editorial-gallery-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
@@ -89,7 +90,7 @@
 
   .custom-editorial-gallery__eyebrow {
     margin: 0 0 0.7rem;
-    color: #b08a2f;
+    color: var(--custom-editorial-gallery-accent);
     text-transform: uppercase;
     letter-spacing: 0.18em;
     font-size: 0.76rem;
@@ -263,6 +264,12 @@
         { "value": "stacked", "label": "Stacked" },
         { "value": "carousel", "label": "Carousel" }
       ]
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
     },
     {
       "type": "color",

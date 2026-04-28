@@ -1,0 +1,1666 @@
+{%- comment -%}
+  Custom catalog search — layout shell + tea-type visual row, storefront filters (search.filters), toolbar, product grid.
+  Order: breadcrumb → tea-type row (metaobjects or blocks + Search & Discovery Tea type) → format pills + active chips → toolbar → grid.
+{%- endcomment -%}
+
+{{ 'custom-collection-layout.css' | asset_url | stylesheet_tag }}
+{{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}
+
+<script
+  src="{{ 'results-list.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"></script>
+{% # theme-check-disable %}
+<script src="{{ 'catalog-filter-ajax.js' | asset_url }}" defer></script>
+{% # theme-check-enable %}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+{%- liquid
+  assign gap_m = section.settings.grid_gap_mobile
+  assign gap_d = section.settings.grid_gap_desktop
+  assign gap_t = gap_m | plus: gap_d | divided_by: 2
+  assign tea_type_limit = 16
+  assign tea_type_block_total = 0
+  for block in section.blocks
+    if block.type == 'tea_type'
+      assign tea_type_block_total = tea_type_block_total | plus: 1
+    endif
+  endfor
+
+  assign tea_type_visual_source = section.settings.tea_type_visual_source | default: 'metaobjects'
+  assign tea_type_mo_definition = section.settings.tea_type_metaobject_definition | default: 'tea_type' | strip
+  assign tea_type_mo_root = metaobjects[tea_type_mo_definition]
+  assign tea_type_mo_count = 0
+  if tea_type_mo_root != blank and tea_type_visual_source == 'metaobjects'
+    assign tea_type_mo_count = tea_type_mo_root.values.size
+  endif
+
+  assign tea_type_row_has_items = false
+  if tea_type_visual_source == 'metaobjects' and tea_type_mo_count > 0
+    assign tea_type_row_has_items = true
+  elsif tea_type_visual_source == 'blocks' and tea_type_block_total > 0
+    assign tea_type_row_has_items = true
+  endif
+
+  assign mt_our_ranges = section.settings.facet_label_our_ranges | default: 'Our ranges' | downcase | strip
+  assign mt_tea_type = section.settings.facet_label_tea_type | default: 'Tea type' | downcase | strip
+  assign mt_tea_format = section.settings.facet_label_tea_format | default: 'Tea format' | downcase | strip
+  assign mt_flavor = section.settings.facet_label_flavor | default: 'Flavor' | downcase | strip
+  assign mt_tod = section.settings.facet_label_time_of_day | default: 'Time of day' | downcase | strip
+  assign mt_av = section.settings.facet_label_availability | strip | downcase
+
+  assign ph_our_ranges = section.settings.facet_param_hint_our_ranges | strip | downcase
+  assign ph_tea_type = section.settings.facet_param_hint_tea_type | strip | downcase
+  assign ph_tea_format = section.settings.facet_param_hint_tea_format | strip | downcase
+  assign ph_flavor = section.settings.facet_param_hint_flavor | strip | downcase
+  assign ph_tod = section.settings.facet_param_hint_time_of_day | strip | downcase
+  assign ph_av = section.settings.facet_param_hint_availability | strip | downcase
+
+  assign catalog_filter_our_ranges = false
+  assign catalog_filter_tea_type = false
+  assign catalog_filter_tea_format = false
+  assign catalog_filter_flavor = false
+  assign catalog_filter_time_of_day = false
+  assign catalog_filter_availability = false
+  assign got_or = false
+  assign got_tt = false
+  assign got_tf = false
+  assign got_fl = false
+  assign got_tod = false
+  assign got_av = false
+
+  assign catalog_search_title = search.terms | strip
+  if catalog_search_title == blank
+    assign catalog_search_title = 'content.search' | t
+  endif
+
+  for f in search.filters
+    assign fl = f.label | downcase | strip
+    assign pn = f.param_name | downcase
+    unless got_or
+      assign match_or = false
+      if fl == mt_our_ranges
+        assign match_or = true
+      endif
+      if ph_our_ranges != blank and pn contains ph_our_ranges
+        assign match_or = true
+      endif
+      if match_or
+        assign catalog_filter_our_ranges = f
+        assign got_or = true
+      endif
+    endunless
+    unless got_tt
+      assign match_tt = false
+      if fl == mt_tea_type
+        assign match_tt = true
+      endif
+      if ph_tea_type != blank and pn contains ph_tea_type
+        assign match_tt = true
+      endif
+      if match_tt
+        assign catalog_filter_tea_type = f
+        assign got_tt = true
+      endif
+    endunless
+    unless got_tf
+      assign match_tf = false
+      if fl == mt_tea_format
+        assign match_tf = true
+      endif
+      if ph_tea_format != blank and pn contains ph_tea_format
+        assign match_tf = true
+      endif
+      if match_tf
+        assign catalog_filter_tea_format = f
+        assign got_tf = true
+      endif
+    endunless
+    unless got_fl
+      assign match_fl = false
+      if fl == mt_flavor
+        assign match_fl = true
+      endif
+      if ph_flavor != blank and pn contains ph_flavor
+        assign match_fl = true
+      endif
+      if match_fl
+        assign catalog_filter_flavor = f
+        assign got_fl = true
+      endif
+    endunless
+    unless got_tod
+      assign match_tod = false
+      if fl == mt_tod
+        assign match_tod = true
+      endif
+      if ph_tod != blank and pn contains ph_tod
+        assign match_tod = true
+      endif
+      if match_tod
+        assign catalog_filter_time_of_day = f
+        assign got_tod = true
+      endif
+    endunless
+    unless got_av
+      comment
+        Default on when setting omitted from JSON (new checkbox).Only hide when explicitly false.
+      endcomment
+      unless section.settings.show_availability_toggle == false
+        assign match_av = false
+        if mt_av != blank and fl == mt_av
+          assign match_av = true
+        endif
+        if ph_av != blank and pn contains ph_av
+          assign match_av = true
+        endif
+        if mt_av == blank and ph_av == blank and pn contains 'availability'
+          assign match_av = true
+        endif
+        if match_av
+          if f.type == 'boolean' or f.type == 'list'
+            assign catalog_filter_availability = f
+            assign got_av = true
+          endif
+        endif
+      endunless
+    endunless
+  endfor
+
+  assign catalog_allowed_range_collections = section.settings.our_ranges_dropdown_collections
+  assign catalog_filter_our_ranges_visible_count = 0
+  if catalog_filter_our_ranges
+    for fv in catalog_filter_our_ranges.values
+      assign include_range_value = false
+      assign fv_label_normalized = fv.label | strip | downcase
+      assign fv_compare_value = fv_label_normalized
+      if fv_compare_value contains ':'
+        assign fv_compare_parts = fv_compare_value | split: ':'
+        assign fv_compare_prefix = fv_compare_parts | first | strip
+        assign fv_compare_value = fv_compare_parts | last | strip
+      else
+        assign fv_compare_prefix = ''
+      endif
+      assign fv_compare_handle = fv_compare_value | handleize
+      if fv_compare_prefix == 'range'
+        if catalog_allowed_range_collections != blank
+          if fv.active
+            assign include_range_value = true
+          else
+            for allowed_collection in catalog_allowed_range_collections
+              assign allowed_title_normalized = allowed_collection.title | strip | downcase
+              assign allowed_handle = allowed_collection.handle | default: allowed_collection.title | handleize
+              if fv_compare_value == allowed_title_normalized or fv_compare_handle == allowed_handle
+                assign include_range_value = true
+                break
+              endif
+            endfor
+          endif
+        else
+          assign include_range_value = true
+        endif
+      endif
+      if include_range_value
+        assign catalog_filter_our_ranges_visible_count = catalog_filter_our_ranges_visible_count | plus: 1
+      endif
+    endfor
+  endif
+
+  assign catalog_show_format_pills = false
+  if false and section.settings.show_format_pills and catalog_filter_tea_format
+    if catalog_filter_tea_format.values.size > 0
+      assign catalog_show_format_pills = true
+    endif
+  endif
+
+  assign catalog_has_active_chips = false
+  assign catalog_total_active_values = 0
+  for f in search.filters
+    for av in f.active_values
+      assign catalog_has_active_chips = true
+      assign catalog_total_active_values = catalog_total_active_values | plus: 1
+    endfor
+  endfor
+
+  assign catalog_show_pills_bar = false
+  if catalog_show_format_pills or catalog_has_active_chips
+    assign catalog_show_pills_bar = true
+  endif
+
+  assign catalog_clear_href = routes.search_url
+  if search.terms != blank
+    assign catalog_search_terms_param = search.terms | url_encode
+    assign catalog_clear_href = catalog_clear_href | append: '?q=' | append: catalog_search_terms_param
+  endif
+  assign catalog_sort_by = search.sort_by | default: search.default_sort_by
+  assign catalog_results_list_id = 'custom-catalog-results-' | append: section.id
+  assign catalog_filters_drawer_id = 'custom-catalog-filters-drawer-' | append: section.id
+  assign catalog_filters_drawer_heading_id = 'custom-catalog-filters-heading-' | append: section.id
+  assign catalog_sort_sheet_id = 'custom-catalog-sort-sheet-' | append: section.id
+  assign catalog_sort_sheet_heading_id = 'custom-catalog-sort-sheet-heading-' | append: section.id
+  assign catalog_show_filter_controls = false
+  if section.settings.show_toolbar_facets
+    if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_flavor and catalog_filter_flavor.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0
+      assign catalog_show_filter_controls = true
+    elsif section.settings.show_availability_toggle != false and catalog_filter_availability
+      assign catalog_show_filter_controls = true
+    endif
+  endif
+  assign catalog_show_toolbar_right = false
+  if section.settings.show_item_count or section.settings.show_grid_toggle or section.settings.show_sort_control
+    assign catalog_show_toolbar_right = true
+  endif
+-%}
+
+<div
+  class="section page-width-wide color-{{ section.settings.color_scheme }} custom-catalog"
+  data-catalog-ajax
+  data-section-id="{{ section.id }}"
+  style="
+    --custom-catalog-padding-block-start: {{ section.settings.padding_top }}px;
+    --custom-catalog-padding-block-end: {{ section.settings.padding_bottom }}px;
+    --custom-catalog-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-catalog-padding-inline-desktop: {{ section.settings.padding_inline_desktop }}px;
+    --custom-catalog-content-max-width: {% if section.settings.content_max_width > 0 %}{{ section.settings.content_max_width }}px{% else %}100%{% endif %};
+    --custom-catalog-grid-gap-mobile: {{ gap_m }}px;
+    --custom-catalog-grid-gap-tablet: {{ gap_t }}px;
+    --custom-catalog-grid-gap-desktop: {{ gap_d }}px;
+    {% if section.settings.product_card_image_background != blank %}--tp-card-media-bg: {{ section.settings.product_card_image_background }};{% endif %}
+    --custom-catalog-toolbar-accent: rgb({{ section.settings.color_scheme.settings.primary.rgba }});
+  ">
+  <div class="custom-catalog__inner">
+    {%- comment -%} 1) Breadcrumb {%- endcomment -%}
+    {%- if section.settings.show_breadcrumb -%}
+      <nav class="custom-catalog__breadcrumb-nav" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+        <ol class="custom-catalog__breadcrumb">
+          <li class="custom-catalog__breadcrumb-item">
+            <a href="{{ routes.root_url }}">{{ section.settings.breadcrumb_home_label | escape }}</a>
+          </li>
+          <li class="custom-catalog__breadcrumb-item">
+            <span class="custom-catalog__breadcrumb-current">{{ catalog_search_title | escape }}</span>
+          </li>
+        </ol>
+      </nav>
+    {%- endif -%}
+
+    {%- comment -%}
+      2) TOP TEA-TYPE VISUAL ROW — Tea Type metaobject entries (Content) or legacy theme blocks; matched to Tea type storefront filter.
+    {%- endcomment -%}
+    {%- if section.settings.show_tea_type_row and tea_type_row_has_items -%}
+      {%- capture tea_type_row_items -%}
+        {%- if tea_type_visual_source == 'metaobjects' -%}
+          {%- liquid
+            assign tea_type_mo_sort_key = section.settings.tea_type_metaobject_sort_key | strip
+            assign tea_type_mo_manual_order = section.settings.tea_type_metaobject_order | strip
+            assign tea_type_mo_working = tea_type_mo_root.values
+            if tea_type_mo_sort_key != blank
+              assign tea_type_mo_working = tea_type_mo_working | sort: tea_type_mo_sort_key
+            endif
+          -%}
+          {%- assign tea_type_count = 0 -%}
+          {%- if tea_type_mo_manual_order != blank -%}
+            {%- assign tea_type_mo_rendered = '' -%}
+            {%- assign tea_type_order_br = tea_type_mo_manual_order | newline_to_br | replace: '<br />', '<--cctl-->' | replace: '<br>', '<--cctl-->' -%}
+            {%- assign tea_type_order_lines = tea_type_order_br | split: '<--cctl-->' -%}
+            {%- for order_line in tea_type_order_lines -%}
+              {%- if tea_type_count >= tea_type_limit -%}
+                {%- break -%}
+              {%- endif -%}
+              {%- assign order_tokens = order_line | strip | split: ',' -%}
+              {%- for order_tok in order_tokens -%}
+                {%- if tea_type_count >= tea_type_limit -%}
+                  {%- break -%}
+                {%- endif -%}
+                {%- assign want_handle = order_tok | strip | downcase -%}
+                {%- if want_handle == blank -%}
+                  {% continue %}
+                {%- endif -%}
+                {%- for mo_entry in tea_type_mo_root.values -%}
+                  {%- assign eh = mo_entry.system.handle | strip | downcase -%}
+                  {%- if eh == want_handle -%}
+                    {%- assign mo_marker = '::' | append: eh | append: '::' -%}
+                    {%- unless tea_type_mo_rendered contains mo_marker -%}
+                      {%- assign tea_type_mo_rendered = tea_type_mo_rendered | append: mo_marker -%}
+                      {% render 'custom-catalog-tea-type-metaobject-item'
+                        , mo_entry: mo_entry
+                        , section: section
+                        , catalog_filter_tea_type: catalog_filter_tea_type
+                      %}
+                      {%- assign tea_type_count = tea_type_count | plus: 1 -%}
+                    {%- endunless -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endfor -%}
+            {%- endfor -%}
+            {%- for mo_entry in tea_type_mo_working -%}
+              {%- if tea_type_count >= tea_type_limit -%}
+                {%- break -%}
+              {%- endif -%}
+              {%- assign eh = mo_entry.system.handle | strip | downcase -%}
+              {%- assign mo_marker = '::' | append: eh | append: '::' -%}
+              {%- unless tea_type_mo_rendered contains mo_marker -%}
+                {% render 'custom-catalog-tea-type-metaobject-item'
+                  , mo_entry: mo_entry
+                  , section: section
+                  , catalog_filter_tea_type: catalog_filter_tea_type
+                %}
+                {%- assign tea_type_count = tea_type_count | plus: 1 -%}
+              {%- endunless -%}
+            {%- endfor -%}
+          {%- else -%}
+            {%- for mo_entry in tea_type_mo_working -%}
+              {%- if tea_type_count >= tea_type_limit -%}
+                {%- break -%}
+              {%- endif -%}
+              {% render 'custom-catalog-tea-type-metaobject-item'
+                , mo_entry: mo_entry
+                , section: section
+                , catalog_filter_tea_type: catalog_filter_tea_type
+              %}
+              {%- assign tea_type_count = tea_type_count | plus: 1 -%}
+            {%- endfor -%}
+          {%- endif -%}
+        {%- else -%}
+          {%- assign tea_type_count = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'tea_type' and tea_type_count < tea_type_limit -%}
+              {%- assign tea_type_count = tea_type_count | plus: 1 -%}
+              {%- liquid
+                assign block_key = block.settings.filter_value | strip | downcase
+                assign title_key = block.settings.title | strip | downcase
+                assign tea_matched_fv = false
+                if catalog_filter_tea_type
+                  for fv in catalog_filter_tea_type.values
+                    assign fv_raw = fv.value | strip
+                    assign fv_val = fv_raw | downcase
+                    assign fv_lbl = fv.label | strip | downcase
+                    assign fv_lbl_h = fv_lbl | handleize
+                    assign block_h = block_key | handleize
+                    assign title_h = title_key | handleize
+                    assign tea_match = false
+
+                    if block_key != blank
+                      if block_key == fv_val or block_key == fv_lbl
+                        assign tea_match = true
+                      elsif block_h != blank and block_h == fv_lbl_h
+                        assign tea_match = true
+                      elsif block_h.size >= 4 and fv_lbl_h contains block_h
+                        assign tea_match = true
+                      elsif block_key.size >= 4 and fv_lbl contains block_key
+                        assign tea_match = true
+                      elsif block_key.size >= 6 and fv_val contains block_key
+                        assign tea_match = true
+                      endif
+                    endif
+
+                    if tea_match == false and title_key != blank
+                      if title_key == fv_lbl or title_key == fv_val
+                        assign tea_match = true
+                      elsif title_h != blank and title_h == fv_lbl_h
+                        assign tea_match = true
+                      elsif title_key.size >= 4 and fv_lbl contains title_key
+                        assign tea_match = true
+                      elsif fv_lbl.size >= 4 and title_key contains fv_lbl
+                        assign tea_match = true
+                      endif
+                    endif
+
+                    if tea_match
+                      assign tea_matched_fv = fv
+                      break
+                    endif
+                  endfor
+                endif
+              -%}
+              {% render 'custom-catalog-tea-type-tile'
+                , section: section
+                , display_title: block.settings.title
+                , filter_value_attr: block.settings.filter_value
+                , tea_matched_fv: tea_matched_fv
+                , catalog_filter_tea_type: catalog_filter_tea_type
+                , default_image: block.settings.image
+                , hover_image: block.settings.hover_image
+                , block_shopify_attributes: block.shopify_attributes
+              %}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endcapture -%}
+      {%- assign tea_type_row_items = tea_type_row_items | strip -%}
+      {%- if tea_type_row_items != blank -%}
+        <div
+          class="custom-catalog__tea-type-region"
+          data-catalog-tea-type-region
+          role="region"
+          aria-label="{{ section.settings.tea_type_row_aria_label | escape }}">
+          <ul
+            id="custom-catalog-tea-types"
+            class="custom-catalog__tea-types"
+            data-catalog-tea-types>
+            {{ tea_type_row_items }}
+          </ul>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%}
+      3) Tea-format pills + toolbar: sticky below header (see .custom-catalog__filters-sticky).
+      4) Product grid in data-catalog-results-region — infinite scroll matches main-collection (results-list + PaginatedList).
+    {%- endcomment -%}
+    {%- liquid
+      assign catalog_products_per_page = 24
+      if section.settings.enable_infinite_scroll == false
+        assign catalog_products_per_page = section.settings.products_per_page
+      endif
+    -%}
+    {% paginate search.results by catalog_products_per_page %}
+      {%- liquid
+        assign catalog_showing_fallback_results = false
+        if search.results_count > 0
+          assign catalog_results_products = search.results | where: 'object_type', 'product'
+          assign catalog_results_total_count = paginate.items
+        else
+          assign catalog_showing_fallback_results = true
+          assign catalog_fallback_collection = settings.empty_state_collection | default: collections.all
+          assign catalog_results_products = catalog_fallback_collection.products
+          assign catalog_results_total_count = catalog_results_products.size
+        endif
+      -%}
+      <div class="custom-catalog__filters-sticky">
+        <div data-catalog-pills-region>
+          {%- if catalog_show_pills_bar and catalog_showing_fallback_results == false -%}
+            <div class="custom-catalog__pills-bar" data-catalog-pills-row>
+              {%- if catalog_show_format_pills -%}
+                <ul class="custom-catalog__formats" aria-label="{{ catalog_filter_tea_format.label | default: section.settings.format_pills_aria_label | escape }}">
+                  {%- for fv in catalog_filter_tea_format.values -%}
+                    {%- liquid
+                      assign fv_fmt_lbl = fv.label | strip | downcase
+                      assign fv_fmt_val = fv.value | strip | downcase
+                      assign fmt_pill_icon = nil
+                      for b in section.blocks
+                        if b.type == 'tea_format_pill_icon'
+                          assign mk = b.settings.match_value | strip | downcase
+                          assign icon_hit = false
+                          if mk != blank and b.settings.icon
+                            if mk == fv_fmt_val or mk == fv_fmt_lbl
+                              assign icon_hit = true
+                            elsif mk.size >= 4 and fv_fmt_lbl contains mk
+                              assign icon_hit = true
+                            endif
+                          endif
+                          if icon_hit
+                            assign fmt_pill_icon = b.settings.icon
+                            break
+                          endif
+                        endif
+                      endfor
+                    -%}
+                    <li>
+                      <a
+                        href="{% if fv.active %}{{ fv.url_to_remove }}{% else %}{{ fv.url_to_add }}{% endif %}"
+                        class="custom-catalog__format-pill{% if fv.active %} is-active{% endif %}"
+                        aria-label="{{ fv.label | escape }} — {{ fv.count }} {{ section.settings.format_pill_count_suffix | escape }}">
+                        <span class="custom-catalog__format-pill__inner">
+                          {%- if fmt_pill_icon -%}
+                            <span class="custom-catalog__format-pill__icon" aria-hidden="true">
+                              {{
+                                fmt_pill_icon | image_url: width: 64 | image_tag: loading: 'lazy', class: 'custom-catalog__format-pill__icon-img', widths: '32,48,64', sizes: '1.75rem', alt: ''
+                              }}
+                            </span>
+                          {%- endif -%}
+                          <span class="custom-catalog__format-pill__text">
+                            <span class="custom-catalog__format-pill__label">{{ fv.label | escape }}</span>
+                            {%- if section.settings.show_format_pill_counts -%}
+                              <sup class="custom-catalog__format-pill__count">{{ fv.count }}</sup>
+                            {%- endif -%}
+                          </span>
+                        </span>
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+              {%- if catalog_show_format_pills and catalog_has_active_chips -%}
+                <span class="custom-catalog__pills-divider" aria-hidden="true"></span>
+              {%- endif -%}
+              {%- if catalog_has_active_chips -%}
+                <div class="custom-catalog__filters" data-catalog-active-filters-region>
+                  <ul
+                    class="custom-catalog__chips"
+                    role="list"
+                    aria-label="{{ section.settings.active_filters_aria_label | escape }}">
+                    {%- for filter in search.filters -%}
+                      {%- for active_value in filter.active_values -%}
+                        <li role="listitem">
+                          <a
+                            href="{{ active_value.url_to_remove }}"
+                            class="custom-catalog__chip"
+                            aria-label="{{ active_value.label | escape }} — {{ section.settings.chip_remove_sr_suffix | escape }}">
+                            <span class="custom-catalog__chip-label">{{ active_value.label | escape }}</span>
+                            <span class="custom-catalog__chip-remove" aria-hidden="true">{{ section.settings.chip_remove_character | escape }}</span>
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    {%- endfor -%}
+                  </ul>
+                  <a href="{{ catalog_clear_href }}" class="custom-catalog__clear">{{ section.settings.clear_all_label | escape }}</a>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        <div data-catalog-toolbar-region>
+          {%- liquid
+            assign count_text = section.settings.item_count_template
+            if catalog_results_total_count == 0
+              assign count_text = '0 products'
+            elsif catalog_showing_fallback_results
+              assign range_start = '1'
+              assign range_end = catalog_results_total_count | append: ''
+              assign total_str = catalog_results_total_count | append: ''
+              assign count_text = count_text | replace: '[start]', range_start
+              assign count_text = count_text | replace: '[end]', range_end
+              assign count_text = count_text | replace: '[total]', total_str
+            else
+              assign range_start = paginate.current_offset | plus: 1
+              assign range_end = paginate.current_offset | plus: catalog_results_products.size
+              assign range_start = range_start | append: ''
+              assign range_end = range_end | append: ''
+              assign total_str = paginate.items | append: ''
+              assign count_text = count_text | replace: '[start]', range_start
+              assign count_text = count_text | replace: '[end]', range_end
+              assign count_text = count_text | replace: '[total]', total_str
+            endif
+          -%}
+
+          <div class="custom-catalog__toolbar" data-catalog-toolbar>
+            {%- if catalog_show_filter_controls and catalog_showing_fallback_results == false -%}
+              <div class="custom-catalog__toolbar-mobile-filter">
+                <button
+                  class="button custom-catalog__mobile-filter-toggle button-unstyled{% if catalog_total_active_values > 0 %} is-active{% endif %}"
+                  on:click="#{{ catalog_filters_drawer_id }}/showDialog"
+                  type="button"
+                  aria-haspopup="dialog">
+                  <span class="custom-catalog__mobile-filter-toggle-label">{{ 'actions.show_filters' | t }}</span>
+                  <span class="svg-wrapper custom-catalog__mobile-filter-toggle-icon" aria-hidden="true">
+                    {{ 'icon-filter.svg' | inline_asset_content }}
+                  </span>
+                  {%- if catalog_total_active_values > 0 -%}
+                    <span class="filter-count-bubble custom-catalog__mobile-filter-bubble" aria-label="{{ 'accessibility.filter_count' | t: count: catalog_total_active_values }}">
+                      <span class="filter-count-bubble__background"></span>
+                      <span class="filter-count-bubble__text" aria-hidden="true">{{ catalog_total_active_values }}</span>
+                    </span>
+                  {%- endif -%}
+                </button>
+              </div>
+            {%- endif -%}
+            {%- if section.settings.show_toolbar_facets and catalog_show_filter_controls and catalog_showing_fallback_results == false -%}
+              <div class="custom-catalog__toolbar-left custom-catalog__toolbar-facets" data-catalog-toolbar-facets>
+                {%- if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0 -%}
+                  {%- render 'custom-catalog-facet-dropdown'
+                    , filter: catalog_filter_our_ranges
+                    , section_id: section.id
+                    , facet_key: 'our-ranges'
+                    , drawer_mode: false
+                    , allowed_collections: catalog_allowed_range_collections
+                  -%}
+                {%- endif -%}
+                {%- if catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0 -%}
+                  {%- render 'custom-catalog-facet-dropdown'
+                    , filter: catalog_filter_tea_type
+                    , section_id: section.id
+                    , facet_key: 'tea-type'
+                    , drawer_mode: false
+                  -%}
+                {%- endif -%}
+                {%- if catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0 -%}
+                  {%- render 'custom-catalog-facet-dropdown'
+                    , filter: catalog_filter_tea_format
+                    , section_id: section.id
+                    , facet_key: 'tea-format'
+                    , drawer_mode: false
+                  -%}
+                {%- endif -%}
+                {%- if catalog_filter_flavor and catalog_filter_flavor.values.size > 0 -%}
+                  {%- render 'custom-catalog-facet-dropdown'
+                    , filter: catalog_filter_flavor
+                    , section_id: section.id
+                    , facet_key: 'flavor'
+                    , drawer_mode: false
+                  -%}
+                {%- endif -%}
+                {%- if catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0 -%}
+                  {%- render 'custom-catalog-facet-dropdown'
+                    , filter: catalog_filter_time_of_day
+                    , section_id: section.id
+                    , facet_key: 'time-of-day'
+                    , drawer_mode: false
+                  -%}
+                {%- endif -%}
+                {%- unless section.settings.show_availability_toggle == false -%}
+                  {%- if catalog_filter_availability -%}
+                    {%- render 'custom-catalog-availability-toggle'
+                      , filter: catalog_filter_availability
+                      , availability_label: section.settings.availability_toggle_label
+                    -%}
+                  {%- endif -%}
+                {%- endunless -%}
+              </div>
+            {%- endif -%}
+            {%- if catalog_show_toolbar_right -%}
+              <div class="custom-catalog__toolbar-right" data-catalog-toolbar-meta>
+                {%- if section.settings.show_item_count -%}
+                  <span class="custom-catalog__toolbar-count" data-catalog-item-count>{{ count_text | escape }}</span>
+                {%- endif -%}
+                <div class="custom-catalog__toolbar-right-actions" data-catalog-toolbar-right-actions>
+                  {%- if section.settings.show_sort_control and catalog_showing_fallback_results == false -%}
+                    <button
+                      class="button custom-catalog__mobile-sort-toggle button-unstyled"
+                      on:click="#{{ catalog_sort_sheet_id }}/showDialog"
+                      type="button"
+                      aria-haspopup="dialog"
+                      aria-label="{{ 'actions.sort' | t | escape }}">
+                      <span class="svg-wrapper custom-catalog__mobile-sort-toggle-icon" aria-hidden="true">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                          focusable="false">
+                          <path
+                            d="M7 8.5L11.2 4l4.2 4.5M7 15.5L11.2 20l4.2-4.5"
+                            stroke="currentColor"
+                            stroke-width="1.65"
+                            stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                    </button>
+                    {%- render 'custom-catalog-sort-dropdown'
+                      , section_id: section.id
+                      , collection: search
+                      , catalog_sort_by: catalog_sort_by
+                      , sort_label_prefix: section.settings.sort_label_prefix
+                      , drawer_mode: false
+                      , sheet_mode: false
+                    -%}
+                  {%- endif -%}
+                  {%- if section.settings.show_grid_toggle -%}
+                    <fieldset class="custom-catalog__grid-toggle">
+                      <legend class="visually-hidden">{{ section.settings.grid_toggle_aria_label | escape }}</legend>
+                      <label class="custom-catalog__grid-toggle-option">
+                        <input
+                          type="radio"
+                          name="catalog-grid-{{ section.id }}"
+                          value="default"
+                          class="custom-catalog__grid-toggle-input"
+                          checked
+                          aria-label="{{ section.settings.grid_toggle_grid_label | escape }}"
+                          on:change="#{{ catalog_results_list_id }}/updateLayout"
+                          data-skip-node-update>
+                        <span class="custom-catalog__grid-toggle-btn">
+                          <svg
+                            class="custom-catalog__grid-toggle-icon"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                            focusable="false">
+                            <rect
+                              x="3"
+                              y="3"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                            <rect
+                              x="13.5"
+                              y="3"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                            <rect
+                              x="3"
+                              y="13.5"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                            <rect
+                              x="13.5"
+                              y="13.5"
+                              width="7.5"
+                              height="7.5"
+                              rx="1.25"
+                              stroke="currentColor"
+                              stroke-width="1.75" />
+                          </svg>
+                        </span>
+                      </label>
+                      <label class="custom-catalog__grid-toggle-option">
+                        <input
+                          type="radio"
+                          name="catalog-grid-{{ section.id }}"
+                          value="list"
+                          class="custom-catalog__grid-toggle-input"
+                          aria-label="{{ section.settings.grid_toggle_list_label | escape }}"
+                          on:change="#{{ catalog_results_list_id }}/updateLayout"
+                          data-skip-node-update>
+                        <span class="custom-catalog__grid-toggle-btn">
+                          <svg
+                            class="custom-catalog__grid-toggle-icon"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            aria-hidden="true"
+                            focusable="false">
+                            <line
+                              x1="4"
+                              y1="6.5"
+                              x2="20"
+                              y2="6.5"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round" />
+                            <line
+                              x1="4"
+                              y1="12"
+                              x2="20"
+                              y2="12"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round" />
+                            <line
+                              x1="4"
+                              y1="17.5"
+                              x2="20"
+                              y2="17.5"
+                              stroke="currentColor"
+                              stroke-width="1.75"
+                              stroke-linecap="round" />
+                          </svg>
+                        </span>
+                      </label>
+                    </fieldset>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+
+          {%- if section.settings.show_sort_control and catalog_showing_fallback_results == false -%}
+            <dialog-component
+              id="{{ catalog_sort_sheet_id }}"
+              class="custom-catalog__mobile-sort-dialog color-{{ settings.drawer_color_scheme }}"
+              dialog-active-max-width="989"
+              data-catalog-mobile-drawer>
+              <dialog
+                ref="dialog"
+                class="custom-catalog__mobile-sort-sheet dialog-modal dialog-drawer"
+                scroll-lock
+                aria-labelledby="{{ catalog_sort_sheet_heading_id }}">
+                <div class="custom-catalog__mobile-sort-sheet-header">
+                  <h2 id="{{ catalog_sort_sheet_heading_id }}" class="custom-catalog__mobile-sort-sheet-title h4">
+                    {{ 'actions.sort' | t }}
+                  </h2>
+                  <button
+                    class="custom-catalog__mobile-sort-sheet-close button-unstyled close-button"
+                    on:click="dialog-component/closeDialog"
+                    type="button"
+                    aria-label="{{ 'actions.close' | t }}"
+                    autofocus>
+                    <span class="svg-wrapper svg-wrapper--small">
+                      {{ 'icon-close.svg' | inline_asset_content }}
+                    </span>
+                  </button>
+                </div>
+
+                <div class="custom-catalog__mobile-sort-sheet-body">
+                  {%- render 'custom-catalog-sort-dropdown'
+                    , section_id: section.id
+                    , collection: search
+                    , catalog_sort_by: catalog_sort_by
+                    , sort_label_prefix: section.settings.sort_label_prefix
+                    , drawer_mode: false
+                    , sheet_mode: true
+                  -%}
+                </div>
+              </dialog>
+            </dialog-component>
+          {%- endif -%}
+
+          {%- if catalog_show_filter_controls and catalog_showing_fallback_results == false -%}
+            <dialog-component
+              id="{{ catalog_filters_drawer_id }}"
+              class="custom-catalog__mobile-filters-dialog color-{{ settings.drawer_color_scheme }}"
+              dialog-active-max-width="989"
+              data-catalog-mobile-drawer>
+              <dialog
+                ref="dialog"
+                class="custom-catalog__mobile-filters-drawer dialog-modal drawer dialog-drawer"
+                scroll-lock
+                aria-labelledby="{{ catalog_filters_drawer_heading_id }}">
+                <div class="custom-catalog__mobile-filters-header">
+                  <h2 id="{{ catalog_filters_drawer_heading_id }}" class="custom-catalog__mobile-filters-title h4">
+                    {{ 'actions.show_filters' | t }}
+                    {%- if catalog_total_active_values > 0 -%}
+                      <span class="bubble custom-catalog__mobile-filters-title-bubble" aria-hidden="true">{{ catalog_total_active_values }}</span>
+                    {%- endif -%}
+                  </h2>
+                  <button
+                    class="custom-catalog__mobile-filters-close button-unstyled close-button"
+                    on:click="dialog-component/closeDialog"
+                    type="button"
+                    aria-label="{{ 'actions.close' | t }}"
+                    autofocus>
+                    <span class="svg-wrapper svg-wrapper--small">
+                      {{ 'icon-close.svg' | inline_asset_content }}
+                    </span>
+                  </button>
+                </div>
+
+                <div class="custom-catalog__mobile-filters-body">
+                  <div class="custom-catalog__mobile-filters-list">
+                    {%- if catalog_show_pills_bar -%}
+                      <div class="custom-catalog__mobile-drawer-pills-bar">
+                        {%- if catalog_has_active_chips -%}
+                          <div class="custom-catalog__filters custom-catalog__filters--drawer" data-catalog-active-filters-region>
+                            <ul
+                              class="custom-catalog__chips"
+                              role="list"
+                              aria-label="{{ section.settings.active_filters_aria_label | escape }}">
+                            {%- for filter in search.filters -%}
+                                {%- for active_value in filter.active_values -%}
+                                  <li role="listitem">
+                                    <a
+                                      href="{{ active_value.url_to_remove }}"
+                                      class="custom-catalog__chip"
+                                      aria-label="{{ active_value.label | escape }} — {{ section.settings.chip_remove_sr_suffix | escape }}">
+                                      <span class="custom-catalog__chip-label">{{ active_value.label | escape }}</span>
+                                      <span class="custom-catalog__chip-remove" aria-hidden="true">{{ section.settings.chip_remove_character | escape }}</span>
+                                    </a>
+                                  </li>
+                                {%- endfor -%}
+                              {%- endfor -%}
+                            </ul>
+                            <a href="{{ catalog_clear_href }}" class="custom-catalog__clear">{{ section.settings.clear_all_label | escape }}</a>
+                          </div>
+                        {%- endif -%}
+
+                        {%- unless section.settings.show_availability_toggle == false -%}
+                          {%- if catalog_filter_availability -%}
+                            <div class="custom-catalog__mobile-filters-availability custom-catalog__mobile-filters-availability--top">
+                              {%- render 'custom-catalog-availability-toggle'
+                                , filter: catalog_filter_availability
+                                , availability_label: section.settings.availability_toggle_label
+                              -%}
+                            </div>
+                          {%- endif -%}
+                        {%- endunless -%}
+                      </div>
+                    {%- endif -%}
+
+                    {%- if catalog_filter_our_ranges and catalog_filter_our_ranges_visible_count > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_our_ranges
+                        , section_id: section.id
+                        , facet_key: 'our-ranges'
+                        , drawer_mode: true
+                        , allowed_collections: catalog_allowed_range_collections
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_tea_type and catalog_filter_tea_type.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_tea_type
+                        , section_id: section.id
+                        , facet_key: 'tea-type'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_tea_format
+                        , section_id: section.id
+                        , facet_key: 'tea-format'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_flavor and catalog_filter_flavor.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_flavor
+                        , section_id: section.id
+                        , facet_key: 'flavor'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0 -%}
+                      {%- render 'custom-catalog-facet-dropdown'
+                        , filter: catalog_filter_time_of_day
+                        , section_id: section.id
+                        , facet_key: 'time-of-day'
+                        , drawer_mode: true
+                      -%}
+                    {%- endif -%}
+                    {%- if section.settings.show_sort_control -%}
+                      <div class="custom-catalog__mobile-filters-sort">
+                        {%- render 'custom-catalog-sort-dropdown'
+                          , section_id: section.id
+                          , collection: search
+                          , catalog_sort_by: catalog_sort_by
+                          , sort_label_prefix: section.settings.sort_label_prefix
+                          , drawer_mode: true
+                          , sheet_mode: false
+                        -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                </div>
+
+                <div class="custom-catalog__mobile-filters-actions">
+                  <button
+                    class="button custom-catalog__mobile-filters-see-results"
+                    type="button"
+                    on:click="dialog-component/closeDialog">
+                    {{- 'actions.see_items' | t: count: paginate.items -}}
+                  </button>
+                </div>
+              </dialog>
+            </dialog-component>
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- comment -%} Accessible live region — updated by JS after each AJAX swap {%- endcomment -%}
+      <p
+        class="visually-hidden"
+        data-catalog-live-region
+        aria-live="polite"
+        aria-atomic="true"></p>
+
+      <div data-catalog-results-region>
+        {%- if catalog_results_products.size == 0 -%}
+          <p class="custom-catalog__empty">{{ section.settings.empty_collection_message | escape }}</p>
+        {%- else -%}
+          {%- liquid
+            assign catalog_card_sizes = '(min-width: 1200px) 22vw, (min-width: 990px) 30vw, (min-width: 750px) 45vw, 90vw'
+          -%}
+          <results-list
+            id="{{ catalog_results_list_id }}"
+            class="custom-catalog__results-list"
+            section-id="{{ section.id }}"
+            infinite-scroll="{{ section.settings.enable_infinite_scroll }}">
+            {%- if section.settings.enable_infinite_scroll and catalog_showing_fallback_results == false -%}
+              <span ref="viewMorePrevious"></span>
+            {%- endif -%}
+            <ul
+              class="custom-catalog__grid"
+              ref="grid"
+              role="list"
+              product-grid-view="default"
+              data-last-page="{{ paginate.pages }}"
+              data-catalog-product-grid>
+              {%- for product in catalog_results_products -%}
+                <li
+                  class="custom-catalog__grid-item"
+                  role="listitem"
+                  ref="cards[]"
+                  data-page="{% if catalog_showing_fallback_results %}1{% else %}{{ paginate.current_page }}{% endif %}"
+                  data-product-id="{{ product.id }}">
+                  {%- render 'teamakers-product-card'
+                    , product: product
+                    , show_vendor: section.settings.card_show_vendor
+                    , show_review: section.settings.card_show_reviews
+                    , show_quick_add: section.settings.card_show_quick_add
+                    , quick_add_mode: 'horizon'
+                    , section_id: section.id
+                    , show_sale_badge: section.settings.card_show_sale_badge
+                    , image_sizes: catalog_card_sizes
+                  -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+            {%- unless request.design_mode -%}
+              <script>
+                              (() => {
+                const id = {{ catalog_results_list_id | json }};
+                const sectionId = {{ section.id | json }};
+                const root = document.getElementById(id);
+                const grid = root?.querySelector?.('[ref="grid"]');
+                if (!grid) return;
+
+                const viewport = window.innerWidth >= 750 ? 'desktop' : 'mobile';
+                const stored =
+                  sessionStorage.getItem(`product-grid-view-${viewport}`) || 'default';
+                if (stored !== 'list' && stored !== 'default') return;
+
+                grid.setAttribute('product-grid-view', stored);
+                const radio = document.querySelector(
+                  `input[type="radio"][name="catalog-grid-${sectionId}"][value="${stored}"]`
+                );
+                if (radio) radio.checked = true;
+                              })();
+              </script>
+            {%- endunless -%}
+            {%- if section.settings.enable_infinite_scroll and catalog_showing_fallback_results == false -%}
+              <span ref="viewMoreNext"></span>
+            {%- elsif catalog_showing_fallback_results == false and paginate.pages > 1 -%}
+              <nav class="custom-catalog__pagination" aria-label="{{ section.settings.pagination_aria_label | escape }}">
+                {{- paginate | default_pagination -}}
+              </nav>
+            {%- endif -%}
+          </results-list>
+        {%- endif -%}
+      </div>
+    {% endpaginate %}
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Reusable search catalog",
+    "tag": "section",
+    "class": "section-wrapper",
+    "enabled_on": {
+      "templates": ["search"]
+    },
+    "settings": [
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-1"
+      },
+      {
+        "type": "header",
+        "content": "Layout"
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "label": "Padding top",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "default": 24
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom",
+        "label": "Padding bottom",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "default": 48
+      }, {
+        "type": "range",
+        "id": "content_max_width",
+        "label": "Content max width",
+        "info": "Caps the centered inner column. Use 0 for full width of the section column (recommended with Wide page width).",
+        "min": 0,
+        "max": 1920,
+        "step": 20,
+        "unit": "px",
+        "default": 0
+      }, {
+        "type": "range",
+        "id": "padding_inline_mobile",
+        "label": "Horizontal padding (mobile)",
+        "info": "Extra inset inside the catalog column, below 750px.",
+        "min": 0,
+        "max": 48,
+        "step": 2,
+        "unit": "px",
+        "default": 16
+      }, {
+        "type": "range",
+        "id": "padding_inline_desktop",
+        "label": "Horizontal padding (desktop)",
+        "info": "Extra inset inside the catalog column, 750px and up.",
+        "min": 0,
+        "max": 96,
+        "step": 4,
+        "unit": "px",
+        "default": 40
+      }, {
+        "type": "range",
+        "id": "grid_gap_desktop",
+        "label": "Product grid gap (desktop)",
+        "min": 8,
+        "max": 56,
+        "step": 4,
+        "unit": "px",
+        "default": 28
+      }, {
+        "type": "range",
+        "id": "grid_gap_mobile",
+        "label": "Product grid gap (mobile)",
+        "min": 8,
+        "max": 40,
+        "step": 4,
+        "unit": "px",
+        "default": 20
+      }, {
+        "type": "checkbox",
+        "id": "enable_infinite_scroll",
+        "label": "Auto-load more products on scroll",
+        "default": true,
+        "info": "Matches default collection behavior: loads the next page as the customer scrolls. When off, uses numbered pagination at the bottom."
+      }, {
+        "type": "range",
+        "id": "products_per_page",
+        "label": "Products per page",
+        "min": 8,
+        "max": 48,
+        "step": 4,
+        "default": 24,
+        "visible_if": "{{ section.settings.enable_infinite_scroll == false }}"
+      }, {
+        "type": "header",
+        "content": "Product cards"
+      }, {
+        "type": "paragraph",
+        "content": "Same Teamaker’s Pick card UI (image, vendor, title, optional reviews, price, quick add)."
+      }, {
+        "type": "checkbox",
+        "id": "card_show_vendor",
+        "label": "Show vendor",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "card_show_reviews",
+        "label": "Show product ratings",
+        "info": "Standard reviews metafields (rating + count) when set on the product.",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "card_show_sale_badge",
+        "label": "Show sale badge",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "card_show_quick_add",
+        "label": "Show add to cart on card",
+        "default": true
+      }, {
+        "type": "color_background",
+        "id": "product_card_image_background",
+        "label": "Product card image background"
+      }, {
+        "type": "header",
+        "content": "Breadcrumb"
+      }, {
+        "type": "checkbox",
+        "id": "show_breadcrumb",
+        "label": "Show breadcrumb",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "breadcrumb_home_label",
+        "label": "Home label",
+        "default": "Home"
+      }, {
+        "type": "header",
+        "content": "Top tea-type visual row"
+      }, {
+        "type": "paragraph",
+        "content": "Circular selectors above format pills (max 16 items). Prefer Tea Type metaobject entries so labels and images are managed in Admin → Content. Set display order via handles (textarea) and/or a sort field on the definition. Theme blocks remain for legacy setups. Each item must match a Tea type storefront filter (label, handle, or metaobject id in the filter value)."
+      }, {
+        "type": "checkbox",
+        "id": "show_tea_type_row",
+        "label": "Show tea-type row",
+        "default": false
+      }, {
+        "type": "select",
+        "id": "tea_type_visual_source",
+        "label": "Tea type row data source",
+        "options": [
+          {
+            "value": "metaobjects",
+            "label": "Tea Type metaobjects (Content)"
+          }, {
+            "value": "blocks",
+            "label": "Theme blocks (manual)"
+          }
+        ],
+        "default": "metaobjects"
+      }, {
+        "type": "text",
+        "id": "tea_type_metaobject_definition",
+        "label": "Tea type metaobject definition handle",
+        "default": "tea_type",
+        "info": "Admin → Settings → Custom data → Metaobjects: use the definition Type (API handle). Entries must be active (published). Theme loops support up to 50 entries. Expected field keys: name, optional_display_label, default_image, hover_image."
+      }, {
+        "type": "textarea",
+        "id": "tea_type_metaobject_order",
+        "label": "Tea type display order (optional)",
+        "info": "List each entry’s handle in the order you want (one per line, and/or comma-separated). Find handles under Content → Tea Type → entry URL. Handles not listed appear after, ordered by the sort field below or Shopify default. Invalid handles are skipped."
+      }, {
+        "type": "text",
+        "id": "tea_type_metaobject_sort_key",
+        "label": "Sort tea types by metaobject field (optional)",
+        "info": "When display order is empty: sort all entries by this field key (e.g. sort_order). When display order is set: used for any types not listed there. Leave empty for store default order. Add an integer field in the Tea Type definition if you prefer sorting in Admin instead of pasting handles here."
+      }, {
+        "type": "text",
+        "id": "tea_type_row_aria_label",
+        "label": "Region aria label",
+        "default": "Shop by tea type"
+      }, {
+        "type": "text",
+        "id": "tea_type_button_fallback_aria",
+        "label": "Button aria label if title empty",
+        "default": "Tea category"
+      }, {
+        "type": "text",
+        "id": "tea_type_unavailable_suffix",
+        "label": "Suffix when tea type filter or value is unavailable",
+        "default": "Filter unavailable",
+        "info": "Appended to the tea-type control aria-label when Search & Discovery has no matching filter or block value."
+      }, {
+        "type": "header",
+        "content": "Storefront filters (Search & Discovery)"
+      }, {
+        "type": "paragraph",
+        "content": "Filters are resolved from search.filters. Match each facet by admin label (case-insensitive) and/or by URL param containing the hint string (e.g. metafield key). First matching filter wins. Availability uses the storefront boolean filter from Search & Discovery (enable “Availability” in the app); it appears as a toggle after Time of day."
+      }, {
+        "type": "text",
+        "id": "facet_label_our_ranges",
+        "label": "Our ranges — filter label",
+        "default": "Our ranges",
+        "info": "Must match the Search & Discovery filter label for ranges (e.g. “Our Ranges”)."
+      }, {
+        "type": "text",
+        "id": "facet_param_hint_our_ranges",
+        "label": "Our ranges — param hint",
+        "info": "Optional: filter.param_name substring if the label differs (e.g. custom.our_ranges). Leave empty to match by label only."
+      }, {
+        "type": "collection_list",
+        "id": "our_ranges_dropdown_collections",
+        "label": "Our ranges dropdown collections",
+        "limit": 30,
+        "info": "Optional. Restricts the Our ranges dropdown to these collections. Best used with a product metafield such as custom.ranges set to Single line text (list), where each value matches a selected collection name."
+      }, {
+        "type": "text",
+        "id": "facet_label_tea_type",
+        "label": "Tea type — filter label",
+        "default": "Tea type"
+      }, {
+        "type": "text",
+        "id": "facet_param_hint_tea_type",
+        "label": "Tea type — param hint",
+        "default": "custom.tea_type",
+        "info": "Fallback when label differs: filter.param_name must contain this substring."
+      }, {
+        "type": "text",
+        "id": "facet_label_tea_format",
+        "label": "Tea format — filter label",
+        "default": "Tea format"
+      }, {
+        "type": "text",
+        "id": "facet_param_hint_tea_format",
+        "label": "Tea format — param hint",
+        "default": "custom.tea_format"
+      }, {
+        "type": "text",
+        "id": "facet_label_flavor",
+        "label": "Flavor — filter label",
+        "default": "Flavor"
+      }, {
+        "type": "text",
+        "id": "facet_param_hint_flavor",
+        "label": "Flavor — param hint",
+        "default": "custom.flavor"
+      }, {
+        "type": "text",
+        "id": "facet_label_time_of_day",
+        "label": "Time of day — filter label",
+        "default": "Time of day"
+      }, {
+        "type": "text",
+        "id": "facet_param_hint_time_of_day",
+        "label": "Time of day — param hint",
+        "default": "custom.time_of_day"
+      }, {
+        "type": "checkbox",
+        "id": "show_availability_toggle",
+        "label": "Show availability (in stock) toggle",
+        "default": true,
+        "info": "Uses the Search & Discovery availability filter (boolean or list, e.g. “In stock”). Appears after Time of day in the toolbar."
+      }, {
+        "type": "text",
+        "id": "facet_label_availability",
+        "label": "Availability — filter label (optional)",
+        "info": "Match filter.label, case-insensitive. Leave empty to match by param only (see below)."
+      }, {
+        "type": "text",
+        "id": "facet_param_hint_availability",
+        "label": "Availability — param hint (optional)",
+        "info": "filter.param_name must contain this substring (e.g. availability). If both label and hint are empty, matches boolean filters whose param contains “availability”."
+      }, {
+        "type": "text",
+        "id": "availability_toggle_label",
+        "label": "Availability toggle — visible label",
+        "default": "In stock",
+        "info": "Shown next to the switch. The filter value label is used if this is empty."
+      }, {
+        "type": "text",
+        "id": "active_filters_aria_label",
+        "label": "Active filters list aria label",
+        "default": "Active filters"
+      }, {
+        "type": "text",
+        "id": "chip_remove_character",
+        "label": "Chip remove character (visual)",
+        "default": "×"
+      }, {
+        "type": "text",
+        "id": "chip_remove_sr_suffix",
+        "label": "Chip remove — screen reader suffix",
+        "default": "Remove filter"
+      }, {
+        "type": "header",
+        "content": "Tea format pills"
+      }, {
+        "type": "checkbox",
+        "id": "show_format_pills",
+        "label": "Show tea format pills",
+        "default": false
+      }, {
+        "type": "paragraph",
+        "content": "Pill labels and counts come from the Tea format storefront filter. Add “Tea format pill icon” blocks to map an uploaded icon (PNG/SVG) to each option via Match filter value. Pill 1–5 text fields below are legacy and ignored."
+      }, {
+        "type": "checkbox",
+        "id": "show_format_pill_counts",
+        "label": "Show product count on format pills",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "format_pill_count_suffix",
+        "label": "Count suffix for screen readers",
+        "default": "products",
+        "info": "Used in the pill link’s aria-label after the number (e.g. “Loose leaf — 3 products”)."
+      }, {
+        "type": "text",
+        "id": "format_pills_aria_label",
+        "label": "Aria label (fallback)",
+        "default": "Tea format",
+        "info": "Used only if the filter label is unavailable."
+      }, {
+        "type": "text",
+        "id": "format_pill_1",
+        "label": "Pill 1",
+        "default": "Tea bags"
+      }, {
+        "type": "text",
+        "id": "format_pill_2",
+        "label": "Pill 2",
+        "default": "Loose tea"
+      }, {
+        "type": "text",
+        "id": "format_pill_3",
+        "label": "Pill 3",
+        "default": "Refills"
+      }, {
+        "type": "text",
+        "id": "format_pill_4",
+        "label": "Pill 4",
+        "info": "Leave empty in the theme editor to hide this pill.",
+        "default": "Pyramid"
+      }, {
+        "type": "text",
+        "id": "format_pill_5",
+        "label": "Pill 5",
+        "info": "Leave empty in the theme editor to hide this pill.",
+        "default": "Gift sets"
+      }, {
+        "type": "header",
+        "content": "Active filters (legacy settings)"
+      }, {
+        "type": "paragraph",
+        "content": "Chips are generated from search.filters active_values. Mock chip fields below are unused; kept for backward compatibility with older theme data."
+      }, {
+        "type": "text",
+        "id": "mock_chip_1",
+        "label": "Mock chip 1 (unused)",
+        "default": "Origin: Ceylon"
+      }, {
+        "type": "text",
+        "id": "mock_chip_2",
+        "label": "Mock chip 2 (unused)",
+        "default": "Caffeine: Medium"
+      }, {
+        "type": "text",
+        "id": "clear_all_label",
+        "label": "Clear all label",
+        "default": "Clear all"
+      }, {
+        "type": "header",
+        "content": "Toolbar visibility"
+      }, {
+        "type": "checkbox",
+        "id": "show_toolbar_facets",
+        "label": "Show toolbar filter controls",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_item_count",
+        "label": "Show item count",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_grid_toggle",
+        "label": "Show grid/list toggle",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_sort_control",
+        "label": "Show sort controls",
+        "default": true
+      }, {
+        "type": "header",
+        "content": "Toolbar (fallback labels)"
+      }, {
+        "type": "paragraph",
+        "content": "Our ranges, Tea type, Tea format, Flavors, and Time of day use multi-select checkbox dropdowns when matching storefront filters exist. Texts below are shown only when a facet is missing from Search & Discovery."
+      }, {
+        "type": "text",
+        "id": "toolbar_our_ranges",
+        "label": "Our Ranges",
+        "default": "Our Ranges ▾"
+      }, {
+        "type": "text",
+        "id": "toolbar_tea_type",
+        "label": "Tea type",
+        "default": "Tea Type ▾"
+      }, {
+        "type": "text",
+        "id": "toolbar_tea_format",
+        "label": "Tea format",
+        "default": "Tea Format ▾"
+      }, {
+        "type": "text",
+        "id": "toolbar_flavors",
+        "label": "Flavors",
+        "default": "Flavors ▾"
+      }, {
+        "type": "text",
+        "id": "toolbar_time_of_day",
+        "label": "Time of day",
+        "default": "Time of Day ▾"
+      }, {
+        "type": "text",
+        "id": "sort_label_prefix",
+        "label": "Sort control prefix",
+        "default": "Sort",
+        "info": "Shown in the sort control summary before the current option (e.g. “Sort: Featured”). Options match Shopify collection sorting / translations."
+      }, {
+        "type": "text",
+        "id": "item_count_template",
+        "label": "Product count text",
+        "info": "Placeholders: [start], [end], [total].",
+        "default": "[start]–[end] of [total] products"
+      }, {
+        "type": "text",
+        "id": "grid_toggle_aria_label",
+        "label": "Grid toggle aria label",
+        "default": "Product layout"
+      }, {
+        "type": "text",
+        "id": "grid_toggle_grid_label",
+        "label": "Grid — accessible name",
+        "default": "Grid view",
+        "info": "Shown to screen readers; the control displays a grid icon."
+      }, {
+        "type": "text",
+        "id": "grid_toggle_list_label",
+        "label": "List — accessible name",
+        "default": "List view",
+        "info": "Shown to screen readers; the control displays a list icon."
+      }, {
+        "type": "header",
+        "content": "Product grid"
+      }, {
+        "type": "text",
+        "id": "empty_collection_message",
+        "label": "Empty search message",
+        "default": "No matching products found."
+      }, {
+        "type": "text",
+        "id": "pagination_aria_label",
+        "label": "Pagination aria label",
+        "default": "Pagination"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "tea_format_pill_icon",
+        "name": "Tea format pill icon",
+        "settings": [
+          {
+            "type": "text",
+            "id": "match_value",
+            "label": "Match filter value",
+            "info": "Match a Tea format option’s label or value (case-insensitive). Use the same wording as in Search & Discovery when possible."
+          }, {
+            "type": "image_picker",
+            "id": "icon",
+            "label": "Icon image",
+            "info": "Upload PNG or SVG (simple line art works best). On the active pill, icons are shown in white."
+          }
+        ]
+      }, {
+        "type": "tea_type",
+        "name": "Tea type",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Tea type"
+          }, {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          }, {
+            "type": "image_picker",
+            "id": "hover_image",
+            "label": "Hover image"
+          }, {
+            "type": "text",
+            "id": "filter_value",
+            "label": "Filter value",
+            "info": "Optional shortcut to match a storefront value (slug, partial label, or handle). If empty or no match, the block title is matched to the filter label (e.g. “Black Tea”). Avoid very short values like “tea” which can over-match."
+          }
+        ]
+      }
+    ],
+    "max_blocks": 24,
+    "presets": [
+      {
+        "name": "Reusable search catalog",
+        "settings": {
+          "tea_type_visual_source": "metaobjects",
+          "tea_type_metaobject_definition": "tea_type",
+          "show_tea_type_row": false,
+          "show_format_pills": false
+        },
+        "blocks": [
+          {
+            "type": "tea_type",
+            "settings": {
+              "title": "Black tea",
+              "filter_value": "black"
+            }
+          },
+          {
+            "type": "tea_type",
+            "settings": {
+              "title": "Oolong tea",
+              "filter_value": "oolong"
+            }
+          },
+          {
+            "type": "tea_type",
+            "settings": {
+              "title": "White tea",
+              "filter_value": "white"
+            }
+          },
+          {
+            "type": "tea_type",
+            "settings": {
+              "title": "Green tea",
+              "filter_value": "green"
+            }
+          }, {
+            "type": "tea_type",
+            "settings": {
+              "title": "Flavored tea",
+              "filter_value": "flavored"
+            }
+          }, {
+            "type": "tea_type",
+            "settings": {
+              "title": "Herbal infusion tea",
+              "filter_value": "herbal"
+            }
+          }, {
+            "type": "tea_type",
+            "settings": {
+              "title": "Caffeine free",
+              "filter_value": "caffeine-free"
+            }
+          }, {
+            "type": "tea_type",
+            "settings": {
+              "title": "Chai",
+              "filter_value": "chai"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

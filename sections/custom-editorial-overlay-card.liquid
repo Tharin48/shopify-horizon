@@ -1,0 +1,863 @@
+<section
+  class="custom-editorial-overlay-card custom-editorial-overlay-card--{{ section.settings.card_alignment }}"
+  style="
+    --custom-editorial-overlay-card-max-width: {{ section.settings.max_width }}px;
+    --custom-editorial-overlay-card-background: {{ section.settings.background_color }};
+    --custom-editorial-overlay-card-card-background: {{ section.settings.card_background_color }};
+    --custom-editorial-overlay-card-text-color: {{ section.settings.text_color }};
+    --custom-editorial-overlay-card-accent: {{ section.settings.accent_color }};
+    --custom-editorial-overlay-card-padding-top: {{ section.settings.padding_top }}px;
+    --custom-editorial-overlay-card-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-editorial-overlay-card-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-editorial-overlay-card-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-editorial-overlay-card-padding-inline: {{ section.settings.padding_inline }}px;
+    --custom-editorial-overlay-card-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-editorial-overlay-card-image-height: {{ section.settings.image_height_desktop }}px;
+    --custom-editorial-overlay-card-image-height-mobile: {{ section.settings.image_height_mobile }}px;
+    --custom-editorial-overlay-card-image-radius: {{ section.settings.image_radius }}px;
+    --custom-editorial-overlay-card-card-radius: {{ section.settings.card_radius }}px;
+    --custom-editorial-overlay-card-card-width: {{ section.settings.card_width_desktop }}px;
+    --custom-editorial-overlay-card-card-width-mobile: {{ section.settings.card_width_mobile }}px;
+    --custom-editorial-overlay-card-card-overlap: {{ section.settings.card_overlap_desktop }}px;
+    --custom-editorial-overlay-card-card-overlap-mobile: {{ section.settings.card_overlap_mobile }}px;
+    --custom-editorial-overlay-card-card-padding: {{ section.settings.card_padding_desktop }}px;
+    --custom-editorial-overlay-card-card-padding-mobile: {{ section.settings.card_padding_mobile }}px;
+    --custom-editorial-overlay-card-content-max-width: {{ section.settings.content_max_width }}px;
+    --custom-editorial-overlay-card-content-gap: {{ section.settings.content_gap }}px;
+    --custom-editorial-overlay-card-heading-size: {{ section.settings.heading_size_desktop }}px;
+    --custom-editorial-overlay-card-heading-size-mobile: {{ section.settings.heading_size_mobile }}px;
+    --custom-editorial-overlay-card-subheading-size: {{ section.settings.subheading_size_desktop }}px;
+    --custom-editorial-overlay-card-subheading-size-mobile: {{ section.settings.subheading_size_mobile }}px;
+    --custom-editorial-overlay-card-body-size: {{ section.settings.body_size_desktop }}px;
+    --custom-editorial-overlay-card-body-size-mobile: {{ section.settings.body_size_mobile }}px;
+    --custom-editorial-overlay-card-button-gap: {{ section.settings.button_gap }}px;
+    --custom-editorial-overlay-card-shadow-opacity: {{ section.settings.card_shadow_opacity | divided_by: 100.0 }};
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-editorial-overlay-card__inner">
+    <div class="custom-editorial-overlay-card__media-shell">
+      {%- if section.settings.image != blank -%}
+        <div
+          class="custom-editorial-overlay-card__media"
+          style="
+            --custom-editorial-overlay-card-image-position: {{ section.settings.image_position_desktop }};
+            --custom-editorial-overlay-card-image-position-mobile: {{ section.settings.image_position_mobile }};
+          "
+        >
+          <picture>
+            {%- if section.settings.mobile_image != blank -%}
+              <source media="(max-width: 749px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
+            {%- endif -%}
+            {{
+              section.settings.image
+              | image_url: width: 2400
+              | image_tag:
+                loading: 'lazy',
+                widths: '480,720,960,1200,1600,2000,2400',
+                sizes: '(min-width: 1200px) 88vw, 100vw',
+                class: 'custom-editorial-overlay-card__image',
+                alt: section.settings.image.alt
+            }}
+          </picture>
+        </div>
+      {%- elsif request.design_mode -%}
+        <div class="custom-editorial-overlay-card__empty">Choose a background image for this section.</div>
+      {%- endif -%}
+
+      <div class="custom-editorial-overlay-card__card-shell">
+        <div class="custom-editorial-overlay-card__card">
+          <div class="custom-editorial-overlay-card__content">
+            {%- assign has_content = false -%}
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'eyebrow' -%}
+                  {%- if block.settings.text != blank -%}
+                    {%- assign has_content = true -%}
+                    <p class="custom-editorial-overlay-card__eyebrow" {{ block.shopify_attributes }}>
+                      {{ block.settings.text | escape }}
+                    </p>
+                  {%- endif -%}
+                {%- when 'heading' -%}
+                  {%- if block.settings.heading != blank -%}
+                    {%- assign has_content = true -%}
+                    <div class="custom-editorial-overlay-card__heading rte" {{ block.shopify_attributes }}>
+                      {{ block.settings.heading }}
+                    </div>
+                  {%- endif -%}
+                {%- when 'subheading' -%}
+                  {%- if block.settings.text != blank -%}
+                    {%- assign has_content = true -%}
+                    <div class="custom-editorial-overlay-card__subheading rte" {{ block.shopify_attributes }}>
+                      {{ block.settings.text }}
+                    </div>
+                  {%- endif -%}
+                {%- when 'text' -%}
+                  {%- if block.settings.text != blank -%}
+                    {%- assign has_content = true -%}
+                    <div class="custom-editorial-overlay-card__text rte" {{ block.shopify_attributes }}>
+                      {{ block.settings.text }}
+                    </div>
+                  {%- endif -%}
+              {%- endcase -%}
+            {%- endfor -%}
+
+            {%- assign has_buttons = false -%}
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'button' and block.settings.label != blank and block.settings.url != blank -%}
+                {%- if has_buttons == false -%}
+                  {%- assign has_buttons = true -%}
+                  <div class="custom-editorial-overlay-card__actions">
+                {%- endif -%}
+                <a
+                  class="custom-editorial-overlay-card__button custom-editorial-overlay-card__button--{{ block.settings.style }}"
+                  href="{{ block.settings.url }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {{ block.settings.label | escape }}
+                </a>
+              {%- endif -%}
+            {%- endfor -%}
+            {%- if has_buttons -%}
+              </div>
+            {%- endif -%}
+
+            {%- if has_content == false and has_buttons == false and request.design_mode -%}
+              <div class="custom-editorial-overlay-card__empty custom-editorial-overlay-card__empty--card">
+                Add heading, text, or button blocks to build this card.
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-editorial-overlay-card {
+    background: var(--custom-editorial-overlay-card-background);
+    color: var(--custom-editorial-overlay-card-text-color);
+  }
+
+  .custom-editorial-overlay-card__inner {
+    max-width: var(--custom-editorial-overlay-card-max-width);
+    margin: 0 auto;
+    padding:
+      var(--custom-editorial-overlay-card-padding-top-mobile)
+      var(--custom-editorial-overlay-card-padding-inline-mobile)
+      var(--custom-editorial-overlay-card-padding-bottom-mobile);
+  }
+
+  .custom-editorial-overlay-card__media-shell {
+    position: relative;
+  }
+
+  .custom-editorial-overlay-card__media,
+  .custom-editorial-overlay-card__empty {
+    overflow: hidden;
+    height: var(--custom-editorial-overlay-card-image-height-mobile);
+    border-radius: var(--custom-editorial-overlay-card-image-radius);
+    background: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .custom-editorial-overlay-card__empty {
+    display: grid;
+    place-items: center;
+    min-height: 18rem;
+    padding: 1.5rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.18);
+    color: rgb(var(--color-foreground-rgb) / 0.66);
+    text-align: center;
+  }
+
+  .custom-editorial-overlay-card__image,
+  .custom-editorial-overlay-card__media picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-editorial-overlay-card__image {
+    object-fit: cover;
+    object-position: var(--custom-editorial-overlay-card-image-position-mobile, center center);
+  }
+
+  .custom-editorial-overlay-card__card-shell {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    margin-top: calc(var(--custom-editorial-overlay-card-card-overlap-mobile) * -1);
+    padding-inline: 1rem;
+  }
+
+  .custom-editorial-overlay-card__card {
+    width: min(100%, var(--custom-editorial-overlay-card-card-width-mobile));
+    padding: var(--custom-editorial-overlay-card-card-padding-mobile);
+    border-radius: var(--custom-editorial-overlay-card-card-radius);
+    background: var(--custom-editorial-overlay-card-card-background);
+    box-shadow: 0 1.5rem 3rem rgb(18 18 18 / var(--custom-editorial-overlay-card-shadow-opacity));
+  }
+
+  .custom-editorial-overlay-card__content {
+    display: grid;
+    gap: var(--custom-editorial-overlay-card-content-gap);
+    max-width: min(100%, var(--custom-editorial-overlay-card-content-max-width));
+    margin: 0 auto;
+  }
+
+  .custom-editorial-overlay-card__eyebrow {
+    margin: 0;
+    color: var(--custom-editorial-overlay-card-accent);
+    font-family: var(--font-body--family);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .custom-editorial-overlay-card__heading {
+    color: var(--custom-editorial-overlay-card-text-color);
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+    text-align: center;
+  }
+
+  .custom-editorial-overlay-card__heading > :first-child,
+  .custom-editorial-overlay-card__subheading > :first-child,
+  .custom-editorial-overlay-card__text > :first-child {
+    margin-top: 0;
+  }
+
+  .custom-editorial-overlay-card__heading > :last-child,
+  .custom-editorial-overlay-card__subheading > :last-child,
+  .custom-editorial-overlay-card__text > :last-child {
+    margin-bottom: 0;
+  }
+
+  .custom-editorial-overlay-card__heading h1,
+  .custom-editorial-overlay-card__heading h2,
+  .custom-editorial-overlay-card__heading h3,
+  .custom-editorial-overlay-card__heading h4,
+  .custom-editorial-overlay-card__heading h5,
+  .custom-editorial-overlay-card__heading h6,
+  .custom-editorial-overlay-card__heading p {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-size: var(--custom-editorial-overlay-card-heading-size-mobile);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+  }
+
+  .custom-editorial-overlay-card__heading em,
+  .custom-editorial-overlay-card__heading strong {
+    color: var(--custom-editorial-overlay-card-accent);
+    font-style: normal;
+    font-weight: inherit;
+  }
+
+  .custom-editorial-overlay-card__subheading {
+    color: rgb(var(--color-foreground-rgb) / 0.92);
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+    text-align: center;
+  }
+
+  .custom-editorial-overlay-card__subheading h1,
+  .custom-editorial-overlay-card__subheading h2,
+  .custom-editorial-overlay-card__subheading h3,
+  .custom-editorial-overlay-card__subheading h4,
+  .custom-editorial-overlay-card__subheading h5,
+  .custom-editorial-overlay-card__subheading h6,
+  .custom-editorial-overlay-card__subheading p {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-size: var(--custom-editorial-overlay-card-subheading-size-mobile);
+    line-height: 1.35;
+  }
+
+  .custom-editorial-overlay-card__text {
+    color: rgb(var(--color-foreground-rgb) / 0.85);
+    font-family: var(--font-body--family);
+    font-size: var(--custom-editorial-overlay-card-body-size-mobile);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .custom-editorial-overlay-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--custom-editorial-overlay-card-button-gap);
+  }
+
+  .custom-editorial-overlay-card__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.9rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 999px;
+    font-family: var(--font-body--family);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .custom-editorial-overlay-card__button:hover {
+    transform: translateY(-1px);
+  }
+
+  .custom-editorial-overlay-card__button--primary {
+    background: var(--custom-editorial-overlay-card-accent);
+    color: #ffffff;
+  }
+
+  .custom-editorial-overlay-card__button--secondary {
+    border: 1px solid var(--custom-editorial-overlay-card-accent);
+    color: var(--custom-editorial-overlay-card-accent);
+  }
+
+  .custom-editorial-overlay-card__empty--card {
+    min-height: 8rem;
+    background: rgb(var(--color-background-rgb) / 0.7);
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-editorial-overlay-card__inner {
+      padding:
+        var(--custom-editorial-overlay-card-padding-top)
+        var(--custom-editorial-overlay-card-padding-inline)
+        var(--custom-editorial-overlay-card-padding-bottom);
+    }
+
+    .custom-editorial-overlay-card__image {
+      object-position: var(--custom-editorial-overlay-card-image-position, center center);
+    }
+
+    .custom-editorial-overlay-card__media,
+    .custom-editorial-overlay-card__empty {
+      height: var(--custom-editorial-overlay-card-image-height);
+    }
+
+    .custom-editorial-overlay-card--left .custom-editorial-overlay-card__card-shell {
+      justify-content: flex-start;
+    }
+
+    .custom-editorial-overlay-card--right .custom-editorial-overlay-card__card-shell {
+      justify-content: flex-end;
+    }
+
+    .custom-editorial-overlay-card__card-shell {
+      margin-top: calc(var(--custom-editorial-overlay-card-card-overlap) * -1);
+      padding-inline: clamp(1rem, 4vw, 3rem);
+    }
+
+    .custom-editorial-overlay-card__card {
+      width: min(100%, var(--custom-editorial-overlay-card-card-width));
+      padding: var(--custom-editorial-overlay-card-card-padding);
+    }
+
+    .custom-editorial-overlay-card__heading h1,
+    .custom-editorial-overlay-card__heading h2,
+    .custom-editorial-overlay-card__heading h3,
+    .custom-editorial-overlay-card__heading h4,
+    .custom-editorial-overlay-card__heading h5,
+    .custom-editorial-overlay-card__heading h6,
+    .custom-editorial-overlay-card__heading p {
+      font-size: var(--custom-editorial-overlay-card-heading-size);
+    }
+
+    .custom-editorial-overlay-card__subheading h1,
+    .custom-editorial-overlay-card__subheading h2,
+    .custom-editorial-overlay-card__subheading h3,
+    .custom-editorial-overlay-card__subheading h4,
+    .custom-editorial-overlay-card__subheading h5,
+    .custom-editorial-overlay-card__subheading h6,
+    .custom-editorial-overlay-card__subheading p {
+      font-size: var(--custom-editorial-overlay-card-subheading-size);
+    }
+
+    .custom-editorial-overlay-card__text {
+      font-size: var(--custom-editorial-overlay-card-body-size);
+      line-height: 1.8;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial overlay card",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 10,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "select",
+      "id": "image_position_desktop",
+      "label": "Image position desktop",
+      "default": "center center",
+      "options": [
+        { "value": "left center", "label": "Left" },
+        { "value": "center center", "label": "Center" },
+        { "value": "right center", "label": "Right" },
+        { "value": "center top", "label": "Top" },
+        { "value": "center bottom", "label": "Bottom" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_position_mobile",
+      "label": "Image position mobile",
+      "default": "center center",
+      "options": [
+        { "value": "left center", "label": "Left" },
+        { "value": "center center", "label": "Center" },
+        { "value": "right center", "label": "Right" },
+        { "value": "center top", "label": "Top" },
+        { "value": "center bottom", "label": "Bottom" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#2b2a28"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#c6a34b"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 640,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1560
+    },
+    {
+      "type": "range",
+      "id": "image_height_desktop",
+      "label": "Image height desktop",
+      "min": 280,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "default": 540
+    },
+    {
+      "type": "range",
+      "id": "image_height_mobile",
+      "label": "Image height mobile",
+      "min": 220,
+      "max": 640,
+      "step": 10,
+      "unit": "px",
+      "default": 320
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image radius",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 52
+    },
+    {
+      "type": "header",
+      "content": "Card layout"
+    },
+    {
+      "type": "select",
+      "id": "card_alignment",
+      "label": "Card alignment desktop",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "card_width_desktop",
+      "label": "Card width desktop",
+      "min": 320,
+      "max": 1400,
+      "step": 20,
+      "unit": "px",
+      "default": 960
+    },
+    {
+      "type": "range",
+      "id": "card_width_mobile",
+      "label": "Card width mobile",
+      "min": 220,
+      "max": 760,
+      "step": 10,
+      "unit": "px",
+      "default": 680
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 280,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 860
+    },
+    {
+      "type": "range",
+      "id": "card_overlap_desktop",
+      "label": "Card overlap desktop",
+      "min": 0,
+      "max": 260,
+      "step": 4,
+      "unit": "px",
+      "default": 116
+    },
+    {
+      "type": "range",
+      "id": "card_overlap_mobile",
+      "label": "Card overlap mobile",
+      "min": 0,
+      "max": 180,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "card_padding_desktop",
+      "label": "Card padding desktop",
+      "min": 20,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "card_padding_mobile",
+      "label": "Card padding mobile",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_shadow_opacity",
+      "label": "Card shadow opacity",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "%",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "Heading size desktop",
+      "min": 24,
+      "max": 88,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size mobile",
+      "min": 16,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_desktop",
+      "label": "Subheading size desktop",
+      "min": 18,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 25
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_mobile",
+      "label": "Subheading size mobile",
+      "min": 16,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "body_size_desktop",
+      "label": "Body size desktop",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "body_size_mobile",
+      "label": "Body size mobile",
+      "min": 13,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "content_gap",
+      "label": "Gap between content blocks",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "button_gap",
+      "label": "Gap between buttons",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_inline",
+      "label": "Side padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Side padding",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "blocks": [
+    {
+      "type": "eyebrow",
+      "name": "Eyebrow",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Editorial feature"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "<p>Our Vision</p>"
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Subheading",
+          "default": "<p>We believe in the transformative power of Tea</p>"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Every cup of our Tea presents our respect for Nature, as the source of Taste and Goodness, and our uncompromising commitment to Quality, Integrity and Purpose.</p><p>We stand firm with the same dedication to delivering great Taste and natural Goodness with Kindness.</p>"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "default": "primary",
+          "options": [
+            { "value": "primary", "label": "Primary" },
+            { "value": "secondary", "label": "Secondary" }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial overlay card",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "subheading"
+        },
+        {
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
