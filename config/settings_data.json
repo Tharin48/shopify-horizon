@@ -10,8 +10,10 @@
 {
   "current": {
     "logo": "shopify://shop_images/Dilmah_Logo_Updated_f018c266-74e9-4381-a86f-0102e73bac7c.jpg",
+    "logo_inverse": "shopify://shop_images/logo_0ffcf6b7-677e-4d89-aefc-c6aa32fe38d1.png",
     "logo_height": 36,
     "logo_height_mobile": 28,
+    "favicon": "shopify://shop_images/logo_0ffcf6b7-677e-4d89-aefc-c6aa32fe38d1.png",
     "type_body_font": "jost_n4",
     "type_subheading_font": "jost_n5",
     "type_heading_font": "gelasio_n4",

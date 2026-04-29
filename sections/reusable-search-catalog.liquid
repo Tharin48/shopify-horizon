@@ -320,13 +320,33 @@
                 {%- if tea_type_count >= tea_type_limit -%}
                   {%- break -%}
                 {%- endif -%}
-                {%- assign want_handle = order_tok | strip | downcase -%}
-                {%- if want_handle == blank -%}
+                {%- assign order_tok_stripped = order_tok | strip -%}
+                {%- if order_tok_stripped == blank -%}
                   {% continue %}
                 {%- endif -%}
+                {%- assign tok_h = order_tok_stripped | handleize -%}
+                {%- assign tok_d = order_tok_stripped | downcase -%}
                 {%- for mo_entry in tea_type_mo_root.values -%}
-                  {%- assign eh = mo_entry.system.handle | strip | downcase -%}
-                  {%- if eh == want_handle -%}
+                  {%- liquid
+                    assign eh = mo_entry.system.handle | strip | downcase
+                    assign mo_nm = mo_entry.name.value | default: mo_entry.name | strip | downcase
+                    assign mo_op = mo_entry.optional_display_label.value | default: mo_entry.optional_display_label | strip | downcase
+                    assign nm_h = mo_nm | handleize
+                    assign op_h = mo_op | handleize
+                    assign tea_mo_manual_hit = false
+                    if eh == tok_d or eh == tok_h
+                      assign tea_mo_manual_hit = true
+                    elsif mo_nm != blank and mo_nm == tok_d
+                      assign tea_mo_manual_hit = true
+                    elsif mo_op != blank and mo_op == tok_d
+                      assign tea_mo_manual_hit = true
+                    elsif mo_nm != blank and nm_h == tok_h
+                      assign tea_mo_manual_hit = true
+                    elsif mo_op != blank and op_h == tok_h
+                      assign tea_mo_manual_hit = true
+                    endif
+                  -%}
+                  {%- if tea_mo_manual_hit -%}
                     {%- assign mo_marker = '::' | append: eh | append: '::' -%}
                     {%- unless tea_type_mo_rendered contains mo_marker -%}
                       {%- assign tea_type_mo_rendered = tea_type_mo_rendered | append: mo_marker -%}
@@ -1264,7 +1284,7 @@
         "type": "textarea",
         "id": "tea_type_metaobject_order",
         "label": "Tea type display order (optional)",
-        "info": "List each entry’s handle in the order you want (one per line, and/or comma-separated). Find handles under Content → Tea Type → entry URL. Handles not listed appear after, ordered by the sort field below or Shopify default. Invalid handles are skipped."
+        "info": "One per line and/or comma-separated. Each item can be the entry handle (Content → Tea Type, from the URL), or the entry name / optional display label—the theme matches case-insensitively and by handleized form (e.g. “Green Tea” and green-tea both work). Entries not listed appear after, using the sort field below or Shopify default. Tokens with no matching entry are skipped."
       }, {
         "type": "text",
         "id": "tea_type_metaobject_sort_key",
@@ -1339,7 +1359,7 @@
         "type": "text",
         "id": "facet_param_hint_flavor",
         "label": "Flavor — param hint",
-        "default": "custom.flavor"
+        "default": "shopify.flavor"
       }, {
         "type": "text",
         "id": "facet_label_time_of_day",

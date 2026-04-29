@@ -9,6 +9,10 @@
   assign show_banner_subtitle = section.settings.show_banner_subtitle
   assign show_banner_title = section.settings.show_banner_title
   assign show_banner_button = section.settings.show_banner_button
+  assign show_banner_overlay = true
+  if section.settings.show_banner_overlay == false
+    assign show_banner_overlay = false
+  endif
 
   assign horizontal_position = 'flex-start'
   case section.settings.banner_text_horizontal_position
@@ -27,7 +31,6 @@
   endcase
 
   assign text_alignment = section.settings.banner_text_alignment | default: 'left'
-  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
   assign desktop_content_alignment = 'start'
   case section.settings.desktop_content_alignment
     when 'middle'
@@ -47,6 +50,12 @@
   if section.settings.show_right_leaf and section.settings.right_leaf_image != blank
     assign fepc_show_decor = true
   endif
+
+  capture banner_overlay_style
+    unless section.settings.banner_overlay_color == blank
+      echo '--fepc-overlay-background: ' | append: section.settings.banner_overlay_color | append: ';'
+    endunless
+  endcapture
 %}
 
 {% # theme-check-disable MissingAsset %}
@@ -84,7 +93,7 @@
       {{ 'hero-apparel-1' | placeholder_svg_tag: 'fepc__banner-image fepc__banner-image--placeholder' }}
     {% endif %}
   </div>
-  <div class="fepc__banner-overlay"></div>
+  <div class="fepc__banner-overlay{% unless show_banner_overlay %} fepc__banner-overlay--hidden{% endunless %}"{% if banner_overlay_style != blank %} style="{{ banner_overlay_style | strip }}"{% endif %}></div>
   <div class="fepc__banner-content">
     {% if show_banner_subtitle and section.settings.subtitle != blank %}
       <p class="fepc__banner-subtitle">{{ section.settings.subtitle | escape }}</p>
@@ -94,41 +103,59 @@
     {% endif %}
     {% if show_banner_button and section.settings.button_label != blank %}
       {% liquid
-        assign banner_button_icon_name = section.settings.banner_button_icon
+        assign banner_button_icon_name = section.settings.banner_button_icon | default: 'arrow'
+        assign banner_button_icon_image = blank
+        assign banner_button_variant = 'primary'
+        assign banner_button_border_width = 1
+        assign banner_button_padding_vertical = 15
+        assign banner_button_padding_horizontal = 23
+        assign banner_button_use_custom_colors = false
+
+        if banner_button_icon_name == 'custom'
+          assign banner_button_icon_name = 'arrow'
+          assign banner_button_icon_image = section.settings.banner_button_icon_image
+        endif
+
+        if section.settings.banner_button_color_source == 'custom'
+          assign banner_button_use_custom_colors = true
+        endif
+
+        case section.settings.button_style
+          when 'outline'
+            assign banner_button_variant = 'secondary'
+          when 'text'
+            assign banner_button_variant = 'link'
+            assign banner_button_border_width = 0
+            assign banner_button_padding_vertical = 0
+            assign banner_button_padding_horizontal = 0
+        endcase
       %}
-      {% if section.settings.button_link != blank %}
-        <a
-          class="fepc__banner-button fepc__banner-button--{{ section.settings.button_style }}"
-          href="{{ section.settings.button_link }}"
-          aria-label="{{ section.settings.button_label | escape }}"
-        >
-          {% if section.settings.show_banner_button_icon %}
-            <span class="fepc__banner-button-icon-wrap{% if section.settings.banner_button_icon_position == 'right' %} fepc__banner-button-icon-wrap--right{% endif %}" aria-hidden="true">
-              {% render 'icon-or-image',
-                icon: banner_button_icon_name,
-                image_upload: section.settings.banner_button_icon_image,
-                width: section.settings.banner_button_icon_size,
-                class_name: 'fepc__banner-button-icon icon-default'
-              %}
-            </span>
-          {% endif %}
-          <span>{{ section.settings.button_label | escape }}</span>
-        </a>
-      {% else %}
-        <span class="fepc__banner-button fepc__banner-button--{{ section.settings.button_style }} is-disabled">
-          {% if section.settings.show_banner_button_icon %}
-            <span class="fepc__banner-button-icon-wrap{% if section.settings.banner_button_icon_position == 'right' %} fepc__banner-button-icon-wrap--right{% endif %}" aria-hidden="true">
-              {% render 'icon-or-image',
-                icon: banner_button_icon_name,
-                image_upload: section.settings.banner_button_icon_image,
-                width: section.settings.banner_button_icon_size,
-                class_name: 'fepc__banner-button-icon icon-default'
-              %}
-            </span>
-          {% endif %}
-          <span>{{ section.settings.button_label | escape }}</span>
-        </span>
-      {% endif %}
+      {% render 'button',
+        label: section.settings.button_label,
+        link: section.settings.button_link,
+        variant: banner_button_variant,
+        show_icon: section.settings.show_banner_button_icon,
+        icon: banner_button_icon_name,
+        custom_icon_image: banner_button_icon_image,
+        icon_position: section.settings.banner_button_icon_position,
+        icon_size: section.settings.banner_button_icon_size,
+        icon_spacing: section.settings.banner_button_icon_gap,
+        font_size: section.settings.banner_button_font_size,
+        font_weight: 400,
+        padding_vertical: banner_button_padding_vertical,
+        padding_horizontal: banner_button_padding_horizontal,
+        border_radius: 999,
+        border_width: banner_button_border_width,
+        use_custom_colors: banner_button_use_custom_colors,
+        background: section.settings.banner_button_background_color,
+        text_color: section.settings.banner_button_text_color,
+        border_color: section.settings.banner_button_border_color,
+        hover_background: section.settings.banner_button_background_color,
+        hover_text_color: section.settings.banner_button_text_color,
+        hover_border_color: section.settings.banner_button_border_color,
+        icon_color: section.settings.banner_button_icon_color,
+        class_name: 'fepc__banner-button'
+      %}
     {% endif %}
   </div>
 {% endcapture %}
@@ -153,17 +180,26 @@
     --fepc-button-bg: {{ section.settings.banner_button_background_color }};
     --fepc-button-text: {{ section.settings.banner_button_text_color }};
     --fepc-button-border: {{ section.settings.banner_button_border_color }};
+    --fepc-button-icon-color: {{ section.settings.banner_button_icon_color }};
     --fepc-arrow-bg: {{ section.settings.arrow_background_color }};
     --fepc-arrow-color: {{ section.settings.arrow_icon_color }};
     --fepc-arrow-border: {{ section.settings.arrow_border_color }};
     --fepc-banner-subtitle-color: {{ section.settings.banner_subtitle_color }};
     --fepc-banner-title-color: {{ section.settings.banner_title_color }};
+    --fepc-section-subheading-size: {{ section.settings.section_subheading_size }}px;
+    --fepc-section-heading-size: {{ section.settings.section_heading_size }}px;
+    --fepc-section-heading-size-mobile: {{ section.settings.section_heading_size_mobile }}px;
     --fepc-banner-subtitle-size: {{ section.settings.banner_subtitle_size }}px;
+    --fepc-banner-subtitle-size-mobile: {{ section.settings.banner_subtitle_size_mobile }}px;
     --fepc-banner-title-size-desktop: {{ section.settings.banner_title_size_desktop }}px;
     --fepc-banner-title-size-mobile: {{ section.settings.banner_title_size_mobile }}px;
+    --fepc-banner-title-max-width: {{ section.settings.banner_title_max_width }}ch;
     --fepc-banner-button-font-size: {{ section.settings.banner_button_font_size }}px;
     --fepc-banner-button-icon-size: {{ section.settings.banner_button_icon_size }}px;
     --fepc-banner-button-icon-gap: {{ section.settings.banner_button_icon_gap }}px;
+    --fepc-banner-content-gap: {{ section.settings.banner_content_gap }}px;
+    --fepc-banner-content-padding-desktop: {{ section.settings.banner_content_padding_desktop }}px;
+    --fepc-banner-content-padding-mobile: {{ section.settings.banner_content_padding_mobile }}px;
     --fepc-gap: {{ section.settings.card_gap }}px;
     --fepc-banner-width: {{ section.settings.desktop_banner_width }}%;
     --fepc-products-desktop: {{ section.settings.products_per_view_desktop }};
@@ -174,7 +210,9 @@
     --fepc-radius: {{ section.settings.corner_radius }}px;
     --fepc-banner-height-desktop: {{ section.settings.banner_height_desktop }}px;
     --fepc-banner-height-mobile: {{ section.settings.banner_height_mobile }}px;
-    --fepc-overlay-opacity: {{ overlay_opacity }};
+    --fepc-overlay-start: {{ section.settings.overlay_start_color | color_modify: 'alpha', section.settings.overlay_start_opacity | divided_by: 100.0 }};
+    --fepc-overlay-end: {{ section.settings.overlay_end_color | color_modify: 'alpha', section.settings.overlay_end_opacity | divided_by: 100.0 }};
+    --fepc-overlay-highlight: {{ section.settings.overlay_highlight_color | color_modify: 'alpha', section.settings.overlay_highlight_opacity | divided_by: 100.0 }};
     --fepc-banner-content-x: {{ horizontal_position }};
     --fepc-banner-content-y: {{ vertical_position }};
     --fepc-banner-text-align: {{ text_alignment }};
@@ -230,8 +268,8 @@
         {% endif %}
       </div>
 
-      {% if section.settings.show_arrow_controls %}
-        <div class="fepc__controls" aria-label="Carousel controls">
+      {% if section.settings.show_arrow_controls and section.settings.show_arrow_controls_mobile %}
+        <div class="fepc__controls fepc__controls--mobile" aria-label="Carousel controls">
           <button
             type="button"
             class="fepc__arrow fepc__arrow--{{ section.settings.arrow_style }}"
@@ -262,6 +300,33 @@
       </article>
 
       <div class="fepc__products-column">
+        {% if section.settings.show_arrow_controls %}
+          <div class="fepc__products-top">
+            <div class="fepc__controls fepc__controls--desktop" aria-label="Carousel controls">
+              <button
+                type="button"
+                class="fepc__arrow fepc__arrow--{{ section.settings.arrow_style }}"
+                data-carousel-prev
+                aria-label="Show previous products"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="fepc__arrow fepc__arrow--{{ section.settings.arrow_style }}"
+                data-carousel-next
+                aria-label="Show next products"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M9.5 5.5 16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
         {% if request.design_mode and has_products == false %}
           <div class="fepc__editor-note">
             {% if featured_collection == blank %}
@@ -492,6 +557,36 @@
     },
     {
       "type": "range",
+      "id": "section_subheading_size",
+      "label": "Section subheading size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "section_heading_size",
+      "label": "Section heading size",
+      "min": 28,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 54
+    },
+    {
+      "type": "range",
+      "id": "section_heading_size_mobile",
+      "label": "Section heading size mobile",
+      "min": 24,
+      "max": 56,
+      "step": 1,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "range",
       "id": "banner_subtitle_size",
       "label": "Banner subtitle size",
       "min": 10,
@@ -499,6 +594,16 @@
       "step": 1,
       "unit": "px",
       "default": 14
+    },
+    {
+      "type": "range",
+      "id": "banner_subtitle_size_mobile",
+      "label": "Banner subtitle size mobile",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 13
     },
     {
       "type": "range",
@@ -519,6 +624,16 @@
       "step": 1,
       "unit": "px",
       "default": 43
+    },
+    {
+      "type": "range",
+      "id": "banner_title_max_width",
+      "label": "Banner title width",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "unit": "ch",
+      "default": 12
     },
     {
       "type": "range",
@@ -556,7 +671,8 @@
         { "value": "lock", "label": "Lock" },
         { "value": "map_pin", "label": "Map pin" },
         { "value": "plane", "label": "Plane" },
-        { "value": "recycle", "label": "Recycle" }
+        { "value": "recycle", "label": "Recycle" },
+        { "value": "custom", "label": "Custom image" }
       ],
       "default": "arrow",
       "visible_if": "{{ section.settings.show_banner_button_icon }}"
@@ -565,7 +681,7 @@
       "type": "image_picker",
       "id": "banner_button_icon_image",
       "label": "Banner button custom icon image",
-      "info": "Optional. Replaces selected icon when set.",
+      "info": "Used when the icon selection is set to Custom image.",
       "visible_if": "{{ section.settings.show_banner_button_icon }}"
     },
     {
@@ -602,22 +718,44 @@
       "visible_if": "{{ section.settings.show_banner_button_icon }}"
     },
     {
+      "type": "select",
+      "id": "banner_button_color_source",
+      "label": "Banner button colors",
+      "default": "theme",
+      "options": [
+        { "value": "theme", "label": "Use theme variant colors" },
+        { "value": "custom", "label": "Custom colors" }
+      ],
+      "visible_if": "{{ section.settings.show_banner_button }}",
+      "info": "Theme colors follow the selected button style and the section color scheme."
+    },
+    {
+      "type": "color",
+      "id": "banner_button_icon_color",
+      "label": "Banner button icon color",
+      "default": "#FFFFFF",
+      "visible_if": "{{ section.settings.show_banner_button_icon and section.settings.banner_button_color_source == 'custom' }}"
+    },
+    {
       "type": "color",
       "id": "banner_button_background_color",
       "label": "Banner button background",
-      "default": "#C79A18"
+      "default": "#C79A18",
+      "visible_if": "{{ section.settings.banner_button_color_source == 'custom' }}"
     },
     {
       "type": "color",
       "id": "banner_button_text_color",
       "label": "Banner button text",
-      "default": "#FFFFFF"
+      "default": "#FFFFFF",
+      "visible_if": "{{ section.settings.banner_button_color_source == 'custom' }}"
     },
     {
       "type": "color",
       "id": "banner_button_border_color",
       "label": "Banner button border",
-      "default": "#C79A18"
+      "default": "#C79A18",
+      "visible_if": "{{ section.settings.banner_button_color_source == 'custom' }}"
     },
     {
       "type": "select",
@@ -654,10 +792,91 @@
     },
     {
       "type": "range",
-      "id": "overlay_opacity",
-      "label": "Overlay opacity",
+      "id": "banner_content_gap",
+      "label": "Banner text gap",
+      "min": 4,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "banner_content_padding_desktop",
+      "label": "Banner content padding desktop",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "banner_content_padding_mobile",
+      "label": "Banner content padding mobile",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "show_banner_overlay",
+      "label": "Show banner overlay",
+      "default": true
+    },
+    {
+      "type": "color_background",
+      "id": "banner_overlay_color",
+      "label": "Banner overlay",
+      "info": "Same overlay control style as the category cards. Supports solid colors and gradients.",
+      "visible_if": "{{ section.settings.show_banner_overlay }}"
+    },
+    {
+      "type": "color",
+      "id": "overlay_start_color",
+      "label": "Overlay top color",
+      "default": "#18120C"
+    },
+    {
+      "type": "color",
+      "id": "overlay_end_color",
+      "label": "Overlay bottom color",
+      "default": "#18120C"
+    },
+    {
+      "type": "color",
+      "id": "overlay_highlight_color",
+      "label": "Overlay highlight color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "range",
+      "id": "overlay_start_opacity",
+      "label": "Overlay top opacity",
       "min": 0,
-      "max": 70,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "overlay_end_opacity",
+      "label": "Overlay bottom opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "overlay_highlight_opacity",
+      "label": "Overlay highlight opacity",
+      "min": 0,
+      "max": 100,
       "step": 5,
       "unit": "%",
       "default": 20
@@ -824,6 +1043,13 @@
       "id": "show_arrow_controls",
       "label": "Show arrow controls",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrow_controls_mobile",
+      "label": "Show arrow controls on mobile",
+      "default": true,
+      "visible_if": "{{ section.settings.show_arrow_controls }}"
     },
     {
       "type": "color",

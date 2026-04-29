@@ -41,7 +41,7 @@
         "faq_tab": {
           "type": "page_tab",
           "settings": {
-            "page": "faq-new",
+            "page": "faq",
             "label": "FAQ",
             "icon": "question"
           }
@@ -49,7 +49,7 @@
         "shipping_tab": {
           "type": "page_tab",
           "settings": {
-            "page": "shipping-and-delivery-new",
+            "page": "shipping-and-delivery",
             "label": "Shipping & Delivery Policy",
             "icon": "truck"
           }

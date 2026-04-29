@@ -1,0 +1,104 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "blog_hero_slider": {
+      "type": "custom-blog-hero-slider",
+      "settings": {
+        "blog_1": "news",
+        "blog_2": "tea-and-health",
+        "blog_3": "tea-for-celebrations",
+        "blog_4": "tea-gastronomy",
+        "blog_5": "tea-mixology",
+        "featured_tag_text": "featured",
+        "max_slides": 4,
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "overlay_opacity": 35,
+        "desktop_height": 460,
+        "mobile_height": 380
+      }
+    },
+    "blog_topic_grid": {
+      "type": "custom-blog-topic-grid",
+      "settings": {
+        "heading": "Popular topics",
+        "view_all_link": "/pages/all-blogs",
+        "view_all_label": "View All",
+        "limit": 8,
+        "blog_1": "tea-gastronomy",
+        "blog_label_1": "Tea Gatronomy",
+        "blog_2": "news",
+        "blog_label_2": "News",
+        "blog_3": "tea-mixology",
+        "blog_label_3": "Tea Mixology",
+        "blog_4": "",
+        "blog_label_4": "Health",
+        "blog_5": "",
+        "blog_label_5": "Recipes"
+      }
+    },
+    "featured_article_banner": {
+      "type": "custom-featured-article-banner",
+      "settings": {
+        "category": "Featured",
+        "heading": "A Recipe for Empowerment",
+        "description": "<p>Use this banner to spotlight a flagship editorial story or campaign from your blog ecosystem.</p>",
+        "date_text": "08.08.2026",
+        "link_url": "",
+        "link_label": "Read story",
+        "content_alignment": "center",
+        "overlay_opacity": 45,
+        "desktop_height": 560,
+        "mobile_height": 420
+      }
+    },
+    "editor_picks": {
+      "type": "custom-editor-picks",
+      "blocks": {
+        "pick_1": {
+          "type": "article_pick",
+          "settings": {
+            "article": "news/genesis-thought-leadership-series-welcomes-global-expert-on-rainforest-restoration",
+            "category_label": ""
+          }
+        },
+        "pick_2": {
+          "type": "article_pick",
+          "settings": {
+            "article": "news/dilmah-s-echs-bridges-kindness-and-quality-to-nurture-the-next-generation-of-chefs",
+            "category_label": ""
+          }
+        },
+        "pick_3": {
+          "type": "article_pick",
+          "settings": {
+            "article": "news/dilmah-craft-iced-tea-receives-prestigious-award",
+            "category_label": ""
+          }
+        }
+      },
+      "block_order": [
+        "pick_1",
+        "pick_2",
+        "pick_3"
+      ],
+      "settings": {
+        "heading": "Editor’s Pick"
+      }
+    }
+  },
+  "order": [
+    "blog_hero_slider",
+    "blog_topic_grid",
+    "featured_article_banner",
+    "editor_picks"
+  ]
+}

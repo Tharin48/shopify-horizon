@@ -1,45 +1,489 @@
 {%- doc -%}
-  Intended for use in a block similar to the button block.
+  Shared marketing button component with primary / secondary / link / custom variants,
+  optional theme icon or custom uploaded icon image, and backward compatibility for:
+  - `blocks/button.liquid`
+  - `blocks/icon-button.liquid`
+  - direct section renders
 
-  @param {string} link - link to render
-  @param {object} [block] - The block
-
-  @example
-  {% render 'button', link: '/collections/all' %}
+  @param {string} [link]
+  @param {object} [block]
+  @param {string} [label]
+  @param {boolean} [open_in_new_tab]
+  @param {string} [variant] - primary | secondary | link | custom
+  @param {boolean} [show_icon]
+  @param {string} [icon]
+  @param {object} [custom_icon_image]
+  @param {string} [icon_position] - left | right
+  @param {number} [icon_size]
+  @param {number} [icon_spacing]
+  @param {number} [padding_vertical]
+  @param {number} [padding_horizontal]
+  @param {number} [border_radius]
+  @param {number} [border_width]
+  @param {number} [font_size]
+  @param {number} [font_weight]
+  @param {string} [background]
+  @param {string} [text_color]
+  @param {string} [border_color]
+  @param {string} [hover_background]
+  @param {string} [hover_text_color]
+  @param {string} [hover_border_color]
+  @param {string} [icon_color]
+  @param {boolean} [use_custom_colors]
+  @param {string} [class_name]
 {%- enddoc -%}
 
-{% assign block_settings = block.settings %}
+{% liquid
+  assign button_settings = blank
+  if block != blank
+    assign button_settings = block.settings
+  endif
+
+  assign button_use_custom_colors = false
+  if use_custom_colors == true
+    assign button_use_custom_colors = true
+  endif
+
+  assign button_link = link
+  if button_link == blank and button_settings != blank
+    assign button_link = button_settings.link
+  endif
+
+  assign button_label = label
+  if button_label == blank and button_settings != blank
+    assign button_label = button_settings.label
+  endif
+
+  assign button_variant = variant
+  if button_variant == blank
+    if button_settings != blank and button_settings.color_mode != blank
+      case button_settings.color_mode
+        when 'secondary_button'
+          assign button_variant = 'secondary'
+        when 'custom'
+          assign button_variant = 'custom'
+        else
+          assign button_variant = 'primary'
+      endcase
+    elsif button_settings != blank and button_settings.style_class != blank
+      case button_settings.style_class
+        when 'button-secondary'
+          assign button_variant = 'secondary'
+        when 'link'
+          assign button_variant = 'link'
+        else
+          assign button_variant = 'primary'
+      endcase
+    else
+      assign button_variant = 'primary'
+    endif
+  endif
+
+  if button_variant == 'custom'
+    assign button_use_custom_colors = true
+  endif
+
+  if button_settings != blank
+    if button_settings.color_mode == 'custom' or button_settings.button_color_source == 'custom'
+      assign button_use_custom_colors = true
+    endif
+  endif
+
+  assign button_show_icon = false
+  if show_icon == true
+    assign button_show_icon = true
+  elsif button_settings != blank and button_settings.show_icon == true
+    assign button_show_icon = true
+  endif
+
+  assign button_open_new_tab = false
+  if open_in_new_tab == true
+    assign button_open_new_tab = true
+  elsif button_settings != blank and button_settings.open_in_new_tab == true
+    assign button_open_new_tab = true
+  endif
+
+  assign button_icon = icon
+  if button_icon == blank and button_settings != blank and button_settings.icon != blank
+    assign button_icon = button_settings.icon
+  endif
+  if button_icon == blank
+    assign button_icon = 'arrow'
+  endif
+
+  assign button_icon_image = custom_icon_image
+  if button_icon_image == blank and button_settings != blank and button_settings.custom_image != blank
+    assign button_icon_image = button_settings.custom_image
+  endif
+
+  if button_icon == 'custom'
+    assign button_icon = 'arrow'
+  endif
+
+  assign button_icon_position = icon_position
+  if button_icon_position == blank and button_settings != blank and button_settings.icon_position != blank
+    assign button_icon_position = button_settings.icon_position
+  endif
+  if button_icon_position == blank
+    assign button_icon_position = 'left'
+  endif
+
+  assign button_icon_size = icon_size
+  if button_icon_size == blank and button_settings != blank and button_settings.icon_size != blank
+    assign button_icon_size = button_settings.icon_size
+  endif
+  if button_icon_size == blank
+    assign button_icon_size = 18
+  endif
+
+  assign button_icon_spacing = icon_spacing
+  if button_icon_spacing == blank and button_settings != blank and button_settings.icon_spacing != blank
+    assign button_icon_spacing = button_settings.icon_spacing
+  endif
+  if button_icon_spacing == blank
+    assign button_icon_spacing = 8
+  endif
+
+  assign button_padding_vertical = padding_vertical
+  if button_padding_vertical == blank and button_settings != blank and button_settings.padding_vertical != blank
+    assign button_padding_vertical = button_settings.padding_vertical
+  endif
+  if button_padding_vertical == blank
+    assign button_padding_vertical = 14
+  endif
+
+  assign button_padding_horizontal = padding_horizontal
+  if button_padding_horizontal == blank and button_settings != blank and button_settings.padding_horizontal != blank
+    assign button_padding_horizontal = button_settings.padding_horizontal
+  endif
+  if button_padding_horizontal == blank
+    assign button_padding_horizontal = 32
+  endif
+
+  assign button_border_radius = border_radius
+  if button_border_radius == blank and button_settings != blank and button_settings.border_radius != blank
+    assign button_border_radius = button_settings.border_radius
+  endif
+  if button_border_radius == blank
+    assign button_border_radius = 999
+  endif
+
+  assign button_border_width = border_width
+  if button_border_width == blank and button_settings != blank and button_settings.border_width != blank
+    assign button_border_width = button_settings.border_width
+  endif
+  if button_border_width == blank
+    assign button_border_width = 1
+  endif
+
+  assign button_font_size = font_size
+  if button_font_size == blank and button_settings != blank and button_settings.font_size != blank
+    assign button_font_size = button_settings.font_size
+  endif
+  if button_font_size == blank
+    assign button_font_size = 16
+  endif
+
+  assign button_font_weight = font_weight
+  if button_font_weight == blank
+    assign button_font_weight = 500
+  endif
+
+  assign button_background = background
+  if button_background == blank and button_settings != blank and button_settings.background != blank
+    assign button_background = button_settings.background
+  endif
+
+  assign button_text_color = text_color
+  if button_text_color == blank and button_settings != blank and button_settings.text_color != blank
+    assign button_text_color = button_settings.text_color
+  endif
+
+  assign button_border_color = border_color
+  if button_border_color == blank and button_settings != blank and button_settings.border_color != blank
+    assign button_border_color = button_settings.border_color
+  endif
+
+  assign button_hover_background = hover_background
+  if button_hover_background == blank and button_settings != blank and button_settings.hover_background != blank
+    assign button_hover_background = button_settings.hover_background
+  endif
+
+  assign button_hover_text_color = hover_text_color
+  if button_hover_text_color == blank and button_settings != blank and button_settings.hover_text_color != blank
+    assign button_hover_text_color = button_settings.hover_text_color
+  endif
+
+  assign button_hover_border_color = hover_border_color
+  if button_hover_border_color == blank and button_settings != blank and button_settings.hover_border_color != blank
+    assign button_hover_border_color = button_settings.hover_border_color
+  endif
+
+  if button_use_custom_colors == false and button_variant != 'link'
+    assign button_border_width = blank
+  elsif button_use_custom_colors and button_variant != 'link' and button_border_width == 0 and button_border_color != blank
+    assign button_border_width = 1
+  endif
+
+  assign button_icon_color = icon_color
+
+  assign button_width_mode = blank
+  assign button_width_percent = blank
+  assign button_full_width_mobile = false
+  assign use_size_style = false
+
+  if button_settings != blank and button_settings.width_mode != blank
+    assign button_width_mode = button_settings.width_mode
+    assign button_width_percent = button_settings.desktop_width_percent
+    if button_settings.full_width_mobile_tablet == true
+      assign button_full_width_mobile = true
+    endif
+  elsif button_settings != blank and button_settings.width != blank
+    assign use_size_style = true
+  else
+    assign button_width_mode = 'auto'
+  endif
+
+  if button_width_mode == blank
+    assign button_width_mode = 'auto'
+  endif
+
+  assign theme_button_class = 'theme-button theme-button--' | append: button_variant
+  assign theme_button_class = theme_button_class | append: ' theme-button--width-' | append: button_width_mode
+  if button_icon_position == 'right'
+    assign theme_button_class = theme_button_class | append: ' theme-button--icon-right'
+  endif
+  if button_full_width_mobile and button_width_mode != 'full'
+    assign theme_button_class = theme_button_class | append: ' theme-button--stretch-narrow'
+  endif
+  if class_name != blank
+    assign theme_button_class = theme_button_class | append: ' ' | append: class_name
+  endif
+  if use_size_style
+    assign theme_button_class = theme_button_class | append: ' size-style'
+  endif
+  if button_settings != blank and button_settings.inherit_color_scheme == false and button_settings.color_scheme != blank
+    assign theme_button_class = theme_button_class | append: ' color-' | append: button_settings.color_scheme
+  endif
+
+  capture theme_button_style
+    if use_size_style and button_settings != blank
+      render 'size-style', settings: button_settings
+    endif
+    echo '--tb-pad-y:' | append: button_padding_vertical | append: 'px;'
+    echo '--tb-pad-x:' | append: button_padding_horizontal | append: 'px;'
+    echo '--tb-gap:' | append: button_icon_spacing | append: 'px;'
+    echo '--tb-radius:' | append: button_border_radius | append: 'px;'
+    echo '--tb-border-w:' | append: button_border_width | append: 'px;'
+    echo '--tb-font-size:' | append: button_font_size | append: 'px;'
+    echo '--tb-font-weight:' | append: button_font_weight | append: ';'
+    echo '--tb-icon-size:' | append: button_icon_size | append: 'px;'
+    if button_width_percent != blank
+      echo '--tb-width-pct:' | append: button_width_percent | append: '%;'
+    endif
+    if button_use_custom_colors and button_background != blank
+      echo '--tb-bg:' | append: button_background | append: ';'
+    endif
+    if button_use_custom_colors and button_text_color != blank
+      echo '--tb-fg:' | append: button_text_color | append: ';'
+    endif
+    if button_use_custom_colors and button_border_color != blank
+      echo '--tb-border:' | append: button_border_color | append: ';'
+    endif
+    if button_use_custom_colors and button_hover_background != blank
+      echo '--tb-bg-hover:' | append: button_hover_background | append: ';'
+    endif
+    if button_use_custom_colors and button_hover_text_color != blank
+      echo '--tb-fg-hover:' | append: button_hover_text_color | append: ';'
+    endif
+    if button_use_custom_colors and button_hover_border_color != blank
+      echo '--tb-border-hover:' | append: button_hover_border_color | append: ';'
+    endif
+    if button_use_custom_colors and button_icon_color != blank
+      echo '--tb-icon-color:' | append: button_icon_color | append: ';'
+    endif
+  endcapture
+%}
 
 <a
-  {% if link == blank %}
+  {% if button_link == blank %}
     role="link"
     aria-disabled="true"
   {% else %}
-    href="{{ link }}"
+    href="{{ button_link }}"
   {% endif %}
-  class="
-    size-style
-    {{ block_settings.style_class }}
-    {{ block_settings.style_class }}--{{ block.id }}
-  "
-  style="{% render 'size-style', settings: block_settings %}"
-  {%- if block_settings.open_in_new_tab -%}
+  class="{{ theme_button_class }}"
+  style="{{ theme_button_style | strip }}"
+  {% if button_open_new_tab and button_link != blank %}
     target="_blank"
     rel="noopener noreferrer"
-  {%- endif -%}
-  {{ block.shopify_attributes }}
+  {% endif %}
+  {% if block != blank %}
+    {{ block.shopify_attributes }}
+  {% endif %}
 >
-  {{ block_settings.label }}
+  {% if button_show_icon %}
+    <span class="theme-button__icon-wrap" aria-hidden="true">
+      {% render 'icon-or-image',
+        icon: button_icon,
+        image_upload: button_icon_image,
+        width: button_icon_size,
+        class_name: 'theme-button__icon',
+        css_controlled_size: true
+      %}
+    </span>
+  {% endif %}
+  <span class="theme-button__label">{{ button_label | escape }}</span>
 </a>
 
 {% stylesheet %}
-  .link {
+  .theme-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--tb-gap, 8px);
+    min-block-size: 3.25rem;
+    max-width: 100%;
+    padding: var(--tb-pad-y, 14px) var(--tb-pad-x, 32px);
+    border-radius: var(--tb-radius, var(--tb-theme-radius, 999px));
+    border: var(--tb-border-w, var(--tb-theme-border-w, 1px)) solid transparent;
+    font-family: var(--tb-theme-font-family, var(--font-paragraph--family));
+    text-transform: var(--tb-theme-text-case, none);
+    font-size: var(--tb-font-size, 16px);
+    font-weight: var(--tb-font-weight, 500);
+    line-height: 1.2;
     text-decoration: none;
-    text-decoration-color: currentcolor;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
 
-    &:hover {
-      color: var(--color-primary-hover);
-      text-decoration-color: transparent;
+  .theme-button--primary {
+    --tb-theme-border-w: var(--style-border-width-primary);
+    --tb-theme-radius: var(--style-border-radius-buttons-primary);
+    --tb-theme-font-family: var(--button-font-family-primary);
+    --tb-theme-text-case: var(--button-text-case-primary);
+    background: var(--tb-bg, var(--color-primary-button-background));
+    color: var(--tb-fg, var(--color-primary-button-text));
+    border-color: var(--tb-border, var(--color-primary-button-border));
+  }
+
+  .theme-button--secondary {
+    --tb-theme-border-w: var(--style-border-width-secondary);
+    --tb-theme-radius: var(--style-border-radius-buttons-secondary);
+    --tb-theme-font-family: var(--button-font-family-secondary);
+    --tb-theme-text-case: var(--button-text-case-secondary);
+    background: var(--tb-bg, var(--color-secondary-button-background));
+    color: var(--tb-fg, var(--color-secondary-button-text));
+    border-color: var(--tb-border, var(--color-secondary-button-border));
+  }
+
+  .theme-button--custom {
+    --tb-theme-border-w: var(--style-border-width-primary);
+    --tb-theme-radius: var(--style-border-radius-buttons-primary);
+    --tb-theme-font-family: var(--button-font-family-primary);
+    --tb-theme-text-case: var(--button-text-case-primary);
+    background: var(--tb-bg, var(--color-primary-button-background));
+    color: var(--tb-fg, var(--color-primary-button-text));
+    border-color: var(--tb-border, var(--color-primary-button-border));
+  }
+
+  .theme-button--link {
+    --tb-theme-font-family: var(--button-font-family-secondary);
+    --tb-theme-text-case: var(--button-text-case-secondary);
+    min-block-size: auto;
+    padding-inline: 0;
+    border-width: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--tb-fg, currentColor);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+
+  .theme-button:not([aria-disabled='true']):hover,
+  .theme-button:not([aria-disabled='true']):focus-visible {
+    background: var(--tb-bg-hover, var(--tb-bg, inherit));
+    color: var(--tb-fg-hover, var(--tb-fg, inherit));
+    border-color: var(--tb-border-hover, var(--tb-border, currentColor));
+  }
+
+  .theme-button--primary:not([aria-disabled='true']):hover,
+  .theme-button--primary:not([aria-disabled='true']):focus-visible {
+    background: var(--tb-bg-hover, var(--color-primary-button-hover-background));
+    color: var(--tb-fg-hover, var(--color-primary-button-hover-text));
+    border-color: var(--tb-border-hover, var(--color-primary-button-hover-border));
+  }
+
+  .theme-button--secondary:not([aria-disabled='true']):hover,
+  .theme-button--secondary:not([aria-disabled='true']):focus-visible {
+    background: var(--tb-bg-hover, var(--color-secondary-button-hover-background));
+    color: var(--tb-fg-hover, var(--color-secondary-button-hover-text));
+    border-color: var(--tb-border-hover, var(--color-secondary-button-hover-border));
+  }
+
+  .theme-button--link:not([aria-disabled='true']):hover,
+  .theme-button--link:not([aria-disabled='true']):focus-visible {
+    background: transparent;
+    color: var(--tb-fg-hover, var(--tb-fg, currentColor));
+    border-color: transparent;
+    text-decoration-color: transparent;
+  }
+
+  .theme-button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .theme-button[aria-disabled='true'] {
+    opacity: 0.55;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  .theme-button--icon-right {
+    flex-direction: row-reverse;
+  }
+
+  .theme-button__icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .theme-button__icon {
+    inline-size: var(--tb-icon-size, 18px);
+    block-size: var(--tb-icon-size, 18px);
+    display: block;
+  }
+
+  .theme-button__icon.icon-default {
+    color: var(--tb-icon-color, currentColor);
+  }
+
+  .theme-button--width-auto {
+    width: max-content;
+  }
+
+  .theme-button--width-full {
+    width: 100%;
+  }
+
+  .theme-button--width-percent {
+    width: var(--tb-width-pct, 100%);
+  }
+
+  .link.theme-button {
+    text-decoration-color: currentColor;
+  }
+
+  @media screen and (max-width: 989px) {
+    .theme-button--stretch-narrow {
+      width: 100%;
     }
   }
 {% endstylesheet %}

@@ -373,7 +373,7 @@
         "facet_label_tea_format": "Tea format",
         "facet_param_hint_tea_format": "custom.tea_format",
         "facet_label_flavor": "Flavor",
-        "facet_param_hint_flavor": "custom.flavor",
+        "facet_param_hint_flavor": "shopify.flavor",
         "facet_label_time_of_day": "Time of day",
         "facet_param_hint_time_of_day": "custom.time_of_day",
         "show_availability_toggle": true,

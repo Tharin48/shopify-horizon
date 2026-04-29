@@ -24,8 +24,8 @@
         "about_tab": {
           "type": "page_tab",
           "settings": {
-            "page": "about-us-test",
-            "label": "About Dilmah",
+            "page": "",
+            "label": "",
             "style": "filled"
           }
         },
@@ -44,7 +44,7 @@
             "eyebrow": "About US",
             "heading_source": "custom",
             "custom_heading": "Who We Are",
-            "intro": "<p><strong>Dilmah</strong> is a Sri Lankan family tea company built on a simple but powerful belief: tea should remain true to its origin. We are rooted in authenticity, committed to quality, and guided by respect for the leaf, the land, and the people behind every cup.We do not see tea as a commodity. We see it as something shaped by place, craft, and care. That is why our story begins not in a boardroom, but at origin — where tea is grown, understood, and brought to life.</p>"
+            "intro": "<p><strong>Dilmah </strong>is a globally renowned Sri Lankan family tea company, with an unparalleled reputation for producing authentic, natural and ethical Sri Lankan tea of the finest quality. The Company pioneered the concept of Single Origin Tea in 1985, offering tea which was ‘picked, perfected and packed’ where it is grown, giving power back to Sri Lankan tea growers and consumers around the world. As the first producer-owned tea brand, Dilmah is the only fully vertically integrated tea company with presence along the entire value chain including ownership in several of Sri Lanka’s finest tea gardens, factories, printing and packaging facilities. Dilmah products are sold in over 100 countries supported by an extensive global distribution network.<br/><br/></p>"
           }
         },
         "hero_image": {
@@ -67,7 +67,7 @@
       "name": "About Us",
       "settings": {
         "layout": "text_left_image_right",
-        "background_color": "#fffdf8",
+        "background_color": "#ffffff",
         "accent_color": "#b08a2f",
         "decorative_left_image": "shopify://shop_images/x31_1_1_1.png",
         "decorative_right_image": "shopify://shop_images/Group.svg",
@@ -92,16 +92,16 @@
           "settings": {
             "column": "left",
             "eyebrow": "",
-            "heading": "<h2>Why <br/><em>Dilmah</em> <br/>Was Created</h2>",
-            "text": "<p>For Merrill J. Fernando, tea was more than just a commodity; it was a way to serve humanity. He wanted to bring a cup of tea that wasn't just healthy and delicious, but also ethically sound.<br/><br/>The vision was to create a business that was a matter of human service. This philosophy continues to guide everything we do today, through our MJF Charitable Foundation and Dilmah Conservation.</p>"
+            "heading": "<h2>What<br/><em>Dilmah</em> <br/>Stands for</h2>",
+            "text": "<p>For Merrill J. Fernando, tea was more than just a commodity; it was a way to serve humanity. He wanted to bring a cup of tea that wasn't just healthy and delicious, but also ethically sound. The vision was to create a business that was a matter of human service. This philosophy continues to guide everything we do today, through our MJF Charitable Foundation and Dilmah Conservation.</p><p>The Company has remained true to its Founder, Merrill J. Fernando’s vision of making business a matter of human service, and understand the Company’s most invaluable assets are its people. The Company pursues its commitment towards sustainability through balancing economic success, environmental preservation, and social responsibility, which is reflected through the Company’s key pillars of Taste, Goodness and Purpose. A significant portion of the Group’s profits are directed every year towards supporting the humanitarian and environmental initiatives of Dilmah Conservation and the MJF Charitable Foundation<br/><br/></p>"
           }
         },
         "quote_card_tcQqRn": {
           "type": "quote_card",
           "settings": {
             "column": "right",
-            "quote": "<p>\"Business is a matter of human service. To share the success of my business with the less fortunate, the poor and the needy.\"</p>",
-            "author": "Merrill J. Fernando",
+            "quote": "<p>\"More than anything, at Dilmah, we believe in being kind. Kindness is at the heart of everything we do. We spread kindness by doing everything with care and respect.\"</p>",
+            "author": "Merrill J. Fernando Founder of Dilmah",
             "background_color": "",
             "border_color": ""
           }
@@ -114,7 +114,7 @@
       "name": "Why Dilmah",
       "settings": {
         "mobile_layout": "text-first",
-        "background_color": "#fffdf8",
+        "background_color": "#ffffff",
         "accent_color": "#c6a34b",
         "text_color": "#2b2a28",
         "card_background_color": "#f7f1e0",
@@ -184,7 +184,7 @@
         "image": "shopify://shop_images/405127874fb9468c56024a43ba4681368ad98be5.png",
         "image_position_desktop": "center center",
         "image_position_mobile": "center center",
-        "background_color": "#fffdf8",
+        "background_color": "#ffffff",
         "card_background_color": "#ffffff",
         "text_color": "#2b2a28",
         "accent_color": "#c6a34b",
@@ -282,7 +282,7 @@
       ],
       "name": "Editorial expert story",
       "settings": {
-        "background_color": "#fffdf8",
+        "background_color": "#ffffff",
         "text_color": "#2b2a28",
         "accent_color": "#7fae49",
         "max_width": 1560,
@@ -411,7 +411,7 @@
         "max_width": 1560,
         "pattern_width_desktop": 1280,
         "pattern_width_mobile": 740,
-        "pattern_offset_y_desktop": 0,
+        "pattern_offset_y_desktop": 24,
         "pattern_offset_y_mobile": 0,
         "pattern_opacity": 100,
         "heading_size_desktop": 36,

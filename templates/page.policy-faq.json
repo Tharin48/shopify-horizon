@@ -38,27 +38,27 @@
             "alignment": "center"
           }
         },
-        "faq_tab": {
-          "type": "page_tab",
-          "settings": {
-            "page": "faq-new",
-            "label": "FAQ",
-            "icon": "question"
-          }
-        },
         "shipping_tab": {
           "type": "page_tab",
           "settings": {
-            "page": "shipping-and-delivery-new",
-            "label": "Shipping & Delivery Policy",
+            "page": "faq",
+            "label": "FAQ",
             "icon": "truck"
           }
         },
         "terms_tab": {
           "type": "page_tab",
           "settings": {
+            "page": "shipping-and-delivery",
+            "label": "Shipping & Delivery Policy",
+            "icon": "document"
+          }
+        },
+        "page_tab_jxFf7e": {
+          "type": "page_tab",
+          "settings": {
             "page": "terms-conditions",
-            "label": "Terms & Conditions",
+            "label": "Terms & Conditinos",
             "icon": "document"
           }
         },
@@ -74,17 +74,17 @@
           "type": "page_heading",
           "settings": {
             "heading_source": "page_title",
-            "custom_heading": "",
-            "intro": "<p>Find answers to the most commonly asked questions about our teas, orders, and services. Can’t find what you’re looking for? <a href=\"/pages/contact\">Our Tea Experts are always happy to help.</a></p>"
+            "custom_heading": "{{ page.title }}",
+            "intro": "<p>Find answers to the most commonly asked questions about our teas, orders, and services. Can’t find what you’re looking for? <a href=\"https://shop.dilmahtea.com/pages/contact-us\" title=\"Contac Us\">Our Tea Experts are always happy to help</a>.<br/></p>"
           }
         }
       },
       "block_order": [
         "breadcrumb",
         "page_tabs",
-        "faq_tab",
         "shipping_tab",
         "terms_tab",
+        "page_tab_jxFf7e",
         "privacy_tab",
         "page_heading"
       ],

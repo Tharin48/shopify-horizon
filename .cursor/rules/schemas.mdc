@@ -20,7 +20,7 @@ We write our schemas in the schemas folder and then run `npm run build:schemas` 
   "properties": {
     "name": {
       "type": "string",
-      "maxLength": 50
+      "maxLength": 25
     },
     "tag": {
       "type": "string",
@@ -127,6 +127,8 @@ These are informative settings to guide the merchant.
 See [sidebar settings documentation](mdc:https:/shopify.dev/docs/storefronts/themes/architecture/settings/sidebar-settings)
 
 ## Best practices
+
+**Shopify upload validation:** The root `name` in `{% schema %}` (and preset names that use plain strings) must be **at most 25 characters**, or theme upload fails with `Invalid schema: name is too long`.
 
 ### Label Guidelines
 

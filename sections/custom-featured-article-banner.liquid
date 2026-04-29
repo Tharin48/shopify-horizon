@@ -1,0 +1,383 @@
+{% liquid
+  assign featured_article = section.settings.article
+  assign banner_category = section.settings.category
+  assign banner_heading = section.settings.heading
+  assign banner_date = section.settings.date_text
+  assign banner_link_url = section.settings.link_url
+  assign banner_image = section.settings.background_image
+  assign banner_alt = section.settings.background_image.alt | default: section.settings.heading
+
+  if featured_article != blank
+    assign banner_category = section.settings.category | default: featured_article.tags.first | default: 'Featured'
+    assign banner_heading = featured_article.title | default: section.settings.heading
+    assign banner_date = featured_article.published_at | date: '%d.%m.%Y'
+    assign banner_link_url = featured_article.url | default: section.settings.link_url
+    assign banner_image = featured_article.image | default: section.settings.background_image
+    assign banner_alt = featured_article.image.alt | default: featured_article.title
+  endif
+%}
+
+<section
+  class="custom-featured-article-banner custom-featured-article-banner--{{ section.settings.content_alignment }}"
+  style="
+    --cfab-overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    --cfab-min-height-desktop: {{ section.settings.desktop_height }}px;
+    --cfab-min-height-mobile: {{ section.settings.mobile_height }}px;
+    --cfab-pill-text-color: {{ section.settings.pill_text_color }};
+    --cfab-pill-bg-color: {{ section.settings.pill_background_color }};
+    --cfab-heading-color: {{ section.settings.heading_color }};
+    --cfab-body-color: {{ section.settings.body_color }};
+    --cfab-date-color: {{ section.settings.date_color }};
+    --cfab-button-text-color: {{ section.settings.button_text_color }};
+    --cfab-button-bg-color: {{ section.settings.button_background_color }};
+    --cfab-button-border-color: {{ section.settings.button_border_color }};
+    --cfab-desktop-heading-size: {{ section.settings.desktop_heading_size }}px;
+    --cfab-mobile-heading-size: {{ section.settings.mobile_heading_size }}px;
+    --cfab-desktop-body-size: {{ section.settings.desktop_body_size }}px;
+    --cfab-mobile-body-size: {{ section.settings.mobile_body_size }}px;
+  "
+  {{ section.shopify_attributes }}>
+  <div class="custom-featured-article-banner__media">
+    {% if section.settings.mobile_image != blank %}
+      <picture>
+        <source media="(max-width: 749px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
+        {{
+          banner_image | default: section.settings.mobile_image | image_url: width: 3200 | image_tag: widths: '768,1200,1600,2000,2400,3200', sizes: '100vw', loading: 'lazy', class: 'custom-featured-article-banner__image', alt: banner_alt | escape
+        }}
+      </picture>
+    {% elsif banner_image != blank %}
+      {{
+        banner_image | image_url: width: 3200 | image_tag: widths: '768,1200,1600,2000,2400,3200', sizes: '100vw', loading: 'lazy', class: 'custom-featured-article-banner__image', alt: banner_alt | escape
+      }}
+    {% else %}
+      {{ 'hero-apparel-1' | placeholder_svg_tag: 'custom-featured-article-banner__image custom-featured-article-banner__image--placeholder' }}
+    {% endif %}
+  </div>
+
+  <div class="custom-featured-article-banner__overlay"></div>
+
+  <div class="custom-featured-article-banner__content">
+    {% if banner_category != blank %}
+      <span class="custom-featured-article-banner__pill">{{ banner_category | escape }}</span>
+    {% endif %}
+    {% if banner_heading != blank %}
+      <h2 class="custom-featured-article-banner__heading">{{ banner_heading | escape }}</h2>
+    {% endif %}
+    {% if featured_article != blank %}
+      <div class="custom-featured-article-banner__description rte">
+        <p>{{ featured_article.excerpt_or_content | strip_html | truncate: 190 }}</p>
+      </div>
+    {% elsif section.settings.description != blank %}
+      <div class="custom-featured-article-banner__description rte">
+        {{ section.settings.description }}
+      </div>
+    {% endif %}
+    {% if banner_date != blank %}
+      <p class="custom-featured-article-banner__date">{{ banner_date | escape }}</p>
+    {% endif %}
+    {% if banner_link_url != blank and section.settings.link_label != blank %}
+      <a class="custom-featured-article-banner__link" href="{{ banner_link_url }}">
+        {{ section.settings.link_label | escape }}
+      </a>
+    {% endif %}
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-featured-article-banner {
+    position: relative;
+    overflow: hidden;
+    min-height: var(--cfab-min-height-mobile, 420px);
+    background: #171412;
+    color: var(--cfab-heading-color, #fffdf8);
+  }
+
+  .custom-featured-article-banner__media,
+  .custom-featured-article-banner__overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .custom-featured-article-banner__image,
+  .custom-featured-article-banner__image--placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .custom-featured-article-banner__overlay {
+    background: linear-gradient(180deg, rgb(10 8 7 / calc(var(--cfab-overlay-opacity, 0.35) * 0.65)), rgb(10 8 7 / var(--cfab-overlay-opacity, 0.35))), radial-gradient(circle at top right, rgb(255 255 255 / 0.08), transparent 34%);
+  }
+
+  .custom-featured-article-banner__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.9rem;
+    width: min(1180px, calc(100% - 2rem));
+    min-height: var(--cfab-min-height-mobile, 420px);
+    margin: 0 auto;
+    padding: clamp(2rem, 6vw, 5rem) 0;
+  }
+
+  .custom-featured-article-banner--center .custom-featured-article-banner__content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .custom-featured-article-banner__pill {
+    display: inline-flex;
+    min-height: 1.8rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: var(--cfab-pill-bg-color, rgb(255 255 255 / 0.16));
+    color: var(--cfab-pill-text-color, #fffdf8);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .custom-featured-article-banner__heading {
+    max-width: 14ch;
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(2rem, 4vw, var(--cfab-desktop-heading-size, 64px));
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: var(--cfab-heading-color, #fffdf8);
+  }
+
+  .custom-featured-article-banner__description {
+    max-width: 42rem;
+    color: var(--cfab-body-color, rgb(255 253 248 / 0.82));
+    font-size: var(--cfab-desktop-body-size, 16px);
+  }
+
+  .custom-featured-article-banner__date {
+    margin: 0;
+    color: var(--cfab-date-color, rgb(255 253 248 / 0.7));
+    font-size: max(0.95rem, calc(var(--cfab-desktop-body-size, 16px) - 1px));
+  }
+
+  .custom-featured-article-banner__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 999px;
+    background: var(--cfab-button-bg-color, rgb(255 255 255 / 0.15));
+    border: 1px solid var(--cfab-button-border-color, rgb(255 255 255 / 0.28));
+    color: var(--cfab-button-text-color, #fffdf8);
+    text-decoration: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-featured-article-banner,
+    .custom-featured-article-banner__content {
+      min-height: var(--cfab-min-height-desktop, 620px);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-featured-article-banner__heading {
+      font-size: clamp(1.9rem, 9vw, var(--cfab-mobile-heading-size, 48px));
+    }
+
+    .custom-featured-article-banner__description {
+      font-size: var(--cfab-mobile-body-size, 15px);
+    }
+
+    .custom-featured-article-banner__date {
+      font-size: max(0.85rem, calc(var(--cfab-mobile-body-size, 15px) - 1px));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+  {
+    "name": "Featured article banner",
+    "tag": "section",
+    "class": "section-wrapper",
+    "disabled_on": {
+      "groups": ["header", "footer"]
+    },
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Select an article to populate this banner automatically. Manual fields below are used as fallback."
+      },
+      {
+        "type": "article",
+        "id": "article",
+        "label": "Featured article"
+      },
+      {
+        "type": "image_picker",
+        "id": "background_image",
+        "label": "Background image"
+      },
+      {
+        "type": "image_picker",
+        "id": "mobile_image",
+        "label": "Mobile image"
+      }, {
+        "type": "text",
+        "id": "category",
+        "label": "Category pill",
+        "default": "Featured"
+      }, {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "A Recipe for Empowerment"
+      }, {
+        "type": "richtext",
+        "id": "description",
+        "label": "Description",
+        "default": "<p>Use this banner to spotlight an editorial story, campaign, or flagship article.</p>"
+      }, {
+        "type": "text",
+        "id": "date_text",
+        "label": "Date",
+        "default": "08.08.2026"
+      }, {
+        "type": "url",
+        "id": "link_url",
+        "label": "Link URL"
+      }, {
+        "type": "text",
+        "id": "link_label",
+        "label": "Link label",
+        "default": "Read story"
+      }, {
+        "type": "select",
+        "id": "content_alignment",
+        "label": "Content alignment",
+        "default": "center",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }
+        ]
+      }, {
+        "type": "range",
+        "id": "overlay_opacity",
+        "label": "Overlay opacity",
+        "min": 0,
+        "max": 90,
+        "step": 5,
+        "unit": "%",
+        "default": 45
+      }, {
+        "type": "range",
+        "id": "desktop_height",
+        "label": "Desktop height",
+        "min": 360,
+        "max": 900,
+        "step": 20,
+        "unit": "px",
+        "default": 560
+      }, {
+        "type": "range",
+        "id": "mobile_height",
+        "label": "Mobile height",
+        "min": 280,
+        "max": 700,
+        "step": 20,
+        "unit": "px",
+        "default": 420
+      }, {
+        "type": "color",
+        "id": "pill_text_color",
+        "label": "Category text color",
+        "default": "#FFFDF8"
+      }, {
+        "type": "color",
+        "id": "pill_background_color",
+        "label": "Category background color",
+        "default": "#FFFFFF26"
+      }, {
+        "type": "color",
+        "id": "heading_color",
+        "label": "Heading color",
+        "default": "#FFFDF8"
+      }, {
+        "type": "color",
+        "id": "body_color",
+        "label": "Description color",
+        "default": "#DBD8D0"
+      }, {
+        "type": "color",
+        "id": "date_color",
+        "label": "Date color",
+        "default": "#BEB7AA"
+      }, {
+        "type": "color",
+        "id": "button_text_color",
+        "label": "Button text color",
+        "default": "#FFFDF8"
+      }, {
+        "type": "color",
+        "id": "button_background_color",
+        "label": "Button background color",
+        "default": "#FFFFFF26"
+      }, {
+        "type": "color",
+        "id": "button_border_color",
+        "label": "Button border color",
+        "default": "#FFFFFF47"
+      }, {
+        "type": "range",
+        "id": "desktop_heading_size",
+        "label": "Desktop heading size",
+        "min": 32,
+        "max": 96,
+        "step": 2,
+        "unit": "px",
+        "default": 64
+      }, {
+        "type": "range",
+        "id": "mobile_heading_size",
+        "label": "Mobile heading size",
+        "min": 14,
+        "max": 72,
+        "step": 2,
+        "unit": "px",
+        "default": 48
+      }, {
+        "type": "range",
+        "id": "desktop_body_size",
+        "label": "Desktop body size",
+        "min": 14,
+        "max": 24,
+        "step": 1,
+        "unit": "px",
+        "default": 16
+      }, {
+        "type": "range",
+        "id": "mobile_body_size",
+        "label": "Mobile body size",
+        "min": 12,
+        "max": 20,
+        "step": 1,
+        "unit": "px",
+        "default": 15
+      }
+    ],
+    "presets": [
+      {
+        "name": "Featured article banner"
+      }
+    ]
+  }
+{% endschema %}

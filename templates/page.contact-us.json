@@ -23,7 +23,7 @@
           "type": "faq_link",
           "settings": {
             "text": "Visit our FAQ page",
-            "url": "/pages/policy-faq"
+            "url": "shopify://pages/faq"
           }
         },
         "hours": {
