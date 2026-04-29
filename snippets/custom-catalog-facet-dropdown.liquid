@@ -6,7 +6,7 @@
   @param {string} section_id - section.id for unique DOM ids
   @param {string} facet_key - Short slug, e.g. tea-type (unique per dropdown)
   @param {boolean} drawer_mode - Optional. Renders drawer-friendly accordion styling.
-  @param {array} allowed_collections - Optional. Restricts rendered values to selected collections for range-style facets.
+  @param {object} allowed_collections - Optional. Iterable list of collection objects; restricts “our-ranges” facet values when set (pass blank when unused).
 {%- enddoc -%}
 {%- if filter and filter.values.size > 0 -%}
   {%- liquid
@@ -51,7 +51,6 @@
           {%- liquid
             assign show_value = true
             assign fv_label_normalized = fv.label | strip | downcase
-            assign fv_label_handle = fv.label | handleize
             assign fv_compare_value = fv_label_normalized
             if fv_compare_value contains ':'
               assign fv_compare_parts = fv_compare_value | split: ':'

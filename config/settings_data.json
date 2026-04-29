@@ -72,7 +72,7 @@
     "currency_code_enabled_product_cards": true,
     "currency_code_enabled_cart_items": false,
     "quick_add_color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-    "custom_product_card_image_background": "linear-gradient(\n  to bottom,\n  #fdfcfa 0%,\n  #faf8f5 100%\n)",
+    "custom_product_card_image_background": "linear-gradient(180deg, rgba(253, 252, 250, 1), rgba(250, 248, 245, 1) 100%)",
     "product_corner_radius": 0,
     "card_corner_radius": 4,
     "show_variant_image": false,
@@ -99,11 +99,6 @@
           "mobile_side_margin": 16,
           "mobile_bottom_margin": 46
         }
-      },
-      "4226569816329180408": {
-        "type": "shopify://apps/techgo-shoppable-videos/blocks/embed-feed/0199c376-d35a-7319-8e37-e7e7ac8bb0e1",
-        "disabled": false,
-        "settings": {}
       },
       "yoast-seo-metatags": {
         "type": "shopify://apps/yoast-seo-seo-for-everyone/blocks/metatags/7c777011-bc88-4743-a24e-64336e1e5b46",

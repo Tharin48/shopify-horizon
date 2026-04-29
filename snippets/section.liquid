@@ -227,4 +227,18 @@
   .custom-section-content {
     z-index: var(--layer-flat);
   }
+
+  .section-content-wrapper:has(> .shopify-app-block:only-child) {
+    align-items: stretch;
+  }
+
+  .section-content-wrapper > .shopify-app-block {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .section-content-wrapper > .shopify-app-block > * {
+    width: 100%;
+    max-width: 100%;
+  }
 {% endstylesheet %}

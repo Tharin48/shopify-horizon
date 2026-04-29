@@ -800,7 +800,7 @@
           "settings": {
             "grid_position": "wide",
             "title": "Ice Tea",
-            "link": "",
+            "link": "shopify://collections/dilmah-elixir-of-ceylon-tea-mini-pet-bottles",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
             "card_min_height_desktop": 0,
@@ -825,7 +825,7 @@
           "settings": {
             "grid_position": "compact_1",
             "title": "Garden Fresh Tea",
-            "link": "",
+            "link": "shopify://collections/garden-fresh",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
             "card_min_height_desktop": 0,
@@ -850,7 +850,7 @@
           "settings": {
             "grid_position": "compact_2",
             "title": "Gift of Tea",
-            "link": "",
+            "link": "shopify://collections/gift-of-tea",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
             "card_min_height_desktop": 0,
@@ -875,7 +875,7 @@
           "settings": {
             "grid_position": "compact_3",
             "title": "Luxury Tea",
-            "link": "",
+            "link": "shopify://collections/luxury-leaf-tea-bags",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
             "card_min_height_desktop": 0,
@@ -1126,11 +1126,13 @@
         "banner_button_icon_gap": 6,
         "banner_button_background_color": "#bc9407",
         "banner_button_text_color": "#ffffff",
+        "banner_button_icon_color": "#ffffff",
         "banner_button_border_color": "#bc9407",
         "banner_text_vertical_position": "bottom",
         "banner_text_horizontal_position": "left",
         "banner_text_alignment": "left",
-        "overlay_opacity": 0,
+        "banner_overlay_gradient": "linear-gradient(12deg, rgba(242, 226, 219, 1) 11%, rgba(238, 233, 227, 0) 63%, rgba(238, 231, 226, 0) 100%)",
+        "overlay_opacity": 70,
         "banner_height_desktop": 600,
         "banner_height_mobile": 280,
         "desktop_banner_width": 32,
@@ -1398,9 +1400,9 @@
             "gap": 12,
             "inherit_color_scheme": false,
             "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-            "toggle_overlay": false,
-            "overlay_color": "#00000026",
-            "overlay_style": "solid",
+            "toggle_overlay": true,
+            "overlay_color": "#faebe0a3",
+            "overlay_style": "gradient",
             "gradient_direction": "to top",
             "padding-block-start": 48,
             "padding-block-end": 48,
@@ -1540,9 +1542,9 @@
             "gap": 12,
             "inherit_color_scheme": false,
             "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-            "toggle_overlay": false,
-            "overlay_color": "#00000026",
-            "overlay_style": "solid",
+            "toggle_overlay": true,
+            "overlay_color": "#faebe0a3",
+            "overlay_style": "gradient",
             "gradient_direction": "to top",
             "padding-block-start": 48,
             "padding-block-end": 48,
@@ -2272,7 +2274,7 @@
         "leaf_width_mobile": 80,
         "leaf_offset_x": 540,
         "leaf_offset_y": 160,
-        "leaf_offset_x_mobile": 280,
+        "leaf_offset_x_mobile": 160,
         "leaf_offset_y_mobile": 60,
         "hide_leaf_on_mobile": false,
         "color_scheme": "scheme-24415183-8fcb-4e95-92af-1c60b1ea7a34",
@@ -2283,8 +2285,48 @@
         "horizontal_alignment_flex_direction_column": "center",
         "vertical_alignment_flex_direction_column": "flex-start",
         "gap": 22,
-        "padding-block-start": 72,
-        "padding-block-end": 72
+        "padding-block-start": 120,
+        "padding-block-end": 120
+      }
+    },
+    "17774000331a378ad3": {
+      "type": "_blocks",
+      "blocks": {
+        "instareel_ig_reels_instagram_reels_feed_hgVDEF": {
+          "type": "shopify://apps/instareel-ig-reels/blocks/instagram-reels-feed/6399ee9c-54c8-4f76-97d7-8f02f7662aa1",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "instareel_ig_reels_instagram_reels_feed_hgVDEF"
+      ],
+      "name": "Explore the Feed",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "full-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 0,
+        "padding-block-end": 0
       }
     },
     "editorial_blog_carousel_hMEH79": {
@@ -2384,6 +2426,7 @@
     "section_6rkTCY",
     "slideshow_AHNTG8",
     "custom_leaf_background_content_LB6PRz",
+    "17774000331a378ad3",
     "editorial_blog_carousel_hMEH79"
   ]
 }

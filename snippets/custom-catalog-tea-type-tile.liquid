@@ -4,7 +4,7 @@
   @param {string} display_title - Visible label.
   @param {string} [filter_value_attr] - data-catalog-tea-filter-value (handle or manual slug).
   @param {object} [tea_matched_fv] - Matched filter value drop, or false.
-  @param {object} catalog_filter_tea_type - Tea type filter or false.
+  @param {object} [catalog_filter_tea_type] - Storefront tea type filter or false (context for the tile).
   @param {object} [default_image] - Image or file drop for default state.
   @param {object} [hover_image] - Image or file drop for hover state.
   @param {string} [block_shopify_attributes] - Optional block.shopify_attributes string.
@@ -25,7 +25,11 @@
   endif
 -%}
 {%- if tea_matched_fv -%}
-  <li class="custom-catalog__tea-type" {{ block_shopify_attributes }}>
+  <li
+    class="custom-catalog__tea-type"
+    data-catalog-tea-filter-present="{% if catalog_filter_tea_type != blank %}true{% else %}false{% endif %}"
+    {{ block_shopify_attributes }}
+  >
     <a
       href="{{ tea_type_href }}"
       class="custom-catalog__tea-type-btn{% if tea_type_is_active %} is-active{% endif %}"

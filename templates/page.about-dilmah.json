@@ -31,6 +31,7 @@
         },
         "family_commitment_tab": {
           "type": "page_tab",
+          "disabled": true,
           "settings": {
             "page": "family-commitment",
             "label": "Family Commitment",
@@ -403,7 +404,7 @@
         "text": "<p>“When you choose Dilmah, you choose a tea that cares. You support the people who grew it and the land that nurtured it.”</p>",
         "primary_button_label": "Shop Now",
         "primary_button_url": "shopify://collections/all",
-        "secondary_button_label": "Discover Our Commitment",
+        "secondary_button_label": "",
         "secondary_button_url": "shopify://pages/family-commitment",
         "decorative_pattern": "shopify://shop_images/bg-footer-strip.svg",
         "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",

@@ -102,27 +102,30 @@
               {%- endcase -%}
             {%- endfor -%}
 
-            {%- assign has_buttons = false -%}
+            {%- assign has_valid_buttons = false -%}
             {%- for block in section.blocks -%}
               {%- if block.type == 'button' and block.settings.label != blank and block.settings.url != blank -%}
-                {%- if has_buttons == false -%}
-                  {%- assign has_buttons = true -%}
-                  <div class="custom-editorial-overlay-card__actions">
-                {%- endif -%}
-                <a
-                  class="custom-editorial-overlay-card__button custom-editorial-overlay-card__button--{{ block.settings.style }}"
-                  href="{{ block.settings.url }}"
-                  {{ block.shopify_attributes }}
-                >
-                  {{ block.settings.label | escape }}
-                </a>
+                {%- assign has_valid_buttons = true -%}
+                {%- break -%}
               {%- endif -%}
             {%- endfor -%}
-            {%- if has_buttons -%}
+            {%- if has_valid_buttons -%}
+              <div class="custom-editorial-overlay-card__actions">
+                {%- for block in section.blocks -%}
+                  {%- if block.type == 'button' and block.settings.label != blank and block.settings.url != blank -%}
+                    <a
+                      class="custom-editorial-overlay-card__button custom-editorial-overlay-card__button--{{ block.settings.style }}"
+                      href="{{ block.settings.url }}"
+                      {{ block.shopify_attributes }}
+                    >
+                      {{ block.settings.label | escape }}
+                    </a>
+                  {%- endif -%}
+                {%- endfor -%}
               </div>
             {%- endif -%}
 
-            {%- if has_content == false and has_buttons == false and request.design_mode -%}
+            {%- if has_content == false and has_valid_buttons == false and request.design_mode -%}
               <div class="custom-editorial-overlay-card__empty custom-editorial-overlay-card__empty--card">
                 Add heading, text, or button blocks to build this card.
               </div>

@@ -590,6 +590,7 @@
                     , section_id: section.id
                     , facet_key: 'tea-type'
                     , drawer_mode: false
+                    , allowed_collections: catalog_allowed_range_collections
                   -%}
                 {%- endif -%}
                 {%- if catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0 -%}
@@ -598,6 +599,7 @@
                     , section_id: section.id
                     , facet_key: 'tea-format'
                     , drawer_mode: false
+                    , allowed_collections: catalog_allowed_range_collections
                   -%}
                 {%- endif -%}
                 {%- if catalog_filter_flavor and catalog_filter_flavor.values.size > 0 -%}
@@ -606,6 +608,7 @@
                     , section_id: section.id
                     , facet_key: 'flavor'
                     , drawer_mode: false
+                    , allowed_collections: catalog_allowed_range_collections
                   -%}
                 {%- endif -%}
                 {%- if catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0 -%}
@@ -614,6 +617,7 @@
                     , section_id: section.id
                     , facet_key: 'time-of-day'
                     , drawer_mode: false
+                    , allowed_collections: catalog_allowed_range_collections
                   -%}
                 {%- endif -%}
                 {%- unless section.settings.show_availability_toggle == false -%}
@@ -900,6 +904,7 @@
                       , section_id: section.id
                       , facet_key: 'tea-type'
                       , drawer_mode: true
+                      , allowed_collections: catalog_allowed_range_collections
                     -%}
                   {%- endif -%}
                   {%- if catalog_filter_tea_format and catalog_filter_tea_format.values.size > 0 -%}
@@ -908,6 +913,7 @@
                       , section_id: section.id
                       , facet_key: 'tea-format'
                       , drawer_mode: true
+                      , allowed_collections: catalog_allowed_range_collections
                     -%}
                   {%- endif -%}
                   {%- if catalog_filter_flavor and catalog_filter_flavor.values.size > 0 -%}
@@ -916,6 +922,7 @@
                       , section_id: section.id
                       , facet_key: 'flavor'
                       , drawer_mode: true
+                      , allowed_collections: catalog_allowed_range_collections
                     -%}
                   {%- endif -%}
                   {%- if catalog_filter_time_of_day and catalog_filter_time_of_day.values.size > 0 -%}
@@ -924,6 +931,7 @@
                       , section_id: section.id
                       , facet_key: 'time-of-day'
                       , drawer_mode: true
+                      , allowed_collections: catalog_allowed_range_collections
                     -%}
                   {%- endif -%}
                   <div class="custom-catalog__mobile-filters-sort">
