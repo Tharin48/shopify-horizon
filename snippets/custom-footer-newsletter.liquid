@@ -6,6 +6,7 @@
 
     {%- form 'customer', class: 'custom-footer__newsletter-form' -%}
       <input type="hidden" name="contact[tags]" value="newsletter">
+      <input type="hidden" name="return_to" value="{{ request.path }}?customer_posted=true">
       <label class="visually-hidden" for="CustomFooterEmail-{{ block.id }}">Email</label>
       <div class="custom-footer__newsletter-field">
         <input
@@ -33,12 +34,21 @@
       </div>
 
       {%- if form.errors -%}
-        <p class="custom-footer__newsletter-message custom-footer__newsletter-message--error">
-          {{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}
+        {%- capture custom_footer_newsletter_toast_message -%}
+          {{- form.errors.translated_fields.email | capitalize }}
+          {{ form.errors.messages.email -}}
+        {%- endcapture -%}
+        {% render 'theme-toast-flash', variant: 'error', message: custom_footer_newsletter_toast_message %}
+        <p
+          hidden
+          class="custom-footer__newsletter-message custom-footer__newsletter-message--error"
+        >
+          {{ custom_footer_newsletter_toast_message | strip | escape }}
         </p>
       {%- elsif form.posted_successfully? -%}
-        <p class="custom-footer__newsletter-message custom-footer__newsletter-message--success">
-          Thanks for subscribing.
+        {% render 'theme-toast-flash', variant: 'success', message: 'blocks.email_signup.success' | t %}
+        <p hidden class="custom-footer__newsletter-message custom-footer__newsletter-message--success">
+          {{ 'blocks.email_signup.success' | t }}
         </p>
       {%- endif -%}
     {%- endform -%}

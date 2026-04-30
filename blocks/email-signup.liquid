@@ -12,6 +12,7 @@
     </div>
   {% endif %}
   {%- form 'customer', class: 'email-signup__form spacing-style' %}
+    <input type="hidden" name="return_to" value="{{ request.path }}?customer_posted=true">
     <div
       class="email-signup__input-group {% if block_settings.integrated_button and block_settings.border_style != 'underline' %}email-signup__input-group--integrated{% endif %} {% if block_settings.border_style == 'underline' %}email-signup__input-group--underline{% endif %} {% if block_settings.border_style == 'none' %}email-signup__input-group--no-border{% endif %} {% if block_settings.display_type == 'arrow' %}email-signup__input-group--arrow{% endif %} {% if block_settings.inherit_color_scheme == false %}color-{{ block_settings.color_scheme }}{% endif %}"
       style="--border-width: {{ block_settings.border_width }}px; --border-radius: {{ block_settings.border_radius }}px;"
@@ -41,6 +42,7 @@
         {% endif %}
       >
       <button
+        type="submit"
         class="email-signup__button {% if block_settings.integrated_button or block_settings.border_style == 'underline' %}email-signup__button--integrated{% endif %} email-signup__button--{{ block_settings.display_type }} {{ block_settings.button_type_preset }} {{ block_settings.style_class }} {{ block_settings.style_class }}--{{ block.id }} {% if block_settings.inherit_color_scheme == false %}color-{{ block_settings.color_scheme }}{% endif %}"
         {% if block_settings.display_type != 'text' %}
           aria-label="{{ 'actions.sign_up' | t }}"
@@ -63,9 +65,15 @@
     </div>
 
     {%- if form.errors and form.id == blank -%}
+      {%- capture email_signup_toast_message -%}
+        {{- form.errors.translated_fields.email | capitalize }}
+        {{ form.errors.messages.email -}}
+      {%- endcapture -%}
+      {% render 'theme-toast-flash', variant: 'error', message: email_signup_toast_message %}
       <div
         id="Email-signup__message-error-{{ block.id }}"
         class="email-signup__message"
+        hidden
         tabindex="-1"
       >
         <svg
@@ -83,9 +91,11 @@
     {%- endif -%}
 
     {%- if form.posted_successfully? and form.id == blank -%}
+      {% render 'theme-toast-flash', variant: 'success', message: 'blocks.email_signup.success' | t %}
       <div
         id="Email-signup__message-success-{{ block.id }}"
         class="email-signup__message"
+        hidden
         tabindex="-1"
       >
         <span class="svg-wrapper icon-success">
@@ -352,6 +362,11 @@
   .email-signup__button.button-unstyled:hover {
     color: rgb(var(--color-input-text-rgb) / var(--opacity-70));
     cursor: pointer;
+  }
+
+  .email-signup__message[hidden],
+  .email-signup__message[hidden=''] {
+    display: none !important;
   }
 
   .email-signup__message {

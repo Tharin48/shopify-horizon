@@ -1,0 +1,32 @@
+@keyframes form-submit-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+form.form-is-submitting .form-submit-loading__control:not(input):not(select):not(textarea) {
+  position: relative;
+  pointer-events: none;
+}
+
+form.form-is-submitting .form-submit-loading__control > *:not(.form-submit-loading__spinner) {
+  opacity: 0.35;
+}
+
+form.form-is-submitting .form-submit-loading__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  box-sizing: border-box;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  form.form-is-submitting .form-submit-loading__spinner {
+    animation: form-submit-loading-spin 0.65s linear infinite;
+  }
+}

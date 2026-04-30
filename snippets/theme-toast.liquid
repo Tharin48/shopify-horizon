@@ -1,0 +1,13 @@
+{% doc %}
+  Global toast region and script. Render once before closing </body>.
+
+  Exposes `window.themeToast.show({ variant, message, durationMs? })` and listens for
+  `document.dispatchEvent(new CustomEvent('theme:toast', { detail: { variant, message } }))`.
+{% enddoc %}
+<div id="theme-toast-region" class="theme-toast-region" hidden></div>
+<script>
+  window.themeToastDismissLabel = {{ 'accessibility.toast_dismiss' | t | json }};
+</script>
+<script src="{{ 'theme-toast.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'form-submit-loading.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'customer-newsletter-ajax.js' | asset_url }}" defer="defer"></script>

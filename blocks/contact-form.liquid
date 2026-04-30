@@ -25,24 +25,27 @@
     >
 
     {%- if form.errors and form.id == form_id -%}
-      <div
-        class="contact-form__error"
-        tabindex="-1"
-        autofocus
-      >
+      {%- capture contact_form_toast_message -%}
+        {%- for field in form.errors -%}
+          {%- if field == 'form' -%}
+            {{- form.errors.messages[field] -}}
+          {%- else -%}
+            {{- form.errors.translated_fields[field] | capitalize }}
+            {{ form.errors.messages[field] -}}
+          {%- endif -%}
+          {%- unless forloop.last %} · {% endunless -%}
+        {%- endfor -%}
+      {%- endcapture -%}
+      {% render 'theme-toast-flash', variant: 'error', message: contact_form_toast_message | strip %}
+      <div class="contact-form__error" hidden tabindex="-1">
         {{- 'icon-error.svg' | inline_asset_content -}}
-
-        {{- form.errors.translated_fields.email | capitalize }}
-        {{ form.errors.messages.email -}}
+        <span>{{ contact_form_toast_message | strip | escape }}</span>
       </div>
     {%- endif -%}
 
     {%- if form.posted_successfully? and form.id == form_id -%}
-      <div
-        class="contact-form__success"
-        tabindex="-1"
-        autofocus
-      >
+      {% render 'theme-toast-flash', variant: 'success', message: 'blocks.contact_form.post_success' | t %}
+      <div class="contact-form__success" hidden tabindex="-1">
         {{- 'icon-checkmark.svg' | inline_asset_content -}}
         {{- 'blocks.contact_form.post_success' | t -}}
       </div>

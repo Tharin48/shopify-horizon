@@ -1,0 +1,26 @@
+{% doc %}
+  Shows the global theme toast after DOMContentLoaded (for server-rendered form feedback).
+
+  @param {string} variant - success | error | info
+  @param {string} message - Plain text (escaped for JSON)
+
+  @example
+  {% render 'theme-toast-flash', variant: 'success', message: success_text %}
+{% enddoc %}
+{%- liquid
+  assign flash_variant = variant | default: 'success'
+  assign flash_message = message | strip
+-%}
+{%- if flash_message != blank -%}
+  <script>
+    document.addEventListener(
+      'DOMContentLoaded',
+      function () {
+        var api = window.themeToast;
+        if (!api || typeof api.show !== 'function') return;
+        api.show({ variant: {{ flash_variant | json }}, message: {{ flash_message | json }} });
+      },
+      { once: true }
+    );
+  </script>
+{%- endif -%}

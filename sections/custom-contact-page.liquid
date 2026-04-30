@@ -134,24 +134,42 @@
               <input type="hidden" name="contact[page]" value="{{ page.title | escape }}">
 
               {%- if form.posted_successfully? -%}
+                {% render 'theme-toast-flash', variant: 'success', message: success_message %}
                 <div
                   id="{{ form_status_id }}"
                   class="custom-contact-page__form-message custom-contact-page__form-message--success"
                   role="status"
                   aria-live="polite"
                   tabindex="-1"
+                  hidden
                 >
                   {{ success_message | escape }}
                 </div>
               {%- endif -%}
 
               {%- if form.errors -%}
+                {%- capture custom_contact_page_toast_message -%}
+                  {%- for field in form.errors -%}
+                    {%- if field == 'form' -%}
+                      {{- form.errors.messages[field] -}}
+                    {%- else -%}
+                      {{- form.errors.translated_fields[field] | capitalize }}
+                      {{ form.errors.messages[field] -}}
+                    {%- endif -%}
+                    {%- unless forloop.last %} · {% endunless -%}
+                  {%- endfor -%}
+                {%- endcapture -%}
+                {% render 'theme-toast-flash',
+                  variant: 'error',
+                  message: custom_contact_page_toast_message | strip
+                %}
                 <div
                   id="{{ form_status_id }}"
                   class="custom-contact-page__form-message custom-contact-page__form-message--error"
                   role="alert"
                   aria-live="assertive"
                   tabindex="-1"
+                  hidden
                 >
                   <p class="custom-contact-page__form-message-copy">{{ error_message | escape }}</p>
                   <ul class="custom-contact-page__form-message-list" role="list">

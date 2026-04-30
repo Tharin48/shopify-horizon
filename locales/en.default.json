@@ -63,7 +63,8 @@
     "find_country": "Find country",
     "view_pricing_info": "View pricing information",
     "price_filter_low": "Low price",
-    "price_filter_high": "High price"
+    "price_filter_high": "High price",
+    "toast_dismiss": "Dismiss notification"
   },
   "actions": {
     "add": "Add",
@@ -119,7 +120,8 @@
     "email_signup": {
       "label": "Email",
       "placeholder": "Email address",
-      "success": "Thanks for subscribing!"
+      "success": "Thanks for subscribing!",
+      "error_generic": "Something went wrong. Please try again."
     },
     "filter": "Filter",
     "load_video": "Load video: {{ description }}",

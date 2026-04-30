@@ -416,3 +416,8 @@
     width: min(160px, 32vw);
   }
 }
+
+/* Preserve [hidden] for newsletter messaging (some themes reset display on messages). */
+.custom-footer__newsletter-message[hidden] {
+  display: none !important;
+}
