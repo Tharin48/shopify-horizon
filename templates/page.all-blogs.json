@@ -19,13 +19,19 @@
     "all_blogs_grid": {
       "type": "custom-all-blogs-grid",
       "settings": {
+        "color_scheme": "scheme-1",
         "heading": "All Blogs",
         "limit": 12,
-        "blog_label_1": "Brewing",
-        "blog_label_2": "News",
-        "blog_label_3": "Conservation",
-        "blog_label_4": "Health",
-        "blog_label_5": "Recipes"
+        "blog_1": "news",
+        "blog_label_1": "News",
+        "blog_2": "tea-and-health",
+        "blog_label_2": "Tea and Health",
+        "blog_3": "tea-for-celebrations",
+        "blog_label_3": "Tea for Celebrations",
+        "blog_4": "tea-gastronomy",
+        "blog_label_4": "Tea Gastronomy",
+        "blog_5": "tea-mixology",
+        "blog_label_5": "Tea Mixology"
       }
     }
   },

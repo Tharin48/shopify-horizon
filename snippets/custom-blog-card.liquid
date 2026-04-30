@@ -8,6 +8,10 @@
   assign display_blog_title = blog_title | default: 'Blog'
   assign image_alt = display_title
 
+  assign show_category = show_category | default: true
+  assign show_title = show_title | default: true
+  assign show_excerpt = show_excerpt | default: true
+
   if article_obj != blank
     assign display_title = article_obj.title
     assign display_url = article_obj.url
@@ -17,7 +21,12 @@
   endif
 -%}
 
-<article class="custom-blog-card {{ root_class | strip }}">
+<article
+  class="custom-blog-card {{ root_class | strip }}"
+  {% if article_obj != blank %}
+    data-cabg-published-at="{{ article_obj.published_at | date: '%s' }}"
+  {% endif %}
+>
   <a
     class="custom-blog-card__image-link"
     href="{{ display_url }}"
@@ -42,30 +51,36 @@
   </a>
 
   <div class="custom-blog-card__body">
-    <p class="custom-blog-card__category">{{ display_blog_title | escape }}</p>
+    {% unless show_category == false %}
+      <p class="custom-blog-card__category">{{ display_blog_title | escape }}</p>
+    {% endunless %}
 
-    <a
-      class="custom-blog-card__title-row"
-      href="{{ display_url }}"
-      aria-label="{{ display_title | escape }}"
-    >
-      <h3 class="custom-blog-card__title">{{ display_title | escape }}</h3>
-      <span class="custom-blog-card__arrow" aria-hidden="true">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          focusable="false"
-        >
-          <path d="M7 17 17 7M17 7H9M17 7v8" />
-        </svg>
-      </span>
-    </a>
+    {% unless show_title == false %}
+      <a
+        class="custom-blog-card__title-row"
+        href="{{ display_url }}"
+        aria-label="{{ display_title | escape }}"
+      >
+        <h3 class="custom-blog-card__title">{{ display_title | escape }}</h3>
+        <span class="custom-blog-card__arrow" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            focusable="false"
+          >
+            <path d="M7 17 17 7M17 7H9M17 7v8" />
+          </svg>
+        </span>
+      </a>
+    {% endunless %}
 
-    <p class="custom-blog-card__excerpt">{{ display_excerpt }}</p>
+    {% unless show_excerpt == false %}
+      <p class="custom-blog-card__excerpt">{{ display_excerpt }}</p>
+    {% endunless %}
   </div>
 </article>

@@ -1,0 +1,74 @@
+{%- doc -%}
+  Tab panel for hub "All blogs" blog-specific tabs (AJAX swaps against /blogs/[handle]?page=n).
+  @param panel_id tabpanel id
+  @param labelledby id of tab control
+  @param is_hidden boolean — tabpanels that are inactive get the hidden attribute
+  @param blog Blog drop
+  @param grid_markup article cards HTML
+  @param per_page page size
+  @param pager_html optional pre-rendered paginate HTML (pagination-controls); if blank, a simple Next link is used when total_pages > 1
+{%- enddoc -%}
+
+{% liquid
+  assign ac = blog.articles_count | default: 0
+  assign total_pages = 1
+  if ac > 0 and per_page > 0
+    assign total_pages = ac | plus: per_page | minus: 1 | divided_by: per_page
+  endif
+%}
+
+<div
+  id="{{ panel_id }}"
+  class="custom-all-blogs-grid__panel"
+  role="tabpanel"
+  aria-labelledby="{{ labelledby }}"
+  {% if is_hidden %}hidden{% endif %}
+>
+  {% if grid_markup != blank %}
+    <div
+      class="cabg-remote-pane"
+      data-cabg-remote-pane
+      data-blog-base-url="{{ blog.url }}"
+      data-per-page="{{ per_page }}"
+      data-total-pages="{{ total_pages }}"
+    >
+      <div class="custom-all-blogs-grid__grid">{{ grid_markup }}</div>
+
+      {% if total_pages > 1 %}
+        <div class="custom-all-blogs-grid__pager-slot" data-cabg-pager-slot>
+          {% if pager_html != blank %}
+            <div class="custom-all-blogs-grid__pagination">{{ pager_html }}</div>
+          {% else %}
+            <div class="custom-all-blogs-grid__pagination">
+              <nav class="pagination" aria-label="{{ 'content.pagination.nav_label' | t }}">
+                <ul class="pagination__list" role="list">
+                  <li class="pagination__item">
+                    <span class="pagination__link pagination__link--arrow pagination__link--disabled" aria-disabled="true" aria-hidden="true">
+                      {{ 'icon-chevron-left.svg' | inline_asset_content }}
+                    </span>
+                  </li>
+                  <li class="pagination__item">
+                    <span class="pagination__link pagination__link--page pagination__link--current" aria-current="page">1</span>
+                  </li>
+                  <li class="pagination__item">
+                    <a
+                      href="{{ blog.url }}?page=2"
+                      class="pagination__link pagination__link--arrow"
+                      aria-label="{{ 'content.pagination.next' | t }}"
+                    >
+                      {{ 'icon-chevron-right.svg' | inline_asset_content }}
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="custom-all-blogs-grid__empty">
+      No articles in this blog yet.
+    </div>
+  {% endif %}
+</div>

@@ -1,0 +1,189 @@
+{%- doc -%}
+  Inner markup for sticky add-to-cart: Add to cart + real accelerated checkout (duplicate product {% form %} with {{ form | payment_button }}).
+
+  @param section {section} — Required for unique sticky wallet form id
+  @param product {product}
+  @param current_variant {variant}
+  @param initial_quantity {number}
+  @param sticky_color_scheme {string} Theme color scheme id (e.g. scheme-8) for bar surface (--color-* tokens)
+{%- enddoc -%}
+
+{% liquid
+  assign sticky_wallet_form_id = 'StickyWalletProductForm-' | append: section.id
+%}
+
+<div
+  class="sticky-add-to-cart__bar color-{{ sticky_color_scheme }}"
+  data-stuck="false"
+  ref="stickyBar"
+  role="region"
+  aria-label="{{ 'products.product.sticky_add_to_cart' | t }}"
+>
+  <div class="sticky-add-to-cart__actions" ref="stickyActionsRow">
+    <button
+      type="button"
+      class="sticky-add-to-cart__cta sticky-add-to-cart__cta--cart add-to-cart-button button"
+      ref="addToCartButton"
+      on:click="/handleAddToCartClick"
+      {% unless current_variant.available %}
+        disabled
+      {% endunless %}
+    >
+      <span class="add-to-cart-text">
+        {% if current_variant.available %}
+          <span class="svg-wrapper add-to-cart-icon">
+            {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+          </span>
+        {% endif %}
+        <span class="add-to-cart-text__content">
+          <span>
+            {%- if current_variant.available -%}
+              {{- 'products.product.add_to_cart' | t -}}
+            {%- elsif current_variant == blank -%}
+              {{- 'products.product.unavailable' | t -}}
+            {%- else -%}
+              {{- 'products.product.sold_out' | t -}}
+            {%- endif -%}
+          </span>
+          <span
+            ref="quantityDisplay"
+            {% if current_variant.available and initial_quantity > 1 %}
+              style="display: inline;"
+            {% else %}
+              style="display: none;"
+            {% endif %}
+          >
+            {{- ' (' -}}
+            <span ref="quantityNumber">{{- initial_quantity -}}</span>
+            {{- ')' -}}
+          </span>
+        </span>
+      </span>
+      <span class="add-to-cart__added">
+        <span class="svg-wrapper add-to-cart__added-icon">
+          {{- 'icon-checkmark-burst.svg' | inline_asset_content -}}
+        </span>
+      </span>
+    </button>
+
+    <div class="sticky-add-to-cart__wallet-wrap sticky-add-to-cart--hide-shopify-more-payment" ref="walletWrap">
+      {%- liquid
+        assign sticky_wallet_can_checkout = false
+        if current_variant.available
+          assign sticky_wallet_can_checkout = true
+        endif
+      -%}
+      {%- form 'product', product, id: sticky_wallet_form_id, class: 'sticky-add-to-cart__wallet-form' -%}
+        <input
+          type="hidden"
+          name="id"
+          value="{{ current_variant.id }}"
+          ref="stickyWalletVariantInput"
+          autocomplete="off"
+        >
+        <input
+          type="hidden"
+          name="quantity"
+          value="{{ initial_quantity }}"
+          ref="stickyWalletQuantityInput"
+          autocomplete="off"
+        >
+        <div
+          class="accelerated-checkout-block sticky-add-to-cart__accelerated-shell"
+          ref="acceleratedCheckoutButtonContainer"
+          {% unless sticky_wallet_can_checkout %}
+            hidden
+          {% endunless %}
+        >
+          {{ form | payment_button }}
+        </div>
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .sticky-add-to-cart__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--gap-sm);
+    width: 100%;
+    align-items: flex-start;
+    margin-top: 0;
+  }
+
+  .sticky-add-to-cart__cta {
+    min-height: var(--height-buy-buttons);
+    position: relative;
+    border-radius: 999px;
+    width: 100%;
+    padding-inline: var(--padding-md);
+    align-self: stretch;
+  }
+
+  /* Match the section's primary button tokens so sticky CTA mirrors the main buy row. */
+  sticky-add-to-cart .sticky-add-to-cart__cta--cart.button:not(.button-secondary, .button-unstyled) {
+    --button-background-color: var(--color-primary-button-background);
+    --button-border-color: var(--color-primary-button-border);
+    --button-color: var(--color-primary-button-text);
+  }
+
+  sticky-add-to-cart .sticky-add-to-cart__cta--cart.button:hover:not(:disabled) {
+    --button-background-color: var(--color-primary-button-hover-background);
+    --button-border-color: var(--color-primary-button-hover-border);
+    --button-color: var(--color-primary-button-hover-text);
+  }
+
+  /*
+    Shopify accelerated checkout renders in shadow DOM; border-radius must use component CSS variables.
+    Avoid overflow:hidden on hosts — it clips rounded corners / causes pinched ends.
+    "More payment options" native link is hidden to match buy-buttons hide-native-more UX.
+  */
+  .sticky-add-to-cart__accelerated-shell :is(shopify-accelerated-checkout, shopify-payment-button) {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    overflow: visible;
+    /*
+      Pill end caps: half of button height (999px overshoot can clip oddly in narrow columns).
+      Mirrored from assets/base.css shopify-accelerated-checkout custom properties.
+    */
+    --shopify-accelerated-checkout-button-border-radius: calc(var(--height-buy-buttons) / 2);
+    --shopify-accelerated-checkout-button-block-size: var(--height-buy-buttons);
+  }
+
+  .sticky-add-to-cart__accelerated-shell {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Legacy / open-shadow: keep inner button visually pill-shaped without parent overflow clip */
+  .sticky-add-to-cart__accelerated-shell .shopify-payment-button__button,
+  .sticky-add-to-cart__accelerated-shell [class*='shopify-payment-button__button'] {
+    border-radius: calc(var(--height-buy-buttons) / 2) !important;
+  }
+
+  /* Same pattern as custom-buy-buttons-block--hide-native-more */
+  .sticky-add-to-cart--hide-shopify-more-payment .shopify-payment-button__more-options,
+  .sticky-add-to-cart--hide-shopify-more-payment more-payment-options-link {
+    display: none !important;
+  }
+
+  sticky-add-to-cart:not([data-variant-available='true']) .sticky-add-to-cart__accelerated-shell,
+  sticky-add-to-cart:not([data-variant-available='true']) .sticky-add-to-cart__wallet-wrap {
+    pointer-events: none;
+  }
+
+  .sticky-add-to-cart__bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    flex-wrap: nowrap !important;
+  }
+
+  @media screen and (max-width: 749px) {
+    .sticky-add-to-cart__cta .add-to-cart-text__content {
+      display: inline !important;
+    }
+  }
+{% endstylesheet %}
