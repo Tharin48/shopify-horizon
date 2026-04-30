@@ -34,6 +34,9 @@ class CartDrawerComponent extends DialogComponent {
   /** @type {AbortController | null} */
   #historyAbortController = null;
 
+  /** @type {number | null} */
+  #pendingAutoOpenFrame = null;
+
   connectedCallback() {
     super.connectedCallback();
     logTempCartDebug('cart drawer init', {
@@ -56,6 +59,10 @@ class CartDrawerComponent extends DialogComponent {
     this.removeEventListener(DialogOpenEvent.eventName, this.#handleHistoryOpen);
     this.removeEventListener(DialogCloseEvent.eventName, this.#handleHistoryClose);
     this.#historyAbortController?.abort();
+    if (this.#pendingAutoOpenFrame !== null) {
+      cancelAnimationFrame(this.#pendingAutoOpenFrame);
+      this.#pendingAutoOpenFrame = null;
+    }
   }
 
   #handleHistoryOpen = () => {
@@ -102,15 +109,38 @@ class CartDrawerComponent extends DialogComponent {
       isMinWidth990: isMinWidth990(),
     });
 
-    if (this.hasAttribute('auto-open') && isMinWidth990()) {
-      logTempCartDebug('cart drawer showDialog call', {
-        source: 'cart:add event',
-      });
-      this.showDialog();
+    if (this.hasAttribute('auto-open') && isMinWidth990() && !detail.data?.didError) {
+      this.#scheduleAutoOpen();
     }
 
     this.#announceCartCount(detail.resource?.item_count);
   };
+
+  #scheduleAutoOpen() {
+    if (this.#pendingAutoOpenFrame !== null) {
+      cancelAnimationFrame(this.#pendingAutoOpenFrame);
+    }
+
+    /*
+     * The cart drawer and cart items both react to the same cart:update event.
+     * Wait until the updated drawer markup has been morphed and painted before
+     * opening the dialog, otherwise the first open can use stale/intermediate
+     * layout and the header + first item appear compressed.
+     */
+    this.#pendingAutoOpenFrame = requestAnimationFrame(() => {
+      this.#pendingAutoOpenFrame = requestAnimationFrame(() => {
+        this.#pendingAutoOpenFrame = null;
+
+        if (this.refs.dialog?.open) return;
+
+        logTempCartDebug('cart drawer showDialog call', {
+          source: 'cart:add event',
+          delayed: true,
+        });
+        this.showDialog();
+      });
+    });
+  }
 
   /**
    * Announces cart count to screen readers when dialog is open.

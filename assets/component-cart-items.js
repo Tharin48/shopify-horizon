@@ -24,7 +24,7 @@ const shouldLogTempCartDebug = () => {
   return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
 };
 
-const logTempCartDebug = (...args) => {
+const logTempCartDebug = (/** @type {unknown[]} */ ...args) => {
   if (!shouldLogTempCartDebug()) return;
   console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
 };
@@ -46,6 +46,8 @@ class CartItemsComponent extends Component {
 
   connectedCallback() {
     super.connectedCallback();
+
+    this.#syncDrawerState();
 
     document.addEventListener(ThemeEvents.cartUpdate, this.#handleCartUpdate);
     document.addEventListener(ThemeEvents.discountUpdate, this.handleDiscountUpdate);
@@ -119,6 +121,7 @@ class CartItemsComponent extends Component {
 
       startViewTransition(() => {
         this.replaceChildren(clone);
+        this.#syncDrawerState();
       }, [this.isDrawer ? 'empty-cart-drawer' : 'empty-cart-page']);
 
       return;
@@ -225,6 +228,8 @@ class CartItemsComponent extends Component {
           source: 'quantity-change',
         });
 
+        this.#syncDrawerState();
+
         this.#updateCartQuantitySelectorButtonStates();
       })
       .catch((error) => {
@@ -282,12 +287,14 @@ class CartItemsComponent extends Component {
    * @param {DiscountUpdateEvent | CartUpdateEvent | CartAddEvent} event
    */
   #handleCartUpdate = (event) => {
+    const detailData = 'data' in event.detail ? event.detail.data : undefined;
+
     logTempCartDebug('cart update event received', {
       sectionId: this.sectionId,
       isDrawer: this.isDrawer,
       sourceId: event.detail?.sourceId || null,
-      source: event.detail?.data?.source || null,
-      hasSections: Boolean(event.detail?.data?.sections),
+      source: detailData?.source || null,
+      hasSections: Boolean(detailData?.sections),
     });
 
     if (event instanceof DiscountUpdateEvent) {
@@ -297,17 +304,21 @@ class CartItemsComponent extends Component {
         source: 'discount-update',
         mode: this.isDrawer ? 'hydration' : 'full',
       });
-      sectionRenderer.renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' });
-      logTempCartDebug('cart drawer render end', {
-        sectionId: this.sectionId,
-        isDrawer: this.isDrawer,
-        source: 'discount-update',
-      });
+      sectionRenderer
+        .renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' })
+        .then(() => {
+          this.#syncDrawerState();
+          logTempCartDebug('cart drawer render end', {
+            sectionId: this.sectionId,
+            isDrawer: this.isDrawer,
+            source: 'discount-update',
+          });
+        });
       return;
     }
     if (event.target === this) return;
 
-    const cartItemsHtml = event.detail.data.sections?.[this.sectionId];
+    const cartItemsHtml = detailData?.sections?.[this.sectionId];
     if (cartItemsHtml) {
       logTempCartDebug('cart section replacement start', {
         sectionId: this.sectionId,
@@ -321,6 +332,8 @@ class CartItemsComponent extends Component {
         source: 'cart-update-event',
       });
 
+      this.#syncDrawerState();
+
       // Update button states for all cart quantity selectors after morph
       this.#updateCartQuantitySelectorButtonStates();
     } else {
@@ -330,14 +343,33 @@ class CartItemsComponent extends Component {
         source: 'cart-update-event-fallback',
         mode: this.isDrawer ? 'hydration' : 'full',
       });
-      sectionRenderer.renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' });
-      logTempCartDebug('cart drawer render end', {
-        sectionId: this.sectionId,
-        isDrawer: this.isDrawer,
-        source: 'cart-update-event-fallback',
-      });
+      sectionRenderer
+        .renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' })
+        .then(() => {
+          this.#syncDrawerState();
+          logTempCartDebug('cart drawer render end', {
+            sectionId: this.sectionId,
+            isDrawer: this.isDrawer,
+            source: 'cart-update-event-fallback',
+          });
+        });
     }
   };
+
+  #syncDrawerState() {
+    if (!this.isDrawer) return;
+
+    const dialog = this.closest('.cart-drawer__dialog');
+    if (!(dialog instanceof HTMLElement)) return;
+
+    const hasCartForm = Boolean(this.querySelector('.cart-form'));
+    dialog.classList.toggle('cart-drawer--empty', !hasCartForm);
+    dialog.setAttribute('aria-labelledby', hasCartForm ? 'cart-drawer-heading' : 'cart-drawer-heading-empty');
+
+    if (!hasCartForm) {
+      dialog.setAttribute('cart-summary-sticky', 'false');
+    }
+  }
 
   /**
    * Disables the cart items.

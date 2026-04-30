@@ -104,7 +104,7 @@
       ],
       "name": "Custom hero",
       "settings": {
-        "media_type_1": "image",
+        "media_type_1": "none",
         "media_type_2": "video",
         "video_2": "shopify://files/videos/DAUS - Web Banners 2025 - Tea  compressed.mp4",
         "stack_media_on_mobile": false,
