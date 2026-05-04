@@ -83,6 +83,13 @@
         assign height = preview_image.width | divided_by: preview_image.aspect_ratio | round
         assign sizes = '100vw'
         assign widths = '832, 1200, 1600, 1920, 2560, 3840'
+        assign impact_slide_alt = preview_image.alt | strip
+        if impact_slide_alt == blank
+          assign impact_slide_alt = s.heading | strip
+        endif
+        if impact_slide_alt == blank
+          assign impact_slide_alt = 'accessibility.slide_background_image' | t
+        endif
       -%}
       {{
         preview_image
@@ -94,7 +101,7 @@
           class: 'slide__image',
           loading: loading,
           fetchpriority: fetchpriority,
-          alt: preview_image.alt | default: s.heading | escape
+          alt: impact_slide_alt
       }}
     {%- else -%}
       {{ 'hero-apparel-1' | placeholder_svg_tag: 'slide__image' }}

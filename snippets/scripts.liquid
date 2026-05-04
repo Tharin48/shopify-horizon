@@ -36,13 +36,10 @@
   }
 </script>
 
-<script
-  src="{{ 'view-transitions.js' | asset_url }}"
-  async
-  {% if settings.page_transition_enabled or settings.transition_to_main_product %}
-    blocking="render"
-  {% endif %}
-></script>
+{% if settings.page_transition_enabled or settings.transition_to_main_product %}
+  {% comment %} Keep this inline so pagereveal/pageswap handlers and the render blocker are available before the first reveal without an extra blocking request. {% endcomment %}
+  {% render 'view-transitions-inline' %}
+{% endif %}
 
 <link
   rel="modulepreload"
@@ -119,11 +116,6 @@
   type="module"
   fetchpriority="low"
 ></script>
-<script
-  src="{{ 'quick-add.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
 {% if settings.show_add_discount_code %}
   <script
     src="{{ 'cart-discount.js' | asset_url }}"
@@ -138,115 +130,136 @@
   fetchpriority="low"
 ></script>
 <script
-  src="{{ 'variant-picker.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-card.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-form.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
   src="{{ 'fly-to-cart.js' | asset_url }}"
   type="module"
   fetchpriority="low"
 ></script>
-<script
-  src="{{ 'accordion-custom.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'media.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-price.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-sku.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-title-truncation.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-inventory.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'show-more.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'slideshow.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'layered-slideshow.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'anchored-popover.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'floating-panel.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'video-background.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'component-quantity-selector.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'media-gallery.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'rte-formatter.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'volume-pricing.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'price-per-item.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'volume-pricing-info.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
+<script type="module">
+  const conditionalModules = [
+    {
+      selector: 'quick-add-component, quick-add-dialog',
+      src: "{{ 'quick-add.js' | asset_url }}",
+    },
+    {
+      selector: 'variant-picker, swatches-variant-picker-component',
+      src: "{{ 'variant-picker.js' | asset_url }}",
+    },
+    {
+      selector: 'product-card, product-card-link, swatches-variant-picker-component',
+      src: "{{ 'product-card.js' | asset_url }}",
+    },
+    {
+      selector: 'product-form-component, add-to-cart-component',
+      src: "{{ 'product-form.js' | asset_url }}",
+    },
+    {
+      selector: 'accordion-custom',
+      src: "{{ 'accordion-custom.js' | asset_url }}",
+    },
+    {
+      selector: 'deferred-media, product-model',
+      src: "{{ 'media.js' | asset_url }}",
+    },
+    {
+      selector: 'product-price',
+      src: "{{ 'product-price.js' | asset_url }}",
+    },
+    {
+      selector: 'product-sku-component',
+      src: "{{ 'product-sku.js' | asset_url }}",
+    },
+    {
+      selector: 'product-title',
+      src: "{{ 'product-title-truncation.js' | asset_url }}",
+    },
+    {
+      selector: 'product-inventory',
+      src: "{{ 'product-inventory.js' | asset_url }}",
+    },
+    {
+      selector: 'show-more-component',
+      src: "{{ 'show-more.js' | asset_url }}",
+    },
+    {
+      selector: 'slideshow-component',
+      src: "{{ 'slideshow.js' | asset_url }}",
+    },
+    {
+      selector: 'layered-slideshow-component',
+      src: "{{ 'layered-slideshow.js' | asset_url }}",
+    },
+    {
+      selector: 'anchored-popover-component',
+      src: "{{ 'anchored-popover.js' | asset_url }}",
+    },
+    {
+      selector: 'floating-panel-component',
+      src: "{{ 'floating-panel.js' | asset_url }}",
+    },
+    {
+      selector: 'video-background-component',
+      src: "{{ 'video-background.js' | asset_url }}",
+    },
+    {
+      selector: 'quantity-selector-component',
+      src: "{{ 'component-quantity-selector.js' | asset_url }}",
+    },
+    {
+      selector: 'media-gallery, [data-product-media-list]',
+      src: "{{ 'media-gallery.js' | asset_url }}",
+    },
+    {
+      selector: 'rte-formatter',
+      src: "{{ 'rte-formatter.js' | asset_url }}",
+    },
+    {
+      selector: 'volume-pricing',
+      src: "{{ 'volume-pricing.js' | asset_url }}",
+    },
+    {
+      selector: 'price-per-item',
+      src: "{{ 'price-per-item.js' | asset_url }}",
+    },
+    {
+      selector: 'volume-pricing-info',
+      src: "{{ 'volume-pricing-info.js' | asset_url }}",
+    },
+  ];
+
+  const loadedModules = new Set();
+
+  function rootContainsSelector(root, selector) {
+    if (root instanceof Element) {
+      return root.matches(selector) || Boolean(root.querySelector(selector));
+    }
+
+    return Boolean(document.querySelector(selector));
+  }
+
+  function ensureModule(moduleConfig, root = document) {
+    if (!rootContainsSelector(root, moduleConfig.selector) || loadedModules.has(moduleConfig.src)) {
+      return;
+    }
+
+    loadedModules.add(moduleConfig.src);
+
+    import(moduleConfig.src).catch(() => {
+      loadedModules.delete(moduleConfig.src);
+    });
+  }
+
+  for (const moduleConfig of conditionalModules) {
+    ensureModule(moduleConfig);
+  }
+
+  document.addEventListener('shopify:section:load', (event) => {
+    const root = event.target instanceof Element ? event.target : document;
+
+    for (const moduleConfig of conditionalModules) {
+      ensureModule(moduleConfig, root);
+    }
+  });
+</script>
 
 {% if localization.available_countries.size > 1 or localization.available_languages.size > 1 %}
   <script
@@ -257,11 +270,6 @@
 {% endif %}
 
 {% if template == 'product' or template.name == 'product' or request.page_type == 'product' %}
-  <script
-    src="{{ 'fly-to-cart.js' | asset_url }}"
-    type="module"
-    fetchpriority="low"
-  ></script>
   <script
     src="{{ 'sticky-add-to-cart.js' | asset_url }}"
     type="module"

@@ -36,6 +36,109 @@
    */
   var THRESHOLD_BACK_PX = 100;
   var MOBILE_MQ = '(max-width: 749px)';
+  var announcementBarHeightPx = 0;
+  var NON_CRITICAL_IDLE_TIMEOUT_MS = 2000;
+
+  function setAnnouncementBarHeightPx(height) {
+    var nextHeight = Math.max(0, Math.round(Number(height) || 0));
+    announcementBarHeightPx = nextHeight;
+    document.documentElement.style.setProperty('--announcement-bar-height', nextHeight + 'px');
+  }
+
+  function scheduleNonCriticalTask(callback) {
+    var idleHandle = null;
+    var loadBound = false;
+
+    function run() {
+      callback();
+    }
+
+    function queueIdle() {
+      if (typeof window.requestIdleCallback === 'function') {
+        idleHandle = window.requestIdleCallback(run, { timeout: NON_CRITICAL_IDLE_TIMEOUT_MS });
+      } else {
+        idleHandle = window.setTimeout(run, 1);
+      }
+    }
+
+    function onLoad() {
+      loadBound = false;
+      queueIdle();
+    }
+
+    if (document.readyState === 'complete') {
+      queueIdle();
+    } else {
+      loadBound = true;
+      window.addEventListener('load', onLoad, { once: true });
+    }
+
+    return function cancelScheduledTask() {
+      if (loadBound) {
+        window.removeEventListener('load', onLoad);
+        loadBound = false;
+      }
+      if (idleHandle !== null) {
+        if (typeof window.cancelIdleCallback === 'function') {
+          window.cancelIdleCallback(idleHandle);
+        } else {
+          window.clearTimeout(idleHandle);
+        }
+        idleHandle = null;
+      }
+    };
+  }
+
+  function refreshCustomHeaderMetrics(root) {
+    var metrics = root._customHeaderMetrics || {};
+    var cs = getComputedStyle(root);
+    var defaultHeight = parseFloat(cs.getPropertyValue('--custom-header-default-height').trim());
+    var minimizedHeight = parseFloat(cs.getPropertyValue('--custom-header-minimized-height').trim());
+
+    if (isNaN(defaultHeight)) {
+      defaultHeight = Math.round(root.getBoundingClientRect().height);
+    }
+
+    if (isNaN(minimizedHeight)) {
+      minimizedHeight = defaultHeight;
+    }
+
+    metrics.defaultHeight = Math.round(defaultHeight);
+    metrics.minimizedHeight = Math.round(minimizedHeight);
+    root._customHeaderMetrics = metrics;
+
+    return metrics;
+  }
+
+  function refreshHeaderGroupMeasurements(root) {
+    var hg = document.querySelector('#header-group');
+    var staticGroupHeight = 0;
+    var nextAnnouncementHeight = 0;
+
+    if (hg) {
+      for (var i = 0; i < hg.children.length; i++) {
+        var section = hg.children[i];
+        if (!(section instanceof HTMLElement)) {
+          continue;
+        }
+
+        var customRoot = section.querySelector('[data-custom-header]');
+        if (customRoot && customRoot === root) {
+          continue;
+        }
+
+        var sectionHeight = section.offsetHeight;
+        staticGroupHeight += sectionHeight;
+
+        if (!nextAnnouncementHeight && section.querySelector('.announcement-bar')) {
+          nextAnnouncementHeight = sectionHeight;
+        }
+      }
+    }
+
+    root._customHeaderStaticGroupHeight = staticGroupHeight;
+    setAnnouncementBarHeightPx(nextAnnouncementHeight);
+  }
 
   function scrollTopEpsilon() {
     if (typeof window.matchMedia === 'function' && window.matchMedia(MOBILE_MQ).matches) {
@@ -57,20 +160,17 @@
   /** Full / compact header heights from theme CSS vars — avoids getBoundingClientRect feedback loops near scroll top. */
   function getStableCustomHeaderHeightPx(root) {
     var state = root.dataset.headerState;
-    var cs = getComputedStyle(root);
+    var metrics = refreshCustomHeaderMetrics(root);
     if (isMobileViewport()) {
-      var mobileDefault = parseFloat(cs.getPropertyValue('--custom-header-default-height').trim());
-      return isNaN(mobileDefault) ? Math.round(root.getBoundingClientRect().height) : Math.round(mobileDefault);
+      return metrics.defaultHeight;
     }
     if (state === 'transparent' || state === 'solid') {
-      var def = parseFloat(cs.getPropertyValue('--custom-header-default-height').trim());
-      return isNaN(def) ? Math.round(root.getBoundingClientRect().height) : Math.round(def);
+      return metrics.defaultHeight;
     }
     if (state === 'minimized' || state === 'hidden') {
-      var minH = parseFloat(cs.getPropertyValue('--custom-header-minimized-height').trim());
-      return isNaN(minH) ? Math.round(root.getBoundingClientRect().height) : Math.round(minH);
+      return metrics.minimizedHeight;
     }
-    return Math.round(root.getBoundingClientRect().height);
+    return metrics.defaultHeight;
   }
 
   function getScrollTop() {
@@ -132,21 +232,14 @@
     return scrollTop > raw;
   }
 
-  function updateAnnouncementBarHeight() {
-    var hg = document.querySelector('#header-group');
-    var h = 0;
-    if (hg) {
-      var annSection = hg.querySelector('.shopify-section:has(.announcement-bar)');
-      if (!annSection) {
-        var bar = hg.querySelector('.announcement-bar');
-        annSection = bar && bar.closest('.shopify-section');
-      }
-      if (annSection) {
-        h = Math.round(annSection.getBoundingClientRect().height);
-      }
+  function updateAnnouncementBarHeight(root) {
+    var headerRoot = root || document.querySelector('[data-custom-header]');
+    if (headerRoot) {
+      refreshHeaderGroupMeasurements(headerRoot);
+    } else {
+      setAnnouncementBarHeightPx(0);
     }
-    document.documentElement.style.setProperty('--announcement-bar-height', h + 'px');
-    syncProductGalleryViewportOffset();
+    syncProductGalleryViewportOffset(headerRoot);
     updateMobilePortalTopInset();
   }
 
@@ -160,11 +253,9 @@
       document.documentElement.style.setProperty('--custom-header-mobile-portal-top', '0px');
       return;
     }
-    var ann = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announcement-bar-height'));
-    if (isNaN(ann)) ann = 0;
     var st = getScrollTop();
     var eps = scrollTopEpsilon();
-    var inset = st <= eps && ann > 0 ? ann + 'px' : '0px';
+    var inset = st <= eps && announcementBarHeightPx > 0 ? announcementBarHeightPx + 'px' : '0px';
     document.documentElement.style.setProperty('--custom-header-mobile-portal-top', inset);
   }
 
@@ -173,58 +264,26 @@
    * changes on every transparent/solid/minimized/hidden transition, which makes images resize while scrolling.
    * Reserve a stable offset: announcement bar + max(default, minimized) heights from theme CSS variables.
    */
-  function syncProductGalleryViewportOffset() {
-    var root = document.querySelector('[data-custom-header]');
-    if (!root) {
+  function syncProductGalleryViewportOffset(root) {
+    var headerRoot = root || document.querySelector('[data-custom-header]');
+    if (!headerRoot) {
       return;
     }
-    var cs = getComputedStyle(root);
-    var def = parseFloat(cs.getPropertyValue('--custom-header-default-height'));
-    var min = parseFloat(cs.getPropertyValue('--custom-header-minimized-height'));
-    if (isNaN(def)) def = 72;
-    if (isNaN(min)) min = 56;
-    var ann = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announcement-bar-height'));
-    if (isNaN(ann)) ann = 0;
-    var reserve = Math.max(def, min);
+    var metrics = refreshCustomHeaderMetrics(headerRoot);
+    var reserve = Math.max(metrics.defaultHeight || 72, metrics.minimizedHeight || 56);
     document.documentElement.style.setProperty(
       '--product-gallery-viewport-offset',
-      ann + reserve + 'px'
+      announcementBarHeightPx + reserve + 'px'
     );
   }
 
   function updateHeaderGroupHeight(root) {
-    var hg = document.querySelector('#header-group');
-    if (!hg) {
-      return;
+    var staticGroupHeight = root._customHeaderStaticGroupHeight;
+    if (typeof staticGroupHeight !== 'number') {
+      refreshHeaderGroupMeasurements(root);
+      staticGroupHeight = root._customHeaderStaticGroupHeight || 0;
     }
-    var total = 0;
-    var i;
-    for (i = 0; i < hg.children.length; i++) {
-      var section = hg.children[i];
-      var customRoot = section.querySelector('[data-custom-header]');
-      if (customRoot && customRoot === root) {
-        var state = root.dataset.headerState;
-        if (state === 'transparent' || state === 'solid') {
-          /*
-           * For full-height states, read the *target* height from the CSS
-           * variable rather than measuring the DOM. This guards against any
-           * future transition on a height-related property causing
-           * getBoundingClientRect() to capture a mid-animation value and
-           * writing the wrong --header-group-height (which would make the
-           * hero section appear shorter after a scroll cycle).
-           */
-          var cs = getComputedStyle(root);
-          var cssH = parseFloat(cs.getPropertyValue('--custom-header-default-height').trim());
-          total += isNaN(cssH) ? Math.round(root.getBoundingClientRect().height) : cssH;
-        } else {
-          var csM = getComputedStyle(root);
-          var minHx = parseFloat(csM.getPropertyValue('--custom-header-minimized-height').trim());
-          total += isNaN(minHx) ? Math.round(root.getBoundingClientRect().height) : Math.round(minHx);
-        }
-      } else {
-        total += section.offsetHeight;
-      }
-    }
+    var total = staticGroupHeight + getStableCustomHeaderHeightPx(root);
     document.body.style.setProperty('--header-group-height', total + 'px');
   }
 
@@ -407,6 +466,9 @@
     function isMobile() {
       return mediaMobile.matches;
     }
+
+    refreshCustomHeaderMetrics(root);
+    refreshHeaderGroupMeasurements(root);
 
     function setMobileNavOpen(open) {
       root.dataset.mobileNavOpen = open ? 'true' : 'false';
@@ -740,6 +802,8 @@
       if (!mediaMobile.matches) {
         closeAllMobilePanels();
       }
+      refreshCustomHeaderMetrics(root);
+      refreshHeaderGroupMeasurements(root);
       scrollAccum = 0;
       prevScrollTop = getScrollTop();
       scheduleScrollUpdate();
@@ -852,7 +916,52 @@
 
     /* Must be called AFTER root._customHeaderCleanup is assigned so the
      * search cleanup can safely chain onto it. */
-    initDesktopSearch(root);
+    initDesktopSearchDeferred(root);
+  }
+
+  function initDesktopSearchDeferred(root) {
+    var wrap = root.querySelector('[data-custom-header-search-wrap]');
+    if (!wrap || wrap.dataset.customHeaderSearchState === 'initialized') {
+      return;
+    }
+
+    var cleanupRegistered = false;
+    var cancelScheduledInit = null;
+
+    function cleanupDeferredInit() {
+      wrap.removeEventListener('focusin', initNow);
+      wrap.removeEventListener('pointerenter', initNow);
+      wrap.removeEventListener('touchstart', initNow);
+      if (cancelScheduledInit) {
+        cancelScheduledInit();
+        cancelScheduledInit = null;
+      }
+    }
+
+    function initNow() {
+      if (wrap.dataset.customHeaderSearchState === 'initialized') {
+        cleanupDeferredInit();
+        return;
+      }
+      cleanupDeferredInit();
+      wrap.dataset.customHeaderSearchState = 'initialized';
+      initDesktopSearch(root);
+    }
+
+    wrap.addEventListener('focusin', initNow, { once: true });
+    wrap.addEventListener('pointerenter', initNow, { once: true });
+    wrap.addEventListener('touchstart', initNow, { once: true, passive: true });
+    cancelScheduledInit = scheduleNonCriticalTask(initNow);
+
+    if (!cleanupRegistered) {
+      cleanupRegistered = true;
+      var prevCleanup = root._customHeaderCleanup;
+      root._customHeaderCleanup = function () {
+        cleanupDeferredInit();
+        wrap.dataset.customHeaderSearchState = '';
+        if (typeof prevCleanup === 'function') { prevCleanup(); }
+      };
+    }
   }
 
   /* ── Desktop search dropdown ────────────────────────────────────────────────
@@ -1331,33 +1440,41 @@
       .split('?')[0]
       .split('/')[0];
     if (!handle) { return; }
-    fetch('/products/' + handle + '.js')
-      .then(function (r) { return r.json(); })
-      .then(function (p) {
-        try {
-          var raw = p.featured_image || '';
-          var img = raw ? (raw.indexOf('//') === 0 ? 'https:' + raw : raw) : '';
-          var list = JSON.parse(localStorage.getItem(CH_VIEWED_KEY) || '[]');
-          list = list.filter(function (x) { return x.handle !== p.handle; });
-          list.unshift({ handle: p.handle, title: p.title, image: img, url: p.url, price: p.price });
-          localStorage.setItem(CH_VIEWED_KEY, JSON.stringify(list.slice(0, 8)));
-        } catch (e) {}
-      })
-      .catch(function () {});
+    scheduleNonCriticalTask(function () {
+      fetch('/products/' + handle + '.js')
+        .then(function (r) { return r.json(); })
+        .then(function (p) {
+          try {
+            var raw = p.featured_image || '';
+            var img = raw ? (raw.indexOf('//') === 0 ? 'https:' + raw : raw) : '';
+            var list = JSON.parse(localStorage.getItem(CH_VIEWED_KEY) || '[]');
+            list = list.filter(function (x) { return x.handle !== p.handle; });
+            list.unshift({ handle: p.handle, title: p.title, image: img, url: p.url, price: p.price });
+            localStorage.setItem(CH_VIEWED_KEY, JSON.stringify(list.slice(0, 8)));
+          } catch (e) {}
+        })
+        .catch(function () {});
+    });
   }());
 
   var headerGroupResizeObserver = null;
 
   function initAll() {
-    updateAnnouncementBarHeight();
-    document.querySelectorAll('[data-custom-header]').forEach(function (root) {
+    var roots = document.querySelectorAll('[data-custom-header]');
+    roots.forEach(function (root) {
       initCustomHeader(root);
     });
+    if (roots[0]) {
+      updateAnnouncementBarHeight(roots[0]);
+    } else {
+      updateAnnouncementBarHeight();
+    }
     var hg = document.querySelector('#header-group');
     if (hg && !headerGroupResizeObserver) {
       headerGroupResizeObserver = new ResizeObserver(function () {
-        updateAnnouncementBarHeight();
         document.querySelectorAll('[data-custom-header]').forEach(function (r) {
+          refreshCustomHeaderMetrics(r);
+          refreshHeaderGroupMeasurements(r);
           if (r.dataset.customHeaderJs === 'initialized' && typeof r._customHeaderScheduleScroll === 'function') {
             r._customHeaderScheduleScroll();
           }
@@ -1389,18 +1506,14 @@
   document.addEventListener('shopify:section:load', function (event) {
     var id = event.detail && event.detail.sectionId;
     requestAnimationFrame(function () {
-      updateAnnouncementBarHeight();
-      if (!id) {
-        return;
+      var root = id ? findCustomHeaderRoot(id) : null;
+      if (root) {
+        if (typeof root._customHeaderCleanup === 'function') {
+          root._customHeaderCleanup();
+        }
+        initCustomHeader(root);
       }
-      var root = findCustomHeaderRoot(id);
-      if (!root) {
-        return;
-      }
-      if (typeof root._customHeaderCleanup === 'function') {
-        root._customHeaderCleanup();
-      }
-      initCustomHeader(root);
+      updateAnnouncementBarHeight(root);
     });
   });
 
@@ -1413,5 +1526,8 @@
     if (root && typeof root._customHeaderCleanup === 'function') {
       root._customHeaderCleanup();
     }
+    requestAnimationFrame(function () {
+      updateAnnouncementBarHeight();
+    });
   });
 })();

@@ -56,6 +56,21 @@
       echo '--fepc-overlay-background: ' | append: section.settings.banner_overlay_color | append: ';'
     endunless
   endcapture
+
+  assign fepc_banner_media = section.settings.banner_image | default: section.settings.mobile_banner_image
+  assign fepc_banner_alt = ''
+  if fepc_banner_media != blank
+    assign fepc_banner_alt = fepc_banner_media.alt | strip
+    if fepc_banner_alt == blank and section.settings.title != blank
+      assign fepc_banner_alt = section.settings.title | strip
+    endif
+    if fepc_banner_alt == blank and section.settings.section_heading != blank
+      assign fepc_banner_alt = section.settings.section_heading | strip
+    endif
+    if fepc_banner_alt == blank
+      assign fepc_banner_alt = 'accessibility.promo_banner_image' | t
+    endif
+  endif
 %}
 
 {% # theme-check-disable MissingAsset %}
@@ -86,7 +101,7 @@
             loading: 'lazy',
             widths: '600,800,1100,1400,1600',
             sizes: '(max-width: 749px) 86vw, (max-width: 989px) 42vw, 34vw',
-            alt: section.settings.banner_image.alt | default: section.settings.title | default: section.settings.section_heading | escape
+            alt: fepc_banner_alt
         }}
       </picture>
     {% else %}

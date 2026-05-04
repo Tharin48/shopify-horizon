@@ -118,7 +118,6 @@
           endif
         %}
         <li
-          role="presentation"
           class="menu-list__list-item"
           on:focus="/activate"
           on:blur="/deactivate"
@@ -176,14 +175,13 @@
       {% endfor %}
       <li
         class="menu-list__list-item"
-        role="presentation"
         slot="more"
         on:focus="/activate"
         on:blur="/deactivate"
         on:pointerenter="/activate"
         on:pointerleave="/deactivate"
       >
-        <button role="listitem" class="menu-list__link button-unstyled">
+        <button type="button" class="menu-list__link button-unstyled">
           <span class="menu-list__link-title">{{ 'actions.more' | t }}</span>
         </button>
       </li>

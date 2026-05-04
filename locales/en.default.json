@@ -53,7 +53,7 @@
     "skip_to_product_info": "Skip to product information",
     "skip_to_results_list": "Skip to results list",
     "skip_to_text": "Skip to content",
-    "slide_status": "Slide {{ index }} of {{ length }}",
+    "slide_status": "Go to slide {{ index }} of {{ length }}",
     "slideshow": "Slideshow",
     "slideshow_next": "Next slide",
     "slideshow_pause": "Pause slideshow",
@@ -63,7 +63,10 @@
     "find_country": "Find country",
     "view_pricing_info": "View pricing information",
     "price_filter_low": "Low price",
-    "price_filter_high": "High price"
+    "price_filter_high": "High price",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Promotional banner",
+    "slide_background_image": "Featured slide background"
   },
   "actions": {
     "add": "Add",

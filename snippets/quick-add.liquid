@@ -27,6 +27,9 @@
   if product.variants_count == 1 or product.options.size == 1 and product.selected_variant
     assign quick_add_button = 'add'
   endif
+
+  assign product_title_plain = product.title | strip_html | strip
+  assign choose_options_aria_label = 'accessibility.product_button_named' | t: product_title: product_title_plain, action: choose_options_text
 %}
 
 <quick-add-component
@@ -88,6 +91,7 @@
         {% comment %} type="submit" is the default, so we explicitly set it to "button" to prevent the ProductFormComponent.handleSubmit from being triggered {% endcomment %}
         type="button"
         name="add"
+        aria-label="{{ choose_options_aria_label | escape }}"
         on:click="quick-add-component/handleClick"
       >
         <span

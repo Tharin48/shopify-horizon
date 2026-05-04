@@ -206,6 +206,8 @@
                   {% endif %}
                   class="custom-header__desktop-search-input"
                   autocomplete="off"
+                  role="combobox"
+                  aria-haspopup="listbox"
                   aria-label="{{ search_input_a11y_label | escape }}"
                   aria-autocomplete="list"
                   aria-controls="CustomHeaderSearchDropdown-{{ section.id }}"

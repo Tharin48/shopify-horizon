@@ -587,7 +587,7 @@
               "type": "text",
               "name": "t:names.heading",
               "settings": {
-                "text": "<h5>Join our Community</h5>",
+                "text": "<h2>Join our Community</h2>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",

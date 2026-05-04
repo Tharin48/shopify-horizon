@@ -197,7 +197,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-size: 0.68rem;
-  color: var(--tp-label-color, var(--tp-tab-active, #b08a2f));
+  color: var(--tp-label-color, var(--tp-tab-active, #684d04));
   font-weight: 400;
 }
 
@@ -240,7 +240,7 @@
 
 .teamakers-pick__rating-stars,
 .teamakers-pick__rating-value {
-  color: var(--tp-star-color, var(--tp-tab-active, #b08a2f));
+  color: var(--tp-star-color, var(--tp-tab-active, #684d04));
 }
 
 .teamakers-pick__price {

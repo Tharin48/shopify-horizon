@@ -713,7 +713,9 @@
       "name": "Vison Section",
       "settings": {
         "show_leaf_top_left": true,
+        "leaf_image_top_left": "shopify://shop_images/x31_1_1_1.png",
         "show_leaf_bottom_right": true,
+        "leaf_image_bottom_right": "shopify://shop_images/Group.svg",
         "leaf_opacity": 100,
         "leaf_mobile_max_width_vw": 56,
         "leaf_mobile_max_width_px": 288,

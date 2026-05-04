@@ -15,6 +15,48 @@ import { SlideshowSelectEvent } from '@theme/events';
 // The threshold for determining visibility of slides.
 const SLIDE_VISIBLITY_THRESHOLD = 0.7;
 
+const FOCUSABLE_IN_SLIDE_SELECTOR =
+  'a[href], button:not(:disabled), summary, input:not(:disabled):not([type="hidden"]), select:not(:disabled), textarea:not(:disabled), iframe, audio[controls], video[controls], [contenteditable="true"], [tabindex]:not([tabindex="-1"])';
+
+/**
+ * `aria-hidden` on a slide hides it from AT, but descendants can still be tab-focusable unless the
+ * subtree is non-interactive. Prefer `inert` when supported; otherwise save/restore tabindex.
+ *
+ * @param {Element} slide
+ */
+function syncSlideshowSlideAccessibility(slide) {
+  if (!(slide instanceof HTMLElement)) return;
+  const hidden = slide.getAttribute('aria-hidden') === 'true';
+
+  if ('inert' in HTMLElement.prototype && typeof slide.inert === 'boolean') {
+    slide.inert = hidden;
+    return;
+  }
+
+  slide.querySelectorAll(FOCUSABLE_IN_SLIDE_SELECTOR).forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    if (el.closest('slideshow-slide') !== slide) return;
+
+    if (hidden) {
+      if (el.hasAttribute('data-slideshow-tabindex-saved')) return;
+
+      el.setAttribute('data-slideshow-tabindex-saved', el.hasAttribute('tabindex') ? el.getAttribute('tabindex') ?? '' : '');
+      el.tabIndex = -1;
+      return;
+    }
+
+    if (!el.hasAttribute('data-slideshow-tabindex-saved')) return;
+
+    const prev = el.getAttribute('data-slideshow-tabindex-saved');
+    el.removeAttribute('data-slideshow-tabindex-saved');
+    if (prev === '') {
+      el.removeAttribute('tabindex');
+    } else {
+      el.setAttribute('tabindex', prev);
+    }
+  });
+}
+
 /**
  * Shared viewport observer manager for lazy scroll enablement.
  *
@@ -138,6 +180,7 @@ export class Slideshow extends Component {
 
     const slideCount = this.slides?.length || 0;
     slideCount <= 1 ? this.#setupSlideshowWithoutControls() : this.#setupSlideshow();
+    this.refs.slides?.forEach(syncSlideshowSlideAccessibility);
   }
 
   disconnectedCallback() {
@@ -197,6 +240,7 @@ export class Slideshow extends Component {
       if (slide.hasAttribute('reveal')) {
         slide.removeAttribute('reveal');
         slide.setAttribute('aria-hidden', 'true');
+        syncSlideshowSlideAccessibility(slide);
       }
     }
 
@@ -213,6 +257,7 @@ export class Slideshow extends Component {
         if (requestedSlide.hasAttribute('hidden')) {
           requestedSlide.setAttribute('reveal', '');
           requestedSlide.setAttribute('aria-hidden', 'false');
+          syncSlideshowSlideAccessibility(requestedSlide);
         }
 
         return this.slides.indexOf(requestedSlide);
@@ -293,6 +338,7 @@ export class Slideshow extends Component {
     const previousIndex = this.current;
 
     slide.setAttribute('aria-hidden', 'false');
+    syncSlideshowSlideAccessibility(slide);
 
     if (this.#scroll) {
       this.#scroll.to(slide, { instant });
@@ -425,7 +471,13 @@ export class Slideshow extends Component {
     if (current) current.textContent = `${value + 1}`;
 
     for (const controls of [thumbnails, dots]) {
-      controls?.forEach((el, i) => el.setAttribute('aria-selected', `${i === value}`));
+      controls?.forEach((el, i) => {
+        if (i === value) {
+          el.setAttribute('aria-current', 'true');
+        } else {
+          el.removeAttribute('aria-current');
+        }
+      });
     }
 
     if (previous) previous.disabled = Boolean(!this.infinite && value === 0);
@@ -533,6 +585,7 @@ export class Slideshow extends Component {
 
     if (this.refs.slides?.[0]) {
       this.refs.slides[0].setAttribute('aria-hidden', 'false');
+      syncSlideshowSlideAccessibility(this.refs.slides[0]);
     }
   }
 
@@ -931,6 +984,7 @@ export class Slideshow extends Component {
       slides.forEach((slide) => {
         const isVisible = visibleSlides.includes(slide);
         slide.setAttribute('aria-hidden', `${!isVisible}`);
+        syncSlideshowSlideAccessibility(slide);
       });
     });
 
