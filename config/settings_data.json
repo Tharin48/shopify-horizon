@@ -106,6 +106,26 @@
         "type": "shopify://apps/yoast-seo-seo-for-everyone/blocks/metatags/7c777011-bc88-4743-a24e-64336e1e5b46",
         "disabled": false,
         "settings": {}
+      },
+      "10482958812443994587": {
+        "type": "shopify://apps/bik/blocks/bikScripts/4ee0506d-3abc-448e-9d32-1ea2950714ec",
+        "disabled": false,
+        "settings": {}
+      },
+      "2519459661274782089": {
+        "type": "shopify://apps/bik/blocks/bikTracker/4ee0506d-3abc-448e-9d32-1ea2950714ec",
+        "disabled": false,
+        "settings": {}
+      },
+      "11604910539244711675": {
+        "type": "shopify://apps/bik/blocks/bikWebpush/4ee0506d-3abc-448e-9d32-1ea2950714ec",
+        "disabled": false,
+        "settings": {}
+      },
+      "15731092540705609947": {
+        "type": "shopify://apps/manifest-ai-chatbot/blocks/embed/cef2d5e1-cdf8-491e-bb69-d24f19b6ea44",
+        "disabled": false,
+        "settings": {}
       }
     },
     "color_schemes": {

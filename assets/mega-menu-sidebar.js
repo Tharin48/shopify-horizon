@@ -57,7 +57,7 @@ class MegaMenuSidebar extends HTMLElement {
 
         defaultPanel.hidden = false;
         for (const panel of panels) {
-          panel.hidden = true;
+          if (panel instanceof HTMLElement) panel.hidden = true;
         }
 
         this.#syncSubmenuHeight();
@@ -91,6 +91,7 @@ class MegaMenuSidebar extends HTMLElement {
         tab.setAttribute('aria-expanded', isMatch ? 'true' : 'false');
       }
       for (const panel of panels) {
+        if (!(panel instanceof HTMLElement)) continue;
         const panelIndex = Number(panel.getAttribute('data-mega-sidebar-index'));
         if (panelIndex === index) {
           panel.hidden = false;
@@ -101,6 +102,7 @@ class MegaMenuSidebar extends HTMLElement {
       this.#syncSubmenuHeight();
     };
 
+    /** @param {number} index */
     const scheduleActivate = (index) => {
       this.#clearActivateTimer();
       this.#clearResetTimer();
@@ -130,10 +132,7 @@ class MegaMenuSidebar extends HTMLElement {
       tab.addEventListener('focus', () => activate(idx), { signal });
       tab.addEventListener(
         'click',
-        (e) => {
-          e.preventDefault();
-          activate(idx);
-        },
+        () => activate(idx),
         { signal }
       );
     }
@@ -164,9 +163,12 @@ class MegaMenuSidebar extends HTMLElement {
       { signal }
     );
 
+    /** @param {KeyboardEvent} event */
     const onDocumentKeydown = (event) => {
       if (!this.contains(document.activeElement)) return;
-      const tabElements = [...this.querySelectorAll('[data-mega-sidebar-tab]')];
+      const tabElements = [...this.querySelectorAll('[data-mega-sidebar-tab]')].filter(
+        (el) => el instanceof HTMLElement
+      );
       if (!tabElements.length) return;
       const currentIndex = tabElements.findIndex((t) => t.getAttribute('aria-expanded') === 'true');
       if (currentIndex < 0) {
@@ -212,10 +214,12 @@ class MegaMenuSidebar extends HTMLElement {
     if (!(submenu instanceof HTMLElement)) return;
 
     const customRoot = submenu.closest('[data-header-menu-root]');
-    const horizonHeader = document.querySelector('#header-component');
+    const headerEl = document.querySelector('#header-component');
+    /** @type {HTMLElement | null} */
+    const horizonHeader = headerEl instanceof HTMLElement ? headerEl : null;
     /** @type {HTMLElement | null} */
     const root =
-      customRoot instanceof HTMLElement ? customRoot : horizonHeader instanceof HTMLElement ? horizonHeader : null;
+      customRoot instanceof HTMLElement ? customRoot : horizonHeader ?? null;
     if (!root) return;
 
     const submenuHeight = submenu.offsetHeight;
@@ -224,10 +228,10 @@ class MegaMenuSidebar extends HTMLElement {
     let headerVisibleHeight = root.offsetHeight;
     if (horizonHeader && root === horizonHeader) {
       const isOverlap = horizonHeader.hasAttribute('data-submenu-overlap-bottom-row');
+      const topRow = horizonHeader.querySelector('.header__row--top');
+      const topRowHeight = topRow instanceof HTMLElement ? topRow.offsetHeight : 0;
       headerVisibleHeight =
-        isOverlap && horizonHeader.offsetHeight > 0
-          ? horizonHeader.querySelector('.header__row--top')?.offsetHeight ?? 0
-          : horizonHeader.offsetHeight;
+        isOverlap && horizonHeader.offsetHeight > 0 ? topRowHeight : horizonHeader.offsetHeight;
     }
 
     const fullOpen = submenuHeight === 0 ? 0 : submenuHeight + (headerVisibleHeight ?? 0);

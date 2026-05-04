@@ -1110,7 +1110,7 @@
         "subtitle": "",
         "title": "Our Rare finds",
         "button_label": "Shop now",
-        "button_link": "",
+        "button_link": "shopify://collections/very-rare-special-tea",
         "show_banner_subtitle": true,
         "show_banner_title": true,
         "show_banner_button": true,

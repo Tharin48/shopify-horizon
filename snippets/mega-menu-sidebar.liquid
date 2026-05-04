@@ -44,8 +44,8 @@
           {% for l2 in parent_link.links %}
             <li class="mega-menu-sidebar__rail-item">
               {% if l2.links != blank %}
-                <button
-                  type="button"
+                <a
+                  href="{{ l2.url }}"
                   class="mega-menu-sidebar__tab"
                   id="tab-{{ id }}-{{ tab_idx }}"
                   aria-expanded="{% if has_default_panel %}false{% elsif tab_idx == 0 %}true{% else %}false{% endif %}"
@@ -54,7 +54,7 @@
                   data-mega-sidebar-index="{{ tab_idx }}"
                 >
                   <span class="mega-menu-sidebar__tab-label">{{ l2.title | escape }}</span>
-                </button>
+                </a>
                 {% assign tab_idx = tab_idx | plus: 1 %}
               {% else %}
                 <a

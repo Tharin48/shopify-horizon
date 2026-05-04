@@ -5,7 +5,7 @@
   {% endif %}
   lang="{{ request.locale.iso_code }}"
 >
-  <head>
+  <head>{% render 'yoast-seo' %}
     {%- comment -%} Google Tag Manager — global storefront; keep only in layout/theme.liquid for upstream safety. {%- endcomment -%}
     <!-- Google Tag Manager -->
     <script>
@@ -16,7 +16,7 @@
       })(window,document,'script','dataLayer','GTM-KNRRJS');
     </script>
     <!-- End Google Tag Manager -->
-    {% render 'yoast-seo' %}
+    
     {%- if settings.favicon != blank -%}
       <link
         rel="icon"
