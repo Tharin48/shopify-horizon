@@ -85,7 +85,10 @@
     "featured_product": "Izpostavljen izdelek",
     "search_suggestions_available": "Predlogi za iskanje, ki so na voljo za »{{ query }}«",
     "price_filter_low": "Nizka cena",
-    "price_filter_high": "Visoka cena"
+    "price_filter_high": "Visoka cena",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Promotivni pasica",
+    "slide_background_image": "Ozadje izpostavljenega diapozitiva"
   },
   "actions": {
     "add_to_cart": "Dodaj v košarico",
@@ -343,7 +346,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "Več možnosti plačila (Shop Pay ali druge denarnice)",
+      "sticky_express_checkout_short": "Kupi zdaj"
     }
   },
   "fields": {

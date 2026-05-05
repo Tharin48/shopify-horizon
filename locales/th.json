@@ -83,7 +83,10 @@
     "featured_product": "สินค้าแนะนำ",
     "search_suggestions_available": "ค้นหาคำแนะนำสำหรับ \"{{ query }}\" ที่พร้อมใช้งาน",
     "price_filter_low": "ราคาประหยัด",
-    "price_filter_high": "ราคาแพง"
+    "price_filter_high": "ราคาแพง",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "แบนเนอร์โปรโมชัน",
+    "slide_background_image": "พื้นหลังสไลด์เด่น"
   },
   "actions": {
     "add_to_cart": "เพิ่มลงในตะกร้าสินค้า",
@@ -331,7 +334,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "ตัวเลือกการชำระเงินเพิ่มเติม (Shop Pay หรือกระเป๋าเงินอื่น)",
+      "sticky_express_checkout_short": "ซื้อตอนนี้"
     }
   },
   "fields": {

@@ -83,7 +83,10 @@
     "show_product_details": "{{ product_name }} için ürün ayrıntılarını göster",
     "search_suggestions_available": "\"{{ query }}\" için kullanılabilir arama önerileri",
     "price_filter_low": "Düşük fiyat",
-    "price_filter_high": "Yüksek fiyat"
+    "price_filter_high": "Yüksek fiyat",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Promosyon bannerı",
+    "slide_background_image": "Öne çıkan slayt arka planı"
   },
   "actions": {
     "add_to_cart": "Sepete ekle",
@@ -354,7 +357,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "Daha fazla ödeme seçeneği (Shop Pay veya diğer cüzdanlar)",
+      "sticky_express_checkout_short": "Şimdi satın al"
     }
   },
   "pagefly": {

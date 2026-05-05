@@ -84,7 +84,10 @@
     "featured_product": "Prodotto in primo piano",
     "search_suggestions_available": "Suggerimenti di ricerca per \"{{ query }}\"",
     "price_filter_low": "Prezzo basso",
-    "price_filter_high": "Prezzo alto"
+    "price_filter_high": "Prezzo alto",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Banner promozionale",
+    "slide_background_image": "Sfondo della slide in evidenza"
   },
   "actions": {
     "add_to_cart": "Aggiungi al carrello",
@@ -361,7 +364,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "Altre opzioni di pagamento (Shop Pay o altri wallet)",
+      "sticky_express_checkout_short": "Acquista ora"
     }
   },
   "pagefly": {

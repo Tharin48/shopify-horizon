@@ -106,7 +106,7 @@
       "settings": {
         "media_type_1": "none",
         "media_type_2": "video",
-        "video_2": "shopify://files/videos/DAUS - Web Banners 2025 - Tea  compressed.mp4",
+        "video_2": "shopify://files/videos/hero.mp4",
         "stack_media_on_mobile": false,
         "custom_mobile_media": false,
         "media_type_1_mobile": "image",
@@ -1094,8 +1094,8 @@
       "settings": {
         "color_scheme": "scheme-24415183-8fcb-4e95-92af-1c60b1ea7a34",
         "section_width": "full-width",
-        "collection": "very-rare-special-tea",
-        "products_limit": 5,
+        "collection": "luxury-leaf-tea-bags",
+        "products_limit": 12,
         "section_subheading": "Editorial selection",
         "show_section_subheading": false,
         "section_heading": "Rare Finds",
@@ -1110,7 +1110,7 @@
         "subtitle": "",
         "title": "Our Rare finds",
         "button_label": "Shop now",
-        "button_link": "shopify://collections/very-rare-special-tea",
+        "button_link": "shopify://collections/luxury-leaf-tea-bags",
         "show_banner_subtitle": true,
         "show_banner_title": true,
         "show_banner_button": true,

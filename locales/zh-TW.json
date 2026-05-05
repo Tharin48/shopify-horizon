@@ -83,7 +83,10 @@
     "featured_product": "精選商品",
     "search_suggestions_available": "可用於「{{ query }}」的搜尋建議",
     "price_filter_low": "低價",
-    "price_filter_high": "高價"
+    "price_filter_high": "高價",
+    "product_button_named": "{{ product_title }}。{{ action }}",
+    "promo_banner_image": "促銷橫幅",
+    "slide_background_image": "精選投影片背景"
   },
   "actions": {
     "add_to_cart": "加入購物車",
@@ -354,7 +357,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "更多付款方式（Shop Pay 或其他錢包）",
+      "sticky_express_checkout_short": "立即購買"
     }
   },
   "pagefly": {

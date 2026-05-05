@@ -83,7 +83,10 @@
     "featured_product": "Kiemelt termék",
     "search_suggestions_available": "Keresési javaslatok a következőhöz: „{{ query }}”",
     "price_filter_low": "Ár szerint növekvő",
-    "price_filter_high": "Ár szerint csökkenő"
+    "price_filter_high": "Ár szerint csökkenő",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Promóciós banner",
+    "slide_background_image": "Kiemelt dia háttere"
   },
   "actions": {
     "add_to_cart": "Hozzáadás a kosárhoz",
@@ -354,7 +357,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "További fizetési lehetőségek (Shop Pay vagy más tárcák)",
+      "sticky_express_checkout_short": "Vásárlás most"
     }
   },
   "pagefly": {

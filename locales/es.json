@@ -84,7 +84,10 @@
     "featured_product": "Producto destacado",
     "search_suggestions_available": "Buscar sugerencias disponibles de \"{{ query }}\"",
     "price_filter_low": "Precio bajo",
-    "price_filter_high": "Precio alto"
+    "price_filter_high": "Precio alto",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Banner promocional",
+    "slide_background_image": "Fondo de la diapositiva destacada"
   },
   "actions": {
     "add_to_cart": "Agregar al carrito",
@@ -337,7 +340,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "Más opciones de pago (Shop Pay u otras billeteras)",
+      "sticky_express_checkout_short": "Comprar ahora"
     }
   },
   "fields": {

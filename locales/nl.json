@@ -83,7 +83,10 @@
     "featured_product": "Uitgelicht product",
     "search_suggestions_available": "Zoek naar beschikbare suggesties voor '{{ query }}'",
     "price_filter_low": "Lage prijs",
-    "price_filter_high": "Hoge prijs"
+    "price_filter_high": "Hoge prijs",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Promotiebanner",
+    "slide_background_image": "Achtergrond van uitgelichte slide"
   },
   "actions": {
     "add_to_cart": "Aan winkelwagen toevoegen",
@@ -354,7 +357,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "Meer betaalopties (Shop Pay of andere wallets)",
+      "sticky_express_checkout_short": "Nu kopen"
     }
   },
   "pagefly": {

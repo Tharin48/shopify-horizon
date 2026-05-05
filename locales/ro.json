@@ -84,7 +84,10 @@
     "featured_product": "Produs recomandat",
     "search_suggestions_available": "Sugestii de căutare disponibile pentru „{{ query }}”",
     "price_filter_low": "Preț mic",
-    "price_filter_high": "Preț mare"
+    "price_filter_high": "Preț mare",
+    "product_button_named": "{{ product_title }}. {{ action }}",
+    "promo_banner_image": "Banner promoțional",
+    "slide_background_image": "Fundal pentru diapozitivul evidențiat"
   },
   "actions": {
     "add_to_cart": "Adaugă în coș",
@@ -361,7 +364,9 @@
       "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
       "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
-      "discount_percent_off": "({{ percent }}% Off)"
+      "discount_percent_off": "({{ percent }}% Off)",
+      "sticky_express_checkout": "Mai multe opțiuni de plată (Shop Pay sau alte portofele)",
+      "sticky_express_checkout_short": "Cumpără acum"
     }
   },
   "pagefly": {
