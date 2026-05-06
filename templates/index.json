@@ -106,7 +106,7 @@
       "settings": {
         "media_type_1": "none",
         "media_type_2": "video",
-        "video_2": "shopify://files/videos/hero.mp4",
+        "video_2": "shopify://files/videos/hero.webm",
         "stack_media_on_mobile": false,
         "custom_mobile_media": false,
         "media_type_1_mobile": "image",

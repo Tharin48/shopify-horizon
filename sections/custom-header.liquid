@@ -91,25 +91,20 @@
 <script src="{{ 'custom-header.js' | asset_url }}" defer></script>
 {% # theme-check-enable MissingAsset %}
 
-{%- if may_transparent -%}
-  <style>
-    /*
-     * Pre-set --header-group-height from Liquid settings so the hero section
-     * has the correct margin-top / min-height on the very first paint — before
-     * the deferred JS file runs and measures the DOM.  Without this, the hero
-     * briefly renders at full 100 vh (--header-group-height fallback = 0) then
-     * jumps to the correct smaller size when JS fires, which the user perceives
-     * as the "loads full then shrinks" flash.
-     *
-     * JS will later update this to include the announcement bar height; that
-     * produces only a small (30–50 px) adjustment rather than the large initial
-     * shift from 0 → default-height.
-     */
-    body {
-      --header-group-height: {{ section.settings.default_header_height }}px;
-    }
-  </style>
-{%- endif -%}
+<style>
+  /*
+   * Pre-set header sizing from Liquid settings so the hero and first mobile
+   * viewport have a stable fallback before deferred JS measures the DOM.
+   *
+   * JS will still refine these values to include announcement bar height and
+   * real runtime measurements, but starting from the default header height
+   * avoids the larger first-paint jump from 0px.
+   */
+  body {
+    --header-height: {{ section.settings.default_header_height }}px;
+    --header-group-height: {{ section.settings.default_header_height }}px;
+  }
+</style>
 
 <header
   id="CustomHeader-{{ section.id }}"
@@ -121,7 +116,6 @@
   data-may-transparent="{% if may_transparent %}true{% else %}false{% endif %}"
   data-header-state="{{ initial_state }}"
   data-mobile-nav-open="false"
-  data-mobile-search-open="false"
   data-scroll-threshold="{{ section.settings.scroll_threshold }}"
   data-minimized-nav="{{ section.settings.minimized_nav_alignment | default: 'left' }}"
   {% if desktop_navigation == 'horizon' or desktop_navigation == 'editorial' %}

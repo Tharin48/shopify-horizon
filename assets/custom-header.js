@@ -338,11 +338,7 @@
     var toggle = root.querySelector('[data-custom-header-menu-toggle]');
     var overlay = portalRoot ? portalRoot.querySelector('[data-custom-header-overlay]') : null;
     var drawer = portalRoot ? portalRoot.querySelector('[data-custom-header-mobile-drawer]') : null;
-    var searchPanel = portalRoot ? portalRoot.querySelector('[data-custom-header-mobile-search-panel]') : null;
-    var searchTrigger = root.querySelector('[data-custom-header-mobile-search-trigger]');
-    var searchInput = portalRoot ? portalRoot.querySelector('[data-custom-header-mobile-search-input]') : null;
     var drawerClose = portalRoot ? portalRoot.querySelector('[data-custom-header-drawer-close]') : null;
-    var searchClose = portalRoot ? portalRoot.querySelector('[data-custom-header-search-close]') : null;
 
     var mobileTabList = drawer ? drawer.querySelector('[data-custom-header-mobile-tabs]') : null;
     var mobilePanelsScroll = drawer ? drawer.querySelector('[data-custom-header-mobile-panels]') : null;
@@ -461,7 +457,6 @@
      * Positive = downward scroll accumulated, negative = upward. */
     var scrollAccum = 0;
     var lastMenuFocus = null;
-    var lastSearchFocus = null;
 
     function isMobile() {
       return mediaMobile.matches;
@@ -502,45 +497,9 @@
       }
     }
 
-    function setMobileSearchOpen(open) {
-      root.dataset.mobileSearchOpen = open ? 'true' : 'false';
-      if (searchTrigger) {
-        searchTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-      }
-      if (searchPanel) {
-        searchPanel.classList.toggle('is-open', open);
-        searchPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
-        try {
-          searchPanel.inert = !open;
-        } catch (e) {
-          /* inert unsupported */
-        }
-      }
-      updateOverlay();
-      updateScrollLock();
-      updateMobilePortalTopInset();
-      if (open && searchPanel) {
-        lastSearchFocus = document.activeElement;
-        requestAnimationFrame(function () {
-          if (searchInput) {
-            searchInput.focus();
-          } else {
-            var f = getFocusable(searchPanel);
-            if (f[0]) {
-              f[0].focus();
-            }
-          }
-        });
-      } else if (!open && lastSearchFocus && typeof lastSearchFocus.focus === 'function') {
-        lastSearchFocus.focus();
-        lastSearchFocus = null;
-      }
-    }
-
     function updateOverlay() {
       var navOpen = root.dataset.mobileNavOpen === 'true';
-      var searchOpen = root.dataset.mobileSearchOpen === 'true';
-      var show = isMobile() && (navOpen || searchOpen);
+      var show = isMobile() && navOpen;
       if (overlay) {
         overlay.classList.toggle('is-open', show);
         overlay.setAttribute('aria-hidden', show ? 'false' : 'true');
@@ -549,13 +508,11 @@
 
     function updateScrollLock() {
       var navOpen = root.dataset.mobileNavOpen === 'true';
-      var searchOpen = root.dataset.mobileSearchOpen === 'true';
-      setScrollLock(isMobile() && (navOpen || searchOpen));
+      setScrollLock(isMobile() && navOpen);
     }
 
     function closeAllMobilePanels() {
       setMobileNavOpen(false);
-      setMobileSearchOpen(false);
     }
 
     function onToggleClick() {
@@ -566,21 +523,7 @@
         return;
       }
       var isOpen = root.dataset.mobileNavOpen === 'true';
-      if (!isOpen && root.dataset.mobileSearchOpen === 'true') {
-        setMobileSearchOpen(false);
-      }
       setMobileNavOpen(!isOpen);
-    }
-
-    function onSearchTriggerClick() {
-      if (!isMobile()) {
-        return;
-      }
-      var isOpen = root.dataset.mobileSearchOpen === 'true';
-      if (!isOpen && root.dataset.mobileNavOpen === 'true') {
-        setMobileNavOpen(false);
-      }
-      setMobileSearchOpen(!isOpen);
     }
 
     function onOverlayClick() {
@@ -597,19 +540,9 @@
         /* inert unsupported */
       }
     }
-    if (searchPanel) {
-      try {
-        searchPanel.inert = true;
-      } catch (e) {
-        /* inert unsupported */
-      }
-    }
 
     if (toggle) {
       toggle.addEventListener('click', onToggleClick);
-    }
-    if (searchTrigger) {
-      searchTrigger.addEventListener('click', onSearchTriggerClick);
     }
     if (overlay) {
       overlay.addEventListener('click', onOverlayClick);
@@ -618,14 +551,8 @@
     var onDrawerCloseClick = function () {
       setMobileNavOpen(false);
     };
-    var onSearchCloseClick = function () {
-      setMobileSearchOpen(false);
-    };
     if (drawerClose) {
       drawerClose.addEventListener('click', onDrawerCloseClick);
-    }
-    if (searchClose) {
-      searchClose.addEventListener('click', onSearchCloseClick);
     }
     if (mobileTabList) {
       mobileTabList.addEventListener('click', onMobileTabClick);
@@ -817,11 +744,6 @@
       if (root.dataset.mobileNavOpen === 'true') {
         setMobileNavOpen(false);
         event.preventDefault();
-        return;
-      }
-      if (root.dataset.mobileSearchOpen === 'true') {
-        setMobileSearchOpen(false);
-        event.preventDefault();
       }
     };
     document.addEventListener('keydown', onGlobalKeydown);
@@ -888,17 +810,11 @@
       if (toggle) {
         toggle.removeEventListener('click', onToggleClick);
       }
-      if (searchTrigger) {
-        searchTrigger.removeEventListener('click', onSearchTriggerClick);
-      }
       if (overlay) {
         overlay.removeEventListener('click', onOverlayClick);
       }
       if (drawerClose) {
         drawerClose.removeEventListener('click', onDrawerCloseClick);
-      }
-      if (searchClose) {
-        searchClose.removeEventListener('click', onSearchCloseClick);
       }
       if (mobileTabList) {
         mobileTabList.removeEventListener('click', onMobileTabClick);

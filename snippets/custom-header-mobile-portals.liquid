@@ -1,5 +1,5 @@
 {% doc %}
-  Full-screen mobile overlay + menu drawer + search panel.
+  Full-screen mobile overlay + menu drawer.
   Rendered from sections/custom-header.liquid as a sibling of <header> so fixed layers are not clipped by header overflow.
 
   @param {object} section - Parent section object (required)
@@ -14,15 +14,9 @@
   if menu_handle != blank
     assign menu = linklists[menu_handle] | default: menu
   endif
-  assign search_style = 'none'
-  if section.settings.show_search
-    assign search_style = 'modal'
-  endif
   assign drawer_id = 'CustomHeaderMobileDrawer-' | append: section.id
-  assign search_panel_id = 'CustomHeaderMobileSearch-' | append: section.id
   assign overlay_id = 'CustomHeaderOverlay-' | append: section.id
   assign drawer_title_id = 'CustomHeaderDrawerTitle-' | append: section.id
-  assign search_title_id = 'CustomHeaderSearchTitle-' | append: section.id
   assign has_menu = false
   if menu != blank and menu.links.size > 0
     assign has_menu = true
@@ -33,7 +27,7 @@
     assign has_theme_drawer = true
   endif
   assign show_portals = false
-  if has_menu or has_theme_drawer or search_style != 'none'
+  if has_menu or has_theme_drawer
     assign show_portals = true
   endif
 %}
@@ -83,101 +77,5 @@
       </div>
     {% endif %}
 
-    {% if search_style != 'none' %}
-      <div
-        id="{{ search_panel_id }}"
-        class="custom-header__mobile-search-panel"
-        data-custom-header-mobile-search-panel
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="{{ search_title_id }}"
-        aria-hidden="true"
-        tabindex="-1"
-      >
-        <div class="custom-header__mobile-search-panel-inner">
-          <div class="custom-header__mobile-search-panel-header">
-            <h2 id="{{ search_title_id }}" class="visually-hidden">
-              {{ 'content.search' | t }}
-            </h2>
-            <form
-              class="custom-header__mobile-search-form"
-              action="{{ routes.search_url }}"
-              method="get"
-              role="search"
-            >
-              <label class="visually-hidden" for="CustomHeaderSearchQ-{{ section.id }}">
-                {{- 'content.search_input_label' | t -}}
-              </label>
-              <input
-                id="CustomHeaderSearchQ-{{ section.id }}"
-                class="custom-header__mobile-search-input"
-                type="search"
-                name="q"
-                autocomplete="off"
-                placeholder="{{ 'content.search_input_placeholder' | t }}"
-                data-custom-header-mobile-search-input
-              >
-              <input type="hidden" name="options[prefix]" value="last">
-              <button type="submit" class="button custom-header__mobile-search-submit">
-                {{ 'content.search' | t }}
-              </button>
-            </form>
-            <button
-              type="button"
-              class="custom-header__mobile-search-panel-close button-unstyled"
-              data-custom-header-search-close
-              aria-label="{{ 'accessibility.close_dialog' | t }}"
-            >
-              <span class="svg-wrapper" aria-hidden="true">
-                {{- 'icon-close.svg' | inline_asset_content -}}
-              </span>
-            </button>
-          </div>
-
-          <div class="custom-header__mobile-search-panel-body">
-            {% if has_menu %}
-              <section class="custom-header__mobile-search-section" aria-labelledby="PopularSearches-{{ section.id }}">
-                <h3 id="PopularSearches-{{ section.id }}" class="custom-header__mobile-search-section-title">
-                  Popular searches
-                </h3>
-                <ul class="custom-header__mobile-search-chips list-unstyled" role="list">
-                  {% for link in menu.links limit: 6 %}
-                    <li>
-                      <a class="custom-header__mobile-search-chip" href="{{ link.url }}">{{ link.title }}</a>
-                    </li>
-                  {% endfor %}
-                </ul>
-              </section>
-            {% endif %}
-
-            <section class="custom-header__mobile-search-section" aria-labelledby="QuickLinks-{{ section.id }}">
-              <h3 id="QuickLinks-{{ section.id }}" class="custom-header__mobile-search-section-title">
-                Quick links
-              </h3>
-              <ul class="custom-header__mobile-search-links list-unstyled" role="list">
-                <li>
-                  <a href="{{ routes.all_products_collection_url }}">{{ 'content.search_results_resource_products' | t }}</a>
-                </li>
-                <li>
-                  <a href="{{ routes.collections_url }}">{{ 'content.search_results_resource_collections' | t }}</a>
-                </li>
-                <li>
-                  <a href="{{ routes.cart_url }}">{{ 'accessibility.cart' | t }}</a>
-                </li>
-              </ul>
-            </section>
-
-            <section class="custom-header__mobile-search-section" aria-labelledby="Trending-{{ section.id }}">
-              <h3 id="Trending-{{ section.id }}" class="custom-header__mobile-search-section-title">
-                Trending
-              </h3>
-              <p class="custom-header__mobile-search-hint">
-                Product suggestions can be wired to predictive search later.
-              </p>
-            </section>
-          </div>
-        </div>
-      </div>
-    {% endif %}
   </div>
 {% endif %}
