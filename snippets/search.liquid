@@ -16,6 +16,7 @@
     <button
       on:click="#search-modal/showDialog"
       class="button-unstyled header-actions__action{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      data-search-modal-trigger
       aria-label="{{ 'content.search_input_label' | t }}"
       aria-haspopup="dialog"
     >

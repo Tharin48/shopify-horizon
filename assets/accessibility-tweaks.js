@@ -17,18 +17,30 @@
     });
   }
 
+  function fixIframeTitle(frame) {
+    if (!(frame instanceof HTMLIFrameElement)) return;
+
+    const existing = frame.getAttribute('title');
+    if (existing != null && existing.trim() !== '') return;
+
+    const src = frame.getAttribute('src') || '';
+    if (frame.id === 'merchantwidgetiframe' || src.includes('google.com/shopping')) {
+      frame.title = TITLE_SHOPPING;
+    }
+  }
+
   function fixIframeTitles(scope) {
     const root = scope && scope.nodeType === 1 ? scope : document.body;
+    if (!root) return;
+
+    if (root instanceof HTMLIFrameElement) {
+      fixIframeTitle(root);
+      return;
+    }
+
     if (!root.querySelectorAll) return;
     root.querySelectorAll('iframe').forEach((frame) => {
-      if (!(frame instanceof HTMLIFrameElement)) return;
-      const existing = frame.getAttribute('title');
-      if (existing != null && existing.trim() !== '') return;
-
-      const src = frame.getAttribute('src') || '';
-      if (frame.id === 'merchantwidgetiframe' || src.includes('google.com/shopping')) {
-        frame.title = TITLE_SHOPPING;
-      }
+      fixIframeTitle(frame);
     });
   }
 
@@ -49,21 +61,23 @@
   });
 
   /** Late-injected widgets (Merchantverse, etc.). */
-  let iframeRaf = 0;
   const mo = new MutationObserver((mutations) => {
     for (const m of mutations) {
       for (const n of m.addedNodes) {
         if (!(n instanceof Element)) continue;
-        if (
-          (n.matches('iframe') && !(n.getAttribute('title') || '').trim()) ||
-          n.querySelector('iframe')
-        ) {
-          cancelAnimationFrame(iframeRaf);
-          iframeRaf = requestAnimationFrame(() => fixIframeTitles(document.body));
-          return;
+
+        if (n.matches('iframe')) {
+          fixIframeTitle(n);
+          continue;
+        }
+
+        if (n.querySelector('iframe')) {
+          fixIframeTitles(n);
         }
       }
     }
   });
-  mo.observe(document.documentElement, { childList: true, subtree: true });
+  if (document.body) {
+    mo.observe(document.body, { childList: true, subtree: true });
+  }
 })();

@@ -73,9 +73,33 @@
   endif
 %}
 
+{% liquid
+  assign defer_section_css = false
+  if request.page_type == 'index' and section.index > 2
+    assign defer_section_css = true
+  endif
+%}
+
 {% # theme-check-disable MissingAsset %}
-{{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}
-{{ 'featured-editorial-product-carousel.css' | asset_url | stylesheet_tag }}
+{% if defer_section_css %}
+  <link
+    rel="stylesheet"
+    href="{{ 'teamakers-product-card.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <link
+    rel="stylesheet"
+    href="{{ 'featured-editorial-product-carousel.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>{{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}</noscript>
+  <noscript>{{ 'featured-editorial-product-carousel.css' | asset_url | stylesheet_tag }}</noscript>
+{% else %}
+  {{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}
+  {{ 'featured-editorial-product-carousel.css' | asset_url | stylesheet_tag }}
+{% endif %}
 <script src="{{ 'featured-editorial-product-carousel.js' | asset_url }}" defer></script>
 {% # theme-check-enable MissingAsset %}
 

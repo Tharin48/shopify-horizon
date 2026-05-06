@@ -926,16 +926,11 @@
     }
 
     var cleanupRegistered = false;
-    var cancelScheduledInit = null;
 
     function cleanupDeferredInit() {
       wrap.removeEventListener('focusin', initNow);
       wrap.removeEventListener('pointerenter', initNow);
       wrap.removeEventListener('touchstart', initNow);
-      if (cancelScheduledInit) {
-        cancelScheduledInit();
-        cancelScheduledInit = null;
-      }
     }
 
     function initNow() {
@@ -951,7 +946,6 @@
     wrap.addEventListener('focusin', initNow, { once: true });
     wrap.addEventListener('pointerenter', initNow, { once: true });
     wrap.addEventListener('touchstart', initNow, { once: true, passive: true });
-    cancelScheduledInit = scheduleNonCriticalTask(initNow);
 
     if (!cleanupRegistered) {
       cleanupRegistered = true;

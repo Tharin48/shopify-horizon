@@ -30,6 +30,9 @@
   ref="addToCartButtonContainer"
   data-product-variant-media="{{ product_variant_media }}"
   data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
+  {% if lazy_load %}
+    data-lazy-load
+  {% endif %}
 >
   <button
     {% if id != blank %}

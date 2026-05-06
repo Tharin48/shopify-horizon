@@ -494,7 +494,7 @@
         "show_on_homepage_only": true,
         "hide_previous_footer_section_on_homepage": true,
         "background_color": "#fbfaf5",
-        "background_image": "shopify://shop_images/bg-footer-strip.svg",
+        "background_image": "shopify://shop_images/bg-footer-strip.jpg",
         "background_image_position": "center center",
         "background_image_size": "auto",
         "background_image_opacity": 100,

@@ -121,7 +121,7 @@
         "type": "shopify://apps/manifest-ai-chatbot/blocks/embed/cef2d5e1-cdf8-491e-bb69-d24f19b6ea44",
         "disabled": false,
         "settings": {}
-      },
+      }
     },
     "color_schemes": {
       "scheme-1": {

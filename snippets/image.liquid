@@ -1,6 +1,8 @@
 {%- doc -%}
   Renders the <img> element using provided image object
 
+  Intrinsic width/height are taken from the image object so the browser can reserve aspect ratio (CLS).
+
   @param {object} image - image object
   @param {number} [height] - custom image height
   @param {string} [class] - additional classes
@@ -31,7 +33,13 @@
   {{
     image
     | image_url: height: image_height
-    | image_tag: class: class, srcset: image_srcset, style: style_value, alt: image_alt_text
+    | image_tag:
+      class: class,
+      srcset: image_srcset,
+      style: style_value,
+      alt: image_alt_text,
+      width: image.width,
+      height: image.height
   }}
 {% elsif text_fallback %}
   {{ text_fallback }}

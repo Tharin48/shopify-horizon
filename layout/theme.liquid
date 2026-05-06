@@ -76,11 +76,45 @@
          * Header calculation functions for maintaining CSS variables
          * Mimic calculateHeaderGroupHeight() in utilities.js
          */
-        const header = document.querySelector('header-component');
         const headerGroup = document.querySelector('#header-group');
+        const header = headerGroup?.querySelector('header-component');
+        const customHeader = headerGroup?.querySelector('[data-custom-header]');
         const hasHeaderSection = headerGroup?.querySelector('.header-section');
 
-        if (!header || !headerGroup) return;
+        if (!headerGroup || (!header && !customHeader)) return;
+
+        if (customHeader) {
+          let staticGroupHeight = 0;
+          let announcementHeight = 0;
+          const children = headerGroup.children;
+
+          for (let i = 0; i < children.length; i++) {
+            const section = children[i];
+            if (!(section instanceof HTMLElement)) continue;
+
+            const customHeaderRoot = section.querySelector('[data-custom-header]');
+            if (customHeaderRoot && customHeaderRoot === customHeader) continue;
+
+            const sectionHeight = section.offsetHeight;
+            staticGroupHeight += sectionHeight;
+
+            if (!announcementHeight && section.querySelector('.announcement-bar')) {
+              announcementHeight = sectionHeight;
+            }
+          }
+
+          const customHeaderStyles = window.getComputedStyle(customHeader);
+          const defaultHeaderHeight =
+            Math.round(parseFloat(customHeaderStyles.getPropertyValue('--custom-header-default-height'))) ||
+            customHeader.offsetHeight ||
+            0;
+
+          document.documentElement.style.setProperty('--announcement-bar-height', `${announcementHeight}px`);
+          document.body.style.setProperty('--header-height', `${defaultHeaderHeight}px`);
+          document.body.style.setProperty('--header-group-height', `${staticGroupHeight + defaultHeaderHeight}px`);
+          document.body.style.setProperty('--transparent-header-offset-boolean', '0');
+          return;
+        }
 
         const headerTopRow = header.querySelector('.header__row--top');
         const headerHeight = header.offsetHeight;
@@ -158,5 +192,18 @@
     {% endif %}
 
     <script src="{{ 'accessibility-tweaks.js' | asset_url }}" defer></script>
+    <script>
+      (function () {
+        try {
+          if (new URLSearchParams(window.location.search).get('debug_cls') !== 'true') return;
+        } catch (e) {
+          return;
+        }
+        var s = document.createElement('script');
+        s.src = {{ 'debug-cls.js' | asset_url | json }};
+        s.defer = true;
+        document.body.appendChild(s);
+      })();
+    </script>
   </body>
 </html>

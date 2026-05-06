@@ -1,4 +1,10 @@
-{{ 'custom-footer.css' | asset_url | stylesheet_tag }}
+<link
+  rel="stylesheet"
+  href="{{ 'custom-footer.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+<noscript>{{ 'custom-footer.css' | asset_url | stylesheet_tag }}</noscript>
 <script src="{{ 'custom-footer.js' | asset_url }}" defer></script>
 
 {%- liquid

@@ -2,6 +2,8 @@
 {%- liquid
   assign body_font_url = ''
   assign heading_font_url = ''
+  assign body_font_priority = 'auto'
+  assign heading_font_priority = 'high'
 
   unless settings.type_body_font.system?
     assign body_font_url = settings.type_body_font | font_url
@@ -10,6 +12,10 @@
   unless settings.type_heading_font.system?
     assign heading_font_url = settings.type_heading_font | font_url
   endunless
+
+  if heading_font_url == blank and body_font_url != blank
+    assign body_font_priority = 'high'
+  endif
 -%}
 
 {%- comment -%}
@@ -26,7 +32,7 @@
     href="{{ body_font_url }}"
     type="font/woff2"
     crossorigin
-    fetchpriority="low"
+    fetchpriority="{{ body_font_priority }}"
   >
 {%- endif -%}
 
@@ -37,7 +43,7 @@
     href="{{ heading_font_url }}"
     type="font/woff2"
     crossorigin
-    fetchpriority="low"
+    fetchpriority="{{ heading_font_priority }}"
   >
 {%- endif -%}
 {% # theme-check-enable %}

@@ -122,6 +122,7 @@
               type="button"
               class="custom-header__mobile-search-trigger"
               on:click="#search-modal/showDialog"
+              data-search-modal-trigger
               aria-haspopup="dialog"
               aria-label="{{ 'content.search_input_label' | t }}"
             >
@@ -164,6 +165,7 @@
               type="button"
               class="custom-header__desktop-search-form custom-header__desktop-search-default-btn"
               on:click="#search-modal/showDialog"
+              data-search-modal-trigger
               aria-haspopup="dialog"
               aria-label="{{ desktop_search_placeholder }}"
             >

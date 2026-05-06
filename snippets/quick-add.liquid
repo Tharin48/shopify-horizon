@@ -44,6 +44,7 @@
     data-product-id="{{ product.id }}"
     on:submit="/handleSubmit"
     class="quick-add__product-form-component"
+    data-lazy-load
   >
     <div
       class="visually-hidden"
@@ -83,7 +84,8 @@
         class: 'button quick-add__button quick-add__button--add add-to-cart-button',
         can_add_to_cart: can_add_to_cart,
         icon_only_on_mobile: true,
-        product: product
+        product: product,
+        lazy_load: true
       %}
 
       <button
