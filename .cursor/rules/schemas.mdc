@@ -20,7 +20,7 @@ We write our schemas in the schemas folder and then run `npm run build:schemas` 
   "properties": {
     "name": {
       "type": "string",
-      "maxLength": 50
+      "maxLength": 25
     },
     "tag": {
       "type": "string",
@@ -128,6 +128,8 @@ See [sidebar settings documentation](mdc:https:/shopify.dev/docs/storefronts/the
 
 ## Best practices
 
+**Shopify upload validation:** The root `name` in `{% schema %}` (and preset names that use plain strings) must be **at most 25 characters**, or theme upload fails with `Invalid schema: name is too long`.
+
 ### Label Guidelines
 
 - Keep labels concise (under 30 characters)
@@ -141,6 +143,10 @@ See [sidebar settings documentation](mdc:https:/shopify.dev/docs/storefronts/the
 - Keys must exist in `locales/en.default.schema.json` under the `names` section
 - **If a key doesn't exist, add it to the `names` section** (e.g., `"carousel": "Carousel"`)
 - Run `npm run build:schemas` after making changes
+
+### Range settings: max 101 steps
+
+Shopify rejects range settings where the number of discrete values exceeds **101**. Approximate count: `(max - min) / step + 1` (must be ≤ 101). Widen `step` or narrow `min`/`max` when uploads fail with `step invalid` / `at most 101 steps` (e.g. `-240..240` with `step: 4` → 121 steps → use `step: 6` or larger).
 
 ### Setting Organization Rules
 

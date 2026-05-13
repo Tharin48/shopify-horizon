@@ -1,0 +1,54 @@
+---
+description: Collection/catalog JSON templates use modular top-level sections and composable blocks; avoid new monolithic catalog sections unless documented
+globs: templates/collection*.json,sections/*collection*.liquid,sections/main-collection.liquid
+alwaysApply: false
+---
+
+# Collection & catalog template modularity
+
+**Global project rules** (modularity, duplicate-from-Horizon, custom-prefixed naming): see **`horizon-modular-naming.mdc`** (`alwaysApply`).
+
+## Why the default collection feels “modular”
+
+Shopify OS 2.0 **modularity** at the **template** level means the JSON template’s `order` array lists **several independent sections** the merchant can reorder, show/hide, and style separately.
+
+In this theme, the stock **`collection.json`** is structured that way:
+
+- **Multiple top-level sections** — e.g. a `section` (or similar) for the **collection heading** and a **`main-collection`** (key often `main`) for the product listing.
+- **`order`** reflects the page stack, e.g. `["section", "main"]`, so the heading block and the main listing are **peers in the left sidebar**, not one blob.
+
+Inside **`main-collection`**, Horizon uses **static blocks** such as **Filtering and sorting** (`filters`) and **Product card** (`_product_card` with nested card blocks). Those are **section-level** blocks: still editable, but they live **under** the main collection **section** because filters + grid share one `collection` context and one grid implementation.
+
+## Why `custom-collection-layout` is not structured the same way
+
+**`collection.custom-catalog.json`** (and the **`custom-collection-layout`** section) intentionally bundle the **whole catalog experience** in **one** section: breadcrumb, tea-type row, format pills, facet toolbar, availability, AJAX `results-list`, and `teamakers-product-card` grid. That is a **product decision** to support a single coordinated shell (filter strip + infinite scroll, shared section ID for the Sections API, etc.).
+
+So in the theme editor, merchants see **one** “Custom catalog” (or similar) **section** with many **settings** and only **repeatable** blocks for things like **tea type** tiles — **not** the same left-sidebar layout as the default `collection` + `main-collection` stack.
+
+Refactoring that into multiple top-level sections would be a **large** architectural project (split Liquid, pass collection context, keep AJAX and sticky strip behavior).
+
+## Rules for new work (agents & humans)
+
+1. **New `collection.*.json` templates** (alternate collection templates) should default to the **modular** pattern:
+   - **At least two top-level entries** in `order` when the page has a distinct hero/heading and a main listing (e.g. heading section + `main-collection` or an approved listing section type).
+   - **Avoid** introducing another **monolithic** “entire page in one section” unless there is a short **comment in the template** and/or PR describing why (e.g. same constraints as `custom-collection-layout`).
+
+2. **Prefer extending Horizon’s `main-collection`** (filters + product card blocks) for standard grid/catalog UX so **Filtering and sorting** and **Product card** stay first-class **blocks** with known types.
+
+3. **If a feature must live in `custom-collection-layout`**, add or reuse **section blocks** (declared in that section’s schema) for content that should be reordered or toggled, rather than only burying it in **settings** — settings are for parameters; **blocks** are for **composition**.
+
+4. **Do not** merge unrelated page regions into a single new section for convenience; split into **sections** or **blocks** per the patterns above.
+
+## Reference files
+
+| Pattern | File |
+|--------|------|
+| Modular default collection | `templates/collection.json` (`order`: heading section + `main`) |
+| Monolithic custom catalog | `templates/collection.custom-catalog.json` → `sections/custom-collection-layout.liquid` |
+| Main listing + filter/card blocks | `sections/main-collection.liquid` (and its schema) |
+
+## Summary
+
+- **“Modular” in the theme editor** ≈ **multiple sections** in the template JSON + composable **blocks** where Horizon expects them.
+- The **custom catalog** template is **less modular by design**; new templates should **not** copy that pattern unless the same technical constraints apply and the tradeoff is **documented**.
+

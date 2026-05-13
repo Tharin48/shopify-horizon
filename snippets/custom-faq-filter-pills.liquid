@@ -1,0 +1,24 @@
+{%- if category_entries != blank and category_entries.size > 0 -%}
+  <div class="custom-faq-accordion__filters" aria-label="FAQ categories">
+    {%- for entry in category_entries -%}
+      {%- liquid
+        assign entry_parts = entry | split: '::'
+        assign category_key = entry_parts[0]
+        assign category_label = entry_parts[1] | default: entry_parts[0]
+        assign is_active = false
+        if category_key == selected_key
+          assign is_active = true
+        endif
+      -%}
+
+      <button
+        type="button"
+        class="custom-faq-accordion__filter-pill{% if is_active %} is-active{% endif %}"
+        data-faq-category="{{ category_key }}"
+        aria-pressed="{% if is_active %}true{% else %}false{% endif %}"
+      >
+        {{ category_label | escape }}
+      </button>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

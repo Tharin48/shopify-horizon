@@ -1,0 +1,141 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "custom_catalog_main": {
+      "type": "custom-collection-layout",
+      "blocks": {
+        "tea_type_UfzjWV": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Black Tea",
+            "filter_value": ""
+          }
+        },
+        "tea_type_8cBwGD": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Oolong Tea",
+            "filter_value": ""
+          }
+        },
+        "tea_type_kNz3W9": {
+          "type": "tea_type",
+          "settings": {
+            "title": "White Tea",
+            "filter_value": ""
+          }
+        },
+        "tea_type_e8qyBq": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Green Tea",
+            "filter_value": ""
+          }
+        },
+        "tea_type_eqiTc3": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Flavored Tea",
+            "filter_value": ""
+          }
+        },
+        "tea_type_miepxK": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Herbal Infusion Tea",
+            "filter_value": ""
+          }
+        },
+        "tea_type_MA4Gjj": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Caffeine Free",
+            "filter_value": ""
+          }
+        }
+      },
+      "block_order": [
+        "tea_type_UfzjWV",
+        "tea_type_8cBwGD",
+        "tea_type_kNz3W9",
+        "tea_type_e8qyBq",
+        "tea_type_eqiTc3",
+        "tea_type_miepxK",
+        "tea_type_MA4Gjj"
+      ],
+      "settings": {
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "padding_top": 24,
+        "padding_bottom": 48,
+        "content_max_width": 1920,
+        "padding_inline_mobile": 16,
+        "padding_inline_desktop": 40,
+        "grid_gap_desktop": 28,
+        "grid_gap_mobile": 20,
+        "products_per_page": 24,
+        "card_show_vendor": true,
+        "card_show_reviews": true,
+        "card_show_sale_badge": true,
+        "card_show_quick_add": true,
+        "show_breadcrumb": true,
+        "breadcrumb_home_label": "Home",
+        "show_tea_type_row": true,
+        "tea_type_visual_source": "metaobjects",
+        "tea_type_metaobject_definition": "tea_type",
+        "tea_type_metaobject_order": "Green Tea,\nOolong Tea\nWhite Tea\nBlack Tea\nCaffeine Free\nFlavored Tea\nHerbal Infusion Tea",
+        "tea_type_metaobject_sort_key": "",
+        "tea_type_row_aria_label": "Shop by tea type",
+        "tea_type_button_fallback_aria": "",
+        "tea_type_unavailable_suffix": "Filter unavailable",
+        "facet_label_our_ranges": "Our ranges",
+        "facet_param_hint_our_ranges": "",
+        "facet_label_tea_type": "Tea type",
+        "facet_param_hint_tea_type": "custom.tea_type",
+        "facet_label_tea_format": "Tea format",
+        "facet_param_hint_tea_format": "custom.tea_format",
+        "facet_label_flavor": "Flavor",
+        "facet_param_hint_flavor": "shopify.flavor",
+        "facet_label_time_of_day": "Time of day",
+        "facet_param_hint_time_of_day": "custom.time_of_day",
+        "active_filters_aria_label": "Active filters",
+        "chip_remove_character": "×",
+        "chip_remove_sr_suffix": "Remove filter",
+        "show_format_pills": true,
+        "show_format_pill_counts": true,
+        "format_pill_count_suffix": "products",
+        "format_pills_aria_label": "Tea format",
+        "format_pill_1": "Tea bags",
+        "format_pill_2": "Loose tea",
+        "format_pill_3": "Refills",
+        "format_pill_4": "Pyramid",
+        "format_pill_5": "Gift sets",
+        "mock_chip_1": "Origin: Ceylon",
+        "mock_chip_2": "Caffeine: Medium",
+        "clear_all_label": "Clear all",
+        "toolbar_our_ranges": "Our Ranges ▾",
+        "toolbar_tea_type": "Tea Type ▾",
+        "toolbar_tea_format": "Tea Format ▾",
+        "toolbar_flavors": "Flavors ▾",
+        "toolbar_time_of_day": "Time of Day ▾",
+        "sort_label_prefix": "Sort",
+        "item_count_template": "[start]–[end] of [total] products",
+        "grid_toggle_aria_label": "Product layout",
+        "grid_toggle_grid_label": "Grid",
+        "grid_toggle_list_label": "List",
+        "empty_collection_message": "No products in this collection yet.",
+        "pagination_aria_label": "Pagination"
+      }
+    }
+  },
+  "order": [
+    "custom_catalog_main"
+  ]
+}

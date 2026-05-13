@@ -1,0 +1,355 @@
+{{ 'custom-shipping-availability.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'custom-shipping-availability.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign shipping_countries_override = blank
+  assign shipping_countries_json = blank
+  assign shipping_country_count = 0
+  assign shipping_country_registry = '|'
+  assign global_notice_markup = section.settings.global_notice
+
+  if page != blank
+    assign shipping_countries_override = page.metafields.custom.shipping_countries
+  endif
+
+  if global_notice_markup == blank
+    capture global_notice_markup
+      echo '<ul>'
+      echo '<li>Free shipping is available for orders over USD $49.</li>'
+      echo '<li>Local customs authorities may impose duties, taxes, or inspection charges.</li>'
+      echo '<li>These charges are not included in the tea price.</li>'
+      echo '<li>Please contact your nearest agent with your airway bill number.</li>'
+      echo '<li>Refunds may exclude charges already paid to authorities.</li>'
+      echo '</ul>'
+    endcapture
+  endif
+
+  assign global_notice_text = global_notice_markup | strip_html | strip
+
+  if shipping_countries_override != blank and shipping_countries_override.value != blank
+    for shipping_country in shipping_countries_override.value limit: 250
+      assign is_enabled = true
+
+      if shipping_country.enabled != blank and shipping_country.enabled.value == false
+        assign is_enabled = false
+      endif
+
+      assign country_name = shipping_country.country_name.value | default: shipping_country.country_name | default: '' | strip
+      assign country_key = country_name | handleize
+      assign registry_token = '|' | append: country_key | append: '|'
+
+      if is_enabled and country_name != blank
+        unless shipping_country_registry contains registry_token
+        assign shipping_country_count = shipping_country_count | plus: 1
+        assign shipping_country_registry = shipping_country_registry | append: country_key | append: '|'
+
+        assign country_code = shipping_country.country_code.value | default: shipping_country.country_code | default: '' | strip | upcase
+        assign shipping_status = shipping_country.shipping_status.value | default: shipping_country.shipping_status | default: '' | strip
+        assign shipping_group = shipping_country.shipping_group.value | default: shipping_country.shipping_group | default: '' | strip
+        assign notice = shipping_country.notice.value | default: shipping_country.notice | default: '' | strip
+        assign required_documents = shipping_country.required_documents.value | default: shipping_country.required_documents | default: '' | strip
+        assign contact_email = shipping_country.contact_email.value | default: shipping_country.contact_email | default: section.settings.fallback_contact_email | strip
+        assign sort_order = shipping_country.sort_order.value | default: shipping_country.sort_order | default: 9999 | plus: 0
+
+        capture shipping_countries_json
+          echo shipping_countries_json
+          unless shipping_countries_json == blank
+            echo ','
+          endunless
+          echo '{'
+          echo '"country_name":'
+          echo country_name | json
+          echo ',"country_code":'
+          echo country_code | json
+          echo ',"shipping_status":'
+          echo shipping_status | json
+          echo ',"shipping_group":'
+          echo shipping_group | json
+          echo ',"notice":'
+          echo notice | json
+          echo ',"required_documents":'
+          echo required_documents | json
+          echo ',"contact_email":'
+          echo contact_email | json
+          echo ',"enabled":true'
+          echo ',"sort_order":'
+          echo sort_order | json
+          echo '}'
+        endcapture
+        endunless
+      endif
+    endfor
+  endif
+-%}
+
+{%- comment -%}
+  paginate by 250 lifts the default 50-item cap on shop.metaobjects.*.values so all
+  entries are available in the for loop below. capture/endcapture cannot live inside
+  a liquid tag, so this block uses standard Liquid tag syntax instead.
+{%- endcomment -%}
+{%- paginate shop.metaobjects.shipping_country.values by 250 -%}
+  {%- for shipping_country in shop.metaobjects.shipping_country.values -%}
+    {%- assign is_enabled = true -%}
+    {%- if shipping_country.enabled != blank and shipping_country.enabled.value == false -%}
+      {%- assign is_enabled = false -%}
+    {%- endif -%}
+
+    {%- assign country_name = shipping_country.country_name.value | default: shipping_country.country_name | default: '' | strip -%}
+    {%- assign country_key = country_name | handleize -%}
+    {%- assign registry_token = '|' | append: country_key | append: '|' -%}
+
+    {%- if is_enabled and country_name != blank -%}
+      {%- unless shipping_country_registry contains registry_token -%}
+        {%- assign shipping_country_count = shipping_country_count | plus: 1 -%}
+        {%- assign shipping_country_registry = shipping_country_registry | append: country_key | append: '|' -%}
+
+        {%- assign country_code = shipping_country.country_code.value | default: shipping_country.country_code | default: '' | strip | upcase -%}
+        {%- assign shipping_status = shipping_country.shipping_status.value | default: shipping_country.shipping_status | default: '' | strip -%}
+        {%- assign shipping_group = shipping_country.shipping_group.value | default: shipping_country.shipping_group | default: '' | strip -%}
+        {%- assign notice = shipping_country.notice.value | default: shipping_country.notice | default: '' | strip -%}
+        {%- assign required_documents = shipping_country.required_documents.value | default: shipping_country.required_documents | default: '' | strip -%}
+        {%- assign contact_email = shipping_country.contact_email.value | default: shipping_country.contact_email | default: section.settings.fallback_contact_email | strip -%}
+        {%- assign sort_order = shipping_country.sort_order.value | default: shipping_country.sort_order | default: 9999 | plus: 0 -%}
+
+        {%- capture shipping_countries_json -%}
+          {{- shipping_countries_json -}}
+          {%- unless shipping_countries_json == blank -%},{%- endunless -%}
+          {"country_name":{{ country_name | json }},"country_code":{{ country_code | json }},"shipping_status":{{ shipping_status | json }},"shipping_group":{{ shipping_group | json }},"notice":{{ notice | json }},"required_documents":{{ required_documents | json }},"contact_email":{{ contact_email | json }},"enabled":true,"sort_order":{{ sort_order | json }}}
+        {%- endcapture -%}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endpaginate -%}
+
+{%- liquid
+  if shipping_countries_json != blank
+    assign shipping_countries_json = '[' | append: shipping_countries_json | append: ']'
+  else
+    assign shipping_countries_json = '[]'
+  endif
+-%}
+
+{%- if shipping_country_count > 0 or request.design_mode -%}
+  <section
+    class="section custom-shipping-availability"
+    data-custom-shipping-availability
+    data-section-id="{{ section.id }}"
+    style="
+      --custom-shipping-availability-accent: {{ section.settings.accent_color }};
+      --custom-shipping-availability-max-width: {{ section.settings.max_width }}px;
+      --custom-shipping-availability-padding-top: {{ section.settings.padding_top }}px;
+      --custom-shipping-availability-padding-bottom: {{ section.settings.padding_bottom }}px;
+      --custom-shipping-availability-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+      --custom-shipping-availability-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    "
+    {{ section.shopify_attributes }}
+  >
+    <div class="custom-shipping-availability__inner">
+      {%- if shipping_country_count > 0 -%}
+        <div class="custom-shipping-availability__search-block">
+          {%- if section.settings.search_label != blank -%}
+            <label
+              class="custom-shipping-availability__label"
+              for="custom-shipping-country-search-{{ section.id }}"
+            >
+              {{ section.settings.search_label | escape }}
+            </label>
+          {%- endif -%}
+
+          <div
+            class="custom-shipping-availability__combobox"
+            data-shipping-combobox
+            role="combobox"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-owns="custom-shipping-country-listbox-{{ section.id }}"
+          >
+            <div class="custom-shipping-availability__input-shell">
+              <input
+                id="custom-shipping-country-search-{{ section.id }}"
+                class="custom-shipping-availability__input"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="{{ section.settings.search_placeholder | escape }}"
+                aria-autocomplete="list"
+                aria-controls="custom-shipping-country-listbox-{{ section.id }}"
+                aria-describedby="custom-shipping-country-feedback-{{ section.id }}"
+                data-shipping-input
+              >
+              <span class="custom-shipping-availability__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <circle cx="11" cy="11" r="6.5"></circle>
+                  <path d="M16 16l5 5"></path>
+                </svg>
+              </span>
+            </div>
+
+            <div class="custom-shipping-availability__dropdown" data-shipping-dropdown hidden>
+              <ul
+                id="custom-shipping-country-listbox-{{ section.id }}"
+                class="custom-shipping-availability__options"
+                role="listbox"
+                data-shipping-options
+              ></ul>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="custom-shipping-country-feedback-{{ section.id }}"
+          class="custom-shipping-availability__feedback"
+          data-shipping-feedback
+        >
+          {{ section.settings.default_result_text | escape }}
+        </div>
+
+        <div class="custom-shipping-availability__result-host" data-shipping-result-host></div>
+
+        {%- if section.settings.show_global_notice and global_notice_text != blank -%}
+          <div class="custom-shipping-availability__global-notice rte">
+            {{ global_notice_markup }}
+          </div>
+        {%- endif -%}
+      {%- elsif request.design_mode -%}
+        <div class="custom-shipping-availability__empty">
+          Add enabled `shipping_country` metaobjects, or connect a `custom.shipping_countries` page metafield override, to power this section.
+        </div>
+      {%- endif -%}
+
+      <script type="application/json" data-shipping-country-config>
+        {
+          "searchLabel": {{ section.settings.search_label | json }},
+          "searchPlaceholder": {{ section.settings.search_placeholder | json }},
+          "noResultsText": {{ section.settings.no_results_text | json }},
+          "defaultResultText": {{ section.settings.default_result_text | json }},
+          "fallbackContactEmail": {{ section.settings.fallback_contact_email | json }}
+        }
+      </script>
+      <script type="application/json" data-shipping-country-items>{{ shipping_countries_json }}</script>
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Shipping availability",
+  "class": "section-wrapper",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "global_notice",
+      "label": "Global notice"
+    },
+    {
+      "type": "text",
+      "id": "fallback_contact_email",
+      "label": "Fallback contact email",
+      "default": "orders@dilmahtea.com"
+    },
+    {
+      "type": "text",
+      "id": "search_label",
+      "label": "Search label",
+      "default": "Check Shipping Availability"
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search placeholder",
+      "default": "Search your country"
+    },
+    {
+      "type": "text",
+      "id": "no_results_text",
+      "label": "No results text",
+      "default": "We couldn’t find this country. Please contact [email] for help."
+    },
+    {
+      "type": "text",
+      "id": "default_result_text",
+      "label": "Default result text",
+      "default": "Search for your country to check shipping availability."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_global_notice",
+      "label": "Show global notice",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 480,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 900
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top",
+      "min": 0,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom",
+      "min": 0,
+      "max": 400,
+      "step": 4,
+      "unit": "px",
+      "default": 88
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top",
+      "min": 0,
+      "max": 280,
+      "step": 4,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom",
+      "min": 0,
+      "max": 280,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shipping availability"
+    }
+  ]
+}
+{% endschema %}

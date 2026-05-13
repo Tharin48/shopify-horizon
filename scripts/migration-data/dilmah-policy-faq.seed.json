@@ -1,0 +1,102 @@
+[
+  {
+    "category": "Finding Products",
+    "question": "I can’t find the tea I’m looking for. What should I do?",
+    "answer": "Please visit the Special Order page and submit the product details. Our team will review your enquiry and get back to you within 1–3 business days."
+  },
+  {
+    "category": "Finding Products",
+    "question": "Can I buy Dilmah tea locally in my country?",
+    "answer": "Dilmah is available in many countries, but product availability may vary by region. You can check the distributor or contact details on the pack, or contact us at consumer@dilmahtea.com."
+  },
+  {
+    "category": "Account & Website Help",
+    "question": "Why should I create an account with Dilmah?",
+    "answer": "Creating an account lets you access your loyalty programme, view past orders, and receive updates about promotions, discounts, and new teas."
+  },
+  {
+    "category": "Shipping & Orders",
+    "question": "How fast will my order be delivered?",
+    "answer": "If your order is processed under Fast Dispatch or Regular Shipping, it will usually be dispatched from Dilmah within 14 working days after placing the order."
+  },
+  {
+    "category": "Shipping & Orders",
+    "question": "Can I change my delivery address after placing an order?",
+    "answer": "Please contact orders@dilmahtea.com before dispatch. If the order has already shipped, we will ask the courier to reroute it, but any extra charges may apply."
+  },
+  {
+    "category": "Payments",
+    "question": "My payment went through, but I didn’t receive confirmation. What should I do?",
+    "answer": "Please wait a few minutes, then check your inbox and spam folder. If you still have not received confirmation, contact orders@dilmahtea.com before placing another order."
+  },
+  {
+    "category": "Payments",
+    "question": "What payment methods can I use?",
+    "answer": "You can use corporate credit cards, TruePay for Page expired payments, PayPal for insufficient funds, or contact your bank if your card is blocked or declined."
+  },
+  {
+    "category": "Payments",
+    "question": "Will I be charged extra for taxes or duties?",
+    "answer": "Prices do not include local duties or taxes. These charges are set by your country’s customs office and are the customer’s responsibility."
+  },
+  {
+    "category": "Order Issues",
+    "question": "I only received part of my order. What should I do?",
+    "answer": "Some orders may arrive in more than one parcel. Please check your shipment details and contact us if something is still missing."
+  },
+  {
+    "category": "Order Issues",
+    "question": "Can I cancel my order?",
+    "answer": "Orders can be cancelled by emailing orders@dilmahtea.com within 2 days of placing the order, as long as the parcel has not already been dispatched."
+  },
+  {
+    "category": "Order Issues",
+    "question": "My order arrived damaged. What should I do?",
+    "answer": "Please email orders@dilmahtea.com with your order number and photos of the damaged items within 14 days of delivery, so we can check with the courier."
+  },
+  {
+    "category": "Order Issues",
+    "question": "I see a “Page Expired” message. How can I fix it?",
+    "answer": "Refresh the page or go back one step and try again. If the issue continues, contact orders@dilmahtea.com."
+  },
+  {
+    "category": "Account & Website Help",
+    "question": "I requested a password reset but didn’t receive an email. What should I do?",
+    "answer": "Please check your inbox and spam folder. If the email is missing, contact us before trying again. You may also need to whitelist Dilmah emails."
+  },
+  {
+    "category": "Gifts & Customisation",
+    "question": "Can I send Dilmah tea as a gift?",
+    "answer": "Yes, you can send gifts directly to supported countries. You can also add your personal message when you reach the Shopping Cart."
+  },
+  {
+    "category": "Gifts & Customisation",
+    "question": "Can I personalise selected gifts?",
+    "answer": "Yes, selected presenters can be engraved with a name or company name. Character limits apply, and a small fee may be charged unless there is an active promotion."
+  },
+  {
+    "category": "Bulk Orders",
+    "question": "Can I order larger quantities for my business?",
+    "answer": "Yes. For larger orders or custom quotes, please contact orders@dilmahtea.com."
+  },
+  {
+    "category": "Tea Knowledge",
+    "question": "Do you offer different flavours and formats?",
+    "answer": "Yes. We offer many tea flavours and formats. For specific product format questions, contact consumer@dilmahtea.com."
+  },
+  {
+    "category": "Shipping & Orders",
+    "question": "Can I track my airway bill?",
+    "answer": "Yes. Please log in to your account and view the tracking airway bill number. If the number has changed, contact orders@dilmahtea.com."
+  },
+  {
+    "category": "Shipping & Orders",
+    "question": "Do you ship to every country?",
+    "answer": "We ship to many countries, but some destinations may have restrictions. Please contact us with your country and order details so we can confirm availability."
+  },
+  {
+    "category": "Payments",
+    "question": "Which currency will I be charged in?",
+    "answer": "You may view prices in several currencies for comparison, but final payment is usually processed in US Dollars using your bank’s exchange rate."
+  }
+]

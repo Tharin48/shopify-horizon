@@ -9,108 +9,72 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "main-blog",
-      "blocks": {
-        "title": {
-          "type": "text",
-          "name": "Title",
-          "settings": {
-            "text": "<p>{{ closest.blog.title }}</p>",
-            "width": "fit-content",
-            "max_width": "narrow",
-            "alignment": "left",
-            "type_preset": "h2",
-            "font": "var(--font-primary--family)",
-            "font_size": "",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "color": "",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 48,
-            "padding-block-end": 48,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
-        },
-        "static-blog-post-card": {
-          "type": "_blog-post-card",
-          "static": true,
-          "settings": {
-            "alignment": "left"
-          },
-          "blocks": {
-            "heading": {
-              "type": "_heading",
-              "name": "t:names.title",
-              "static": true,
-              "settings": {
-                "type_preset": "h4",
-                "font": "var(--font-primary--family)",
-                "font_size": "",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "color": "",
-                "text": "",
-                "read_only": true,
-                "alignment": "left",
-                "show_alignment": false,
-                "padding-block-start": 0,
-                "padding-block-end": 10,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "blog-post-details": {
-              "type": "_blog-post-info-text",
-              "name": "t:names.details",
-              "static": true,
-              "settings": {
-                "show_date": true,
-                "show_author": false,
-                "type_preset": "",
-                "alignment": "left",
-                "show_alignment": false,
-                "padding-block-start": 0,
-                "padding-block-end": 0
-              },
-              "blocks": {}
-            },
-            "image": {
-              "type": "_blog-post-image",
-              "static": true,
-              "settings": {
-                "height": "large",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_radius": 4
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": []
-        }
-      },
-      "block_order": [
-        "title"
-      ],
+    "custom_blog_hero_slider_JVWTNX": {
+      "type": "custom-blog-hero-slider",
+      "disabled": true,
+      "name": "Custom blog hero slider",
       "settings": {
-        "color_scheme": "",
-        "padding-block-start": 0,
-        "padding-block-end": 48
+        "blog_1": "news",
+        "blog_2": "tea-and-health",
+        "blog_3": "tea-for-celebrations",
+        "blog_4": "tea-gastronomy",
+        "blog_5": "tea-mixology",
+        "featured_tag_text": "featured",
+        "max_slides": 5,
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "overlay_opacity": 35,
+        "button_label": "Read article",
+        "desktop_height": 620,
+        "mobile_height": 620,
+        "pill_text_color": "#fffdf8",
+        "pill_background_color": "#ffffff26",
+        "title_color": "#fffdf8",
+        "body_color": "#dbd8d0",
+        "date_color": "#beb7aa",
+        "button_text_color": "#fffdf8",
+        "button_background_color": "#ffffff24",
+        "button_border_color": "#ffffff4d",
+        "desktop_title_size": 36,
+        "mobile_title_size": 20,
+        "desktop_body_size": 16,
+        "mobile_body_size": 15
+      }
+    },
+    "custom_all_blogs_grid": {
+      "type": "custom-all-blogs-grid",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "padding-block-start": 52,
+        "padding-block-end": 72,
+        "heading": "",
+        "heading_font_size_desktop": 32,
+        "heading_font_size_mobile": 19,
+        "heading_underline_color": "#c7a03a",
+        "view_all_link": "",
+        "view_all_label": "View all",
+        "limit": 50,
+        "show_cross_blog_navigation": true,
+        "all_blogs_url": "/pages/all-blogs",
+        "all_blogs_label": "All",
+        "show_card_category": true,
+        "show_card_title": true,
+        "show_card_excerpt": true,
+        "blog_1": "news",
+        "blog_label_1": "News",
+        "blog_2": "tea-and-health",
+        "blog_label_2": "Tea and Health",
+        "blog_3": "tea-for-celebrations",
+        "blog_label_3": "Tea for Celebrations",
+        "blog_4": "tea-gastronomy",
+        "blog_label_4": "Tea Gastronomy",
+        "blog_5": "tea-mixology",
+        "blog_label_5": "Tea Mixology"
       }
     }
   },
   "order": [
-    "main"
+    "custom_blog_hero_slider_JVWTNX",
+    "custom_all_blogs_grid"
   ]
 }

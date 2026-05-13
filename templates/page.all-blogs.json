@@ -1,0 +1,42 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "custom_breadcrumb": {
+      "type": "custom-breadcrumb",
+      "settings": {
+        "show_home": true,
+        "home_label": "Home"
+      }
+    },
+    "all_blogs_grid": {
+      "type": "custom-all-blogs-grid",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "heading": "All Blogs",
+        "limit": 12,
+        "blog_1": "news",
+        "blog_label_1": "News",
+        "blog_2": "tea-and-health",
+        "blog_label_2": "Tea and Health",
+        "blog_3": "tea-for-celebrations",
+        "blog_label_3": "Tea for Celebrations",
+        "blog_4": "tea-gastronomy",
+        "blog_label_4": "Tea Gastronomy",
+        "blog_5": "tea-mixology",
+        "blog_label_5": "Tea Mixology"
+      }
+    }
+  },
+  "order": [
+    "custom_breadcrumb",
+    "all_blogs_grid"
+  ]
+}

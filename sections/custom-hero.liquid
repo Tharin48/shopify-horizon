@@ -108,9 +108,31 @@
   assign mobile_widths_array = mobile_widths | split: ', '
 
   assign fetch_priority = 'auto'
+  assign hero_video_preload = 'auto'
+  assign prioritize_first_view_hero = false
 
   if section.index == 1
     assign fetch_priority = 'high'
+  endif
+
+  if request.page_type == 'index' and section.index == 1
+    assign prioritize_first_view_hero = true
+    assign hero_video_preload = 'metadata'
+  endif
+
+  comment
+    Stable aspect-ratio for hero media (images + Shopify video) to reduce CLS.
+    Prefer slot 1, then slot 2; mirrors visible desktop media priority.
+  endcomment
+  assign hero_media_aspect_val = ''
+  if section.settings.image_1 != blank and section.settings.media_type_1 == 'image'
+    assign hero_media_aspect_val = section.settings.image_1.aspect_ratio
+  elsif section.settings.video_1 != blank and section.settings.media_type_1 == 'video'
+    assign hero_media_aspect_val = section.settings.video_1.aspect_ratio
+  elsif section.settings.image_2 != blank and section.settings.media_type_2 == 'image'
+    assign hero_media_aspect_val = section.settings.image_2.aspect_ratio
+  elsif section.settings.video_2 != blank and section.settings.media_type_2 == 'video'
+    assign hero_media_aspect_val = section.settings.video_2.aspect_ratio
   endif
 %}
 
@@ -165,15 +187,22 @@
   {%- endif -%}
 
   {%- if media_1 == 'video' -%}
-    <div class="{{ media_wrapper_desktop_class }}">
+    <div
+      class="{{ media_wrapper_desktop_class }}"
+      {% if prioritize_first_view_hero and section.settings.video_1.preview_image != blank %}
+        style="background-image: url('{{ section.settings.video_1.preview_image | image_url: width: 2000 }}');"
+      {% endif %}
+    >
       {{
         section.settings.video_1
         | video_tag:
-          poster: nil,
           autoplay: true,
           loop: true,
           controls: false,
           muted: true,
+          playsinline: true,
+          preload: hero_video_preload,
+          image_size: '2000x',
           class: 'hero__media',
           data-testid: 'hero-desktop-video-1'
       }}
@@ -201,15 +230,22 @@
     {%- endif -%}
 
     {%- if media_1_mobile == 'video' -%}
-      <div class="{{ media_wrapper_mobile_class }}">
+      <div
+        class="{{ media_wrapper_mobile_class }}"
+        {% if prioritize_first_view_hero and section.settings.video_1_mobile.preview_image != blank %}
+          style="background-image: url('{{ section.settings.video_1_mobile.preview_image | image_url: width: 1200 }}');"
+        {% endif %}
+      >
         {{
           section.settings.video_1_mobile
           | video_tag:
-            poster: nil,
             autoplay: true,
             loop: true,
             controls: false,
             muted: true,
+            playsinline: true,
+            preload: hero_video_preload,
+            image_size: '1200x',
             class: 'hero__media',
             data-testid: 'hero-mobile-video-1'
         }}
@@ -269,15 +305,22 @@
   {%- endif -%}
 
   {%- if media_2 == 'video' -%}
-    <div class="{{ media_wrapper_desktop_class }}">
+    <div
+      class="{{ media_wrapper_desktop_class }}"
+      {% if prioritize_first_view_hero and section.settings.video_2.preview_image != blank %}
+        style="background-image: url('{{ section.settings.video_2.preview_image | image_url: width: 2000 }}');"
+      {% endif %}
+    >
       {{
         section.settings.video_2
         | video_tag:
-          poster: nil,
           autoplay: true,
           loop: true,
           controls: false,
           muted: true,
+          playsinline: true,
+          preload: hero_video_preload,
+          image_size: '2000x',
           class: 'hero__media',
           data-testid: 'hero-desktop-video-2'
       }}
@@ -305,15 +348,22 @@
     {%- endif -%}
 
     {%- if media_2_mobile == 'video' -%}
-      <div class="{{ media_wrapper_mobile_class }}">
+      <div
+        class="{{ media_wrapper_mobile_class }}"
+        {% if prioritize_first_view_hero and section.settings.video_2_mobile.preview_image != blank %}
+          style="background-image: url('{{ section.settings.video_2_mobile.preview_image | image_url: width: 1200 }}');"
+        {% endif %}
+      >
         {{
           section.settings.video_2_mobile
           | video_tag:
-            poster: nil,
             autoplay: true,
             loop: true,
             controls: false,
             muted: true,
+            playsinline: true,
+            preload: hero_video_preload,
+            image_size: '1200x',
             class: 'hero__media',
             data-testid: 'hero-mobile-video-2'
         }}
@@ -503,7 +553,7 @@
 
 <div
   id="CustomHero-{{ section.id }}"
-  class="hero color-{{ section.settings.color_scheme }}{% if section.blocks.size == 0 and section.settings.section_height == 'auto' %} hero--no-blocks-auto-height{% endif %}{% if section.settings.stack_media_on_mobile %} hero--stack-mobile{% endif %}"
+  class="hero color-{{ section.settings.color_scheme }}{% if hero_media_aspect_val != blank %} hero--auto{% endif %}{% if section.blocks.size == 0 and section.settings.section_height == 'auto' %} hero--no-blocks-auto-height{% endif %}{% if section.settings.stack_media_on_mobile %} hero--stack-mobile{% endif %}"
   style="
     --hero-border-style: {{ section.settings.border }};
     --hero-border-width: {{ section.settings.border_width }}px;
@@ -563,7 +613,7 @@
     {%- endif -%}
     <div
       class="hero__media-grid"
-      style="--hero-media-count: {{ media_count }};--hero-media-count-mobile: {{ media_count_mobile }};{%- if section.settings.image_1 != blank -%} --hero-media-aspect-ratio: {{ section.settings.image_1.aspect_ratio }};{% endif %}"
+      style="--hero-media-count: {{ media_count }};--hero-media-count-mobile: {{ media_count_mobile }};{%- if hero_media_aspect_val != blank -%} --hero-media-aspect-ratio: {{ hero_media_aspect_val }};{% endif %}"
       data-testid="hero-media-wrapper"
     >
       {% liquid
@@ -649,13 +699,13 @@
   }
 
   .hero--auto .hero__media {
-    aspect-ratio: var(--hero-media-aspect-ratio);
+    aspect-ratio: var(--hero-media-aspect-ratio, auto);
   }
 
   .hero--no-blocks-auto-height {
     .hero__media {
       width: 100%;
-      aspect-ratio: auto;
+      aspect-ratio: var(--hero-media-aspect-ratio, auto);
     }
 
     .hero__media-grid {
@@ -667,6 +717,9 @@
   .hero__media-wrapper {
     overflow: hidden;
     position: relative;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 
   .hero__media {
@@ -677,6 +730,10 @@
     overflow: hidden;
     position: relative;
     z-index: var(--layer-base);
+  }
+
+  video.hero__media {
+    background-color: #111;
   }
 
   /* Mobile/Desktop media visibility */

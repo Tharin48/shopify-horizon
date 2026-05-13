@@ -1,0 +1,621 @@
+{% liquid
+  assign rendered_count = 0
+%}
+
+<script src="{{ 'custom-blog-tabs.js' | asset_url }}" defer></script>
+
+{% capture cards_markup %}
+  {% if section.settings.blog_1 != blank and rendered_count < section.settings.limit %}
+    {% for article in section.settings.blog_1.articles %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_1,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+      {% assign rendered_count = rendered_count | plus: 1 %}
+      {% if rendered_count >= section.settings.limit %}{% break %}{% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if section.settings.blog_2 != blank and rendered_count < section.settings.limit %}
+    {% for article in section.settings.blog_2.articles %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_2,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+      {% assign rendered_count = rendered_count | plus: 1 %}
+      {% if rendered_count >= section.settings.limit %}{% break %}{% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if section.settings.blog_3 != blank and rendered_count < section.settings.limit %}
+    {% for article in section.settings.blog_3.articles %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_3,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+      {% assign rendered_count = rendered_count | plus: 1 %}
+      {% if rendered_count >= section.settings.limit %}{% break %}{% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if section.settings.blog_4 != blank and rendered_count < section.settings.limit %}
+    {% for article in section.settings.blog_4.articles %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_4,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+      {% assign rendered_count = rendered_count | plus: 1 %}
+      {% if rendered_count >= section.settings.limit %}{% break %}{% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if section.settings.blog_5 != blank and rendered_count < section.settings.limit %}
+    {% for article in section.settings.blog_5.articles %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_5,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+      {% assign rendered_count = rendered_count | plus: 1 %}
+      {% if rendered_count >= section.settings.limit %}{% break %}{% endif %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
+{% capture blog_1_markup %}
+  {% if section.settings.blog_1 != blank %}
+    {% for article in section.settings.blog_1.articles limit: section.settings.limit %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_1,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
+{% capture blog_2_markup %}
+  {% if section.settings.blog_2 != blank %}
+    {% for article in section.settings.blog_2.articles limit: section.settings.limit %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_2,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
+{% capture blog_3_markup %}
+  {% if section.settings.blog_3 != blank %}
+    {% for article in section.settings.blog_3.articles limit: section.settings.limit %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_3,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
+{% capture blog_4_markup %}
+  {% if section.settings.blog_4 != blank %}
+    {% for article in section.settings.blog_4.articles limit: section.settings.limit %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_4,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
+{% capture blog_5_markup %}
+  {% if section.settings.blog_5 != blank %}
+    {% for article in section.settings.blog_5.articles limit: section.settings.limit %}
+      {% render 'custom-blog-card',
+        article: article,
+        blog_title: section.settings.blog_label_5,
+        card_class: 'custom-blog-topic-grid__card'
+      %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
+<custom-blog-tabs class="custom-blog-topic-grid" {{ section.shopify_attributes }}>
+  <div class="custom-blog-topic-grid__inner">
+    <div class="custom-blog-topic-grid__header">
+      <div>
+        <h2 class="custom-blog-topic-grid__heading">{{ section.settings.heading | escape }}</h2>
+        <div class="custom-blog-topic-grid__underline" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="custom-blog-topic-grid__filters-row">
+      <div class="custom-blog-topic-grid__tabs-wrap">
+        <div class="custom-blog-topic-grid__tabs" role="tablist" aria-label="Popular topics">
+          <button
+            type="button"
+            class="custom-blog-topic-grid__tab is-active"
+            role="tab"
+            id="custom-blog-topic-grid-tab-all-{{ section.id }}"
+            aria-controls="custom-blog-topic-grid-panel-all-{{ section.id }}"
+            aria-selected="true"
+          >
+            All
+          </button>
+          {% if section.settings.blog_1 != blank %}
+            <button
+              type="button"
+              class="custom-blog-topic-grid__tab"
+              role="tab"
+              id="custom-blog-topic-grid-tab-1-{{ section.id }}"
+              aria-controls="custom-blog-topic-grid-panel-1-{{ section.id }}"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              {{ section.settings.blog_label_1 | escape }}
+            </button>
+          {% endif %}
+          {% if section.settings.blog_2 != blank %}
+            <button
+              type="button"
+              class="custom-blog-topic-grid__tab"
+              role="tab"
+              id="custom-blog-topic-grid-tab-2-{{ section.id }}"
+              aria-controls="custom-blog-topic-grid-panel-2-{{ section.id }}"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              {{ section.settings.blog_label_2 | escape }}
+            </button>
+          {% endif %}
+          {% if section.settings.blog_3 != blank %}
+            <button
+              type="button"
+              class="custom-blog-topic-grid__tab"
+              role="tab"
+              id="custom-blog-topic-grid-tab-3-{{ section.id }}"
+              aria-controls="custom-blog-topic-grid-panel-3-{{ section.id }}"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              {{ section.settings.blog_label_3 | escape }}
+            </button>
+          {% endif %}
+          {% if section.settings.blog_4 != blank %}
+            <button
+              type="button"
+              class="custom-blog-topic-grid__tab"
+              role="tab"
+              id="custom-blog-topic-grid-tab-4-{{ section.id }}"
+              aria-controls="custom-blog-topic-grid-panel-4-{{ section.id }}"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              {{ section.settings.blog_label_4 | escape }}
+            </button>
+          {% endif %}
+          {% if section.settings.blog_5 != blank %}
+            <button
+              type="button"
+              class="custom-blog-topic-grid__tab"
+              role="tab"
+              id="custom-blog-topic-grid-tab-5-{{ section.id }}"
+              aria-controls="custom-blog-topic-grid-panel-5-{{ section.id }}"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              {{ section.settings.blog_label_5 | escape }}
+            </button>
+          {% endif %}
+        </div>
+      </div>
+      {% if section.settings.view_all_link != blank %}
+        <a class="custom-blog-topic-grid__view-all" href="{{ section.settings.view_all_link }}">
+          {{ section.settings.view_all_label | escape }}
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="custom-blog-topic-grid__panels">
+      <div
+        id="custom-blog-topic-grid-panel-all-{{ section.id }}"
+        class="custom-blog-topic-grid__panel"
+        role="tabpanel"
+        aria-labelledby="custom-blog-topic-grid-tab-all-{{ section.id }}"
+      >
+        {% if rendered_count > 0 %}
+          <div class="custom-blog-topic-grid__grid">
+            {{ cards_markup }}
+          </div>
+        {% else %}
+          <div class="custom-blog-topic-grid__empty">
+            Select one or more blogs in this section to show topic cards.
+          </div>
+        {% endif %}
+      </div>
+
+      {% if section.settings.blog_1 != blank %}
+        <div
+          id="custom-blog-topic-grid-panel-1-{{ section.id }}"
+          class="custom-blog-topic-grid__panel"
+          role="tabpanel"
+          aria-labelledby="custom-blog-topic-grid-tab-1-{{ section.id }}"
+          hidden
+        >
+          {% if blog_1_markup != blank %}
+            <div class="custom-blog-topic-grid__grid">{{ blog_1_markup }}</div>
+          {% else %}
+            <div class="custom-blog-topic-grid__empty">No articles found in this blog yet.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if section.settings.blog_2 != blank %}
+        <div
+          id="custom-blog-topic-grid-panel-2-{{ section.id }}"
+          class="custom-blog-topic-grid__panel"
+          role="tabpanel"
+          aria-labelledby="custom-blog-topic-grid-tab-2-{{ section.id }}"
+          hidden
+        >
+          {% if blog_2_markup != blank %}
+            <div class="custom-blog-topic-grid__grid">{{ blog_2_markup }}</div>
+          {% else %}
+            <div class="custom-blog-topic-grid__empty">No articles found in this blog yet.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if section.settings.blog_3 != blank %}
+        <div
+          id="custom-blog-topic-grid-panel-3-{{ section.id }}"
+          class="custom-blog-topic-grid__panel"
+          role="tabpanel"
+          aria-labelledby="custom-blog-topic-grid-tab-3-{{ section.id }}"
+          hidden
+        >
+          {% if blog_3_markup != blank %}
+            <div class="custom-blog-topic-grid__grid">{{ blog_3_markup }}</div>
+          {% else %}
+            <div class="custom-blog-topic-grid__empty">No articles found in this blog yet.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if section.settings.blog_4 != blank %}
+        <div
+          id="custom-blog-topic-grid-panel-4-{{ section.id }}"
+          class="custom-blog-topic-grid__panel"
+          role="tabpanel"
+          aria-labelledby="custom-blog-topic-grid-tab-4-{{ section.id }}"
+          hidden
+        >
+          {% if blog_4_markup != blank %}
+            <div class="custom-blog-topic-grid__grid">{{ blog_4_markup }}</div>
+          {% else %}
+            <div class="custom-blog-topic-grid__empty">No articles found in this blog yet.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if section.settings.blog_5 != blank %}
+        <div
+          id="custom-blog-topic-grid-panel-5-{{ section.id }}"
+          class="custom-blog-topic-grid__panel"
+          role="tabpanel"
+          aria-labelledby="custom-blog-topic-grid-tab-5-{{ section.id }}"
+          hidden
+        >
+          {% if blog_5_markup != blank %}
+            <div class="custom-blog-topic-grid__grid">{{ blog_5_markup }}</div>
+          {% else %}
+            <div class="custom-blog-topic-grid__empty">No articles found in this blog yet.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</custom-blog-tabs>
+
+{% stylesheet %}
+  .custom-blog-topic-grid {
+    display: block;
+    padding: clamp(2.5rem, 5vw, 4.5rem) 0;
+    background: rgb(var(--color-background-rgb));
+  }
+
+  .custom-blog-topic-grid__inner {
+    width: min(1280px, calc(100% - 2rem));
+    margin: 0 auto;
+  }
+
+  .custom-blog-topic-grid__header {
+    margin-bottom: 1.25rem;
+  }
+
+  .custom-blog-topic-grid__heading {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: rgb(var(--color-foreground-heading-rgb));
+  }
+
+  .custom-blog-topic-grid__underline {
+    width: 3rem;
+    height: 0.18rem;
+    margin-top: 0.7rem;
+    background: #c7a03a;
+  }
+
+  .custom-blog-topic-grid__view-all {
+    color: #b08a2f;
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .custom-blog-topic-grid__filters-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .custom-blog-topic-grid__tabs-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+
+  .custom-blog-topic-grid__tabs {
+    display: flex;
+    width: max-content;
+    min-width: 100%;
+    gap: 0.65rem 1.35rem;
+  }
+
+  .custom-blog-topic-grid__tab {
+    appearance: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    color: rgb(var(--color-foreground-rgb) / 0.76);
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .custom-blog-topic-grid__tab.is-active,
+  .custom-blog-topic-grid__tab:hover,
+  .custom-blog-topic-grid__tab:focus-visible {
+    color: #b08a2f;
+  }
+
+  .custom-blog-topic-grid__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+
+  .custom-blog-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.5rem;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .custom-blog-card__image-link,
+  .custom-blog-card__title-row {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .custom-blog-card__image-wrap {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  .custom-blog-card__image,
+  .custom-blog-card__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .custom-blog-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1rem 1rem 1.15rem;
+  }
+
+  .custom-blog-card__category {
+    margin: 0;
+    color: #1a6b5c;
+    font-size: 0.88rem;
+    line-height: 1.2;
+  }
+
+  .custom-blog-card__title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .custom-blog-card__title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+    font-size: 1.45rem;
+    line-height: 1.2;
+    color: rgb(var(--color-foreground-heading-rgb));
+  }
+
+  .custom-blog-card__arrow {
+    flex: 0 0 auto;
+    width: 1.1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.72);
+  }
+
+  .custom-blog-card__arrow svg {
+    width: 100%;
+    height: auto;
+  }
+
+  .custom-blog-card__excerpt {
+    margin: 0;
+    color: rgb(var(--color-foreground-rgb) / 0.68);
+    font-size: 0.96rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .custom-blog-topic-grid__empty {
+    padding: 2rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.2);
+    border-radius: 0.75rem;
+    color: rgb(var(--color-foreground-rgb) / 0.68);
+    text-align: center;
+  }
+
+  @media screen and (max-width: 1023px) {
+    .custom-blog-topic-grid__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-blog-topic-grid__header {
+      margin-bottom: 1rem;
+    }
+
+    .custom-blog-topic-grid__filters-row {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .custom-blog-topic-grid__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .custom-blog-card__title {
+      font-size: 1.25rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom blog topic grid",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Popular topics"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "View all link"
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View all label",
+      "default": "View All"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Article limit",
+      "min": 1,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "blog",
+      "id": "blog_1",
+      "label": "Blog 1"
+    },
+    {
+      "type": "text",
+      "id": "blog_label_1",
+      "label": "Blog 1 tab label",
+      "default": "Brewing"
+    },
+    {
+      "type": "blog",
+      "id": "blog_2",
+      "label": "Blog 2"
+    },
+    {
+      "type": "text",
+      "id": "blog_label_2",
+      "label": "Blog 2 tab label",
+      "default": "News"
+    },
+    {
+      "type": "blog",
+      "id": "blog_3",
+      "label": "Blog 3"
+    },
+    {
+      "type": "text",
+      "id": "blog_label_3",
+      "label": "Blog 3 tab label",
+      "default": "Conservation"
+    },
+    {
+      "type": "blog",
+      "id": "blog_4",
+      "label": "Blog 4"
+    },
+    {
+      "type": "text",
+      "id": "blog_label_4",
+      "label": "Blog 4 tab label",
+      "default": "Health"
+    },
+    {
+      "type": "blog",
+      "id": "blog_5",
+      "label": "Blog 5"
+    },
+    {
+      "type": "text",
+      "id": "blog_label_5",
+      "label": "Blog 5 tab label",
+      "default": "Recipes"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom blog topic grid"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,92 @@
+{%- doc -%}
+  Multi-select style dropdown for a storefront collection filter.
+  Each row is a link using Shopify’s url_to_add / url_to_remove (source of truth).
+
+  @param {object} filter - Liquid filter from collection.filters
+  @param {string} section_id - section.id for unique DOM ids
+  @param {string} facet_key - Short slug, e.g. tea-type (unique per dropdown)
+  @param {boolean} drawer_mode - Optional. Renders drawer-friendly accordion styling.
+  @param {object} allowed_collections - Optional. Iterable list of collection objects; restricts “our-ranges” facet values when set (pass blank when unused).
+{%- enddoc -%}
+{%- if filter and filter.values.size > 0 -%}
+  {%- liquid
+    assign is_drawer_mode = drawer_mode | default: false
+    assign active_value_count = filter.active_values | size
+    assign panel_id = 'FacetPanel-' | append: section_id | append: '-' | append: facet_key
+    if is_drawer_mode
+      assign panel_id = panel_id | append: '-drawer'
+    endif
+    assign restrict_to_collections = false
+    assign restrict_to_range_tags = false
+    if facet_key == 'our-ranges' and allowed_collections != blank
+      assign restrict_to_collections = true
+    endif
+    if facet_key == 'our-ranges'
+      assign restrict_to_range_tags = true
+    endif
+  -%}
+  <details
+    class="custom-catalog__facet-dd{% if is_drawer_mode %} custom-catalog__facet-dd--drawer{% endif %}"
+    name="{% if is_drawer_mode %}catalog-drawer-facets{% else %}catalog-toolbar-facets{% endif %}"
+    data-catalog-facet-dd
+    {% if is_drawer_mode and active_value_count > 0 %}
+      open
+    {% endif %}
+  >
+    <summary class="custom-catalog__facet-dd-summary">
+      <span class="custom-catalog__facet-dd-summary-label">{{ filter.label | escape }}</span>
+      {%- if is_drawer_mode and active_value_count > 0 -%}
+        <span class="custom-catalog__facet-dd-summary-count">{{ active_value_count }}</span>
+      {%- endif -%}
+      <span class="custom-catalog__facet-dd-chevron" aria-hidden="true">▾</span>
+    </summary>
+    <div
+      id="{{ panel_id }}"
+      class="custom-catalog__facet-dd-panel{% unless is_drawer_mode %} color-{{ settings.popover_color_scheme }}{% endunless %}"
+      role="group"
+      aria-label="{{ filter.label | escape }}"
+    >
+      <div class="custom-catalog__facet-dd-scroll">
+        {%- for fv in filter.values -%}
+          {%- liquid
+            assign show_value = true
+            assign fv_label_normalized = fv.label | strip | downcase
+            assign fv_compare_value = fv_label_normalized
+            if fv_compare_value contains ':'
+              assign fv_compare_parts = fv_compare_value | split: ':'
+              assign fv_compare_prefix = fv_compare_parts | first | strip
+              assign fv_compare_value = fv_compare_parts | last | strip
+            else
+              assign fv_compare_prefix = ''
+            endif
+            assign fv_compare_handle = fv_compare_value | handleize
+            if restrict_to_range_tags and fv_compare_prefix != 'range'
+              assign show_value = false
+            elsif restrict_to_collections and fv.active == false
+              assign show_value = false
+              for allowed_collection in allowed_collections
+                assign allowed_title_normalized = allowed_collection.title | strip | downcase
+                assign allowed_handle = allowed_collection.handle | default: allowed_collection.title | handleize
+                if fv_compare_value == allowed_title_normalized or fv_compare_handle == allowed_handle
+                  assign show_value = true
+                  break
+                endif
+              endfor
+            endif
+          -%}
+          {%- unless show_value -%}
+            {% continue %}
+          {%- endunless -%}
+          <a
+            href="{% if fv.active %}{{ fv.url_to_remove }}{% else %}{{ fv.url_to_add }}{% endif %}"
+            class="custom-catalog__facet-dd-row{% if fv.active %} is-selected{% endif %}"
+          >
+            <span class="custom-catalog__facet-dd-check" aria-hidden="true"></span>
+            <span class="custom-catalog__facet-dd-text">{{ fv.label | escape }}</span>
+            <span class="custom-catalog__facet-dd-count">({{ fv.count }})</span>
+          </a>
+        {%- endfor -%}
+      </div>
+    </div>
+  </details>
+{%- endif -%}

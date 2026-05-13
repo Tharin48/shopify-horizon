@@ -17,6 +17,18 @@ import {
 } from '@theme/events';
 import { cartPerformance } from '@theme/performance';
 
+const TEMP_CART_DEBUG_PREFIX = '[TEMP CART DEBUG]';
+
+const shouldLogTempCartDebug = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return false;
+  return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
+};
+
+const logTempCartDebug = (/** @type {unknown[]} */ ...args) => {
+  if (!shouldLogTempCartDebug()) return;
+  console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
+};
+
 /** @typedef {import('./utilities').TextComponent} TextComponent */
 
 /**
@@ -34,6 +46,8 @@ class CartItemsComponent extends Component {
 
   connectedCallback() {
     super.connectedCallback();
+
+    this.#syncDrawerState();
 
     document.addEventListener(ThemeEvents.cartUpdate, this.#handleCartUpdate);
     document.addEventListener(ThemeEvents.discountUpdate, this.handleDiscountUpdate);
@@ -107,6 +121,7 @@ class CartItemsComponent extends Component {
 
       startViewTransition(() => {
         this.replaceChildren(clone);
+        this.#syncDrawerState();
       }, [this.isDrawer ? 'empty-cart-drawer' : 'empty-cart-page']);
 
       return;
@@ -147,6 +162,14 @@ class CartItemsComponent extends Component {
       if (item instanceof HTMLElement && item.dataset.sectionId) {
         sectionsToUpdate.add(item.dataset.sectionId);
       }
+    });
+
+    logTempCartDebug('cart quantity update request start', {
+      sectionId: this.sectionId,
+      isDrawer: this.isDrawer,
+      line,
+      quantity,
+      sections: Array.from(sectionsToUpdate),
     });
 
     const body = JSON.stringify({
@@ -192,15 +215,36 @@ class CartItemsComponent extends Component {
           })
         );
 
+        logTempCartDebug('cart section replacement start', {
+          sectionId: this.sectionId,
+          isDrawer: this.isDrawer,
+          source: 'quantity-change',
+          hasSectionHtml: Boolean(parsedResponseText.sections?.[this.sectionId]),
+        });
         morphSection(this.sectionId, parsedResponseText.sections[this.sectionId], { mode: this.isDrawer ? 'hydration' : 'full' });
+        logTempCartDebug('cart section replacement end', {
+          sectionId: this.sectionId,
+          isDrawer: this.isDrawer,
+          source: 'quantity-change',
+        });
+
+        this.#syncDrawerState();
 
         this.#updateCartQuantitySelectorButtonStates();
       })
       .catch((error) => {
+        logTempCartDebug('cart quantity update request error', {
+          sectionId: this.sectionId,
+          message: error instanceof Error ? error.message : String(error),
+        });
         console.error(error);
       })
       .finally(() => {
         this.#enableCartItems();
+        logTempCartDebug('cart quantity update request end', {
+          sectionId: this.sectionId,
+          isDrawer: this.isDrawer,
+        });
         cartPerformance.measureFromMarker(cartPerformaceUpdateMarker);
       });
   }
@@ -243,22 +287,89 @@ class CartItemsComponent extends Component {
    * @param {DiscountUpdateEvent | CartUpdateEvent | CartAddEvent} event
    */
   #handleCartUpdate = (event) => {
+    const detailData = 'data' in event.detail ? event.detail.data : undefined;
+
+    logTempCartDebug('cart update event received', {
+      sectionId: this.sectionId,
+      isDrawer: this.isDrawer,
+      sourceId: event.detail?.sourceId || null,
+      source: detailData?.source || null,
+      hasSections: Boolean(detailData?.sections),
+    });
+
     if (event instanceof DiscountUpdateEvent) {
-      sectionRenderer.renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' });
+      logTempCartDebug('cart drawer render start', {
+        sectionId: this.sectionId,
+        isDrawer: this.isDrawer,
+        source: 'discount-update',
+        mode: this.isDrawer ? 'hydration' : 'full',
+      });
+      sectionRenderer
+        .renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' })
+        .then(() => {
+          this.#syncDrawerState();
+          logTempCartDebug('cart drawer render end', {
+            sectionId: this.sectionId,
+            isDrawer: this.isDrawer,
+            source: 'discount-update',
+          });
+        });
       return;
     }
     if (event.target === this) return;
 
-    const cartItemsHtml = event.detail.data.sections?.[this.sectionId];
+    const cartItemsHtml = detailData?.sections?.[this.sectionId];
     if (cartItemsHtml) {
+      logTempCartDebug('cart section replacement start', {
+        sectionId: this.sectionId,
+        isDrawer: this.isDrawer,
+        source: 'cart-update-event',
+      });
       morphSection(this.sectionId, cartItemsHtml, { mode: this.isDrawer ? 'hydration' : 'full' });
+      logTempCartDebug('cart section replacement end', {
+        sectionId: this.sectionId,
+        isDrawer: this.isDrawer,
+        source: 'cart-update-event',
+      });
+
+      this.#syncDrawerState();
 
       // Update button states for all cart quantity selectors after morph
       this.#updateCartQuantitySelectorButtonStates();
     } else {
-      sectionRenderer.renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' });
+      logTempCartDebug('cart drawer render start', {
+        sectionId: this.sectionId,
+        isDrawer: this.isDrawer,
+        source: 'cart-update-event-fallback',
+        mode: this.isDrawer ? 'hydration' : 'full',
+      });
+      sectionRenderer
+        .renderSection(this.sectionId, { cache: false, mode: this.isDrawer ? 'hydration' : 'full' })
+        .then(() => {
+          this.#syncDrawerState();
+          logTempCartDebug('cart drawer render end', {
+            sectionId: this.sectionId,
+            isDrawer: this.isDrawer,
+            source: 'cart-update-event-fallback',
+          });
+        });
     }
   };
+
+  #syncDrawerState() {
+    if (!this.isDrawer) return;
+
+    const dialog = this.closest('.cart-drawer__dialog');
+    if (!(dialog instanceof HTMLElement)) return;
+
+    const hasCartForm = Boolean(this.querySelector('.cart-form'));
+    dialog.classList.toggle('cart-drawer--empty', !hasCartForm);
+    dialog.setAttribute('aria-labelledby', hasCartForm ? 'cart-drawer-heading' : 'cart-drawer-heading-empty');
+
+    if (!hasCartForm) {
+      dialog.setAttribute('cart-summary-sticky', 'false');
+    }
+  }
 
   /**
    * Disables the cart items.

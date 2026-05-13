@@ -10,7 +10,7 @@ import { onAnimationEnd } from '@theme/utilities';
  * @property {string} [name] - Variant name
  * @property {boolean} [available] - Whether variant is available
  * @property {Object} [featured_media] - Featured media object
- * @property {Object} [featured_media.preview_image] - Preview image data
+ * @property {Object} [featured_media.preview_image] - Featured image data
  * @property {string} [featured_media.preview_image.src] - Image source URL
  * @property {string} [featured_media.alt] - Alt text for the image
  */
@@ -26,15 +26,18 @@ import { onAnimationEnd } from '@theme/utilities';
 /**
  * @typedef {Object} StickyAddToCartRefs
  * @property {HTMLElement} stickyBar - The floating bar container
- * @property {HTMLButtonElement} addToCartButton - Sticky bar's button
+ * @property {HTMLButtonElement} addToCartButton - Sticky bar's add-to-cart button
  * @property {HTMLElement} quantityDisplay - Quantity display container
  * @property {HTMLElement} quantityNumber - Quantity number element
- * @property {HTMLImageElement} productImage - Product image element
+ * @property {HTMLImageElement} [productImage] - Product image element
  */
 
 /**
  * A custom element that manages a sticky add-to-cart bar.
  * Shows when the main buy buttons scroll out of view.
+ *
+ * Accelerated checkout uses a real product {% form %} + payment_button (see sticky-add-to-cart-panel);
+ * add-to-cart triggers the main buy row button so fly-to-cart + theme AJAX stay correct.
  *
  * @extends {Component<StickyAddToCartRefs>}
  */
@@ -62,6 +65,18 @@ class StickyAddToCartComponent extends Component {
   /** @type {HTMLButtonElement | null} */
   #targetAddToCartButton = null;
 
+  /** @type {HTMLElement | null} */
+  #sectionElement = null;
+
+  /** @type {Comment | null} */
+  #stickyBarAnchor = null;
+
+  /** @type {HTMLElement | null} */
+  #productContent = null;
+
+  /** @type {number} */
+  #baseProductContentPaddingBottom = 0;
+
   /** @type {number} */
   #currentQuantity = 1;
 
@@ -71,18 +86,26 @@ class StickyAddToCartComponent extends Component {
   connectedCallback() {
     super.connectedCallback();
 
+    this.#sectionElement = this.closest('.shopify-section');
+    this.#mountStickyBarPortal();
     this.#setupIntersectionObserver();
 
     const { signal } = this.#abortController;
-    const target = this.closest('.shopify-section');
+    const target = this.#sectionElement;
     target?.addEventListener(ThemeEvents.variantUpdate, this.#handleVariantUpdate, { signal });
     target?.addEventListener(ThemeEvents.variantSelected, this.#handleVariantSelected, { signal });
+    this.refs.stickyBar?.addEventListener('click', this.#handleStickyBarClick, { signal });
 
     document.addEventListener(ThemeEvents.cartUpdate, this.#handleCartAddComplete, { signal });
     document.addEventListener(ThemeEvents.cartError, this.#handleCartAddComplete, { signal });
     document.addEventListener(ThemeEvents.quantitySelectorUpdate, this.#handleQuantityUpdate, { signal });
+    window.addEventListener('resize', this.#updateReservedSpace, { signal, passive: true });
 
     this.#getInitialQuantity();
+    requestAnimationFrame(() => {
+      this.#syncStickyWalletAvailability();
+      this.#updateReservedSpace();
+    });
   }
 
   disconnectedCallback() {
@@ -90,10 +113,97 @@ class StickyAddToCartComponent extends Component {
     this.#buyButtonsIntersectionObserver?.disconnect();
     this.#mainBottomObserver?.disconnect();
     this.#abortController.abort();
+    this.#unmountStickyBarPortal();
     if (this.#animationTimeout) {
       clearTimeout(this.#animationTimeout);
     }
   }
+
+  #mountStickyBarPortal() {
+    const { stickyBar } = this.refs;
+    if (!(stickyBar instanceof HTMLElement) || stickyBar.parentNode === document.body) return;
+
+    this.#stickyBarAnchor = document.createComment('sticky-add-to-cart-anchor');
+    stickyBar.parentNode?.insertBefore(this.#stickyBarAnchor, stickyBar);
+    document.body.appendChild(stickyBar);
+  }
+
+  #unmountStickyBarPortal() {
+    const { stickyBar } = this.refs;
+    if (!(stickyBar instanceof HTMLElement) || !this.#stickyBarAnchor?.parentNode) return;
+
+    this.#stickyBarAnchor.parentNode.insertBefore(stickyBar, this.#stickyBarAnchor);
+    this.#stickyBarAnchor.remove();
+    this.#stickyBarAnchor = null;
+  }
+
+  /**
+   * Mirror main buy row: hide wallet column when storefront has no accelerated checkout for this variant.
+   */
+  #syncStickyWalletAvailability = () => {
+    const productForm = this.#getProductForm();
+    const stickyRoot = this.refs.stickyBar;
+    const stickyBlock = /** @type {HTMLElement | null} */ (
+      stickyRoot?.querySelector('[ref="acceleratedCheckoutButtonContainer"]')
+    );
+    const walletWrap = /** @type {HTMLElement | null} */ (stickyRoot?.querySelector('[ref="walletWrap"]'));
+    const addBtn = this.refs.addToCartButton;
+
+    if (!(addBtn instanceof HTMLButtonElement)) return;
+
+    const mainBlock =
+      productForm?.querySelector('[ref="acceleratedCheckoutButtonContainer"]') ??
+      productForm?.querySelector('.accelerated-checkout-block');
+
+    const hasWalletUi = !!(mainBlock && !mainBlock.hasAttribute('hidden'));
+
+    if (walletWrap instanceof HTMLElement) {
+      walletWrap.toggleAttribute('hidden', !hasWalletUi);
+    }
+    if (stickyBlock instanceof HTMLElement) {
+      stickyBlock.toggleAttribute('hidden', !hasWalletUi);
+    }
+  };
+
+  /**
+   * Sets the quantity hidden field on the sticky wallet form (Shopify dynamic checkout reads it).
+   */
+  #syncStickyWalletQuantityInput() {
+    const q = /** @type {HTMLInputElement | null} */ (
+      this.refs.stickyBar?.querySelector('[ref="stickyWalletQuantityInput"]')
+    );
+    if (q) q.value = String(this.#currentQuantity);
+  }
+
+  #isMobileViewport() {
+    return window.matchMedia('(max-width: 749px)').matches;
+  }
+
+  #cacheProductContent() {
+    if (this.#productContent) return;
+
+    const sectionElement = this.closest('.shopify-section');
+    const productContent = /** @type {HTMLElement | null} */ (
+      sectionElement?.querySelector('[data-testid="product-information"]')
+    );
+
+    if (!productContent) return;
+
+    this.#productContent = productContent;
+    this.#baseProductContentPaddingBottom = parseFloat(getComputedStyle(productContent).paddingBottom || '0') || 0;
+  }
+
+  #updateReservedSpace = () => {
+    this.#cacheProductContent();
+    if (!this.#productContent) return;
+
+    const stickyBarStyles = getComputedStyle(this.refs.stickyBar);
+    const stickyBarBottom = parseFloat(stickyBarStyles.bottom || '0') || 0;
+    const extraSpace =
+      this.#isStuck && this.#isMobileViewport() ? Math.ceil(this.refs.stickyBar.offsetHeight + stickyBarBottom) : 0;
+
+    this.#productContent.style.paddingBottom = `${this.#baseProductContentPaddingBottom + extraSpace}px`;
+  };
 
   /**
    * Sets up the IntersectionObserver to watch the buy buttons visibility
@@ -104,6 +214,8 @@ class StickyAddToCartComponent extends Component {
 
     const buyButtonsBlock = productForm.closest('.buy-buttons-block');
     if (!buyButtonsBlock) return;
+
+    this.#cacheProductContent();
 
     // In themes migrated from 2.0, the footer element doesn't exist
     const footer = document.querySelector('footer') ?? document.querySelector('[class*="footer-group"]');
@@ -156,23 +268,62 @@ class StickyAddToCartComponent extends Component {
     this.#buyButtonsIntersectionObserver.observe(buyButtonsBlock);
     this.#mainBottomObserver.observe(footer);
     this.#targetAddToCartButton = productForm.querySelector('[ref="addToCartButton"]');
+    this.#syncStickyWalletAvailability();
+    this.#updateReservedSpace();
   }
 
   // Public action handlers
   /**
+   * Handles direct click delegation for the portaled sticky bar.
+   * Declarative `on:*` handlers no longer resolve once the bar is moved under `document.body`.
+   * @param {MouseEvent} event
+   */
+  #handleStickyBarClick = (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const stickyAddToCartButton = target.closest('[ref="addToCartButton"]');
+    if (!(stickyAddToCartButton instanceof HTMLButtonElement)) return;
+
+    event.preventDefault();
+    this.handleAddToCartClick();
+  };
+
+  /**
    * Handles the add to cart button click in the sticky bar
    */
   handleAddToCartClick = async () => {
-    if (!this.#targetAddToCartButton) return;
-    this.#targetAddToCartButton.dataset.puppet = 'true';
-    this.#targetAddToCartButton.click();
-    const cartIcon = document.querySelector('.header-actions__cart-icon');
+    const productForm = this.#getProductForm();
+    const targetForm = /** @type {HTMLFormElement | null} */ (productForm?.querySelector('form'));
+    const liveTargetAddToCartButton = /** @type {HTMLButtonElement | null} */ (
+      productForm?.querySelector('[ref="addToCartButton"]')
+    );
 
-    if (this.refs.addToCartButton.dataset.added !== 'true') {
-      this.refs.addToCartButton.dataset.added = 'true';
+    if (liveTargetAddToCartButton) {
+      this.#targetAddToCartButton = liveTargetAddToCartButton;
     }
 
-    if (!cartIcon || !this.refs.addToCartButton || !this.refs.productImage) return;
+    if (!(targetForm instanceof HTMLFormElement)) return;
+
+    if (typeof targetForm.requestSubmit === 'function') {
+      targetForm.requestSubmit();
+    } else if (this.#targetAddToCartButton) {
+      this.#targetAddToCartButton.dataset.puppet = 'true';
+      this.#targetAddToCartButton.click();
+    } else {
+      return;
+    }
+
+    const cartIcon = document.querySelector('.header-actions__cart-icon');
+    const stickyAddToCartButton = /** @type {HTMLButtonElement | null} */ (
+      this.refs.stickyBar?.querySelector('[ref="addToCartButton"]')
+    );
+
+    if (stickyAddToCartButton?.dataset.added !== 'true') {
+      stickyAddToCartButton.dataset.added = 'true';
+    }
+
+    if (!cartIcon || !stickyAddToCartButton || !this.refs.productImage) return;
     if (this.#resetTimeout) clearTimeout(this.#resetTimeout);
 
     const flyToCartElement = /** @type {FlyToCart} */ (document.createElement('fly-to-cart'));
@@ -186,9 +337,9 @@ class StickyAddToCartComponent extends Component {
 
     document.body.appendChild(flyToCartElement);
 
-    await onAnimationEnd([this.refs.addToCartButton, flyToCartElement]);
+    await onAnimationEnd([stickyAddToCartButton, flyToCartElement]);
     this.#resetTimeout = setTimeout(() => {
-      this.refs.addToCartButton.removeAttribute('data-added');
+      stickyAddToCartButton.removeAttribute('data-added');
     }, 800);
   };
 
@@ -234,12 +385,14 @@ class StickyAddToCartComponent extends Component {
       this.#handleVariantUnavailable();
     }
     // Restore the current quantity display if needed
+    this.#syncStickyWalletQuantityInput();
     this.#updateButtonText();
+    queueMicrotask(() => this.#syncStickyWalletAvailability());
   };
 
   /**
    * Handles variant selected events
-   * @param {CustomEvent} event - The variant selected event
+   * @param {CustomEvent} event - The variant update event
    */
   #handleVariantSelected = (event) => {
     // The variant update event will follow and handle all updates via morph
@@ -254,7 +407,7 @@ class StickyAddToCartComponent extends Component {
    */
   #handleVariantUnavailable = () => {
     this.dataset.currentVariantId = '';
-    const variantTitleElement = this.querySelector('.sticky-add-to-cart__variant');
+    const variantTitleElement = this.refs.stickyBar?.querySelector('.sticky-add-to-cart__variant');
     const productId = this.dataset.productId;
     const variantPicker = document.querySelector(`variant-picker[data-product-id="${productId}"]`);
     if (!variantTitleElement || !variantPicker) return;
@@ -287,6 +440,7 @@ class StickyAddToCartComponent extends Component {
     if (event.detail.cartLine) return;
 
     this.#currentQuantity = event.detail.quantity;
+    this.#syncStickyWalletQuantityInput();
     this.#updateButtonText();
   };
 
@@ -297,6 +451,7 @@ class StickyAddToCartComponent extends Component {
     const { stickyBar } = this.refs;
     this.#isStuck = true;
     stickyBar.dataset.stuck = 'true';
+    this.#updateReservedSpace();
   }
 
   /**
@@ -306,6 +461,7 @@ class StickyAddToCartComponent extends Component {
     const { stickyBar } = this.refs;
     this.#isStuck = false;
     stickyBar.dataset.stuck = 'false';
+    this.#updateReservedSpace();
   }
 
   // Helper methods
@@ -317,7 +473,7 @@ class StickyAddToCartComponent extends Component {
     const productId = this.dataset.productId;
     if (!productId) return null;
 
-    const sectionElement = this.closest('.shopify-section');
+    const sectionElement = this.#sectionElement;
     if (!sectionElement) return null;
 
     const sectionId = sectionElement.id.replace('shopify-section-', '');
@@ -331,6 +487,7 @@ class StickyAddToCartComponent extends Component {
    */
   #getInitialQuantity() {
     this.#currentQuantity = parseInt(this.dataset.initialQuantity || '1') || 1;
+    this.#syncStickyWalletQuantityInput();
     this.#updateButtonText();
   }
 
@@ -338,7 +495,14 @@ class StickyAddToCartComponent extends Component {
    * Updates the button text to include quantity
    */
   #updateButtonText() {
-    const { addToCartButton, quantityDisplay, quantityNumber } = this.refs;
+    const stickyRoot = this.refs.stickyBar;
+    const addToCartButton = /** @type {HTMLButtonElement | null} */ (
+      stickyRoot?.querySelector('[ref="addToCartButton"]')
+    );
+    const quantityDisplay = /** @type {HTMLElement | null} */ (stickyRoot?.querySelector('[ref="quantityDisplay"]'));
+    const quantityNumber = /** @type {HTMLElement | null} */ (stickyRoot?.querySelector('[ref="quantityNumber"]'));
+
+    if (!addToCartButton || !quantityDisplay || !quantityNumber) return;
 
     const available = !addToCartButton.disabled;
 

@@ -32,7 +32,10 @@
     %}
   </div>
 {% elsif show_country %}
-  <dropdown-localization-component class="custom-header__localization dropdown-localization mobile:hidden">
+  <dropdown-localization-component
+    class="custom-header__localization dropdown-localization mobile:hidden"
+    data-mobile-drawer="true"
+  >
     <button
       type="button"
       class="button dropdown-localization__button localization-selector header-actions__action"
@@ -86,7 +89,26 @@
       hidden
       ref="panel"
       id="dropdown-localization-results-{{ section.id }}"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dropdown-localization-title-{{ section.id }}"
     >
+      <div class="custom-header__localization-mobile-header desktop:hidden">
+        <h2 id="dropdown-localization-title-{{ section.id }}" class="custom-header__localization-mobile-title h5">
+          Select Country
+        </h2>
+        <button
+          type="button"
+          class="custom-header__localization-mobile-close button-unstyled"
+          on:click="/hidePanel"
+          aria-label="{{ 'actions.close' | t }}"
+        >
+          <span class="svg-wrapper" aria-hidden="true">
+            {{- 'icon-close.svg' | inline_asset_content -}}
+          </span>
+        </button>
+      </div>
+
       {% render 'localization-form',
         show_country: show_country,
         show_language: show_language,

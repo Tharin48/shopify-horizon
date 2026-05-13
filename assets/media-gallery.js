@@ -194,7 +194,11 @@ function initProductMediaListLayouts(root) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => initProductMediaListLayouts(document));
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => initProductMediaListLayouts(document));
+} else {
+  initProductMediaListLayouts(document);
+}
 
 document.addEventListener('shopify:section:load', (event) => {
   if (event.target instanceof HTMLElement) {

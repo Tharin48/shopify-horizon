@@ -11,12 +11,19 @@ import { debounce, isClickedOutside, onAnimationEnd } from '@theme/utilities';
  */
 export class DialogComponent extends Component {
   requiredRefs = ['dialog'];
+  #isClosing = false;
 
   connectedCallback() {
     super.connectedCallback();
 
     if (this.minWidth || this.maxWidth) {
       window.addEventListener('resize', this.#handleResize);
+    }
+
+    const { dialog } = this.refs;
+    if (dialog) {
+      dialog.addEventListener('cancel', this.#handleDialogCancel);
+      dialog.addEventListener('close', this.#handleNativeDialogClose);
     }
   }
 
@@ -25,6 +32,14 @@ export class DialogComponent extends Component {
     if (this.minWidth || this.maxWidth) {
       window.removeEventListener('resize', this.#handleResize);
     }
+
+    const { dialog } = this.refs;
+    if (dialog) {
+      dialog.removeEventListener('cancel', this.#handleDialogCancel);
+      dialog.removeEventListener('close', this.#handleNativeDialogClose);
+    }
+
+    this.#unlockPageScroll({ restoreScrollPosition: false });
   }
 
   #handleResize = debounce(() => {
@@ -53,6 +68,9 @@ export class DialogComponent extends Component {
 
     // Prevent layout thrashing by separating DOM reads from DOM writes
     requestAnimationFrame(() => {
+      // Guard against double-open calls queued in the same frame.
+      if (dialog.open) return;
+
       /*
        * Dialogs that opt in with the `scroll-lock` attribute must also set `html[scroll-lock]`.
        * Details elements get this via the global `toggle` listener below; `<dialog>` opened
@@ -77,15 +95,44 @@ export class DialogComponent extends Component {
   }
 
   /**
+   * Clears fixed-body/page scroll lock styles.
+   * @param {{ restoreScrollPosition?: boolean }} [options]
+   */
+  #unlockPageScroll(options = {}) {
+    const { dialog } = this.refs;
+    const restoreScrollPosition = options.restoreScrollPosition !== false;
+    const shouldRestoreScroll =
+      restoreScrollPosition && document.body.style.position === 'fixed' && document.body.style.top;
+
+    document.body.style.width = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+
+    if (dialog?.hasAttribute('scroll-lock')) {
+      document.documentElement.removeAttribute('scroll-lock');
+    }
+
+    if (shouldRestoreScroll) {
+      window.scrollTo({ top: this.#previousScrollY, behavior: 'instant' });
+    }
+  }
+
+  /**
    * Closes the dialog.
    */
   closeDialog = async () => {
     const { dialog } = this.refs;
+    if (this.#isClosing) return;
 
-    if (!dialog.open) return;
+    if (!dialog.open) {
+      // Dialog may already be closed by native ESC/cancel path; still release locks.
+      this.#unlockPageScroll();
+      return;
+    }
 
     this.removeEventListener('click', this.#handleClick);
     this.removeEventListener('keydown', this.#handleKeyDown);
+    this.#isClosing = true;
 
     // Force browser to restart animation by resetting it
     // Temporarily remove any existing animation state
@@ -98,23 +145,20 @@ export class DialogComponent extends Component {
     dialog.classList.add('dialog-closing');
     dialog.style.animation = '';
 
-    await onAnimationEnd(dialog, undefined, {
-      subtree: false,
-    });
+    try {
+      await onAnimationEnd(dialog, undefined, {
+        subtree: false,
+      });
 
-    document.body.style.width = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    window.scrollTo({ top: this.#previousScrollY, behavior: 'instant' });
+      this.#unlockPageScroll();
 
-    if (dialog.hasAttribute('scroll-lock')) {
-      document.documentElement.removeAttribute('scroll-lock');
+      dialog.close();
+      dialog.classList.remove('dialog-closing');
+
+      this.dispatchEvent(new DialogCloseEvent());
+    } finally {
+      this.#isClosing = false;
     }
-
-    dialog.close();
-    dialog.classList.remove('dialog-closing');
-
-    this.dispatchEvent(new DialogCloseEvent());
   };
 
   /**
@@ -152,6 +196,24 @@ export class DialogComponent extends Component {
     event.preventDefault();
     this.closeDialog();
   }
+
+  /**
+   * Intercept native <dialog> ESC behavior so we always run our unlock/animation path.
+   * @param {Event} event
+   */
+  #handleDialogCancel = (event) => {
+    event.preventDefault();
+    this.closeDialog();
+  };
+
+  /**
+   * Fallback cleanup for native/third-party dialog.close() calls.
+   */
+  #handleNativeDialogClose = () => {
+    if (this.#isClosing) return;
+    this.#unlockPageScroll();
+    this.dispatchEvent(new DialogCloseEvent());
+  };
 
   /**
    * Gets the minimum width of the dialog.

@@ -1,6 +1,63 @@
 
 {% assign block_settings = block.settings %}
 
+{% liquid
+  assign skip_accordion_row = false
+  assign accordion_product = product | default: closest.product
+
+  assign accordion_brewing_block = blank
+  assign accordion_row_brewing_only = true
+  assign accordion_row_has_children = false
+
+  for accordion_row_child in block.blocks
+    assign accordion_row_has_children = true
+    assign accordion_row_child_type = accordion_row_child.type | default: ''
+
+    if accordion_row_child_type contains 'custom-brewing-tabs'
+      if accordion_brewing_block == blank
+        assign accordion_brewing_block = accordion_row_child
+      endif
+    elsif accordion_row_child_type contains '@app'
+      comment
+        App blocks only: still treat row as brewing-only for hide logic.
+      endcomment
+    else
+      assign accordion_row_brewing_only = false
+    endif
+  endfor
+
+  if accordion_row_has_children == false or accordion_brewing_block == blank
+    assign accordion_row_brewing_only = false
+  endif
+
+  assign accordion_heading_brewing = false
+  assign accordion_heading_normalized = block_settings.heading | strip | downcase
+  if accordion_heading_normalized == 'brewing guide'
+    assign accordion_heading_brewing = true
+  endif
+
+  assign accordion_remove_if_panel_empty = false
+  if accordion_row_brewing_only and accordion_brewing_block != blank
+    assign accordion_remove_if_panel_empty = true
+  elsif accordion_heading_brewing
+    assign accordion_remove_if_panel_empty = true
+  endif
+%}
+
+{% if accordion_row_brewing_only and accordion_brewing_block != blank %}
+  {% capture brewing_accordion_hide_flag %}
+    {% render 'brewing-accordion-row-hide',
+      brewing_block: accordion_brewing_block,
+      product_resource: accordion_product
+    %}
+  {% endcapture %}
+  {% assign brewing_accordion_hide_flag = brewing_accordion_hide_flag | strip %}
+  {% if brewing_accordion_hide_flag == '1' %}
+    {% assign skip_accordion_row = true %}
+  {% endif %}
+{% endif %}
+
+{% unless skip_accordion_row %}
 {% capture accordion_row_children %}
   <details
     class="details"
@@ -34,8 +91,10 @@
 {% render 'accordion-custom-component',
   children: accordion_row_children,
   open_by_default_on_desktop: block_settings.open_by_default,
-  open_by_default_on_mobile: block_settings.open_by_default
+  open_by_default_on_mobile: block_settings.open_by_default,
+  remove_if_panel_empty: accordion_remove_if_panel_empty
 %}
+{% endunless %}
 
 {% stylesheet %}
   .details__icon {

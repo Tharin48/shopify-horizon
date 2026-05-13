@@ -1,0 +1,56 @@
+{%- liquid
+  assign link = block.settings.link
+  assign image = block.settings.image
+  assign variant = variant | default: 'badge'
+-%}
+
+{%- capture trust_content -%}
+  {%- if image != blank -%}
+    <span class="custom-footer__trust-icon" aria-hidden="true">
+      {{
+        image
+        | image_url: width: 96
+        | image_tag:
+          class: 'custom-footer__trust-image',
+          loading: 'lazy',
+          widths: '32, 48, 64, 96',
+          sizes: '48px',
+          alt: ''
+      }}
+    </span>
+  {%- endif -%}
+
+  {%- if variant == 'benefit' -%}
+    <span class="custom-footer__trust-copy custom-footer__trust-copy--benefit">
+      {%- if block.settings.title != blank -%}
+        <span class="custom-footer__trust-title">{{ block.settings.title | escape }}</span>
+      {%- endif -%}
+      {%- if block.settings.description != blank -%}
+        <span class="custom-footer__trust-description">{{ block.settings.description | escape }}</span>
+      {%- endif -%}
+    </span>
+  {%- else -%}
+    <span class="custom-footer__trust-copy custom-footer__trust-copy--badge">
+      {{ block.settings.text | escape }}
+    </span>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if link != blank -%}
+  <a
+    class="custom-footer__trust-item custom-footer__trust-item--{{ variant }}"
+    href="{{ link }}"
+    role="listitem"
+    {{ block.shopify_attributes }}
+  >
+    {{ trust_content }}
+  </a>
+{%- else -%}
+  <div
+    class="custom-footer__trust-item custom-footer__trust-item--{{ variant }}"
+    role="listitem"
+    {{ block.shopify_attributes }}
+  >
+    {{ trust_content }}
+  </div>
+{%- endif -%}

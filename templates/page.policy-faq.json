@@ -1,0 +1,126 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "page_decorative_frame": {
+      "type": "custom-page-decorative-frame",
+      "settings": {
+        "accent_color": "#b08a2f",
+        "decorative_left_image": "shopify://shop_images/x31_1_1.png",
+        "decorative_right_image": "shopify://shop_images/Group.svg",
+        "decorative_art_mode": "zigzag",
+        "leaf_vertical_spacing": "spread",
+        "decorative_gap_extra": 200
+      }
+    },
+    "policy_shell": {
+      "type": "custom-policy-page",
+      "blocks": {
+        "breadcrumb": {
+          "type": "breadcrumb",
+          "settings": {
+            "show_home": true,
+            "home_label": "Home",
+            "separator_style": "slash"
+          }
+        },
+        "page_tabs": {
+          "type": "page_tabs",
+          "settings": {
+            "nav_label": "Policy pages",
+            "alignment": "center"
+          }
+        },
+        "shipping_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "faq",
+            "label": "FAQ",
+            "icon": "truck"
+          }
+        },
+        "terms_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "shipping-and-delivery",
+            "label": "Shipping & Delivery Policy",
+            "icon": "document"
+          }
+        },
+        "page_tab_jxFf7e": {
+          "type": "page_tab",
+          "settings": {
+            "page": "terms-conditions",
+            "label": "Terms & Conditinos",
+            "icon": "document"
+          }
+        },
+        "privacy_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "privacy-and-cookie-policy",
+            "label": "Privacy Policy",
+            "icon": "shield"
+          }
+        },
+        "page_heading": {
+          "type": "page_heading",
+          "settings": {
+            "heading_source": "page_title",
+            "custom_heading": "{{ page.title }}",
+            "intro": "<p>Find answers to the most commonly asked questions about our teas, orders, and services. Can’t find what you’re looking for? <a href=\"https://shop.dilmahtea.com/pages/contact-us\" title=\"Contac Us\">Our Tea Experts are always happy to help</a>.<br/></p>"
+          }
+        }
+      },
+      "block_order": [
+        "breadcrumb",
+        "page_tabs",
+        "shipping_tab",
+        "terms_tab",
+        "page_tab_jxFf7e",
+        "privacy_tab",
+        "page_heading"
+      ],
+      "settings": {
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "accent_color": "#b08a2f",
+        "page_max_width": 1920,
+        "padding_top": 40,
+        "padding_bottom": 0,
+        "padding_inline": 80,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 0,
+        "padding_inline_mobile": 16
+      }
+    },
+    "faq_content": {
+      "type": "custom-faq-accordion",
+      "settings": {
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "heading": "",
+        "intro": "",
+        "show_category_filters": true,
+        "default_selected_category": "",
+        "open_behavior": "all_closed",
+        "accent_color": "#b08a2f",
+        "max_width": 900,
+        "padding_top": 12,
+        "padding_bottom": 88,
+        "padding_top_mobile": 8,
+        "padding_bottom_mobile": 56
+      }
+    }
+  },
+  "order": [
+    "page_decorative_frame",
+    "policy_shell",
+    "faq_content"
+  ]
+}

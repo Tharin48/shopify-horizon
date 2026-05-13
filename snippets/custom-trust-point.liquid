@@ -1,0 +1,32 @@
+{%- doc -%}
+  Renders a single trust/USP point: optional circular icon, heading, and richtext.
+
+  @param {object} trust_block - Parent block (for `shopify_attributes`)
+  @param {object} [icon] - Image from image_picker
+  @param {string} [heading] - Line heading
+  @param {string} [text] - Richtext body
+{%- enddoc -%}
+<div class="custom-trust-point" {{ trust_block.shopify_attributes }}>
+  {%- if icon != blank -%}
+    <div class="custom-trust-point__icon" aria-hidden="true">
+      {{
+        icon
+        | image_url: width: 120
+        | image_tag:
+          class: 'custom-trust-point__icon-img',
+          loading: 'lazy',
+          alt: '',
+          widths: '40, 60, 80, 120',
+          sizes: '64px'
+      }}
+    </div>
+  {%- endif -%}
+
+  {%- if heading != blank -%}
+    <h3 class="custom-trust-point__heading">{{ heading | escape }}</h3>
+  {%- endif -%}
+
+  {%- if text != blank -%}
+    <div class="custom-trust-point__text rte">{{ text }}</div>
+  {%- endif -%}
+</div>

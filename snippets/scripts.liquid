@@ -28,6 +28,7 @@
       "@theme/quick-add": "{{ 'quick-add.js' | asset_url }}",
       "@theme/paginated-list-aspect-ratio": "{{ 'paginated-list-aspect-ratio.js' | asset_url }}",
       "@theme/popover-polyfill": "{{ 'popover-polyfill.js' | asset_url }}",
+      "@theme/gift-card-recipient-form": "{{ 'gift-card-recipient-form.js' | asset_url }}",
       "@theme/component-quantity-selector": "{{ 'component-quantity-selector.js' | asset_url }}",
       "@theme/comparison-slider": "{{ 'comparison-slider.js' | asset_url }}",
       "@theme/sticky-add-to-cart": "{{ 'sticky-add-to-cart.js' | asset_url }}",
@@ -36,13 +37,10 @@
   }
 </script>
 
-<script
-  src="{{ 'view-transitions.js' | asset_url }}"
-  async
-  {% if settings.page_transition_enabled or settings.transition_to_main_product %}
-    blocking="render"
-  {% endif %}
-></script>
+{% if settings.page_transition_enabled or settings.transition_to_main_product %}
+  {% comment %} Keep this inline so pagereveal/pageswap handlers and the render blocker are available before the first reveal without an extra blocking request. {% endcomment %}
+  {% render 'view-transitions-inline' %}
+{% endif %}
 
 <link
   rel="modulepreload"
@@ -56,74 +54,14 @@
 >
 <link
   rel="modulepreload"
-  href="{{ 'section-renderer.js' | asset_url }}"
-  fetchpriority="low"
->
-<link
-  rel="modulepreload"
-  href="{{ 'section-hydration.js' | asset_url }}"
-  fetchpriority="low"
->
-<link
-  rel="modulepreload"
-  href="{{ 'morph.js' | asset_url }}"
-  fetchpriority="low"
->
-
-{% if template.name == 'collection' or template.name == 'search' %}
-  <link
-    rel="modulepreload"
-    href="{{ 'paginated-list-aspect-ratio.js' | asset_url }}"
-    fetchpriority="low"
-  >
-  <link
-    rel="modulepreload"
-    href="{{ 'paginated-list.js' | asset_url }}"
-    fetchpriority="low"
-  >
-
-  <link
-    rel="modulepreload"
-    href="{{ 'product-title-truncation.js' | asset_url }}"
-    fetchpriority="low"
-  >
-{% endif %}
-
-<link
-  rel="modulepreload"
   href="{{ 'focus.js' | asset_url }}"
   fetchpriority="low"
 >
-<link
-  rel="modulepreload"
-  href="{{ 'recently-viewed-products.js' | asset_url }}"
-  fetchpriority="low"
->
-<link
-  rel="modulepreload"
-  href="{{ 'scrolling.js' | asset_url }}"
-  fetchpriority="low"
->
-<link
-  rel="modulepreload"
-  href="{{ 'events.js' | asset_url }}"
-  fetchpriority="low"
->
-<script
-  src="{{ 'popover-polyfill.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'overflow-list.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'quick-add.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
+<script type="module">
+  if (!('showPopover' in HTMLElement.prototype)) {
+    import("{{ 'popover-polyfill.js' | asset_url }}");
+  }
+</script>
 {% if settings.show_add_discount_code %}
   <script
     src="{{ 'cart-discount.js' | asset_url }}"
@@ -137,116 +75,321 @@
   type="module"
   fetchpriority="low"
 ></script>
-<script
-  src="{{ 'variant-picker.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-card.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-form.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'fly-to-cart.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'accordion-custom.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'media.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-price.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-sku.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-title-truncation.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'product-inventory.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'show-more.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'slideshow.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'layered-slideshow.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'anchored-popover.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'floating-panel.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'video-background.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'component-quantity-selector.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'media-gallery.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'rte-formatter.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'volume-pricing.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'price-per-item.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
-<script
-  src="{{ 'volume-pricing-info.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
+<script type="module">
+  const conditionalModules = [
+    {
+      selector: 'overflow-list',
+      src: "{{ 'overflow-list.js' | asset_url }}",
+    },
+    {
+      selector: 'variant-picker, swatches-variant-picker-component',
+      src: "{{ 'variant-picker.js' | asset_url }}",
+    },
+    {
+      selector: 'swatches-variant-picker-component',
+      src: "{{ 'product-card.js' | asset_url }}",
+    },
+    {
+      selector: 'product-form-component:not([data-lazy-load]), add-to-cart-component:not([data-lazy-load])',
+      src: "{{ 'product-form.js' | asset_url }}",
+    },
+    {
+      selector: 'product-form-component:not([data-lazy-load]), add-to-cart-component:not([data-lazy-load]), sticky-add-to-cart',
+      src: "{{ 'fly-to-cart.js' | asset_url }}",
+    },
+    {
+      selector: 'accordion-custom',
+      src: "{{ 'accordion-custom.js' | asset_url }}",
+    },
+    {
+      selector: 'deferred-media, product-model',
+      src: "{{ 'media.js' | asset_url }}",
+    },
+    {
+      selector: 'product-price',
+      src: "{{ 'product-price.js' | asset_url }}",
+    },
+    {
+      selector: 'product-sku-component',
+      src: "{{ 'product-sku.js' | asset_url }}",
+    },
+    {
+      selector: 'product-title',
+      src: "{{ 'product-title-truncation.js' | asset_url }}",
+    },
+    {
+      selector: 'product-inventory',
+      src: "{{ 'product-inventory.js' | asset_url }}",
+    },
+    {
+      selector: 'show-more-component',
+      src: "{{ 'show-more.js' | asset_url }}",
+    },
+    {
+      selector: 'slideshow-component',
+      src: "{{ 'slideshow.js' | asset_url }}",
+      strategy: 'visible',
+    },
+    {
+      selector: 'layered-slideshow-component',
+      src: "{{ 'layered-slideshow.js' | asset_url }}",
+      strategy: 'visible',
+    },
+    {
+      selector: 'anchored-popover-component',
+      src: "{{ 'anchored-popover.js' | asset_url }}",
+    },
+    {
+      selector: 'floating-panel-component',
+      src: "{{ 'floating-panel.js' | asset_url }}",
+    },
+    {
+      selector: 'video-background-component',
+      src: "{{ 'video-background.js' | asset_url }}",
+      strategy: 'visible',
+    },
+    {
+      selector: 'quantity-selector-component',
+      src: "{{ 'component-quantity-selector.js' | asset_url }}",
+    },
+    {
+      selector: 'media-gallery, [data-product-media-list]',
+      src: "{{ 'media-gallery.js' | asset_url }}",
+    },
+    {
+      selector: 'rte-formatter',
+      src: "{{ 'rte-formatter.js' | asset_url }}",
+      strategy: 'visible',
+    },
+    {
+      selector: 'volume-pricing',
+      src: "{{ 'volume-pricing.js' | asset_url }}",
+    },
+    {
+      selector: 'price-per-item',
+      src: "{{ 'price-per-item.js' | asset_url }}",
+    },
+    {
+      selector: 'volume-pricing-info',
+      src: "{{ 'volume-pricing-info.js' | asset_url }}",
+    },
+  ];
+
+  const loadedModules = new Set();
+  const interactionModulePromises = new Map();
+  const moduleVisibilityObservers = new Map();
+
+  function loadModule(src) {
+    if (loadedModules.has(src)) {
+      return Promise.resolve();
+    }
+
+    loadedModules.add(src);
+    const visibilityObserver = moduleVisibilityObservers.get(src);
+    if (visibilityObserver) {
+      visibilityObserver.disconnect();
+      moduleVisibilityObservers.delete(src);
+    }
+
+    return import(src).catch((error) => {
+      loadedModules.delete(src);
+      throw error;
+    });
+  }
+
+  function getMatchingElements(root, selector) {
+    const matches = new Set();
+
+    if (root instanceof Element && root.matches(selector)) {
+      matches.add(root);
+    }
+
+    const searchRoot = root instanceof Element ? root : document;
+    for (const element of searchRoot.querySelectorAll(selector)) {
+      matches.add(element);
+    }
+
+    return Array.from(matches);
+  }
+
+  function rootContainsSelector(root, selector) {
+    if (root instanceof Element) {
+      return root.matches(selector) || Boolean(root.querySelector(selector));
+    }
+
+    return Boolean(document.querySelector(selector));
+  }
+
+  function observeModuleVisibility(moduleConfig, root = document) {
+    if (loadedModules.has(moduleConfig.src)) {
+      return;
+    }
+
+    const matchingElements = getMatchingElements(root, moduleConfig.selector);
+    if (!matchingElements.length) {
+      return;
+    }
+
+    let observer = moduleVisibilityObservers.get(moduleConfig.src);
+    if (!observer) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) {
+              continue;
+            }
+
+            loadModule(moduleConfig.src).catch(() => {});
+            return;
+          }
+        },
+        {
+          rootMargin: '200px',
+        }
+      );
+
+      moduleVisibilityObservers.set(moduleConfig.src, observer);
+    }
+
+    for (const element of matchingElements) {
+      observer.observe(element);
+    }
+  }
+
+  function ensureModule(moduleConfig, root = document) {
+    if (!rootContainsSelector(root, moduleConfig.selector) || loadedModules.has(moduleConfig.src)) {
+      return;
+    }
+
+    if (moduleConfig.strategy === 'visible') {
+      observeModuleVisibility(moduleConfig, root);
+      return;
+    }
+
+    loadModule(moduleConfig.src).catch(() => {});
+  }
+
+  const interactionModules = [
+    {
+      id: 'search-modal',
+      selector: '[data-search-modal-trigger]',
+      srcs: ["{{ 'predictive-search.js' | asset_url }}"],
+      replayOnClick: false,
+    },
+    {
+      id: 'mega-menu-sidebar',
+      selector: '[data-header-menu-root] header-menu',
+      srcs: ["{{ 'mega-menu-sidebar.js' | asset_url }}"],
+      replayOnClick: false,
+    },
+    {
+      id: 'quick-add',
+      selector: 'quick-add-component',
+      srcs: [
+        "{{ 'product-card.js' | asset_url }}",
+        "{{ 'product-form.js' | asset_url }}",
+        "{{ 'quick-add.js' | asset_url }}",
+        "{{ 'fly-to-cart.js' | asset_url }}",
+      ],
+      replayOnClick: true,
+    },
+    {
+      id: 'product-card-transition',
+      selector: 'product-card[data-product-transition], product-card-link[data-product-transition]',
+      srcs: ["{{ 'product-card.js' | asset_url }}"],
+      replayOnClick: false,
+    },
+  ];
+
+  function getActionableTarget(target) {
+    if (!(target instanceof Element)) {
+      return null;
+    }
+
+    return target.closest('button, input, select, textarea, label, a');
+  }
+
+  function loadInteractionModules(config) {
+    const existingPromise = interactionModulePromises.get(config.id);
+    if (existingPromise) {
+      return existingPromise;
+    }
+
+    const nextPromise = Promise.all(config.srcs.map(loadModule)).finally(() => {
+      interactionModulePromises.delete(config.id);
+    });
+    interactionModulePromises.set(config.id, nextPromise);
+
+    return nextPromise;
+  }
+
+  function replayAction(actionableTarget) {
+    if (!(actionableTarget instanceof HTMLElement)) {
+      return;
+    }
+
+    actionableTarget.setAttribute('data-lazy-module-replay', 'true');
+    actionableTarget.click();
+  }
+
+  function handleInteractionModuleEvent(event) {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const actionableTarget = getActionableTarget(event.target);
+    if (event.type === 'click' && actionableTarget?.getAttribute('data-lazy-module-replay') === 'true') {
+      actionableTarget.removeAttribute('data-lazy-module-replay');
+      return;
+    }
+
+    for (const config of interactionModules) {
+      const matchedRoot = event.target.closest(config.selector);
+      if (!matchedRoot) {
+        continue;
+      }
+
+      const loadPromise = loadInteractionModules(config);
+
+      if (event.type === 'click' && config.replayOnClick && actionableTarget instanceof HTMLElement) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        loadPromise.then(() => replayAction(actionableTarget)).catch(() => {});
+      }
+
+      return;
+    }
+  }
+
+  function runInitialConditionalModuleScan(root = document) {
+    for (const moduleConfig of conditionalModules) {
+      ensureModule(moduleConfig, root);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+        runInitialConditionalModuleScan();
+      },
+      { once: true }
+    );
+  } else {
+    runInitialConditionalModuleScan();
+  }
+
+  document.addEventListener('pointerover', handleInteractionModuleEvent, true);
+  document.addEventListener('focusin', handleInteractionModuleEvent, true);
+  document.addEventListener('touchstart', handleInteractionModuleEvent, { capture: true, passive: true });
+  document.addEventListener('click', handleInteractionModuleEvent, true);
+
+  document.addEventListener('shopify:section:load', (event) => {
+    const root = event.target instanceof Element ? event.target : document;
+
+    runInitialConditionalModuleScan(root);
+  });
+</script>
 
 {% if localization.available_countries.size > 1 or localization.available_languages.size > 1 %}
   <script
@@ -257,11 +400,6 @@
 {% endif %}
 
 {% if template == 'product' or template.name == 'product' or request.page_type == 'product' %}
-  <script
-    src="{{ 'fly-to-cart.js' | asset_url }}"
-    type="module"
-    fetchpriority="low"
-  ></script>
   <script
     src="{{ 'sticky-add-to-cart.js' | asset_url }}"
     type="module"

@@ -26,8 +26,20 @@
   endif
 
   assign yotpo_editor_preview = false
-  if mode == 'yotpo_star_rating' and request.design_mode and block.settings.yotpo_show_placeholder_in_editor
-    assign yotpo_editor_preview = true
+  if mode == 'yotpo_star_rating' or mode == 'yotpo_star_rating_widget'
+    if request.design_mode and block.settings.yotpo_show_placeholder_in_editor
+      assign yotpo_editor_preview = true
+    endif
+  endif
+
+  assign show_yotpo_legacy_mount = false
+  if mode == 'yotpo_star_rating' and product != blank and yotpo_editor_preview == false
+    assign show_yotpo_legacy_mount = true
+  endif
+
+  assign show_yotpo_widget_mount = false
+  if mode == 'yotpo_star_rating_widget' and product != blank and yotpo_editor_preview == false
+    assign show_yotpo_widget_mount = true
   endif
 
   assign show_placeholder_stars = false
@@ -39,10 +51,6 @@
     assign show_placeholder_stars = true
   endif
 
-  assign show_yotpo_mount = false
-  if mode == 'yotpo_star_rating' and product != blank and yotpo_editor_preview == false
-    assign show_yotpo_mount = true
-  endif
 -%}
 
 <div
@@ -55,7 +63,7 @@
   "
   {{ block.shopify_attributes }}
 >
-  {%- if show_yotpo_mount -%}
+  {%- if show_yotpo_legacy_mount -%}
     {%- comment -%}
       Yotpo Reviews & Photos injects into `.yotpo.bottomLine` when the app is installed (enable Star Ratings / widget in Yotpo).
       Product ID and URL are standard attributes for Yotpo widgets on PDPs.
@@ -65,6 +73,18 @@
         class="yotpo bottomLine"
         data-product-id="{{ product.id }}"
         data-url="{{ shop.url }}{{ product.url }}"
+      ></div>
+    </div>
+  {%- endif -%}
+
+  {%- if show_yotpo_widget_mount -%}
+    <div class="product-rating-summary-block__yotpo-mount" data-yotpo-product-id="{{ product.id }}">
+      <div
+        class="yotpo-widget-instance"
+        data-yotpo-instance-id="{{ block.settings.yotpo_widget_instance_id }}"
+        data-yotpo-product-id="{{ product.id }}"
+        data-yotpo-cart-product-id="{{ product.id }}"
+        data-yotpo-section-id="{{ template.name }}"
       ></div>
     </div>
   {%- endif -%}
@@ -166,11 +186,22 @@
         },
         {
           "value": "yotpo_star_rating",
-          "label": "Yotpo star rating (app widget)"
+          "label": "Yotpo star rating (legacy mount)"
+        },
+        {
+          "value": "yotpo_star_rating_widget",
+          "label": "Yotpo star rating + count (widget instance)"
         }
       ],
       "default": "placeholder",
-      "info": "Use Placeholder until reviews are connected. Shopify metafields are filled by compatible review apps (including Yotpo when configured). Yotpo mode outputs the standard star-rating mount for the Yotpo Reviews app."
+      "info": "Use Placeholder until reviews are connected. Shopify metafields are filled by compatible review apps (including Yotpo when configured). Legacy Yotpo mode outputs the classic star-rating mount, while the widget option uses a Yotpo widget instance ID."
+    },
+    {
+      "type": "text",
+      "id": "yotpo_widget_instance_id",
+      "label": "Yotpo widget instance ID",
+      "default": "824555",
+      "info": "Used only when Rating source is Yotpo star rating + count (widget instance)."
     },
     {
       "type": "header",
@@ -201,9 +232,9 @@
     {
       "type": "checkbox",
       "id": "yotpo_show_placeholder_in_editor",
-      "label": "Show placeholder in theme editor (Yotpo mode)",
+      "label": "Show placeholder in theme editor (Yotpo modes)",
       "default": true,
-      "info": "Helps layout the PDP before the Yotpo app is installed. Hidden on the live store when Yotpo mode is selected."
+      "info": "Helps layout the PDP before the Yotpo app is installed. Hidden on the live store when either Yotpo mode is selected."
     },
     {
       "type": "header",

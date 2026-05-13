@@ -1,0 +1,90 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "editorial_shell": {
+      "type": "custom-editorial-page-shell",
+      "blocks": {
+        "breadcrumb": {
+          "type": "breadcrumb",
+          "settings": {
+            "show_breadcrumb": true,
+            "show_home": true,
+            "home_label": "Home",
+            "separator_style": "slash"
+          }
+        },
+        "about_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "about-dilmah",
+            "label": "About Dilmah",
+            "style": "outline"
+          }
+        },
+        "family_commitment_tab": {
+          "type": "page_tab",
+          "settings": {
+            "page": "family-commitment",
+            "label": "Family Commitment",
+            "style": "filled"
+          }
+        },
+        "hero_text": {
+          "type": "hero_text",
+          "settings": {
+            "eyebrow": "",
+            "heading_source": "page_title",
+            "custom_heading": "",
+            "intro": ""
+          }
+        },
+        "hero_image": {
+          "type": "hero_image",
+          "settings": {
+            "image": "",
+            "mobile_image": "",
+            "image_position": "center center",
+            "use_section_radius": true,
+            "border_radius": 28
+          }
+        }
+      },
+      "block_order": [
+        "breadcrumb",
+        "about_tab",
+        "family_commitment_tab",
+        "hero_text",
+        "hero_image"
+      ],
+      "settings": {
+        "layout": "text_left_image_right",
+        "background_color": "#fffdf8",
+        "accent_color": "#b08a2f",
+        "decorative_left_image": "",
+        "decorative_right_image": "",
+        "max_width": 1440,
+        "padding_top": 40,
+        "padding_bottom": 56,
+        "padding_inline": 40,
+        "desktop_gap": 48,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 32,
+        "padding_inline_mobile": 16,
+        "mobile_gap": 24,
+        "hero_image_radius": 28,
+        "mobile_tabs_layout": "scroll"
+      }
+    }
+  },
+  "order": [
+    "editorial_shell"
+  ]
+}

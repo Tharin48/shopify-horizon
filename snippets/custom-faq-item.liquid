@@ -1,0 +1,37 @@
+{%- liquid
+  assign question_text = faq_item.question.value | default: faq_item.question | default: ''
+  assign answer_field = faq_item.answer
+  assign sort_order = faq_item.sort_order.value | default: faq_item.sort_order | default: 9999
+  assign panel_id = 'CustomFaq-' | append: section_id | append: '-' | append: index
+-%}
+
+<article
+  class="custom-faq-accordion__item"
+  data-faq-item
+  data-category="{{ category_key }}"
+  data-category-label="{{ category_label | escape }}"
+  data-sort-order="{{ sort_order }}"
+  data-original-index="{{ index }}"
+>
+  {%- capture faq_details -%}
+    <details class="custom-faq-accordion__details">
+      <summary class="custom-faq-accordion__summary" aria-controls="{{ panel_id }}">
+        <span class="custom-faq-accordion__question">{{ question_text | escape }}</span>
+        <span class="custom-faq-accordion__chevron" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="m6.75 9.5 5.25 5 5.25-5"></path></svg>
+        </span>
+      </summary>
+
+      <div id="{{ panel_id }}" class="details-content custom-faq-accordion__answer rte">
+        {{ answer_field | metafield_tag }}
+      </div>
+    </details>
+  {%- endcapture -%}
+
+  {% render 'accordion-custom-component',
+    children: faq_details,
+    class: 'custom-faq-accordion__accordion-node',
+    open_by_default_on_desktop: open_by_default,
+    open_by_default_on_mobile: open_by_default
+  %}
+</article>

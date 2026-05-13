@@ -1,0 +1,108 @@
+{%- liquid
+  assign block_type_class = block.type | replace: '_', '-'
+  assign rendered_link = blank
+  assign block_value = block.settings.value | default: ''
+  assign block_value_display = block_value | escape | newline_to_br
+
+  case block.settings.link_type
+    when 'email'
+      assign block_email = block_value | strip | strip_newlines | replace: ' ', ''
+      if block_email != blank
+        assign rendered_link = 'mailto:' | append: block_email
+      endif
+    when 'phone'
+      assign block_phone = block_value | strip | strip_newlines | replace: ' ', '' | replace: '-', '' | replace: '(', '' | replace: ')', ''
+      if block_phone != blank
+        assign rendered_link = 'tel:' | append: block_phone
+      endif
+    when 'url'
+      assign rendered_link = block.settings.url
+  endcase
+-%}
+
+<div
+  class="custom-contact-page__info-block custom-contact-page__info-block--{{ block_type_class }}"
+  {{ block.shopify_attributes }}
+>
+  {%- case block.type -%}
+    {%- when 'rich_text' -%}
+      {%- if block.settings.heading != blank -%}
+        <h2 class="custom-contact-page__block-heading">{{ block.settings.heading | escape }}</h2>
+      {%- endif -%}
+
+      {%- if block.settings.content != blank -%}
+        <div class="custom-contact-page__richtext rte">
+          {{ block.settings.content }}
+        </div>
+      {%- elsif request.design_mode -%}
+        <div class="custom-contact-page__empty-state">
+          Add rich text content for this block.
+        </div>
+      {%- endif -%}
+
+    {%- when 'support_hours' -%}
+      {%- if block.settings.heading != blank -%}
+        <h2 class="custom-contact-page__block-heading">{{ block.settings.heading | escape }}</h2>
+      {%- endif -%}
+
+      {%- if block.settings.description != blank -%}
+        <div class="custom-contact-page__richtext rte">
+          {{ block.settings.description }}
+        </div>
+      {%- elsif request.design_mode -%}
+        <div class="custom-contact-page__empty-state">
+          Add support hours copy for this block.
+        </div>
+      {%- endif -%}
+
+    {%- when 'contact_item' -%}
+      <details class="custom-contact-page__contact-accordion" data-contact-accordion>
+        {%- if block.settings.label != blank -%}
+          <summary class="custom-contact-page__contact-summary">
+            <span class="custom-contact-page__contact-label">{{ block.settings.label | escape }}</span>
+            <span class="custom-contact-page__contact-summary-icon" aria-hidden="true">
+              <svg width="12" height="8" viewBox="0 0 12 8" focusable="false">
+                <path
+                  d="M1 1.5L6 6.5L11 1.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+          </summary>
+        {%- endif -%}
+
+        <div class="custom-contact-page__contact-accordion-content">
+          {%- if block_value != blank -%}
+            {%- if rendered_link != blank -%}
+              <a class="custom-contact-page__contact-link" href="{{ rendered_link }}">
+                {{ block_value_display }}
+              </a>
+            {%- else -%}
+              <div class="custom-contact-page__contact-value">
+                {{ block_value_display }}
+              </div>
+            {%- endif -%}
+          {%- elsif request.design_mode -%}
+            <div class="custom-contact-page__empty-state">
+              Add a value for this contact item.
+            </div>
+          {%- endif -%}
+        </div>
+      </details>
+
+    {%- when 'faq_link' -%}
+      {%- if block.settings.text != blank and block.settings.url != blank -%}
+        <a class="custom-contact-page__faq-link" href="{{ block.settings.url }}">
+          {{ block.settings.text | escape }}
+        </a>
+      {%- elsif request.design_mode -%}
+        <div class="custom-contact-page__empty-state">
+          Add link text and a URL for this FAQ link block.
+        </div>
+      {%- endif -%}
+  {%- endcase -%}
+</div>

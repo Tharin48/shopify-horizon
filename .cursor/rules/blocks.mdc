@@ -114,6 +114,24 @@ Static blocks are theme blocks that are rendered directly in Liquid templates by
 - Useful for consistent layout elements that should always be present
 - Can be mixed with dynamic block areas using `{% content_for 'blocks' %}`
 
+### Dynamic theme blocks in a loop (`render block`)
+
+`{% content_for 'block', type: '…', id: '…' %}` requires **string literals** for `type` and `id`. Shopify rejects `id: block.id` or `type: block.type` (upload / Liquid syntax error).
+
+For **merchant-configured** blocks from `/blocks/` that you must render inside a `for` loop (filter by `block.type`, custom wrappers, pass extra variables such as slide index), use:
+
+```liquid
+{% for block in section.blocks %}
+  {% if block.type == 'my-slide' %}
+    {% render block, slide_index: forloop.index0 %}
+  {% endif %}
+{% endfor %}
+```
+
+Prefer a single `{% content_for 'blocks' %}` when all blocks can render in section order in one region.
+
+**Split column sections (e.g. split editorial slider):** Shopify rejects mixing **explicit block type entries** in the section `blocks` array (e.g. `{ "type": "my-slide" }`) with **static** theme blocks in presets (`"static": true`). Use a **pure theme-block section** list: `{ "type": "@theme" }`, `{ "type": "@app" }`, `{ "type": "_divider" }`, then reference static blocks only in the preset (`content_for 'block', type: 'group', id: '…'`). Render dynamic theme blocks with `{% render block %}` in loops. Skipping `group` in `section.blocks` loops avoids double-rendering the static group if it also appears in `section.blocks`.
+
 ## Schema Configuration
 
 See [schemas.mdc](mdc:.cursor/rules/schemas.mdc) for rules on schemas

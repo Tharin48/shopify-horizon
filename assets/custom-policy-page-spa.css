@@ -1,0 +1,43 @@
+/**
+ * Policy tab SPA — first-visit fetch loading overlay.
+ */
+.custom-policy-page-spa-loading {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--layer-overlay, 16) + 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgb(var(--color-background-rgb, 255 255 255) / 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.custom-policy-page-spa-loading[hidden] {
+  display: none !important;
+}
+
+.custom-policy-page-spa-loading__spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-15, 0.15));
+  border-top-color: rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-80, 0.8));
+  border-radius: 50%;
+  animation: custom-policy-page-spa-spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-policy-page-spa-loading__spinner {
+    animation: none;
+    border-top-color: rgb(var(--color-foreground-rgb, 0 0 0) / var(--opacity-50, 0.5));
+  }
+}
+
+@keyframes custom-policy-page-spa-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

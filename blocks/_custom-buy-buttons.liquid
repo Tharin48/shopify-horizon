@@ -450,8 +450,50 @@
   }
 
   @media screen and (max-width: 749px) {
-    .custom-product-form-buttons:not(.product-form-buttons--stacked) {
-      flex-wrap: wrap;
+    /*
+      Grid beats flex nowrap + flex-basis issues: qty + rules occupy full row;
+      add-to-cart and accelerated-checkout share one row at two equal columns.
+    */
+    .custom-buy-buttons-block .custom-product-form-buttons:not(.product-form-buttons--stacked) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: stretch;
+      gap: var(--custom-buy-row-gap, 12px);
+    }
+
+    .custom-buy-buttons-block
+      .custom-product-form-buttons:not(.product-form-buttons--stacked)
+      > :is(.product-form-text__error, .quantity-label, .quantity-rules, .volume-pricing, .quantity-selector-wrapper) {
+      grid-column: 1 / -1;
+      max-width: none;
+      width: 100%;
+    }
+
+    .custom-buy-buttons-block .quantity-selector-wrapper {
+      width: 100%;
+      max-width: none;
+    }
+
+    /* Full-width quantity control (base.css caps via --quantity-selector-width) */
+    .custom-buy-buttons-block .quantity-selector {
+      --quantity-selector-width: 100%;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .custom-buy-buttons-block .quantity-selector input[type='number'] {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: none;
+    }
+
+    /* Second row CTAs span one column each; minmax keeps text from clipping when possible */
+    .custom-buy-buttons-block
+      .custom-product-form-buttons:not(.product-form-buttons--stacked)
+      > :is(span:has(.add-to-cart-button), .accelerated-checkout-block) {
+      min-width: 0;
     }
   }
 {% endstylesheet %}

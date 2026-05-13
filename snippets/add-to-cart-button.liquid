@@ -8,6 +8,7 @@
   @param {string} [class] - Additional CSS classes to apply to the button.
   @param {string} [id] - The ID attribute for the button.
   @param {string} [data_testid] - The data-testid attribute for testing.
+  @param {string} [aria_label] - Optional explicit accessible name (overrides default).
 {%- enddoc -%}
 
 {%- liquid
@@ -16,12 +17,22 @@
   if product.selected_or_first_available_variant.featured_media.preview_image == blank
     assign product_variant_media = product.featured_media.preview_image | image_url: width: 100
   endif
+
+  assign effective_button_label = add_to_cart_text | default: default_add_to_cart_text | strip
+  assign computed_aria_label = aria_label | default: effective_button_label
+  if aria_label == blank and product != blank and product.title != blank
+    assign product_title_plain = product.title | strip_html | strip
+    assign computed_aria_label = 'accessibility.product_button_named' | t: product_title: product_title_plain, action: effective_button_label
+  endif
 -%}
 
 <add-to-cart-component
   ref="addToCartButtonContainer"
   data-product-variant-media="{{ product_variant_media }}"
   data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
+  {% if lazy_load %}
+    data-lazy-load
+  {% endif %}
 >
   <button
     {% if id != blank %}
@@ -35,6 +46,7 @@
     {% if data_testid %}
       data-testid="{{ data_testid }}"
     {% endif %}
+    aria-label="{{ computed_aria_label | escape }}"
     {% unless can_add_to_cart %}
       disabled
     {% endunless %}

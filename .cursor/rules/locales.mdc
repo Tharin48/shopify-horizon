@@ -68,3 +68,5 @@ locales/
 Use the rules outlined in our [typescript schema](schemas/schema.d.ts) to determine the appropriate key structure for schema translations.
 
 **Theme Check (`MatchingTranslations`):** Every `t:names.*` / `t:settings.*` key used in section schemas must exist in **all** `locales/*.schema.json` files, not only `en.default.schema.json`. If you add new schema translation keys, copy them into every locale schema file or run `node scripts/sync-custom-header-schema-translations.mjs` after updating that script’s key list (it fills missing custom-header keys with English strings so CI passes; translate later in the Shopify language editor if needed).
+
+**Storefront locale files (`*.json`, not schema):** Keys in `locales/en.default.json` must be present in every other storefront locale file (e.g. `fr.json`, `pt-BR.json`) or Theme Check reports `MatchingTranslations`. Run **`python3 scripts/sync_locale_keys_from_english.py`** from the repo root (requires `json5`) to deep-merge any missing keys from English into all non-default locale files; then localize new strings per market or in the admin language editor.

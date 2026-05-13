@@ -1,0 +1,33 @@
+{%- liquid
+  assign show_payment_icons = block.settings.enable_shopify_payment_icons
+  assign custom_payment_image = block.settings.custom_payment_image
+-%}
+
+{%- if show_payment_icons or custom_payment_image != blank -%}
+  <div class="custom-footer__payment-block" {{ block.shopify_attributes }}>
+    {%- if show_payment_icons -%}
+      <ul class="custom-footer__payment-list" role="list">
+        {%- for type in shop.enabled_payment_types -%}
+          <li class="custom-footer__payment-item">
+            {{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if custom_payment_image != blank -%}
+      <div class="custom-footer__payment-custom">
+        {{
+          custom_payment_image
+          | image_url: width: 320
+          | image_tag:
+            class: 'custom-footer__payment-custom-image',
+            loading: 'lazy',
+            widths: '120, 180, 240, 320',
+            sizes: '180px',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+  </div>
+{%- endif -%}

@@ -418,6 +418,24 @@ class DropdownLocalizationComponent extends Component {
     return this.refs.panel.hasAttribute('hidden');
   }
 
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('keyup', this.#handleKeyUp);
+    document.removeEventListener('click', this.#handleClickOutside);
+    this.#setMobileDrawerScrollLock(false);
+  }
+
+  #usesMobileDrawer() {
+    return this.dataset.mobileDrawer === 'true' && window.matchMedia('(max-width: 749px)').matches;
+  }
+
+  #setMobileDrawerScrollLock(locked) {
+    if (!this.#usesMobileDrawer()) return;
+
+    document.documentElement.classList.toggle('custom-header-scroll-lock', locked);
+    document.documentElement.classList.toggle('is-locked', locked);
+  }
+
   /**
    * Toggles the panel.
    */
@@ -434,6 +452,7 @@ class DropdownLocalizationComponent extends Component {
     this.addEventListener('keyup', this.#handleKeyUp);
     document.addEventListener('click', this.#handleClickOutside);
 
+    this.#setMobileDrawerScrollLock(true);
     this.refs.panel.removeAttribute('hidden');
     this.refs.button.setAttribute('aria-expanded', 'true');
 
@@ -455,6 +474,7 @@ class DropdownLocalizationComponent extends Component {
     this.refs.button?.setAttribute('aria-expanded', 'false');
     this.refs.panel.setAttribute('hidden', '');
     this.refs.localizationForm?.resetForm();
+    this.#setMobileDrawerScrollLock(false);
   };
 
   /**

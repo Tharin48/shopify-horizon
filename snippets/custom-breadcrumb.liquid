@@ -1,0 +1,24 @@
+{%- liquid
+  assign show_home = block.settings.show_home
+  assign home_label = block.settings.home_label | default: 'Home'
+  assign separator_style = block.settings.separator_style | default: 'slash'
+-%}
+
+<nav
+  class="custom-policy-page__breadcrumb"
+  aria-label="Breadcrumb"
+  data-separator-style="{{ separator_style }}"
+  {{ block.shopify_attributes }}
+>
+  <ol class="custom-policy-page__breadcrumb-list" role="list">
+    {%- if show_home -%}
+      <li class="custom-policy-page__breadcrumb-item">
+        <a href="{{ routes.root_url }}">{{ home_label | escape }}</a>
+      </li>
+    {%- endif -%}
+
+    <li class="custom-policy-page__breadcrumb-item">
+      <span aria-current="page">{{ page.title | escape }}</span>
+    </li>
+  </ol>
+</nav>

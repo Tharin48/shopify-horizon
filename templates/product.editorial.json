@@ -131,11 +131,12 @@
                   "type": "_product-rating-summary",
                   "name": "Rating",
                   "settings": {
-                    "integration_mode": "placeholder",
+                    "integration_mode": "yotpo_star_rating_widget",
+                    "yotpo_widget_instance_id": "824555",
                     "placeholder_rating": 4.5,
                     "placeholder_review_count": 5,
-                    "shopify_fallback_to_placeholder": true,
-                    "yotpo_show_placeholder_in_editor": true,
+                    "shopify_fallback_to_placeholder": false,
+                    "yotpo_show_placeholder_in_editor": false,
                     "show_review_count": true,
                     "star_color": "#c5a059",
                     "star_empty_color": "#d4d4d4",
@@ -167,7 +168,7 @@
                     "padding-inline-start": 0,
                     "padding-inline-end": 0,
                     "show_collection_link": true,
-                    "collection_link_target": "",
+                    "collection_link_target": "{{ closest.product.metafields.custom.collection_link.value }}",
                     "collection_link_font_size": 14,
                     "collection_link_text_color": "#6b6b6b",
                     "collection_link_padding_top": 12,
@@ -294,7 +295,6 @@
                 },
                 "accelerated-checkout": {
                   "type": "accelerated-checkout",
-                  "disabled": true,
                   "static": true,
                   "settings": {},
                   "blocks": {}
@@ -543,7 +543,7 @@
               "settings": {
                 "heading": "Pair With",
                 "items_to_show": 2,
-                "fallback_collection": "",
+                "fallback_collection": "best-sellers",
                 "show_price": true,
                 "show_add_to_cart": true,
                 "enable_quick_add": true,
@@ -578,7 +578,7 @@
         "custom_frame_inset_end_desktop": 36,
         "custom_frame_inset_mobile": 16,
         "enable_sticky_add_to_cart": true,
-        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "color_scheme": "scheme-5bf16c0f-71fe-4f88-a41b-39ff84fcf691",
         "padding-block-start": 0,
         "padding-block-end": 0
       }
@@ -611,6 +611,69 @@
         "mobile_enable_carousel": true
       }
     },
+    "section_JyTyxe": {
+      "type": "section",
+      "blocks": {
+        "text_j6m3jV": {
+          "type": "text",
+          "name": "Alt Prodcut Info",
+          "settings": {
+            "text": "{{ closest.product.metafields.custom.alternative_description | metafield_tag }}",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "var(--color-foreground)",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 20,
+            "padding-inline-end": 20
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_j6m3jV"
+      ],
+      "name": "Alternative info",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "custom_class": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
     "tea_origin_map_ewBtD4": {
       "type": "tea-origin-map",
       "name": "Tea origin map",
@@ -637,7 +700,7 @@
         "blog": "recipes",
         "post_limit": 4,
         "button_label": "View More Recipes",
-        "button_link": "shopify://blogs/recipes",
+        "button_link": "shopify://blogs/tea-mixology",
         "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
         "section_max_width": 1600,
         "padding_inline_desktop": 32,
@@ -656,12 +719,25 @@
         "cta_size_desktop": 16,
         "cta_size_mobile": 14
       }
+    },
+    "custom_liquid_mNMFK6": {
+      "type": "custom-liquid",
+      "name": "t:names.custom_liquid",
+      "settings": {
+        "custom_liquid": "<div class=\"yotpo-widget-instance\" data-yotpo-instance-id=\"234945\" data-yotpo-product-id=\"{{product.id}}\" data-yotpo-name=\"{{ product.title | escape }}\" data-yotpo-url=\"{{ shop.url }}{{ product.url }}\" data-yotpo-image-url=\"{{ product.featured_image | product_img_url: \"large\" | prepend: \"https:\" | replace: '?', '%3F' | replace: '&','%26'}}\" data-yotpo-price=\"{{ product.price | divided_by: 100.00 }}\" data-yotpo-currency=\"{{ shop.currency }}\" data-yotpo-description=\"{{ product.description | escape }}\"></div>",
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "section_width": "page-width",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
     }
   },
   "order": [
     "main",
     "product_story_scroll_jHfTGB",
+    "section_JyTyxe",
     "tea_origin_map_ewBtD4",
-    "custom_blog_recipes_B8B4a8"
+    "custom_blog_recipes_B8B4a8",
+    "custom_liquid_mNMFK6"
   ]
 }

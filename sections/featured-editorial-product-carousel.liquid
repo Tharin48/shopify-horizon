@@ -9,6 +9,10 @@
   assign show_banner_subtitle = section.settings.show_banner_subtitle
   assign show_banner_title = section.settings.show_banner_title
   assign show_banner_button = section.settings.show_banner_button
+  assign show_banner_overlay = true
+  if section.settings.show_banner_overlay == false
+    assign show_banner_overlay = false
+  endif
 
   assign horizontal_position = 'flex-start'
   case section.settings.banner_text_horizontal_position
@@ -27,7 +31,6 @@
   endcase
 
   assign text_alignment = section.settings.banner_text_alignment | default: 'left'
-  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
   assign desktop_content_alignment = 'start'
   case section.settings.desktop_content_alignment
     when 'middle'
@@ -47,10 +50,56 @@
   if section.settings.show_right_leaf and section.settings.right_leaf_image != blank
     assign fepc_show_decor = true
   endif
+
+  capture banner_overlay_style
+    unless section.settings.banner_overlay_color == blank
+      echo '--fepc-overlay-background: ' | append: section.settings.banner_overlay_color | append: ';'
+    endunless
+  endcapture
+
+  assign fepc_banner_media = section.settings.banner_image | default: section.settings.mobile_banner_image
+  assign fepc_banner_alt = ''
+  if fepc_banner_media != blank
+    assign fepc_banner_alt = fepc_banner_media.alt | strip
+    if fepc_banner_alt == blank and section.settings.title != blank
+      assign fepc_banner_alt = section.settings.title | strip
+    endif
+    if fepc_banner_alt == blank and section.settings.section_heading != blank
+      assign fepc_banner_alt = section.settings.section_heading | strip
+    endif
+    if fepc_banner_alt == blank
+      assign fepc_banner_alt = 'accessibility.promo_banner_image' | t
+    endif
+  endif
+%}
+
+{% liquid
+  assign defer_section_css = false
+  if request.page_type == 'index' and section.index > 2
+    assign defer_section_css = true
+  endif
 %}
 
 {% # theme-check-disable MissingAsset %}
-{{ 'featured-editorial-product-carousel.css' | asset_url | stylesheet_tag }}
+{% if defer_section_css %}
+  <link
+    rel="stylesheet"
+    href="{{ 'teamakers-product-card.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <link
+    rel="stylesheet"
+    href="{{ 'featured-editorial-product-carousel.css' | asset_url }}"
+    media="print"
+    onload="this.media='all'"
+  >
+  <noscript>{{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}</noscript>
+  <noscript>{{ 'featured-editorial-product-carousel.css' | asset_url | stylesheet_tag }}</noscript>
+{% else %}
+  {{ 'teamakers-product-card.css' | asset_url | stylesheet_tag }}
+  {{ 'featured-editorial-product-carousel.css' | asset_url | stylesheet_tag }}
+{% endif %}
 <script src="{{ 'featured-editorial-product-carousel.js' | asset_url }}" defer></script>
 {% # theme-check-enable MissingAsset %}
 
@@ -76,14 +125,14 @@
             loading: 'lazy',
             widths: '600,800,1100,1400,1600',
             sizes: '(max-width: 749px) 86vw, (max-width: 989px) 42vw, 34vw',
-            alt: section.settings.banner_image.alt | default: section.settings.title | default: section.settings.section_heading | escape
+            alt: fepc_banner_alt
         }}
       </picture>
     {% else %}
       {{ 'hero-apparel-1' | placeholder_svg_tag: 'fepc__banner-image fepc__banner-image--placeholder' }}
     {% endif %}
   </div>
-  <div class="fepc__banner-overlay"></div>
+  <div class="fepc__banner-overlay{% unless show_banner_overlay %} fepc__banner-overlay--hidden{% endunless %}"{% if banner_overlay_style != blank %} style="{{ banner_overlay_style | strip }}"{% endif %}></div>
   <div class="fepc__banner-content">
     {% if show_banner_subtitle and section.settings.subtitle != blank %}
       <p class="fepc__banner-subtitle">{{ section.settings.subtitle | escape }}</p>
@@ -93,45 +142,62 @@
     {% endif %}
     {% if show_banner_button and section.settings.button_label != blank %}
       {% liquid
-        assign banner_button_icon_name = section.settings.banner_button_icon
+        assign banner_button_icon_name = section.settings.banner_button_icon | default: 'arrow'
+        assign banner_button_icon_image = blank
+        assign banner_button_variant = 'primary'
+        assign banner_button_border_width = 1
+        assign banner_button_padding_vertical = 15
+        assign banner_button_padding_horizontal = 23
+        assign banner_button_use_custom_colors = false
+
+        if banner_button_icon_name == 'custom'
+          assign banner_button_icon_name = 'arrow'
+          assign banner_button_icon_image = section.settings.banner_button_icon_image
+        endif
+
+        if section.settings.banner_button_color_source == 'custom'
+          assign banner_button_use_custom_colors = true
+        endif
+
+        case section.settings.button_style
+          when 'outline'
+            assign banner_button_variant = 'secondary'
+          when 'text'
+            assign banner_button_variant = 'link'
+            assign banner_button_border_width = 0
+            assign banner_button_padding_vertical = 0
+            assign banner_button_padding_horizontal = 0
+        endcase
       %}
-      {% if section.settings.button_link != blank %}
-        <a
-          class="fepc__banner-button fepc__banner-button--{{ section.settings.button_style }}"
-          href="{{ section.settings.button_link }}"
-          aria-label="{{ section.settings.button_label | escape }}"
-        >
-          {% if section.settings.show_banner_button_icon %}
-            <span class="fepc__banner-button-icon-wrap{% if section.settings.banner_button_icon_position == 'right' %} fepc__banner-button-icon-wrap--right{% endif %}" aria-hidden="true">
-              {% render 'icon-or-image',
-                icon: banner_button_icon_name,
-                image_upload: section.settings.banner_button_icon_image,
-                width: section.settings.banner_button_icon_size,
-                class_name: 'fepc__banner-button-icon icon-default'
-              %}
-            </span>
-          {% endif %}
-          <span>{{ section.settings.button_label | escape }}</span>
-        </a>
-      {% else %}
-        <span class="fepc__banner-button fepc__banner-button--{{ section.settings.button_style }} is-disabled">
-          {% if section.settings.show_banner_button_icon %}
-            <span class="fepc__banner-button-icon-wrap{% if section.settings.banner_button_icon_position == 'right' %} fepc__banner-button-icon-wrap--right{% endif %}" aria-hidden="true">
-              {% render 'icon-or-image',
-                icon: banner_button_icon_name,
-                image_upload: section.settings.banner_button_icon_image,
-                width: section.settings.banner_button_icon_size,
-                class_name: 'fepc__banner-button-icon icon-default'
-              %}
-            </span>
-          {% endif %}
-          <span>{{ section.settings.button_label | escape }}</span>
-        </span>
-      {% endif %}
+      {% render 'button',
+        label: section.settings.button_label,
+        link: section.settings.button_link,
+        variant: banner_button_variant,
+        show_icon: section.settings.show_banner_button_icon,
+        icon: banner_button_icon_name,
+        custom_icon_image: banner_button_icon_image,
+        icon_position: section.settings.banner_button_icon_position,
+        icon_size: section.settings.banner_button_icon_size,
+        icon_spacing: section.settings.banner_button_icon_gap,
+        font_size: section.settings.banner_button_font_size,
+        font_weight: 400,
+        padding_vertical: banner_button_padding_vertical,
+        padding_horizontal: banner_button_padding_horizontal,
+        border_radius: 999,
+        border_width: banner_button_border_width,
+        use_custom_colors: banner_button_use_custom_colors,
+        background: section.settings.banner_button_background_color,
+        text_color: section.settings.banner_button_text_color,
+        border_color: section.settings.banner_button_border_color,
+        hover_background: section.settings.banner_button_background_color,
+        hover_text_color: section.settings.banner_button_text_color,
+        hover_border_color: section.settings.banner_button_border_color,
+        icon_color: section.settings.banner_button_icon_color,
+        class_name: 'fepc__banner-button'
+      %}
     {% endif %}
   </div>
 {% endcapture %}
-
 <section
   id="FeaturedEditorialProductCarousel-{{ section.id }}"
   class="section section--{{ section.settings.section_width }} featured-editorial-carousel color-{{ section.settings.color_scheme }}"
@@ -144,6 +210,7 @@
     --fepc-subheading: {{ section.settings.subtitle_color }};
     --fepc-card-bg: {{ section.settings.card_background }};
     --fepc-card-bg-solid: {{ section.settings.card_background | color_modify: 'alpha', section.settings.card_background_opacity | divided_by: 100.0 }};
+    {% if section.settings.product_card_image_background != blank %}--tp-card-media-bg: {{ section.settings.product_card_image_background }};{% endif %}
     --fepc-card-text: {{ section.settings.card_text_color }};
     --fepc-card-muted: {{ section.settings.card_muted_text_color }};
     --fepc-price: {{ section.settings.price_color }};
@@ -151,17 +218,26 @@
     --fepc-button-bg: {{ section.settings.banner_button_background_color }};
     --fepc-button-text: {{ section.settings.banner_button_text_color }};
     --fepc-button-border: {{ section.settings.banner_button_border_color }};
+    --fepc-button-icon-color: {{ section.settings.banner_button_icon_color }};
     --fepc-arrow-bg: {{ section.settings.arrow_background_color }};
     --fepc-arrow-color: {{ section.settings.arrow_icon_color }};
     --fepc-arrow-border: {{ section.settings.arrow_border_color }};
     --fepc-banner-subtitle-color: {{ section.settings.banner_subtitle_color }};
     --fepc-banner-title-color: {{ section.settings.banner_title_color }};
+    --fepc-section-subheading-size: {{ section.settings.section_subheading_size }}px;
+    --fepc-section-heading-size: {{ section.settings.section_heading_size }}px;
+    --fepc-section-heading-size-mobile: {{ section.settings.section_heading_size_mobile }}px;
     --fepc-banner-subtitle-size: {{ section.settings.banner_subtitle_size }}px;
+    --fepc-banner-subtitle-size-mobile: {{ section.settings.banner_subtitle_size_mobile }}px;
     --fepc-banner-title-size-desktop: {{ section.settings.banner_title_size_desktop }}px;
     --fepc-banner-title-size-mobile: {{ section.settings.banner_title_size_mobile }}px;
+    --fepc-banner-title-max-width: {{ section.settings.banner_title_max_width }}ch;
     --fepc-banner-button-font-size: {{ section.settings.banner_button_font_size }}px;
     --fepc-banner-button-icon-size: {{ section.settings.banner_button_icon_size }}px;
     --fepc-banner-button-icon-gap: {{ section.settings.banner_button_icon_gap }}px;
+    --fepc-banner-content-gap: {{ section.settings.banner_content_gap }}px;
+    --fepc-banner-content-padding-desktop: {{ section.settings.banner_content_padding_desktop }}px;
+    --fepc-banner-content-padding-mobile: {{ section.settings.banner_content_padding_mobile }}px;
     --fepc-gap: {{ section.settings.card_gap }}px;
     --fepc-banner-width: {{ section.settings.desktop_banner_width }}%;
     --fepc-products-desktop: {{ section.settings.products_per_view_desktop }};
@@ -172,7 +248,9 @@
     --fepc-radius: {{ section.settings.corner_radius }}px;
     --fepc-banner-height-desktop: {{ section.settings.banner_height_desktop }}px;
     --fepc-banner-height-mobile: {{ section.settings.banner_height_mobile }}px;
-    --fepc-overlay-opacity: {{ overlay_opacity }};
+    --fepc-overlay-start: {{ section.settings.overlay_start_color | color_modify: 'alpha', section.settings.overlay_start_opacity | divided_by: 100.0 }};
+    --fepc-overlay-end: {{ section.settings.overlay_end_color | color_modify: 'alpha', section.settings.overlay_end_opacity | divided_by: 100.0 }};
+    --fepc-overlay-highlight: {{ section.settings.overlay_highlight_color | color_modify: 'alpha', section.settings.overlay_highlight_opacity | divided_by: 100.0 }};
     --fepc-banner-content-x: {{ horizontal_position }};
     --fepc-banner-content-y: {{ vertical_position }};
     --fepc-banner-text-align: {{ text_alignment }};
@@ -181,21 +259,13 @@
     --fepc-left-leaf-y: {{ section.settings.left_leaf_offset_y }}px;
     --fepc-right-leaf-x: {{ section.settings.right_leaf_offset_x }}px;
     --fepc-right-leaf-y: {{ section.settings.right_leaf_offset_y }}px;
-  "
->
+  ">
   {% if fepc_show_decor %}
     <div class="fepc__decor" aria-hidden="true">
       {% if section.settings.show_left_leaf and section.settings.left_leaf_image != blank %}
         <div class="fepc__leaf fepc__leaf--left{% if section.settings.hide_decorations_on_mobile %} fepc__leaf--hide-mobile{% endif %}">
           {{
-            section.settings.left_leaf_image
-            | image_url: width: 420
-            | image_tag:
-              class: 'fepc__leaf-image',
-              loading: 'lazy',
-              widths: '140,220,320,420',
-              sizes: '(max-width: 749px) 20vw, 12vw',
-              alt: ''
+            section.settings.left_leaf_image | image_url: width: 420 | image_tag: class: 'fepc__leaf-image', loading: 'lazy', widths: '140,220,320,420', sizes: '(max-width: 749px) 20vw, 12vw', alt: ''
           }}
         </div>
       {% endif %}
@@ -203,14 +273,7 @@
       {% if section.settings.show_right_leaf and section.settings.right_leaf_image != blank %}
         <div class="fepc__leaf fepc__leaf--right{% if section.settings.hide_decorations_on_mobile %} fepc__leaf--hide-mobile{% endif %}">
           {{
-            section.settings.right_leaf_image
-            | image_url: width: 420
-            | image_tag:
-              class: 'fepc__leaf-image',
-              loading: 'lazy',
-              widths: '140,220,320,420',
-              sizes: '(max-width: 749px) 20vw, 12vw',
-              alt: ''
+            section.settings.right_leaf_image | image_url: width: 420 | image_tag: class: 'fepc__leaf-image', loading: 'lazy', widths: '140,220,320,420', sizes: '(max-width: 749px) 20vw, 12vw', alt: ''
           }}
         </div>
       {% endif %}
@@ -228,26 +291,42 @@
         {% endif %}
       </div>
 
-      {% if section.settings.show_arrow_controls %}
-        <div class="fepc__controls" aria-label="Carousel controls">
+      {% if section.settings.show_arrow_controls and section.settings.show_arrow_controls_mobile %}
+        <div class="fepc__controls fepc__controls--mobile" aria-label="Carousel controls">
           <button
             type="button"
             class="fepc__arrow fepc__arrow--{{ section.settings.arrow_style }}"
             data-carousel-prev
-            aria-label="Show previous products"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+            aria-label="Show previous products">
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false">
+              <path
+                d="M14.5 5.5 8 12l6.5 6.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7" />
             </svg>
           </button>
           <button
             type="button"
             class="fepc__arrow fepc__arrow--{{ section.settings.arrow_style }}"
             data-carousel-next
-            aria-label="Show next products"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M9.5 5.5 16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+            aria-label="Show next products">
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false">
+              <path
+                d="M9.5 5.5 16 12l-6.5 6.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7" />
             </svg>
           </button>
         </div>
@@ -260,6 +339,49 @@
       </article>
 
       <div class="fepc__products-column">
+        {% if section.settings.show_arrow_controls %}
+          <div class="fepc__products-top">
+            <div class="fepc__controls fepc__controls--desktop" aria-label="Carousel controls">
+              <button
+                type="button"
+                class="fepc__arrow fepc__arrow--{{ section.settings.arrow_style }}"
+                data-carousel-prev
+                aria-label="Show previous products">
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false">
+                  <path
+                    d="M14.5 5.5 8 12l6.5 6.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="fepc__arrow fepc__arrow--{{ section.settings.arrow_style }}"
+                data-carousel-next
+                aria-label="Show next products">
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false">
+                  <path
+                    d="M9.5 5.5 16 12l-6.5 6.5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
         {% if request.design_mode and has_products == false %}
           <div class="fepc__editor-note">
             {% if featured_collection == blank %}
@@ -270,7 +392,11 @@
           </div>
         {% endif %}
 
-        <div class="fepc__viewport" data-carousel-viewport tabindex="0" aria-label="Featured products carousel">
+        <div
+          class="fepc__viewport"
+          data-carousel-viewport
+          tabindex="0"
+          aria-label="Featured products carousel">
           <div class="fepc__track" data-carousel-track>
             <article class="fepc__banner-card fepc__banner-card--mobile" aria-label="Featured editorial banner">
               {{ banner_body }}
@@ -285,23 +411,25 @@
                   endif
                 %}
                 <div class="fepc__product-card" data-product-card>
-                  {% render 'teamakers-product-card',
-                    product: product,
-                    eyebrow: card_eyebrow,
-                    show_vendor: section.settings.show_vendor,
-                    show_review: section.settings.show_review_placeholder,
-                    show_quick_add: section.settings.show_quick_cart,
-                    image_sizes: '(max-width: 989px) min(78vw, 340px), 18vw',
-                    placeholder: false
+                  {% render 'teamakers-product-card'
+                    , product: product
+                    , eyebrow: card_eyebrow
+                    , show_vendor: section.settings.show_vendor
+                    , show_review: section.settings.show_review_placeholder
+                    , show_quick_add: section.settings.show_quick_cart
+                    , quick_add_mode: 'horizon'
+                    , section_id: section.id
+                    , image_sizes: '(max-width: 989px) min(78vw, 340px), 18vw'
+                    , placeholder: false
                   %}
                 </div>
               {% endfor %}
             {% else %}
               {% for index in (1..product_limit) %}
                 <div class="fepc__product-card fepc__product-card--placeholder" data-product-card>
-                  {% render 'teamakers-product-card',
-                    show_review: section.settings.show_review_placeholder,
-                    placeholder: true
+                  {% render 'teamakers-product-card'
+                    , show_review: section.settings.show_review_placeholder
+                    , placeholder: true
                   %}
                 </div>
               {% endfor %}
@@ -314,654 +442,822 @@
 </section>
 
 {% schema %}
-{
-  "name": "Editorial carousel",
-  "tag": "section",
-  "class": "shopify-section-featured-editorial-carousel",
-  "disabled_on": {
-    "groups": ["header", "footer"]
-  },
-  "settings": [
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "Color scheme",
-      "default": "scheme-1"
-    },
-    {
-      "type": "select",
-      "id": "section_width",
-      "label": "Section width",
-      "default": "page-width",
-      "options": [
-        { "value": "page-width", "label": "Page width" },
-        { "value": "full-width", "label": "Full width" }
-      ]
-    },
-    {
-      "type": "header",
-      "content": "Content"
-    },
-    {
-      "type": "collection",
-      "id": "collection",
-      "label": "Collection"
-    },
-    {
-      "type": "range",
-      "id": "products_limit",
-      "label": "Products limit",
-      "min": 1,
-      "max": 12,
-      "step": 1,
-      "default": 6
-    },
-    {
-      "type": "text",
-      "id": "section_subheading",
-      "label": "Section subheading",
-      "default": "Editorial selection"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_section_subheading",
-      "label": "Show section subheading",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "section_heading",
-      "label": "Section heading",
-      "default": "Rare Finds"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_section_heading",
-      "label": "Show section heading",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_vendor",
-      "label": "Show product vendor",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "use_custom_eyebrow_label",
-      "label": "Use custom eyebrow label instead of vendor",
-      "default": false
-    },
-    {
-      "type": "text",
-      "id": "custom_eyebrow_label",
-      "label": "Custom eyebrow label",
-      "default": "Rare find"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_review_placeholder",
-      "label": "Show review placeholder",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_quick_cart",
-      "label": "Show quick cart button",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "Banner"
-    },
-    {
-      "type": "image_picker",
-      "id": "banner_image",
-      "label": "Banner image"
-    },
-    {
-      "type": "image_picker",
-      "id": "mobile_banner_image",
-      "label": "Mobile banner image"
-    },
-    {
-      "type": "text",
-      "id": "subtitle",
-      "label": "Banner subtitle",
-      "default": "Curated for slow afternoons"
-    },
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Banner title",
-      "default": "Our Rare finds"
-    },
-    {
-      "type": "text",
-      "id": "button_label",
-      "label": "Button label",
-      "default": "Shop now"
-    },
-    {
-      "type": "url",
-      "id": "button_link",
-      "label": "Button link"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_banner_subtitle",
-      "label": "Show banner subtitle",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_banner_title",
-      "label": "Show banner title",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_banner_button",
-      "label": "Show banner button",
-      "default": true
-    },
-    {
-      "type": "header",
-      "content": "Banner style"
-    },
-    {
-      "type": "color",
-      "id": "banner_subtitle_color",
-      "label": "Banner subtitle color",
-      "default": "#FFFDF8"
-    },
-    {
-      "type": "color",
-      "id": "banner_title_color",
-      "label": "Banner title color",
-      "default": "#FFFDF8"
-    },
-    {
-      "type": "range",
-      "id": "banner_subtitle_size",
-      "label": "Banner subtitle size",
-      "min": 10,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "default": 14
-    },
-    {
-      "type": "range",
-      "id": "banner_title_size_desktop",
-      "label": "Banner title size (desktop)",
-      "min": 24,
-      "max": 84,
-      "step": 1,
-      "unit": "px",
-      "default": 54
-    },
-    {
-      "type": "range",
-      "id": "banner_title_size_mobile",
-      "label": "Banner title size (mobile/tablet)",
-      "min": 20,
-      "max": 64,
-      "step": 1,
-      "unit": "px",
-      "default": 43
-    },
-    {
-      "type": "range",
-      "id": "banner_button_font_size",
-      "label": "Banner button font size",
-      "min": 12,
-      "max": 24,
-      "step": 1,
-      "unit": "px",
-      "default": 16
-    },
-    {
-      "type": "checkbox",
-      "id": "show_banner_button_icon",
-      "label": "Show banner button icon",
-      "default": true
-    },
-    {
-      "type": "select",
-      "id": "banner_button_icon",
-      "label": "Banner button icon",
-      "options": [
-        { "value": "arrow", "label": "Arrow" },
-        { "value": "heart", "label": "Heart" },
-        { "value": "star", "label": "Star" },
-        { "value": "leaf", "label": "Leaf" },
-        { "value": "plant", "label": "Plant" },
-        { "value": "box", "label": "Box" },
-        { "value": "price_tag", "label": "Price tag" },
-        { "value": "truck", "label": "Truck" },
-        { "value": "return", "label": "Return" },
-        { "value": "chat_bubble", "label": "Chat" },
-        { "value": "check_box", "label": "Check" },
-        { "value": "question_mark", "label": "Question" },
-        { "value": "lock", "label": "Lock" },
-        { "value": "map_pin", "label": "Map pin" },
-        { "value": "plane", "label": "Plane" },
-        { "value": "recycle", "label": "Recycle" }
-      ],
-      "default": "arrow",
-      "visible_if": "{{ section.settings.show_banner_button_icon }}"
-    },
-    {
-      "type": "image_picker",
-      "id": "banner_button_icon_image",
-      "label": "Banner button custom icon image",
-      "info": "Optional. Replaces selected icon when set.",
-      "visible_if": "{{ section.settings.show_banner_button_icon }}"
-    },
-    {
-      "type": "select",
-      "id": "banner_button_icon_position",
-      "label": "Banner button icon position",
-      "options": [
-        { "value": "left", "label": "Left" },
-        { "value": "right", "label": "Right" }
-      ],
-      "default": "right",
-      "visible_if": "{{ section.settings.show_banner_button_icon }}"
-    },
-    {
-      "type": "range",
-      "id": "banner_button_icon_size",
-      "label": "Banner button icon size",
-      "min": 12,
-      "max": 32,
-      "step": 1,
-      "unit": "px",
-      "default": 18,
-      "visible_if": "{{ section.settings.show_banner_button_icon }}"
-    },
-    {
-      "type": "range",
-      "id": "banner_button_icon_gap",
-      "label": "Banner button icon gap",
-      "min": 4,
-      "max": 20,
-      "step": 1,
-      "unit": "px",
-      "default": 8,
-      "visible_if": "{{ section.settings.show_banner_button_icon }}"
-    },
-    {
-      "type": "color",
-      "id": "banner_button_background_color",
-      "label": "Banner button background",
-      "default": "#C79A18"
-    },
-    {
-      "type": "color",
-      "id": "banner_button_text_color",
-      "label": "Banner button text",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "banner_button_border_color",
-      "label": "Banner button border",
-      "default": "#C79A18"
-    },
-    {
-      "type": "select",
-      "id": "banner_text_vertical_position",
-      "label": "Banner text vertical position",
-      "default": "bottom",
-      "options": [
-        { "value": "top", "label": "Top" },
-        { "value": "middle", "label": "Middle" },
-        { "value": "bottom", "label": "Bottom" }
-      ]
-    },
-    {
-      "type": "select",
-      "id": "banner_text_horizontal_position",
-      "label": "Banner text horizontal position",
-      "default": "left",
-      "options": [
-        { "value": "left", "label": "Left" },
-        { "value": "center", "label": "Center" },
-        { "value": "right", "label": "Right" }
-      ]
-    },
-    {
-      "type": "select",
-      "id": "banner_text_alignment",
-      "label": "Banner text alignment",
-      "default": "left",
-      "options": [
-        { "value": "left", "label": "Left" },
-        { "value": "center", "label": "Center" },
-        { "value": "right", "label": "Right" }
-      ]
-    },
-    {
-      "type": "range",
-      "id": "overlay_opacity",
-      "label": "Overlay opacity",
-      "min": 0,
-      "max": 70,
-      "step": 5,
-      "unit": "%",
-      "default": 20
-    },
-    {
-      "type": "range",
-      "id": "banner_height_desktop",
-      "label": "Banner height desktop",
-      "min": 360,
-      "max": 760,
-      "step": 20,
-      "unit": "px",
-      "default": 620
-    },
-    {
-      "type": "range",
-      "id": "banner_height_mobile",
-      "label": "Banner height mobile",
-      "min": 280,
-      "max": 620,
-      "step": 20,
-      "unit": "px",
-      "default": 500
-    },
-    {
-      "type": "header",
-      "content": "Layout"
-    },
-    {
-      "type": "range",
-      "id": "desktop_banner_width",
-      "label": "Desktop banner width",
-      "min": 28,
-      "max": 48,
-      "step": 1,
-      "unit": "%",
-      "default": 42
-    },
-    {
-      "type": "select",
-      "id": "desktop_content_alignment",
-      "label": "Desktop banner/product alignment",
-      "default": "top",
-      "options": [
-        { "value": "top", "label": "Top" },
-        { "value": "middle", "label": "Middle" },
-        { "value": "bottom", "label": "Bottom" }
-      ]
-    },
-    {
-      "type": "range",
-      "id": "card_gap",
-      "label": "Card gap",
-      "min": 12,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "default": 24
-    },
-    {
-      "type": "range",
-      "id": "products_per_view_desktop",
-      "label": "Products per view desktop",
-      "min": 2,
-      "max": 4,
-      "step": 1,
-      "default": 3
-    },
-    {
-      "type": "range",
-      "id": "products_per_view_tablet",
-      "label": "Products per view tablet",
-      "min": 1,
-      "max": 3,
-      "step": 1,
-      "default": 2
-    },
-    {
-      "type": "range",
-      "id": "mobile_card_width",
-      "label": "Mobile card width",
-      "min": 220,
-      "max": 340,
-      "step": 10,
-      "unit": "px",
-      "default": 280
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "label": "Padding top",
-      "min": 0,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "label": "Padding bottom",
-      "min": 0,
-      "max": 120,
-      "step": 4,
-      "unit": "px",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "corner_radius",
-      "label": "Corner radius",
-      "min": 0,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "default": 24
-    },
-    {
-      "type": "header",
-      "content": "Style"
-    },
-    {
-      "type": "color",
-      "id": "background_color",
-      "label": "Background color",
-      "default": "#F8F3EC"
-    },
-    {
-      "type": "color",
-      "id": "heading_color",
-      "label": "Heading color",
-      "default": "#1F1A17"
-    },
-    {
-      "type": "color",
-      "id": "subtitle_color",
-      "label": "Subtitle color",
-      "default": "#A68237"
-    },
-    {
-      "type": "select",
-      "id": "button_style",
-      "label": "Button style",
-      "default": "solid",
-      "options": [
-        { "value": "solid", "label": "Solid" },
-        { "value": "outline", "label": "Outline" },
-        { "value": "text", "label": "Text" }
-      ]
-    },
-    {
-      "type": "select",
-      "id": "arrow_style",
-      "label": "Arrow style",
-      "default": "outline",
-      "options": [
-        { "value": "outline", "label": "Outline" },
-        { "value": "filled", "label": "Filled" },
-        { "value": "minimal", "label": "Minimal" }
-      ]
-    },
-    {
-      "type": "checkbox",
-      "id": "show_arrow_controls",
-      "label": "Show arrow controls",
-      "default": true
-    },
-    {
-      "type": "color",
-      "id": "card_background",
-      "label": "Card background",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "select",
-      "id": "card_background_style",
-      "label": "Card background style",
-      "default": "solid",
-      "options": [
-        { "value": "solid", "label": "Solid" },
-        { "value": "transparent", "label": "Transparent" }
-      ]
-    },
-    {
-      "type": "range",
-      "id": "card_background_opacity",
-      "label": "Card background opacity",
-      "min": 0,
-      "max": 100,
-      "step": 5,
-      "unit": "%",
-      "default": 100,
-      "visible_if": "{{ section.settings.card_background_style == 'solid' }}"
-    },
-    {
-      "type": "color",
-      "id": "card_text_color",
-      "label": "Card text color",
-      "default": "#1F1A17"
-    },
-    {
-      "type": "color",
-      "id": "card_muted_text_color",
-      "label": "Card muted text color",
-      "default": "#7A6A5B"
-    },
-    {
-      "type": "color",
-      "id": "price_color",
-      "label": "Price color",
-      "default": "#1F1A17"
-    },
-    {
-      "type": "color",
-      "id": "sale_price_color",
-      "label": "Sale price color",
-      "default": "#0E7C66"
-    },
-    {
-      "type": "color",
-      "id": "arrow_background_color",
-      "label": "Arrow background color",
-      "default": "#F7F1E8"
-    },
-    {
-      "type": "color",
-      "id": "arrow_icon_color",
-      "label": "Arrow icon color",
-      "default": "#1F1A17"
-    },
-    {
-      "type": "color",
-      "id": "arrow_border_color",
-      "label": "Arrow border color",
-      "default": "#D8CDBF"
-    },
-    {
-      "type": "header",
-      "content": "Decoration"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_left_leaf",
-      "label": "Show left leaf",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_right_leaf",
-      "label": "Show right leaf",
-      "default": true
-    },
-    {
-      "type": "image_picker",
-      "id": "left_leaf_image",
-      "label": "Left leaf image"
-    },
-    {
-      "type": "image_picker",
-      "id": "right_leaf_image",
-      "label": "Right leaf image"
-    },
-    {
-      "type": "range",
-      "id": "left_leaf_offset_x",
-      "label": "Left leaf horizontal offset",
-      "min": -200,
-      "max": 200,
-      "step": 4,
-      "unit": "px",
-      "default": -88
-    },
-    {
-      "type": "range",
-      "id": "left_leaf_offset_y",
-      "label": "Left leaf vertical offset",
-      "min": -120,
-      "max": 200,
-      "step": 4,
-      "unit": "px",
-      "default": 48
-    },
-    {
-      "type": "range",
-      "id": "right_leaf_offset_x",
-      "label": "Right leaf horizontal offset",
-      "min": -200,
-      "max": 200,
-      "step": 4,
-      "unit": "px",
-      "default": -88
-    },
-    {
-      "type": "range",
-      "id": "right_leaf_offset_y",
-      "label": "Right leaf vertical offset",
-      "min": -120,
-      "max": 200,
-      "step": 4,
-      "unit": "px",
-      "default": 168
-    },
-    {
-      "type": "checkbox",
-      "id": "hide_decorations_on_mobile",
-      "label": "Hide decorations on mobile",
-      "default": true
-    }
-  ],
-  "presets": [
-    {
-      "name": "Editorial carousel"
-    }
-  ]
-}
+  {
+    "name": "Editorial carousel",
+    "tag": "section",
+    "class": "shopify-section-featured-editorial-carousel",
+    "disabled_on": {
+      "groups": ["header", "footer"]
+    },
+    "settings": [
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "Color scheme",
+        "default": "scheme-1"
+      },
+      {
+        "type": "select",
+        "id": "section_width",
+        "label": "Section width",
+        "default": "page-width",
+        "options": [
+          {
+            "value": "page-width",
+            "label": "Page width"
+          }, {
+            "value": "full-width",
+            "label": "Full width"
+          }
+        ]
+      },
+      {
+        "type": "header",
+        "content": "Content"
+      },
+      {
+        "type": "collection",
+        "id": "collection",
+        "label": "Collection"
+      }, {
+        "type": "range",
+        "id": "products_limit",
+        "label": "Products limit",
+        "min": 1,
+        "max": 12,
+        "step": 1,
+        "default": 6
+      }, {
+        "type": "text",
+        "id": "section_subheading",
+        "label": "Section subheading",
+        "default": "Editorial selection"
+      }, {
+        "type": "checkbox",
+        "id": "show_section_subheading",
+        "label": "Show section subheading",
+        "default": true
+      }, {
+        "type": "text",
+        "id": "section_heading",
+        "label": "Section heading",
+        "default": "Rare Finds"
+      }, {
+        "type": "checkbox",
+        "id": "show_section_heading",
+        "label": "Show section heading",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_vendor",
+        "label": "Show product vendor",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "use_custom_eyebrow_label",
+        "label": "Use custom eyebrow label instead of vendor",
+        "default": false
+      }, {
+        "type": "text",
+        "id": "custom_eyebrow_label",
+        "label": "Custom eyebrow label",
+        "default": "Rare find"
+      }, {
+        "type": "checkbox",
+        "id": "show_review_placeholder",
+        "label": "Show review placeholder",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_quick_cart",
+        "label": "Show quick cart button",
+        "default": true
+      }, {
+        "type": "color_background",
+        "id": "product_card_image_background",
+        "label": "Product card image background"
+      }, {
+        "type": "header",
+        "content": "Banner"
+      }, {
+        "type": "image_picker",
+        "id": "banner_image",
+        "label": "Banner image"
+      }, {
+        "type": "image_picker",
+        "id": "mobile_banner_image",
+        "label": "Mobile banner image"
+      }, {
+        "type": "text",
+        "id": "subtitle",
+        "label": "Banner subtitle",
+        "default": "Curated for slow afternoons"
+      }, {
+        "type": "text",
+        "id": "title",
+        "label": "Banner title",
+        "default": "Our Rare finds"
+      }, {
+        "type": "text",
+        "id": "button_label",
+        "label": "Button label",
+        "default": "Shop now"
+      }, {
+        "type": "url",
+        "id": "button_link",
+        "label": "Button link"
+      }, {
+        "type": "checkbox",
+        "id": "show_banner_subtitle",
+        "label": "Show banner subtitle",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_banner_title",
+        "label": "Show banner title",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_banner_button",
+        "label": "Show banner button",
+        "default": true
+      }, {
+        "type": "header",
+        "content": "Banner style"
+      }, {
+        "type": "color",
+        "id": "banner_subtitle_color",
+        "label": "Banner subtitle color",
+        "default": "#FFFDF8"
+      }, {
+        "type": "color",
+        "id": "banner_title_color",
+        "label": "Banner title color",
+        "default": "#FFFDF8"
+      }, {
+        "type": "range",
+        "id": "section_subheading_size",
+        "label": "Section subheading size",
+        "min": 10,
+        "max": 24,
+        "step": 1,
+        "unit": "px",
+        "default": 14
+      }, {
+        "type": "range",
+        "id": "section_heading_size",
+        "label": "Section heading size",
+        "min": 28,
+        "max": 72,
+        "step": 1,
+        "unit": "px",
+        "default": 54
+      }, {
+        "type": "range",
+        "id": "section_heading_size_mobile",
+        "label": "Section heading size mobile",
+        "min": 14,
+        "max": 56,
+        "step": 1,
+        "unit": "px",
+        "default": 42
+      }, {
+        "type": "range",
+        "id": "banner_subtitle_size",
+        "label": "Banner subtitle size",
+        "min": 10,
+        "max": 24,
+        "step": 1,
+        "unit": "px",
+        "default": 14
+      }, {
+        "type": "range",
+        "id": "banner_subtitle_size_mobile",
+        "label": "Banner subtitle size mobile",
+        "min": 10,
+        "max": 22,
+        "step": 1,
+        "unit": "px",
+        "default": 13
+      }, {
+        "type": "range",
+        "id": "banner_title_size_desktop",
+        "label": "Banner title size (desktop)",
+        "min": 24,
+        "max": 84,
+        "step": 1,
+        "unit": "px",
+        "default": 54
+      }, {
+        "type": "range",
+        "id": "banner_title_size_mobile",
+        "label": "Banner title size (mobile/tablet)",
+        "min": 20,
+        "max": 64,
+        "step": 1,
+        "unit": "px",
+        "default": 43
+      }, {
+        "type": "range",
+        "id": "banner_title_max_width",
+        "label": "Banner title width",
+        "min": 8,
+        "max": 24,
+        "step": 1,
+        "unit": "ch",
+        "default": 12
+      }, {
+        "type": "range",
+        "id": "banner_button_font_size",
+        "label": "Banner button font size",
+        "min": 12,
+        "max": 24,
+        "step": 1,
+        "unit": "px",
+        "default": 16
+      }, {
+        "type": "checkbox",
+        "id": "show_banner_button_icon",
+        "label": "Show banner button icon",
+        "default": true
+      }, {
+        "type": "select",
+        "id": "banner_button_icon",
+        "label": "Banner button icon",
+        "options": [
+          {
+            "value": "arrow",
+            "label": "Arrow"
+          },
+          {
+            "value": "heart",
+            "label": "Heart"
+          },
+          {
+            "value": "star",
+            "label": "Star"
+          },
+          {
+            "value": "leaf",
+            "label": "Leaf"
+          }, {
+            "value": "plant",
+            "label": "Plant"
+          }, {
+            "value": "box",
+            "label": "Box"
+          }, {
+            "value": "price_tag",
+            "label": "Price tag"
+          }, {
+            "value": "truck",
+            "label": "Truck"
+          }, {
+            "value": "return",
+            "label": "Return"
+          }, {
+            "value": "chat_bubble",
+            "label": "Chat"
+          }, {
+            "value": "check_box",
+            "label": "Check"
+          }, {
+            "value": "question_mark",
+            "label": "Question"
+          }, {
+            "value": "lock",
+            "label": "Lock"
+          }, {
+            "value": "map_pin",
+            "label": "Map pin"
+          }, {
+            "value": "plane",
+            "label": "Plane"
+          }, {
+            "value": "recycle",
+            "label": "Recycle"
+          }, {
+            "value": "custom",
+            "label": "Custom image"
+          }
+        ],
+        "default": "arrow",
+        "visible_if": "{{ section.settings.show_banner_button_icon }}"
+      }, {
+        "type": "image_picker",
+        "id": "banner_button_icon_image",
+        "label": "Banner button custom icon image",
+        "info": "Used when the icon selection is set to Custom image.",
+        "visible_if": "{{ section.settings.show_banner_button_icon }}"
+      }, {
+        "type": "select",
+        "id": "banner_button_icon_position",
+        "label": "Banner button icon position",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "right",
+            "label": "Right"
+          }
+        ],
+        "default": "right",
+        "visible_if": "{{ section.settings.show_banner_button_icon }}"
+      }, {
+        "type": "range",
+        "id": "banner_button_icon_size",
+        "label": "Banner button icon size",
+        "min": 12,
+        "max": 32,
+        "step": 1,
+        "unit": "px",
+        "default": 18,
+        "visible_if": "{{ section.settings.show_banner_button_icon }}"
+      }, {
+        "type": "range",
+        "id": "banner_button_icon_gap",
+        "label": "Banner button icon gap",
+        "min": 4,
+        "max": 20,
+        "step": 1,
+        "unit": "px",
+        "default": 8,
+        "visible_if": "{{ section.settings.show_banner_button_icon }}"
+      }, {
+        "type": "select",
+        "id": "banner_button_color_source",
+        "label": "Banner button colors",
+        "default": "theme",
+        "options": [
+          {
+            "value": "theme",
+            "label": "Use theme variant colors"
+          }, {
+            "value": "custom",
+            "label": "Custom colors"
+          }
+        ],
+        "visible_if": "{{ section.settings.show_banner_button }}",
+        "info": "Theme colors follow the selected button style and the section color scheme."
+      }, {
+        "type": "color",
+        "id": "banner_button_icon_color",
+        "label": "Banner button icon color",
+        "default": "#FFFFFF",
+        "visible_if": "{{ section.settings.show_banner_button_icon and section.settings.banner_button_color_source == 'custom' }}"
+      }, {
+        "type": "color",
+        "id": "banner_button_background_color",
+        "label": "Banner button background",
+        "default": "#C79A18",
+        "visible_if": "{{ section.settings.banner_button_color_source == 'custom' }}"
+      }, {
+        "type": "color",
+        "id": "banner_button_text_color",
+        "label": "Banner button text",
+        "default": "#FFFFFF",
+        "visible_if": "{{ section.settings.banner_button_color_source == 'custom' }}"
+      }, {
+        "type": "color",
+        "id": "banner_button_border_color",
+        "label": "Banner button border",
+        "default": "#C79A18",
+        "visible_if": "{{ section.settings.banner_button_color_source == 'custom' }}"
+      }, {
+        "type": "select",
+        "id": "banner_text_vertical_position",
+        "label": "Banner text vertical position",
+        "default": "bottom",
+        "options": [
+          {
+            "value": "top",
+            "label": "Top"
+          }, {
+            "value": "middle",
+            "label": "Middle"
+          }, {
+            "value": "bottom",
+            "label": "Bottom"
+          }
+        ]
+      }, {
+        "type": "select",
+        "id": "banner_text_horizontal_position",
+        "label": "Banner text horizontal position",
+        "default": "left",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }, {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      }, {
+        "type": "select",
+        "id": "banner_text_alignment",
+        "label": "Banner text alignment",
+        "default": "left",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          }, {
+            "value": "center",
+            "label": "Center"
+          }, {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      }, {
+        "type": "range",
+        "id": "banner_content_gap",
+        "label": "Banner text gap",
+        "min": 4,
+        "max": 32,
+        "step": 1,
+        "unit": "px",
+        "default": 12
+      }, {
+        "type": "range",
+        "id": "banner_content_padding_desktop",
+        "label": "Banner content padding desktop",
+        "min": 16,
+        "max": 72,
+        "step": 2,
+        "unit": "px",
+        "default": 44
+      }, {
+        "type": "range",
+        "id": "banner_content_padding_mobile",
+        "label": "Banner content padding mobile",
+        "min": 12,
+        "max": 48,
+        "step": 2,
+        "unit": "px",
+        "default": 24
+      }, {
+        "type": "checkbox",
+        "id": "show_banner_overlay",
+        "label": "Show banner overlay",
+        "default": true
+      }, {
+        "type": "color_background",
+        "id": "banner_overlay_color",
+        "label": "Banner overlay",
+        "info": "Same overlay control style as the category cards. Supports solid colors and gradients.",
+        "visible_if": "{{ section.settings.show_banner_overlay }}"
+      }, {
+        "type": "color",
+        "id": "overlay_start_color",
+        "label": "Overlay top color",
+        "default": "#18120C"
+      }, {
+        "type": "color",
+        "id": "overlay_end_color",
+        "label": "Overlay bottom color",
+        "default": "#18120C"
+      }, {
+        "type": "color",
+        "id": "overlay_highlight_color",
+        "label": "Overlay highlight color",
+        "default": "#FFFFFF"
+      }, {
+        "type": "range",
+        "id": "overlay_start_opacity",
+        "label": "Overlay top opacity",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "default": 10
+      }, {
+        "type": "range",
+        "id": "overlay_end_opacity",
+        "label": "Overlay bottom opacity",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "default": 20
+      }, {
+        "type": "range",
+        "id": "overlay_highlight_opacity",
+        "label": "Overlay highlight opacity",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "default": 20
+      }, {
+        "type": "range",
+        "id": "banner_height_desktop",
+        "label": "Banner height desktop",
+        "min": 360,
+        "max": 760,
+        "step": 20,
+        "unit": "px",
+        "default": 620
+      }, {
+        "type": "range",
+        "id": "banner_height_mobile",
+        "label": "Banner height mobile",
+        "min": 280,
+        "max": 620,
+        "step": 20,
+        "unit": "px",
+        "default": 500
+      }, {
+        "type": "header",
+        "content": "Layout"
+      }, {
+        "type": "range",
+        "id": "desktop_banner_width",
+        "label": "Desktop banner width",
+        "min": 28,
+        "max": 48,
+        "step": 1,
+        "unit": "%",
+        "default": 42
+      }, {
+        "type": "select",
+        "id": "desktop_content_alignment",
+        "label": "Desktop banner/product alignment",
+        "default": "top",
+        "options": [
+          {
+            "value": "top",
+            "label": "Top"
+          }, {
+            "value": "middle",
+            "label": "Middle"
+          }, {
+            "value": "bottom",
+            "label": "Bottom"
+          }
+        ]
+      }, {
+        "type": "range",
+        "id": "card_gap",
+        "label": "Card gap",
+        "min": 12,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "default": 24
+      }, {
+        "type": "range",
+        "id": "products_per_view_desktop",
+        "label": "Products per view desktop",
+        "min": 2,
+        "max": 4,
+        "step": 1,
+        "default": 3
+      }, {
+        "type": "range",
+        "id": "products_per_view_tablet",
+        "label": "Products per view tablet",
+        "min": 1,
+        "max": 3,
+        "step": 1,
+        "default": 2
+      }, {
+        "type": "range",
+        "id": "mobile_card_width",
+        "label": "Mobile card width",
+        "min": 220,
+        "max": 340,
+        "step": 10,
+        "unit": "px",
+        "default": 280
+      }, {
+        "type": "range",
+        "id": "padding_top",
+        "label": "Padding top",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "default": 48
+      }, {
+        "type": "range",
+        "id": "padding_bottom",
+        "label": "Padding bottom",
+        "min": 0,
+        "max": 120,
+        "step": 4,
+        "unit": "px",
+        "default": 48
+      }, {
+        "type": "range",
+        "id": "corner_radius",
+        "label": "Corner radius",
+        "min": 0,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "default": 24
+      }, {
+        "type": "header",
+        "content": "Style"
+      }, {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color",
+        "default": "#F8F3EC"
+      }, {
+        "type": "color",
+        "id": "heading_color",
+        "label": "Heading color",
+        "default": "#1F1A17"
+      }, {
+        "type": "color",
+        "id": "subtitle_color",
+        "label": "Subtitle color",
+        "default": "#A68237"
+      }, {
+        "type": "select",
+        "id": "button_style",
+        "label": "Button style",
+        "default": "solid",
+        "options": [
+          {
+            "value": "solid",
+            "label": "Solid"
+          }, {
+            "value": "outline",
+            "label": "Outline"
+          }, {
+            "value": "text",
+            "label": "Text"
+          }
+        ]
+      }, {
+        "type": "select",
+        "id": "arrow_style",
+        "label": "Arrow style",
+        "default": "outline",
+        "options": [
+          {
+            "value": "outline",
+            "label": "Outline"
+          }, {
+            "value": "filled",
+            "label": "Filled"
+          }, {
+            "value": "minimal",
+            "label": "Minimal"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "show_arrow_controls",
+        "label": "Show arrow controls",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_arrow_controls_mobile",
+        "label": "Show arrow controls on mobile",
+        "default": true,
+        "visible_if": "{{ section.settings.show_arrow_controls }}"
+      }, {
+        "type": "color",
+        "id": "card_background",
+        "label": "Card background",
+        "default": "#FFFFFF"
+      }, {
+        "type": "select",
+        "id": "card_background_style",
+        "label": "Card background style",
+        "default": "solid",
+        "options": [
+          {
+            "value": "solid",
+            "label": "Solid"
+          }, {
+            "value": "transparent",
+            "label": "Transparent"
+          }
+        ]
+      }, {
+        "type": "range",
+        "id": "card_background_opacity",
+        "label": "Card background opacity",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "%",
+        "default": 100,
+        "visible_if": "{{ section.settings.card_background_style == 'solid' }}"
+      }, {
+        "type": "color",
+        "id": "card_text_color",
+        "label": "Card text color",
+        "default": "#1F1A17"
+      }, {
+        "type": "color",
+        "id": "card_muted_text_color",
+        "label": "Card muted text color",
+        "default": "#7A6A5B"
+      }, {
+        "type": "color",
+        "id": "price_color",
+        "label": "Price color",
+        "default": "#1F1A17"
+      }, {
+        "type": "color",
+        "id": "sale_price_color",
+        "label": "Sale price color",
+        "default": "#0E7C66"
+      }, {
+        "type": "color",
+        "id": "arrow_background_color",
+        "label": "Arrow background color",
+        "default": "#F7F1E8"
+      }, {
+        "type": "color",
+        "id": "arrow_icon_color",
+        "label": "Arrow icon color",
+        "default": "#1F1A17"
+      }, {
+        "type": "color",
+        "id": "arrow_border_color",
+        "label": "Arrow border color",
+        "default": "#D8CDBF"
+      }, {
+        "type": "header",
+        "content": "Decoration"
+      }, {
+        "type": "checkbox",
+        "id": "show_left_leaf",
+        "label": "Show left leaf",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "show_right_leaf",
+        "label": "Show right leaf",
+        "default": true
+      }, {
+        "type": "image_picker",
+        "id": "left_leaf_image",
+        "label": "Left leaf image"
+      }, {
+        "type": "image_picker",
+        "id": "right_leaf_image",
+        "label": "Right leaf image"
+      }, {
+        "type": "range",
+        "id": "left_leaf_offset_x",
+        "label": "Left leaf horizontal offset",
+        "min": -200,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "default": -88
+      }, {
+        "type": "range",
+        "id": "left_leaf_offset_y",
+        "label": "Left leaf vertical offset",
+        "min": -120,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "default": 48
+      }, {
+        "type": "range",
+        "id": "right_leaf_offset_x",
+        "label": "Right leaf horizontal offset",
+        "min": -200,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "default": -88
+      }, {
+        "type": "range",
+        "id": "right_leaf_offset_y",
+        "label": "Right leaf vertical offset",
+        "min": -120,
+        "max": 200,
+        "step": 4,
+        "unit": "px",
+        "default": 168
+      }, {
+        "type": "checkbox",
+        "id": "hide_decorations_on_mobile",
+        "label": "Hide decorations on mobile",
+        "default": true
+      }
+    ],
+    "presets": [
+      {
+        "name": "Editorial carousel"
+      }
+    ]
+  }
 {% endschema %}

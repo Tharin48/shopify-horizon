@@ -35,8 +35,39 @@ class AccordionCustom extends HTMLElement {
 
   #controller = new AbortController();
 
+  /**
+   * Drops accordion rows whose body never received content (e.g. brewing tabs block omitted in Liquid).
+   */
+  #removeIfPanelEmpty() {
+    if (this.dataset.removeIfPanelEmpty !== 'true') return;
+    if (window.Shopify?.designMode) return;
+
+    const panel = this.details.querySelector('.details-content');
+    if (!panel) {
+      this.remove();
+      return;
+    }
+
+    const hasMeaningfulContent = [...panel.childNodes].some((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent ?? '';
+        return text.trim().length > 0;
+      }
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = /** @type {HTMLElement} */ (node);
+        if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return false;
+        return true;
+      }
+      return false;
+    });
+
+    if (!hasMeaningfulContent) this.remove();
+  }
+
   connectedCallback() {
     const { signal } = this.#controller;
+
+    this.#removeIfPanelEmpty();
 
     this.#setDefaultOpenState();
 

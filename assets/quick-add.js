@@ -3,7 +3,6 @@ import { Component } from '@theme/component';
 import { CartUpdateEvent, ThemeEvents, VariantSelectedEvent } from '@theme/events';
 import { DialogComponent, DialogCloseEvent } from '@theme/dialog';
 import { mediaQueryLarge, isMobileBreakpoint, getIOSVersion } from '@theme/utilities';
-import VariantPicker from '@theme/variant-picker';
 
 export class QuickAddComponent extends Component {
   /** @type {AbortController | null} */
@@ -78,9 +77,21 @@ export class QuickAddComponent extends Component {
   #updateVariantPicker(newHtml) {
     const modalContent = document.getElementById('quick-add-modal-content');
     if (!modalContent) return;
-    const variantPicker = /** @type {VariantPicker | null} */ (modalContent.querySelector('variant-picker'));
+    const variantPicker = modalContent.querySelector('variant-picker');
     if (!variantPicker) return;
     variantPicker.updateVariantPicker(newHtml);
+  }
+
+  async #ensureGiftCardRecipientForm() {
+    if (!document.getElementById('quick-add-modal-content')?.querySelector('gift-card-recipient-form')) {
+      return;
+    }
+
+    if (customElements.get('gift-card-recipient-form')) {
+      return;
+    }
+
+    await import('@theme/gift-card-recipient-form');
   }
 
   /**
@@ -112,6 +123,7 @@ export class QuickAddComponent extends Component {
       // Use a fresh clone from the cache
       const freshContent = /** @type {Element} */ (productGrid.cloneNode(true));
       await this.updateQuickAddModal(freshContent);
+      await this.#ensureGiftCardRecipientForm();
       this.#updateVariantPicker(productGrid);
     }
 

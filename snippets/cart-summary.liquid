@@ -236,7 +236,7 @@
       <text-component
         ref="cartTotal"
         value="{{ total_price | strip_html }}"
-        class="cart-totals__total-value cart-secondary-typography"
+        class="cart-totals__total-value cart-secondary-typography csapps-cart-original-total"
         {% comment %} Used by payment_terms web component {% endcomment %}
         data-testid="cart-total-value"
         data-cart-subtotal
@@ -273,7 +273,7 @@
     </span>
   </button>
 
-  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons %}
+  {% comment %} {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons %}
     <div
       class="
         additional-checkout-buttons
@@ -282,7 +282,7 @@
     >
       {{ content_for_additional_checkout_buttons }}
     </div>
-  {% endif %}
+  {% endif %} {% endcomment %}
 </div>
 
 {% stylesheet %}

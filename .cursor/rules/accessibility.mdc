@@ -1,0 +1,42 @@
+---
+description: Always follow accessibility for theme and app UI—WCAG-oriented; use component rules in .cursor/rules/
+alwaysApply: true
+---
+
+# Accessibility (always)
+
+All Liquid, CSS, and JavaScript added or changed in this theme must be **accessible by default**: keyboard operable, screen-reader friendly, and consistent with **WCAG 2.1** orientation (target **AA** for color contrast, focus, and semantics where applicable).
+
+## Non-negotiables
+
+- **Semantics:** Use the right HTML elements (headings, lists, buttons, links, `nav`, `main`, `dialog`); do not replace native controls with `div`+click without full keyboard/ARIA parity.
+- **Keyboard:** Every interactive control must be reachable and usable with **Tab / Shift+Tab / Enter / Space** (and **Escape** for modals/menus) unless the pattern explicitly uses arrows (carousels, tabs).
+- **Focus:** Visible focus styles; on open/close of overlays, follow logical **focus return** and **FocusTrap** / inert background patterns.
+- **Names:** Buttons and inputs have accessible **names** (visible label, `aria-label` when the visual label is not enough, `aria-describedby` for hints/errors).
+- **Images:** Meaningful `alt` text; decorative images `alt=""` / `role="presentation"` as appropriate.
+- **Motion:** Respect **`prefers-reduced-motion`** for non-essential animation (see `animation-accessibility.mdc`).
+- **Color:** Do not rely on color alone for meaning; check contrast (see `color-contrast-accessibility.mdc`).
+
+## Where to look in this repo
+
+`global-accessibility-standards.mdc` (also **always on**) covers page-level and cross-cutting rules.
+
+For **components**, read the matching rule when you touch that UI:
+
+| Area | Rule file |
+|------|-----------|
+| Forms, errors | `form-accessibility.mdc` |
+| Focus order, outlines | `focus-order-and-styles-accessibility.mdc` |
+| Modals, drawers | `modal-accessibility.mdc`, `cart-drawer-accessibility.mdc` |
+| Disclosure, accordions | `disclosure-accessibility.mdc`, `accordion-accessibility.mdc` |
+| Tabs, carousels, sliders | `tab-accessibility.mdc`, `carousel-accessibility.mdc`, `slider-accessibility.mdc` |
+| Navigation, menus | `dropdown-navigation-accessibility.mdc`, `breadcrumb-accessibility.mdc` |
+| Product UI | `product-card-accessibility.mdc`, `product-filter-accessibility.mdc`, `product-media-gallery-accessibility.mdc` |
+| Landmarks, headings, images, contrast, swatches, switches, tooltips, tables, etc. | `landmark-accessibility.mdc`, `heading-accessibility.mdc`, `image-alt-text-accessibility.mdc`, `color-contrast-accessibility.mdc`, `color-swatch-accessibility.mdc`, `switch-accessibility.mdc`, `tooltip-accessibility.mdc`, `table-accessibility.mdc` |
+| Mobile | `mobile-accessibility-standards.mdc` |
+
+If a feature has **no** dedicated rule, still apply the **Non-negotiables** above and patterns from the closest related rule.
+
+## When in doubt
+
+Prefer native HTML + minimal ARIA. Add ARIA to match behavior, not to “fix” bad markup. Test with **keyboard only** and, when possible, a screen reader (VoiceOver, NVDA).

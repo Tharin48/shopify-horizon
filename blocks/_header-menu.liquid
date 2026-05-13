@@ -4,10 +4,12 @@
 
   @param {string} [variant] - What version of the menu to render. Defaults to header menu.
   @param {string} [transparent] - Show a transparent menu
+  @param {string} [drawer_title_id] - For custom_mobile: element id for drawer title (a11y)
 {%- enddoc -%}
 
 {% liquid
   assign block_settings = block.settings
+  assign drawer_title_id = drawer_title_id | default: ''
 %}
 
 {% case variant %}
@@ -94,7 +96,6 @@
     {% capture children %}
       {% for link in block_settings.menu.links %}
         <li
-          role="presentation"
           class="menu-list__list-item"
           on:focus="/activate"
           on:blur="/deactivate"
@@ -150,14 +151,13 @@
       {% endfor %}
       <li
         class="menu-list__list-item"
-        role="presentation"
         slot="more"
         on:focus="/activate"
         on:blur="/deactivate"
         on:pointerenter="/activate"
         on:pointerleave="/deactivate"
       >
-        <button role="listitem" class="menu-list__link button-unstyled">
+        <button type="button" class="menu-list__link button-unstyled">
           <span class="menu-list__link-title">{{ 'actions.more' | t }}</span>
         </button>
       </li>

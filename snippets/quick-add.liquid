@@ -8,7 +8,8 @@
 {%- enddoc -%}
 
 {% liquid
-  assign product_form_id = 'QuickAdd-ProductForm-' | append: product.id | append: '-' | append: block.id
+  assign product_form_instance_id = block.id | default: section_id | default: product.id
+  assign product_form_id = 'QuickAdd-ProductForm-' | append: product.id | append: '-' | append: product_form_instance_id
   assign add_to_cart_text = 'actions.add' | t
   assign choose_options_text = 'actions.choose' | t
   assign color_scheme = color_scheme | default: settings.quick_add_color_scheme
@@ -26,6 +27,9 @@
   if product.variants_count == 1 or product.options.size == 1 and product.selected_variant
     assign quick_add_button = 'add'
   endif
+
+  assign product_title_plain = product.title | strip_html | strip
+  assign choose_options_aria_label = 'accessibility.product_button_named' | t: product_title: product_title_plain, action: choose_options_text
 %}
 
 <quick-add-component
@@ -40,6 +44,7 @@
     data-product-id="{{ product.id }}"
     on:submit="/handleSubmit"
     class="quick-add__product-form-component"
+    data-lazy-load
   >
     <div
       class="visually-hidden"
@@ -79,7 +84,8 @@
         class: 'button quick-add__button quick-add__button--add add-to-cart-button',
         can_add_to_cart: can_add_to_cart,
         icon_only_on_mobile: true,
-        product: product
+        product: product,
+        lazy_load: true
       %}
 
       <button
@@ -87,6 +93,7 @@
         {% comment %} type="submit" is the default, so we explicitly set it to "button" to prevent the ProductFormComponent.handleSubmit from being triggered {% endcomment %}
         type="button"
         name="add"
+        aria-label="{{ choose_options_aria_label | escape }}"
         on:click="quick-add-component/handleClick"
       >
         <span

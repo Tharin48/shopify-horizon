@@ -25,38 +25,6 @@
   };
 
   var instances = new WeakMap();
-  var DESKTOP_MEDIA = '(min-width: 990px)';
-
-  /**
-   * @param {MediaQueryList} mediaQueryList
-   * @param {(event: MediaQueryListEvent) => void} handler
-   */
-  function addMediaListener(mediaQueryList, handler) {
-    if (typeof mediaQueryList.addEventListener === 'function') {
-      mediaQueryList.addEventListener('change', handler);
-      return;
-    }
-
-    if (typeof mediaQueryList.addListener === 'function') {
-      mediaQueryList.addListener(handler);
-    }
-  }
-
-  /**
-   * @param {MediaQueryList} mediaQueryList
-   * @param {(event: MediaQueryListEvent) => void} handler
-   */
-  function removeMediaListener(mediaQueryList, handler) {
-    if (typeof mediaQueryList.removeEventListener === 'function') {
-      mediaQueryList.removeEventListener('change', handler);
-      return;
-    }
-
-    if (typeof mediaQueryList.removeListener === 'function') {
-      mediaQueryList.removeListener(handler);
-    }
-  }
-
   /**
    * @param {HTMLElement} root
    * @returns {HTMLElement[]}
@@ -87,23 +55,23 @@
     if (!instance) return;
 
     var viewport = instance.viewport;
-    var prev = instance.prevButton;
-    var next = instance.nextButton;
+    var prevButtons = instance.prevButtons;
+    var nextButtons = instance.nextButtons;
 
-    if (!viewport || !prev || !next) return;
+    if (!viewport || !prevButtons.length || !nextButtons.length) return;
 
-    var desktopMode = instance.media.matches;
     var maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
     var hasOverflow = maxScroll > 4;
 
-    if (!desktopMode || !hasOverflow) {
-      prev.disabled = true;
-      next.disabled = true;
-      return;
-    }
+    var disablePrev = !hasOverflow || viewport.scrollLeft <= 4;
+    var disableNext = !hasOverflow || viewport.scrollLeft >= maxScroll - 4;
 
-    prev.disabled = viewport.scrollLeft <= 4;
-    next.disabled = viewport.scrollLeft >= maxScroll - 4;
+    prevButtons.forEach(function (button) {
+      button.disabled = disablePrev;
+    });
+    nextButtons.forEach(function (button) {
+      button.disabled = disableNext;
+    });
   }
 
   /**
@@ -112,7 +80,7 @@
    */
   function scrollToCard(root, direction) {
     var instance = instances.get(root);
-    if (!instance || !instance.viewport || !instance.media.matches) return;
+    if (!instance || !instance.viewport) return;
 
     var viewport = instance.viewport;
     var targets = getScrollTargets(root, viewport);
@@ -156,9 +124,12 @@
     if (!instance) return;
 
     instance.viewport.removeEventListener('scroll', instance.handleScroll);
-    instance.prevButton.removeEventListener('click', instance.handlePrev);
-    instance.nextButton.removeEventListener('click', instance.handleNext);
-    removeMediaListener(instance.media, instance.handleMediaChange);
+    instance.prevButtons.forEach(function (button) {
+      button.removeEventListener('click', instance.handlePrev);
+    });
+    instance.nextButtons.forEach(function (button) {
+      button.removeEventListener('click', instance.handleNext);
+    });
 
     if (instance.resizeObserver) {
       instance.resizeObserver.disconnect();
@@ -182,14 +153,12 @@
     }
 
     var viewport = root.querySelector(selectors.viewport);
-    var prevButton = root.querySelector(selectors.prev);
-    var nextButton = root.querySelector(selectors.next);
+    var prevButtons = Array.from(root.querySelectorAll(selectors.prev));
+    var nextButtons = Array.from(root.querySelectorAll(selectors.next));
 
-    if (!viewport || !prevButton || !nextButton) {
+    if (!viewport || !prevButtons.length || !nextButtons.length) {
       return;
     }
-
-    var media = window.matchMedia(DESKTOP_MEDIA);
     var handleScroll = function () {
       var state = instances.get(root);
       if (!state) return;
@@ -212,9 +181,6 @@
     var handleResize = function () {
       updateButtons(root);
     };
-    var handleMediaChange = function () {
-      updateButtons(root);
-    };
 
     var resizeObserver = null;
     if (typeof ResizeObserver === 'function') {
@@ -227,21 +193,22 @@
     }
 
     viewport.addEventListener('scroll', handleScroll, { passive: true });
-    prevButton.addEventListener('click', handlePrev);
-    nextButton.addEventListener('click', handleNext);
-    addMediaListener(media, handleMediaChange);
+    prevButtons.forEach(function (button) {
+      button.addEventListener('click', handlePrev);
+    });
+    nextButtons.forEach(function (button) {
+      button.addEventListener('click', handleNext);
+    });
 
     instances.set(root, {
       viewport: viewport,
-      prevButton: prevButton,
-      nextButton: nextButton,
-      media: media,
+      prevButtons: prevButtons,
+      nextButtons: nextButtons,
       resizeObserver: resizeObserver,
       handleScroll: handleScroll,
       handlePrev: handlePrev,
       handleNext: handleNext,
       handleResize: handleResize,
-      handleMediaChange: handleMediaChange,
       scrollRaf: 0,
     });
 

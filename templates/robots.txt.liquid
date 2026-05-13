@@ -1,0 +1,2 @@
+{% for group in robots.default_groups %}  {% assign group_agent = group.user_agent.value %}  User-agent: {{ group.user_agent.value }}  {% if group_agent == 'GPTBot' or group_agent == 'CCBot' or group_agent == 'anthropic-ai' %}  Disallow: /collections/  {% else %}  {% for rule in group.rules %}  {{ rule }}  {% endfor %}  {% endif %}  
+  Crawl-delay: 10{% endfor %}

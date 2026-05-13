@@ -221,7 +221,8 @@
     padding: 0;
     border: 2px solid transparent;
     border-radius: var(--list-thumb-radius);
-    background: rgb(var(--color-background-rgb));
+    /* Use var(--color-background), not rgb(--color-background-rgb): transparent schemes use 0 0 0 rgb which becomes solid black */
+    background: var(--color-background);
     cursor: pointer;
     overflow: hidden;
     flex-shrink: 0;
@@ -266,7 +267,7 @@
     text-align: center;
     word-break: break-word;
     border-radius: inherit;
-    background: rgb(var(--color-background-rgb));
+    background: var(--color-background);
     color: rgb(var(--color-foreground-rgb));
   }
 
@@ -359,7 +360,8 @@
       padding: 0;
       border: 0.1rem solid rgb(var(--color-foreground-rgb) / 0.08);
       border-radius: 999px;
-      background: rgb(var(--color-background-rgb) / 0.94);
+      background: var(--color-background);
+      background: color-mix(in srgb, var(--color-background) 94%, transparent);
       color: rgb(var(--color-foreground-rgb));
       box-shadow: 0 1rem 2.4rem rgb(var(--color-foreground-rgb) / 0.12);
       backdrop-filter: blur(0.8rem);

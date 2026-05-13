@@ -1,0 +1,1072 @@
+{%- liquid
+  assign current_page_id = page.id
+  assign current_page_handle = page.handle | default: blank
+  assign current_page_url = page.url | default: request.path | split: '#' | first | split: '?' | first
+  assign current_request_path = request.path | split: '#' | first | split: '?' | first
+  assign breadcrumb_block = section.blocks | where: 'type', 'breadcrumb' | first
+  assign hero_text_block = section.blocks | where: 'type', 'hero_text' | first
+  assign hero_image_block = section.blocks | where: 'type', 'hero_image' | first
+  assign tab_blocks = section.blocks | where: 'type', 'page_tab'
+  assign visible_tabs = 0
+
+  for tab_block in tab_blocks
+    assign linked_page = tab_block.settings.page
+    assign linked_page_handle = linked_page.handle | default: linked_page
+
+    if linked_page.url == blank and linked_page_handle != blank
+      assign linked_page = pages[linked_page_handle]
+    endif
+
+    if linked_page != blank and linked_page.url != blank
+      assign visible_tabs = visible_tabs | plus: 1
+    endif
+  endfor
+
+  assign heading_text = page.title
+  assign heading_is_richtext = false
+  assign intro_markup = blank
+  assign eyebrow_text = blank
+
+  if hero_text_block != blank
+    assign eyebrow_text = hero_text_block.settings.eyebrow
+    assign intro_markup = hero_text_block.settings.intro
+
+    if hero_text_block.settings.heading_source == 'custom' and hero_text_block.settings.custom_heading != blank
+      assign heading_text = hero_text_block.settings.custom_heading
+      assign heading_is_richtext = true
+    endif
+  endif
+
+  assign hero_image = blank
+  assign hero_mobile_image = blank
+  assign hero_image_alt = page.title
+  assign hero_image_position = 'center center'
+  assign hero_image_radius = section.settings.hero_image_radius
+
+  if hero_image_block != blank
+    assign hero_image = hero_image_block.settings.image
+    assign hero_mobile_image = hero_image_block.settings.mobile_image
+    assign hero_image_position = hero_image_block.settings.image_position | default: 'center center'
+
+    if hero_image_block.settings.use_section_radius == false
+      assign hero_image_radius = hero_image_block.settings.border_radius
+    endif
+
+    if hero_image != blank and hero_image.alt != blank
+      assign hero_image_alt = hero_image.alt
+    endif
+  endif
+
+  assign layout_class = 'custom-editorial-page-shell--layout-text-left-image-right'
+
+  case section.settings.layout
+    when 'image_left_text_right'
+      assign layout_class = 'custom-editorial-page-shell--layout-image-left-text-right'
+    when 'centered'
+      assign layout_class = 'custom-editorial-page-shell--layout-centered'
+  endcase
+-%}
+
+<section
+  class="custom-editorial-page-shell {{ layout_class }}"
+  style="
+    --custom-editorial-page-shell-max-width: {{ section.settings.max_width }}px;
+    --custom-editorial-page-shell-accent: {{ section.settings.accent_color }};
+    --custom-editorial-page-shell-background: {{ section.settings.background_color }};
+    --custom-editorial-page-shell-padding-top: {{ section.settings.padding_top }}px;
+    --custom-editorial-page-shell-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-editorial-page-shell-padding-inline: {{ section.settings.padding_inline }}px;
+    --custom-editorial-page-shell-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-editorial-page-shell-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-editorial-page-shell-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-editorial-page-shell-gap: {{ section.settings.desktop_gap }}px;
+    --custom-editorial-page-shell-gap-mobile: {{ section.settings.mobile_gap }}px;
+    --custom-editorial-page-shell-hero-radius: {{ hero_image_radius }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-editorial-page-shell__inner">
+    {%- if section.settings.decorative_left_image != blank -%}
+      <div class="custom-editorial-page-shell__decor custom-editorial-page-shell__decor--left" aria-hidden="true">
+        {{
+          section.settings.decorative_left_image
+          | image_url: width: 640
+          | image_tag:
+            loading: 'lazy',
+            widths: '120,180,260,360,480,640',
+            sizes: '(min-width: 990px) 12vw, 24vw',
+            class: 'custom-editorial-page-shell__decor-image',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.decorative_right_image != blank -%}
+      <div class="custom-editorial-page-shell__decor custom-editorial-page-shell__decor--right" aria-hidden="true">
+        {{
+          section.settings.decorative_right_image
+          | image_url: width: 640
+          | image_tag:
+            loading: 'lazy',
+            widths: '120,180,260,360,480,640',
+            sizes: '(min-width: 990px) 12vw, 24vw',
+            class: 'custom-editorial-page-shell__decor-image',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+
+    <div class="custom-editorial-page-shell__hero">
+      <div class="custom-editorial-page-shell__content-column">
+        <div class="custom-editorial-page-shell__copy-panel">
+          {%- if breadcrumb_block != blank and breadcrumb_block.settings.show_breadcrumb -%}
+            <nav
+              class="custom-editorial-page-shell__breadcrumb"
+              aria-label="Breadcrumb"
+              data-separator-style="{{ breadcrumb_block.settings.separator_style | default: 'slash' }}"
+              {{ breadcrumb_block.shopify_attributes }}
+            >
+              <ol class="custom-editorial-page-shell__breadcrumb-list" role="list">
+                {%- if breadcrumb_block.settings.show_home -%}
+                  <li class="custom-editorial-page-shell__breadcrumb-item">
+                    <a href="{{ routes.root_url }}">{{ breadcrumb_block.settings.home_label | default: 'Home' | escape }}</a>
+                  </li>
+                {%- endif -%}
+                <li class="custom-editorial-page-shell__breadcrumb-item">
+                  <span aria-current="page">{{ page.title | escape }}</span>
+                </li>
+              </ol>
+            </nav>
+          {%- endif -%}
+
+          {%- if hero_text_block != blank -%}
+            <header class="custom-editorial-page-shell__hero-copy" {{ hero_text_block.shopify_attributes }}>
+              {%- if eyebrow_text != blank -%}
+                <p class="custom-editorial-page-shell__eyebrow">{{ eyebrow_text | escape }}</p>
+              {%- endif -%}
+
+              {%- if heading_text != blank -%}
+                <h1 class="custom-editorial-page-shell__title">
+                  {%- if heading_is_richtext -%}
+                    {{ heading_text }}
+                  {%- else -%}
+                    {{ heading_text | escape }}
+                  {%- endif -%}
+                </h1>
+              {%- endif -%}
+
+              {%- if intro_markup != blank -%}
+                <div class="custom-editorial-page-shell__intro rte">
+                  {{ intro_markup }}
+                </div>
+              {%- endif -%}
+            </header>
+          {%- elsif request.design_mode -%}
+            <div class="custom-editorial-page-shell__placeholder" aria-live="polite">
+              Add a `Hero text` block to configure the page eyebrow, title source, and intro copy.
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- if visible_tabs > 0 or request.design_mode -%}
+          <nav
+            class="custom-editorial-page-shell__tabs-shell custom-editorial-page-shell__tabs-shell--{{ section.settings.mobile_tabs_layout }}"
+            aria-label="Page tabs"
+          >
+            <ul class="custom-editorial-page-shell__tabs" role="list">
+              {%- for tab_block in tab_blocks -%}
+                {%- liquid
+                  assign linked_page = tab_block.settings.page
+                  assign linked_page_handle = linked_page.handle | default: linked_page
+
+                  if linked_page.url == blank and linked_page_handle != blank
+                    assign linked_page = pages[linked_page_handle]
+                  endif
+
+                  if linked_page == blank or linked_page.url == blank
+                    continue
+                  endif
+
+                  assign linked_page_url = linked_page.url | split: '#' | first | split: '?' | first
+                  assign tab_label = tab_block.settings.label | default: linked_page.title
+                  assign is_active = false
+
+                  if current_page_id != blank and linked_page.id == current_page_id
+                    assign is_active = true
+                  elsif current_page_handle != blank and linked_page.handle == current_page_handle
+                    assign is_active = true
+                  elsif linked_page_url == current_page_url or linked_page_url == current_request_path
+                    assign is_active = true
+                  endif
+                -%}
+
+                <li class="custom-editorial-page-shell__tab-item" {{ tab_block.shopify_attributes }}>
+                  <a
+                    class="custom-editorial-page-shell__tab-link{% if is_active %} is-active{% endif %}"
+                    href="{{ linked_page.url }}"
+                    data-style="{{ tab_block.settings.style | default: 'outline' }}"
+                    {% if is_active %}aria-current="page"{% endif %}
+                  >
+                    {%- if tab_block.settings.icon != blank -%}
+                      <span class="custom-editorial-page-shell__tab-icon" aria-hidden="true">
+                        {{
+                          tab_block.settings.icon
+                          | image_url: width: 96
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '24,48,72,96',
+                            sizes: '24px',
+                            alt: ''
+                        }}
+                      </span>
+                    {%- endif -%}
+                    <span class="custom-editorial-page-shell__tab-label">{{ tab_label | escape }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+
+              {%- if visible_tabs == 0 and request.design_mode -%}
+                <li class="custom-editorial-page-shell__tab-placeholder">
+                  Add `Page tab` blocks and choose the linked page for each tab.
+                </li>
+              {%- endif -%}
+            </ul>
+          </nav>
+        {%- endif -%}
+      </div>
+
+      <div class="custom-editorial-page-shell__media-column">
+        {%- if hero_image != blank -%}
+          <div
+            class="custom-editorial-page-shell__media"
+            style="--custom-editorial-page-shell-object-position: {{ hero_image_position }};"
+            {{ hero_image_block.shopify_attributes }}
+          >
+            <picture>
+              {%- if hero_mobile_image != blank -%}
+                <source
+                  media="(max-width: 749px)"
+                  srcset="{{ hero_mobile_image | image_url: width: 900 }}"
+                >
+              {%- endif -%}
+              {{
+                hero_image
+                | image_url: width: 1800
+                | image_tag:
+                  loading: 'eager',
+                  widths: '400,600,800,1000,1200,1400,1600,1800',
+                  sizes: '(min-width: 990px) 48vw, 100vw',
+                  class: 'custom-editorial-page-shell__media-image',
+                  alt: hero_image_alt
+              }}
+            </picture>
+          </div>
+        {%- elsif request.design_mode -%}
+          <div class="custom-editorial-page-shell__media custom-editorial-page-shell__media--empty">
+            Choose a hero image in the `Hero image` block.
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-editorial-page-shell {
+    position: relative;
+    background: var(--custom-editorial-page-shell-background);
+    overflow: clip;
+  }
+
+  .custom-editorial-page-shell__inner {
+    position: relative;
+    max-width: var(--custom-editorial-page-shell-max-width);
+    margin: 0 auto;
+    padding:
+      var(--custom-editorial-page-shell-padding-top-mobile)
+      var(--custom-editorial-page-shell-padding-inline-mobile)
+      var(--custom-editorial-page-shell-padding-bottom-mobile);
+  }
+
+  .custom-editorial-page-shell__decor {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.68;
+  }
+
+  .custom-editorial-page-shell__decor--left {
+    inset-inline-start: 0;
+    inset-block-end: 7%;
+    transform: translateX(-38%);
+  }
+
+  .custom-editorial-page-shell__decor--right {
+    inset-inline-end: 0;
+    inset-block-end: 12%;
+    transform: translateX(34%);
+  }
+
+  .custom-editorial-page-shell__decor-image {
+    display: block;
+    width: clamp(7rem, 11vw, 11rem);
+    height: auto;
+  }
+
+  .custom-editorial-page-shell__hero {
+    position: relative;
+    z-index: 1;
+  }
+
+  .custom-editorial-page-shell__breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .custom-editorial-page-shell__breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .custom-editorial-page-shell__breadcrumb[data-separator-style='slash'] .custom-editorial-page-shell__breadcrumb-item:not(:last-child)::after {
+    content: "/";
+    color: rgb(var(--color-foreground-rgb) / 0.4);
+  }
+
+  .custom-editorial-page-shell__breadcrumb[data-separator-style='chevron'] .custom-editorial-page-shell__breadcrumb-item:not(:last-child)::after {
+    content: "›";
+    color: rgb(var(--color-foreground-rgb) / 0.4);
+  }
+
+  .custom-editorial-page-shell__breadcrumb[data-separator-style='dot'] .custom-editorial-page-shell__breadcrumb-item:not(:last-child)::after {
+    content: "•";
+    color: rgb(var(--color-foreground-rgb) / 0.4);
+  }
+
+  .custom-editorial-page-shell__breadcrumb a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .custom-editorial-page-shell__breadcrumb a:hover,
+  .custom-editorial-page-shell__breadcrumb a:focus-visible {
+    color: var(--custom-editorial-page-shell-accent);
+  }
+
+  .custom-editorial-page-shell__hero {
+    display: grid;
+    gap: var(--custom-editorial-page-shell-gap-mobile);
+    align-items: center;
+  }
+
+  .custom-editorial-page-shell__content-column,
+  .custom-editorial-page-shell__media-column {
+    min-width: 0;
+  }
+
+  .custom-editorial-page-shell__content-column {
+    position: relative;
+    z-index: 2;
+  }
+
+  .custom-editorial-page-shell__copy-panel {
+    width: 100%;
+    background: var(--custom-editorial-page-shell-background);
+  }
+
+  .custom-editorial-page-shell__breadcrumb {
+    margin-bottom: 2.25rem;
+  }
+
+  .custom-editorial-page-shell__hero-copy {
+    max-width: 38rem;
+  }
+
+  .custom-editorial-page-shell--layout-centered .custom-editorial-page-shell__copy-panel,
+  .custom-editorial-page-shell--layout-centered .custom-editorial-page-shell__hero-copy {
+    max-width: 48rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .custom-editorial-page-shell__eyebrow {
+    margin: 0 0 0.75rem;
+    color: var(--custom-editorial-page-shell-accent);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    font-size: 0.76rem;
+    line-height: 1.4;
+  }
+
+  .custom-editorial-page-shell__title {
+    margin: 0;
+    font-size: 36px;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .custom-editorial-page-shell__intro {
+    margin-top: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.82);
+    font-size: 1rem;
+    line-height: 1.85;
+  }
+
+  .custom-editorial-page-shell__tabs-shell {
+    margin-top: 1.5rem;
+    max-width: 100%;
+  }
+
+  .custom-editorial-page-shell--layout-centered .custom-editorial-page-shell__tabs-shell {
+    display: flex;
+    justify-content: center;
+  }
+
+  .custom-editorial-page-shell__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .custom-editorial-page-shell--layout-centered .custom-editorial-page-shell__tabs {
+    justify-content: center;
+  }
+
+  .custom-editorial-page-shell__tab-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.8rem 1.35rem;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    color: rgb(var(--color-foreground-rgb));
+    text-decoration: none;
+    background: #ffffff;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .custom-editorial-page-shell__tab-link[data-style='filled'] {
+    background: color-mix(in srgb, var(--custom-editorial-page-shell-accent) 14%, white);
+    border-color: transparent;
+  }
+
+  .custom-editorial-page-shell__tab-link[data-style='outline'] {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--custom-editorial-page-shell-accent) 30%, transparent);
+  }
+
+  .custom-editorial-page-shell__tab-link:hover,
+  .custom-editorial-page-shell__tab-link:focus-visible {
+    border-color: var(--custom-editorial-page-shell-accent);
+    color: var(--custom-editorial-page-shell-accent);
+  }
+
+  .custom-editorial-page-shell__tab-link.is-active {
+    background: var(--custom-editorial-page-shell-accent);
+    border-color: var(--custom-editorial-page-shell-accent);
+    color: #ffffff;
+    box-shadow: 0 0.9rem 1.8rem color-mix(in srgb, var(--custom-editorial-page-shell-accent) 28%, transparent);
+  }
+
+  .custom-editorial-page-shell__tab-icon {
+    display: inline-flex;
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .custom-editorial-page-shell__tab-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .custom-editorial-page-shell__tab-label {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .custom-editorial-page-shell__tab-placeholder,
+  .custom-editorial-page-shell__placeholder,
+  .custom-editorial-page-shell__media--empty {
+    padding: 1rem 1.25rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.2);
+    border-radius: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.66);
+  }
+
+  .custom-editorial-page-shell__media {
+    position: relative;
+    overflow: hidden;
+    min-height: clamp(18rem, 52vw, 32rem);
+    border-radius: 0 0 var(--custom-editorial-page-shell-hero-radius) var(--custom-editorial-page-shell-hero-radius);
+    background: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .custom-editorial-page-shell__media picture {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .custom-editorial-page-shell__media-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-editorial-page-shell__media-image {
+    object-fit: cover;
+    object-position: var(--custom-editorial-page-shell-object-position, center center);
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-editorial-page-shell__inner {
+      padding:
+        var(--custom-editorial-page-shell-padding-top)
+        var(--custom-editorial-page-shell-padding-inline)
+        var(--custom-editorial-page-shell-padding-bottom);
+    }
+
+    .custom-editorial-page-shell__hero {
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .custom-editorial-page-shell--layout-text-left-image-right .custom-editorial-page-shell__hero,
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__hero {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    }
+
+    .custom-editorial-page-shell--layout-text-left-image-right .custom-editorial-page-shell__content-column {
+      display: flex;
+      flex-direction: column;
+      margin-inline-end: calc(var(--custom-editorial-page-shell-gap) * -1);
+    }
+
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__content-column {
+      display: flex;
+      flex-direction: column;
+      margin-inline-start: calc(var(--custom-editorial-page-shell-gap) * -1);
+    }
+
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__content-column {
+      order: 2;
+    }
+
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__media-column {
+      order: 1;
+    }
+
+    .custom-editorial-page-shell--layout-centered .custom-editorial-page-shell__hero {
+      max-width: min(100%, 72rem);
+      margin-inline: auto;
+      justify-items: center;
+      gap: var(--custom-editorial-page-shell-gap);
+    }
+
+    .custom-editorial-page-shell--layout-centered .custom-editorial-page-shell__media-column {
+      width: min(100%, 56rem);
+    }
+
+    .custom-editorial-page-shell--layout-text-left-image-right .custom-editorial-page-shell__copy-panel,
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__copy-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 1.5rem clamp(2rem, 3.2vw, 3.5rem) clamp(2.5rem, 4vw, 4rem);
+    }
+
+    .custom-editorial-page-shell--layout-text-left-image-right .custom-editorial-page-shell__copy-panel {
+      border-radius: 0 0 clamp(4rem, 9vw, 7rem) 0;
+    }
+
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__copy-panel {
+      border-radius: 0 0 0 clamp(4rem, 9vw, 7rem);
+    }
+
+    .custom-editorial-page-shell--layout-text-left-image-right .custom-editorial-page-shell__tabs-shell,
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__tabs-shell {
+      margin-top: 1.5rem;
+      padding-inline: clamp(0rem, 2vw, 1rem);
+    }
+
+    .custom-editorial-page-shell--layout-image-left-text-right .custom-editorial-page-shell__tabs {
+      justify-content: flex-end;
+    }
+
+    .custom-editorial-page-shell__media {
+      min-height: clamp(26rem, 34vw, 36rem);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-editorial-page-shell__hero {
+      gap: 0;
+    }
+
+    .custom-editorial-page-shell__content-column {
+      order: 2;
+      margin-top: -3.5rem;
+    }
+
+    .custom-editorial-page-shell__media-column {
+      order: 1;
+    }
+
+    .custom-editorial-page-shell__copy-panel {
+      width: calc(100% - 1rem);
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 2rem;
+      border-radius: 0 0 2.75rem 2.75rem;
+      box-shadow: 0 1.4rem 3rem rgb(20 20 20 / 0.08);
+    }
+
+    .custom-editorial-page-shell__breadcrumb {
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .custom-editorial-page-shell__breadcrumb-list {
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .custom-editorial-page-shell__hero-copy {
+      max-width: none;
+      text-align: center;
+    }
+
+    .custom-editorial-page-shell__eyebrow {
+      margin-bottom: 0.9rem;
+      font-size: 0.78rem;
+    }
+
+    .custom-editorial-page-shell__title {
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .custom-editorial-page-shell__intro {
+      margin-top: 1.25rem;
+      font-size: 14px;
+      line-height: 1.7;
+      text-align: left;
+    }
+
+    .custom-editorial-page-shell__tabs-shell {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .custom-editorial-page-shell__tabs {
+      justify-content: center;
+      gap: 0.85rem;
+    }
+
+    .custom-editorial-page-shell__tab-link {
+      min-height: 3.4rem;
+      padding: 0.9rem 1.5rem;
+    }
+
+    .custom-editorial-page-shell__media {
+      min-height: clamp(20rem, 62vw, 26rem);
+    }
+
+    .custom-editorial-page-shell__decor--left {
+      inset-block-end: 10%;
+      transform: translateX(-50%);
+    }
+
+    .custom-editorial-page-shell__decor--right {
+      inset-inline-end: -1rem;
+      inset-block-end: 4%;
+      inset-block-start: auto;
+      transform: none;
+    }
+
+    .custom-editorial-page-shell__tabs-shell--scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .custom-editorial-page-shell__tabs-shell--scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .custom-editorial-page-shell__tabs-shell--scroll .custom-editorial-page-shell__tabs {
+      flex-wrap: nowrap;
+      width: max-content;
+      min-width: auto;
+      padding-bottom: 0.3rem;
+    }
+
+    .custom-editorial-page-shell__tabs-shell--scroll .custom-editorial-page-shell__tab-link {
+      white-space: nowrap;
+    }
+
+    .custom-editorial-page-shell__tabs-shell--stack .custom-editorial-page-shell__tabs {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .custom-editorial-page-shell__tabs-shell--stack .custom-editorial-page-shell__tab-link {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .custom-editorial-page-shell__breadcrumb a,
+    .custom-editorial-page-shell__tab-link {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial page shell",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "default": "text_left_image_right",
+      "options": [
+        { "value": "text_left_image_right", "label": "Text left, image right" },
+        { "value": "image_left_text_right", "label": "Image left, text right" },
+        { "value": "centered", "label": "Centered" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_left_image",
+      "label": "Decorative left image"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_right_image",
+      "label": "Decorative right image"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 640,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_inline",
+      "label": "Side padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "desktop_gap",
+      "label": "Desktop gap",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Side padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "label": "Mobile gap",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "hero_image_radius",
+      "label": "Hero image radius",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "select",
+      "id": "mobile_tabs_layout",
+      "label": "Mobile tabs layout",
+      "default": "scroll",
+      "options": [
+        { "value": "scroll", "label": "Horizontal scroll" },
+        { "value": "stack", "label": "Stacked" }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "breadcrumb",
+      "name": "Breadcrumb",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_breadcrumb",
+          "label": "Show breadcrumb",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_home",
+          "label": "Show home link",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "home_label",
+          "label": "Home label",
+          "default": "Home"
+        },
+        {
+          "type": "select",
+          "id": "separator_style",
+          "label": "Separator style",
+          "default": "slash",
+          "options": [
+            { "value": "slash", "label": "Slash" },
+            { "value": "chevron", "label": "Chevron" },
+            { "value": "dot", "label": "Dot" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "page_tab",
+      "name": "Page tab",
+      "settings": [
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Linked page"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "default": "outline",
+          "options": [
+            { "value": "filled", "label": "Filled" },
+            { "value": "outline", "label": "Outline" }
+          ]
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Optional icon"
+        }
+      ]
+    },
+    {
+      "type": "hero_text",
+      "name": "Hero text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow"
+        },
+        {
+          "type": "select",
+          "id": "heading_source",
+          "label": "Heading source",
+          "default": "page_title",
+          "options": [
+            { "value": "page_title", "label": "Page title" },
+            { "value": "custom", "label": "Custom heading" }
+          ]
+        },
+        {
+          "type": "inline_richtext",
+          "id": "custom_heading",
+          "label": "Custom heading"
+        },
+        {
+          "type": "richtext",
+          "id": "intro",
+          "label": "Intro text"
+        }
+      ]
+    },
+    {
+      "type": "hero_image",
+      "name": "Hero image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image"
+        },
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "Image position",
+          "default": "center center",
+          "options": [
+            { "value": "left center", "label": "Left" },
+            { "value": "center center", "label": "Center" },
+            { "value": "right center", "label": "Right" },
+            { "value": "center top", "label": "Top" },
+            { "value": "center bottom", "label": "Bottom" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "use_section_radius",
+          "label": "Use section image radius",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "border_radius",
+          "label": "Custom border radius",
+          "min": 0,
+          "max": 80,
+          "step": 2,
+          "unit": "px",
+          "default": 28
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial page shell",
+      "blocks": [
+        { "type": "breadcrumb" },
+        { "type": "hero_text" },
+        { "type": "hero_image" }
+      ]
+    }
+  ]
+}
+{% endschema %}

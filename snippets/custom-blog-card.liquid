@@ -1,0 +1,86 @@
+{%- liquid
+  assign article_obj = article
+  assign root_class = card_class | default: ''
+
+  assign display_title = 'Blog article title'
+  assign display_url = '#'
+  assign display_excerpt = 'Add a blog article to populate this card.'
+  assign display_blog_title = blog_title | default: 'Blog'
+  assign image_alt = display_title
+
+  assign show_category = show_category | default: true
+  assign show_title = show_title | default: true
+  assign show_excerpt = show_excerpt | default: true
+
+  if article_obj != blank
+    assign display_title = article_obj.title
+    assign display_url = article_obj.url
+    assign display_excerpt = article_obj.excerpt_or_content | strip_html | truncate: 140
+    assign display_blog_title = blog_title | default: display_blog_title
+    assign image_alt = article_obj.image.alt | default: article_obj.title
+  endif
+-%}
+
+<article
+  class="custom-blog-card {{ root_class | strip }}"
+  {% if article_obj != blank %}
+    data-cabg-published-at="{{ article_obj.published_at | date: '%s' }}"
+  {% endif %}
+>
+  <a
+    class="custom-blog-card__image-link"
+    href="{{ display_url }}"
+    aria-label="{{ display_title | escape }}"
+  >
+    <div class="custom-blog-card__image-wrap">
+      {%- if article_obj != blank and article_obj.image != blank -%}
+        {{
+          article_obj.image
+          | image_url: width: 1600
+          | image_tag:
+            widths: '320,480,640,800,960,1200,1600',
+            sizes: '(min-width: 1200px) 25vw, (min-width: 768px) 50vw, 100vw',
+            loading: 'lazy',
+            class: 'custom-blog-card__image',
+            alt: image_alt | escape
+        }}
+      {%- else -%}
+        {{ 'hero-apparel-1' | placeholder_svg_tag: 'custom-blog-card__placeholder' }}
+      {%- endif -%}
+    </div>
+  </a>
+
+  <div class="custom-blog-card__body">
+    {% unless show_category == false %}
+      <p class="custom-blog-card__category">{{ display_blog_title | escape }}</p>
+    {% endunless %}
+
+    {% unless show_title == false %}
+      <a
+        class="custom-blog-card__title-row"
+        href="{{ display_url }}"
+        aria-label="{{ display_title | escape }}"
+      >
+        <h3 class="custom-blog-card__title">{{ display_title | escape }}</h3>
+        <span class="custom-blog-card__arrow" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            focusable="false"
+          >
+            <path d="M7 17 17 7M17 7H9M17 7v8" />
+          </svg>
+        </span>
+      </a>
+    {% endunless %}
+
+    {% unless show_excerpt == false %}
+      <p class="custom-blog-card__excerpt">{{ display_excerpt }}</p>
+    {% endunless %}
+  </div>
+</article>

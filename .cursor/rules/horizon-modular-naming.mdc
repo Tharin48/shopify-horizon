@@ -1,0 +1,45 @@
+---
+description: Modular theme work on Horizon—duplicate then customize; use custom-prefixed names for sections, blocks, and templates
+alwaysApply: true
+---
+
+# Horizon base: modularity, duplication workflow, and naming
+
+This project extends **Shopify Horizon**. Treat **Horizon** as the reference implementation for structure, section/block types, and JSON templates. **`.cursorrules`** remains the high-level contract; this rule is the actionable checklist for agents.
+
+## 1. Always prefer modular structure
+
+- **JSON templates** must compose the page with **multiple top-level `sections` entries** in `order` when the design has separable regions (e.g. hero + main + promos), not a single “everything” section—unless a documented exception (see `collection-template-modularity.mdc` for the custom catalog case).
+- **Sections** should expose **blocks** in schema for content that merchants might reorder, add, or remove—not only for static chrome.
+- **Settings** = parameters (colors, padding, toggles). **Blocks** = composable content and layout units.
+
+## 2. Start from Horizon, then change
+
+- **Before** writing a new section, block, or template from scratch, **find the closest Horizon equivalent** (same or similar in `sections/`, `blocks/`, `templates/`, `snippets/`).
+- **Preferred workflow:** **copy** the Horizon file to a **new** file, apply the **custom naming rules below**, then **modify** behavior and styles. This preserves patterns (schema shape, `content_for`, accessibility) and eases future Horizon comparisons.
+- **Do not** overwrite or rename in place stock Horizon **types** that the editor and other templates expect (e.g. do not repurpose `main-product` in place to mean something else without a new type file).
+
+## 3. Custom prefix / distinct names (required for new artifacts)
+
+For **all new or duplicated** section, block, and template **files** and for **`type` in schema** (and new template filenames), use a **clear project prefix or namespace** so custom work is unambiguous in the codebase and in the theme editor.
+
+Examples used in this repo: `custom-`, `teamakers-`, `editorial-` (e.g. `custom-collection-layout`, `teamakers-product-card`, `product.editorial.json`).
+
+| Artifact | Rule |
+|----------|------|
+| **Section** `.liquid` | New files: e.g. `custom-<feature>.liquid` or `teamakers-<feature>.liquid` — not `section.liquid` or a name that collides with stock Horizon. |
+| **Block** `.liquid` | Same: e.g. `custom-hero-cta.liquid` or `teamakers-*.liquid`; private blocks may stay `_` prefixed per Horizon, but the stem must still be custom if forked. |
+| **Template** `.json` | Use suffixes like `product.<name>.json`, `collection.<name>.json` where `<name>` is **not** a generic single word that could be confused with core (e.g. `product.editorial.json` not `product.special.json` alone if it conflicts with conventions—prefer a branded/custom segment). |
+| **Schema** `name` / presets | Use merchant-facing names that **identify the custom feature**; internal `type` strings match the file stem. |
+
+**Do not** ship new types whose filenames or `type` values **exactly match** a stock Horizon type while pointing at different implementations—that breaks mental models and updates.
+
+## 4. When core Horizon must change
+
+- Follow **`.cursorrules`**: only if there is no safe extension path, and keep the diff **minimal** and **documented**. Prefer new prefixed files and template assignment over editing shared primitives.
+
+## 5. Cross-references
+
+- **Collection/catalog modularity** (and when a monolith is allowed): `collection-template-modularity.mdc`
+- **Accessibility** (always): `accessibility.mdc` and `global-accessibility-standards.mdc`
+- **Liquid / schema / locales**: `liquid.mdc`, `schemas.mdc`, `locales.mdc` as usual for new types and translation keys

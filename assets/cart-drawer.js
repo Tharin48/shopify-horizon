@@ -1,6 +1,22 @@
 import { DialogComponent, DialogOpenEvent, DialogCloseEvent } from '@theme/dialog';
 import { CartAddEvent } from '@theme/events';
-import { isMobileBreakpoint } from '@theme/utilities';
+import { isMobileBreakpoint, isMinWidth990 } from '@theme/utilities';
+
+const TEMP_CART_DEBUG_PREFIX = '[TEMP CART DEBUG]';
+
+const shouldLogTempCartDebug = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return false;
+  return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
+};
+
+/**
+ * @param {...unknown} args
+ * @returns {void}
+ */
+function logTempCartDebug(...args) {
+  if (!shouldLogTempCartDebug()) return;
+  console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
+}
 
 /**
  * A custom element that manages a cart drawer.
@@ -18,8 +34,14 @@ class CartDrawerComponent extends DialogComponent {
   /** @type {AbortController | null} */
   #historyAbortController = null;
 
+  /** @type {number | null} */
+  #pendingAutoOpenFrame = null;
+
   connectedCallback() {
     super.connectedCallback();
+    logTempCartDebug('cart drawer init', {
+      autoOpen: this.hasAttribute('auto-open'),
+    });
     document.addEventListener(CartAddEvent.eventName, this.#handleCartAdd);
     this.addEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
     this.addEventListener(DialogOpenEvent.eventName, this.#handleHistoryOpen);
@@ -37,6 +59,10 @@ class CartDrawerComponent extends DialogComponent {
     this.removeEventListener(DialogOpenEvent.eventName, this.#handleHistoryOpen);
     this.removeEventListener(DialogCloseEvent.eventName, this.#handleHistoryClose);
     this.#historyAbortController?.abort();
+    if (this.#pendingAutoOpenFrame !== null) {
+      cancelAnimationFrame(this.#pendingAutoOpenFrame);
+      this.#pendingAutoOpenFrame = null;
+    }
   }
 
   #handleHistoryOpen = () => {
@@ -66,16 +92,55 @@ class CartDrawerComponent extends DialogComponent {
   };
 
   /**
-   * Handles cart add events - opens drawer if auto-open and announces count when open.
-   * @param {CustomEvent<{ resource?: { item_count?: number } }>} event
+   * Handles cart add events - opens drawer if auto-open (990px+ only) and announces count when open.
+   * @param {Event} event
    */
   #handleCartAdd = (event) => {
-    if (this.hasAttribute('auto-open')) {
-      this.showDialog();
+    const detail =
+      /** @type {{ resource?: { item_count?: number }; sourceId?: string; data?: { source?: string; itemCount?: number; sections?: unknown } }} */ (
+        'detail' in event ? event.detail : undefined
+      ) || {};
+    logTempCartDebug('cart drawer open trigger', {
+      source: detail.data?.source || null,
+      sourceId: detail.sourceId || null,
+      itemCount: detail.data?.itemCount || null,
+      hasSections: Boolean(detail.data?.sections),
+      autoOpen: this.hasAttribute('auto-open'),
+      isMinWidth990: isMinWidth990(),
+    });
+
+    if (this.hasAttribute('auto-open') && isMinWidth990() && !detail.data?.didError) {
+      this.#scheduleAutoOpen();
     }
 
-    this.#announceCartCount(event.detail.resource?.item_count);
+    this.#announceCartCount(detail.resource?.item_count);
   };
+
+  #scheduleAutoOpen() {
+    if (this.#pendingAutoOpenFrame !== null) {
+      cancelAnimationFrame(this.#pendingAutoOpenFrame);
+    }
+
+    /*
+     * The cart drawer and cart items both react to the same cart:update event.
+     * Wait until the updated drawer markup has been morphed and painted before
+     * opening the dialog, otherwise the first open can use stale/intermediate
+     * layout and the header + first item appear compressed.
+     */
+    this.#pendingAutoOpenFrame = requestAnimationFrame(() => {
+      this.#pendingAutoOpenFrame = requestAnimationFrame(() => {
+        this.#pendingAutoOpenFrame = null;
+
+        if (this.refs.dialog?.open) return;
+
+        logTempCartDebug('cart drawer showDialog call', {
+          source: 'cart:add event',
+          delayed: true,
+        });
+        this.showDialog();
+      });
+    });
+  }
 
   /**
    * Announces cart count to screen readers when dialog is open.
@@ -89,6 +154,9 @@ class CartDrawerComponent extends DialogComponent {
   }
 
   open() {
+    logTempCartDebug('cart drawer showDialog call', {
+      source: 'header cart trigger',
+    });
     this.showDialog();
 
     /**
@@ -123,6 +191,11 @@ class CartDrawerComponent extends DialogComponent {
     const summaryHeight = summary.getBoundingClientRect().height;
     const ratio = summaryHeight / drawerHeight;
     dialog.setAttribute('cart-summary-sticky', ratio > this.#summaryThreshold ? 'false' : 'true');
+    logTempCartDebug('cart drawer sticky state updated', {
+      drawerHeight,
+      summaryHeight,
+      ratio,
+    });
   }
 }
 

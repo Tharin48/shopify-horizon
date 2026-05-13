@@ -1,0 +1,1106 @@
+<section
+  class="custom-editorial-split-story custom-editorial-split-story--mobile-{{ section.settings.mobile_layout }}"
+  style="
+    --custom-editorial-split-story-max-width: {{ section.settings.max_width }}px;
+    --custom-editorial-split-story-background: {{ section.settings.background_color }};
+    --custom-editorial-split-story-accent: {{ section.settings.accent_color }};
+    --custom-editorial-split-story-text-color: {{ section.settings.text_color }};
+    --custom-editorial-split-story-card-background: {{ section.settings.card_background_color }};
+    --custom-editorial-split-story-card-border: {{ section.settings.card_border_color }};
+    --custom-editorial-split-story-padding-top: {{ section.settings.padding_top }}px;
+    --custom-editorial-split-story-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-editorial-split-story-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-editorial-split-story-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-editorial-split-story-padding-inline: {{ section.settings.padding_inline }}px;
+    --custom-editorial-split-story-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-editorial-split-story-gap: {{ section.settings.desktop_gap }}px;
+    --custom-editorial-split-story-gap-mobile: {{ section.settings.mobile_gap }}px;
+    --custom-editorial-split-story-card-radius: {{ section.settings.card_radius }}px;
+    --custom-editorial-split-story-heading-size: {{ section.settings.heading_size_desktop }}px;
+    --custom-editorial-split-story-heading-size-mobile: {{ section.settings.heading_size_mobile }}px;
+    --custom-editorial-split-story-body-size: {{ section.settings.body_size_desktop }}px;
+    --custom-editorial-split-story-body-size-mobile: {{ section.settings.body_size_mobile }}px;
+    --custom-editorial-split-story-heading-gap: {{ section.settings.heading_gap }}px;
+    --custom-editorial-split-story-quote-size: {{ section.settings.quote_size_desktop }}px;
+    --custom-editorial-split-story-quote-size-mobile: {{ section.settings.quote_size_mobile }}px;
+    --custom-editorial-split-story-quote-author-size: {{ section.settings.quote_author_size_desktop }}px;
+    --custom-editorial-split-story-quote-author-size-mobile: {{ section.settings.quote_author_size_mobile }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-editorial-split-story__inner">
+    {%- if section.settings.decorative_left_image != blank -%}
+      <div
+        class="custom-editorial-split-story__decor custom-editorial-split-story__decor--section-left{% if section.settings.hide_left_decor_mobile %} custom-editorial-split-story__decor--hide-mobile{% endif %}"
+        style="
+          --custom-editorial-split-story-decor-width: {{ section.settings.decorative_left_width }}px;
+          --custom-editorial-split-story-decor-opacity: {{ section.settings.decorative_left_opacity | divided_by: 100.0 }};
+          --custom-editorial-split-story-decor-offset-x: {{ section.settings.decorative_left_offset_x }}px;
+          --custom-editorial-split-story-decor-offset-y: {{ section.settings.decorative_left_offset_y }}px;
+        "
+        aria-hidden="true"
+      >
+        {{
+          section.settings.decorative_left_image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '120,240,360,480,720,960,1200',
+            sizes: '(min-width: 990px) 18vw, 28vw',
+            class: 'custom-editorial-split-story__decor-image',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.decorative_right_image != blank -%}
+      <div
+        class="custom-editorial-split-story__decor custom-editorial-split-story__decor--section-right{% if section.settings.hide_right_decor_mobile %} custom-editorial-split-story__decor--hide-mobile{% endif %}"
+        style="
+          --custom-editorial-split-story-decor-width: {{ section.settings.decorative_right_width }}px;
+          --custom-editorial-split-story-decor-opacity: {{ section.settings.decorative_right_opacity | divided_by: 100.0 }};
+          --custom-editorial-split-story-decor-offset-x: {{ section.settings.decorative_right_offset_x }}px;
+          --custom-editorial-split-story-decor-offset-y: {{ section.settings.decorative_right_offset_y }}px;
+        "
+        aria-hidden="true"
+      >
+        {{
+          section.settings.decorative_right_image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '120,240,360,480,720,960,1200',
+            sizes: '(min-width: 990px) 18vw, 28vw',
+            class: 'custom-editorial-split-story__decor-image',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'decorative_image' -%}
+        <div
+          class="custom-editorial-split-story__decor custom-editorial-split-story__decor--{{ block.settings.position }}{% if block.settings.hide_on_mobile %} custom-editorial-split-story__decor--hide-mobile{% endif %}"
+          style="
+            --custom-editorial-split-story-decor-width: {{ block.settings.width }}px;
+            --custom-editorial-split-story-decor-opacity: {{ block.settings.opacity | divided_by: 100.0 }};
+            --custom-editorial-split-story-decor-offset-x: {{ block.settings.offset_x }}px;
+            --custom-editorial-split-story-decor-offset-y: {{ block.settings.offset_y }}px;
+          "
+          aria-hidden="true"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.image != blank -%}
+            {{
+              block.settings.image
+              | image_url: width: 1200
+              | image_tag:
+                loading: 'lazy',
+                widths: '120,240,360,480,720,960,1200',
+                sizes: '(min-width: 990px) 18vw, 28vw',
+                class: 'custom-editorial-split-story__decor-image',
+                alt: ''
+            }}
+          {%- elsif request.design_mode -%}
+            <div class="custom-editorial-split-story__empty">Choose a decorative image.</div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+
+    <div class="custom-editorial-split-story__grid">
+      <div class="custom-editorial-split-story__column custom-editorial-split-story__column--left">
+        {%- assign left_has_content = false -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'text_content' and block.settings.column == 'left' -%}
+            {%- assign left_has_content = true -%}
+            <div class="custom-editorial-split-story__text-block" {{ block.shopify_attributes }}>
+              {%- if block.settings.eyebrow != blank -%}
+                <p class="custom-editorial-split-story__eyebrow">{{ block.settings.eyebrow | escape }}</p>
+              {%- endif -%}
+
+              {%- if block.settings.heading != blank -%}
+                <div class="custom-editorial-split-story__heading rte">
+                  {{ block.settings.heading }}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.text != blank -%}
+                <div class="custom-editorial-split-story__body rte">
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if block.type == 'quote_card' and block.settings.column == 'left' -%}
+            {%- assign left_has_content = true -%}
+            <div
+              class="custom-editorial-split-story__quote-card"
+              style="
+                --custom-editorial-split-story-quote-background: {{ block.settings.background_color | default: section.settings.card_background_color }};
+                --custom-editorial-split-story-quote-border: {{ block.settings.border_color | default: section.settings.card_border_color }};
+              "
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.quote != blank -%}
+                <blockquote class="custom-editorial-split-story__quote-text rte">{{ block.settings.quote }}</blockquote>
+              {%- endif -%}
+
+              {%- if block.settings.author != blank -%}
+                <div class="custom-editorial-split-story__quote-footer">
+                  <span class="custom-editorial-split-story__quote-line"></span>
+                  <p class="custom-editorial-split-story__quote-author">{{ block.settings.author | escape }}</p>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if left_has_content == false and request.design_mode -%}
+          <div class="custom-editorial-split-story__empty">Add blocks assigned to the left column.</div>
+        {%- endif -%}
+      </div>
+
+      <div class="custom-editorial-split-story__column custom-editorial-split-story__column--right">
+        {%- assign right_has_content = false -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'text_content' and block.settings.column == 'right' -%}
+            {%- assign right_has_content = true -%}
+            <div class="custom-editorial-split-story__text-block" {{ block.shopify_attributes }}>
+              {%- if block.settings.eyebrow != blank -%}
+                <p class="custom-editorial-split-story__eyebrow">{{ block.settings.eyebrow | escape }}</p>
+              {%- endif -%}
+
+              {%- if block.settings.heading != blank -%}
+                <div class="custom-editorial-split-story__heading rte">
+                  {{ block.settings.heading }}
+                </div>
+              {%- endif -%}
+
+              {%- if block.settings.text != blank -%}
+                <div class="custom-editorial-split-story__body rte">
+                  {{ block.settings.text }}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if block.type == 'quote_card' and block.settings.column == 'right' -%}
+            {%- assign right_has_content = true -%}
+            <div
+              class="custom-editorial-split-story__quote-card"
+              style="
+                --custom-editorial-split-story-quote-background: {{ block.settings.background_color | default: section.settings.card_background_color }};
+                --custom-editorial-split-story-quote-border: {{ block.settings.border_color | default: section.settings.card_border_color }};
+              "
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.quote != blank -%}
+                <blockquote class="custom-editorial-split-story__quote-text rte">{{ block.settings.quote }}</blockquote>
+              {%- endif -%}
+
+              {%- if block.settings.author != blank -%}
+                <div class="custom-editorial-split-story__quote-footer">
+                  <span class="custom-editorial-split-story__quote-line"></span>
+                  <p class="custom-editorial-split-story__quote-author">{{ block.settings.author | escape }}</p>
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- if right_has_content == false and request.design_mode -%}
+          <div class="custom-editorial-split-story__empty">Add blocks assigned to the right column.</div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-editorial-split-story {
+    position: relative;
+    background: var(--custom-editorial-split-story-background);
+    color: var(--custom-editorial-split-story-text-color);
+    overflow: clip;
+  }
+
+  .custom-editorial-split-story__inner {
+    position: relative;
+    max-width: var(--custom-editorial-split-story-max-width);
+    margin: 0 auto;
+    padding:
+      var(--custom-editorial-split-story-padding-top-mobile)
+      var(--custom-editorial-split-story-padding-inline-mobile)
+      var(--custom-editorial-split-story-padding-bottom-mobile);
+  }
+
+  .custom-editorial-split-story__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--custom-editorial-split-story-gap-mobile);
+    align-items: start;
+  }
+
+  .custom-editorial-split-story__column {
+    display: grid;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+
+  .custom-editorial-split-story__text-block {
+    min-width: 0;
+  }
+
+  .custom-editorial-split-story__eyebrow {
+    margin: 0 0 0.75rem;
+    color: var(--custom-editorial-split-story-accent);
+    font-family: var(--font-body--family);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .custom-editorial-split-story__heading {
+    color: var(--custom-editorial-split-story-text-color);
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+    margin-bottom: var(--custom-editorial-split-story-heading-gap);
+  }
+
+  .custom-editorial-split-story__heading > :first-child {
+    margin-top: 0;
+  }
+
+  .custom-editorial-split-story__heading > :last-child {
+    margin-bottom: 0;
+  }
+
+  .custom-editorial-split-story__heading h1,
+  .custom-editorial-split-story__heading h2,
+  .custom-editorial-split-story__heading h3,
+  .custom-editorial-split-story__heading h4,
+  .custom-editorial-split-story__heading h5,
+  .custom-editorial-split-story__heading h6 {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+  }
+
+  .custom-editorial-split-story__heading h1 {
+    font-size: calc(var(--custom-editorial-split-story-heading-size) * 1.12);
+    line-height: calc(var(--font-h1--line-height) + 0.08);
+    letter-spacing: var(--font-h1--letter-spacing);
+    text-transform: var(--font-h1--case);
+  }
+
+  .custom-editorial-split-story__heading h2 {
+    font-size: var(--custom-editorial-split-story-heading-size);
+    line-height: calc(var(--font-h2--line-height) + 0.08);
+    letter-spacing: var(--font-h2--letter-spacing);
+    text-transform: var(--font-h2--case);
+  }
+
+  .custom-editorial-split-story__heading h3 {
+    font-size: calc(var(--custom-editorial-split-story-heading-size) * 0.84);
+    line-height: calc(var(--font-h3--line-height) + 0.08);
+    letter-spacing: var(--font-h3--letter-spacing);
+    text-transform: var(--font-h3--case);
+  }
+
+  .custom-editorial-split-story__heading h4 {
+    font-size: calc(var(--custom-editorial-split-story-heading-size) * 0.7);
+    line-height: calc(var(--font-h4--line-height) + 0.08);
+    letter-spacing: var(--font-h4--letter-spacing);
+    text-transform: var(--font-h4--case);
+  }
+
+  .custom-editorial-split-story__heading h5 {
+    font-size: calc(var(--custom-editorial-split-story-heading-size) * 0.58);
+    line-height: calc(var(--font-h5--line-height) + 0.08);
+    letter-spacing: var(--font-h5--letter-spacing);
+    text-transform: var(--font-h5--case);
+  }
+
+  .custom-editorial-split-story__heading h6 {
+    font-size: calc(var(--custom-editorial-split-story-heading-size) * 0.5);
+    line-height: calc(var(--font-h6--line-height) + 0.08);
+    letter-spacing: var(--font-h6--letter-spacing);
+    text-transform: var(--font-h6--case);
+  }
+
+  .custom-editorial-split-story__heading p {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-size: var(--custom-editorial-split-story-heading-size);
+    line-height: calc(var(--font-h2--line-height) + 0.08);
+    letter-spacing: var(--font-h2--letter-spacing);
+    text-transform: var(--font-h2--case);
+  }
+
+  .custom-editorial-split-story__heading em,
+  .custom-editorial-split-story__heading strong {
+    color: var(--custom-editorial-split-story-accent);
+    font-style: normal;
+    font-weight: inherit;
+  }
+
+  .custom-editorial-split-story__body {
+    color: rgb(var(--color-foreground-rgb) / 0.84);
+    font-family: var(--font-body--family);
+    font-size: var(--custom-editorial-split-story-body-size);
+    line-height: 1.85;
+    margin-top: 0;
+  }
+
+  .custom-editorial-split-story__body > :first-child {
+    margin-top: 0;
+  }
+
+  .custom-editorial-split-story__body > :last-child {
+    margin-bottom: 0;
+  }
+
+  .custom-editorial-split-story__quote-card {
+    padding: 1.5rem;
+    border: 1px solid var(--custom-editorial-split-story-quote-border);
+    border-radius: var(--custom-editorial-split-story-card-radius);
+    background: var(--custom-editorial-split-story-quote-background);
+    box-shadow: 0 1rem 2rem rgb(20 20 20 / 0.04);
+  }
+
+  .custom-editorial-split-story__quote-text {
+    margin: 0;
+    color: rgb(var(--color-foreground-rgb) / 0.9);
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+    font-size: var(--custom-editorial-split-story-quote-size);
+    line-height: 1.6;
+  }
+
+  .custom-editorial-split-story__quote-text > :first-child {
+    margin-top: 0;
+  }
+
+  .custom-editorial-split-story__quote-text > :last-child {
+    margin-bottom: 0;
+  }
+
+  .custom-editorial-split-story__quote-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 1.5rem;
+  }
+
+  .custom-editorial-split-story__quote-line {
+    display: block;
+    width: 3rem;
+    height: 1px;
+    background: var(--custom-editorial-split-story-accent);
+    opacity: 0.65;
+  }
+
+  .custom-editorial-split-story__quote-author {
+    margin: 0;
+    font-family: var(--font-body--family);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: var(--custom-editorial-split-story-quote-author-size);
+    font-weight: 600;
+  }
+
+  .custom-editorial-split-story__decor {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    width: min(100%, var(--custom-editorial-split-story-decor-width));
+    opacity: var(--custom-editorial-split-story-decor-opacity);
+    transform: translate(var(--custom-editorial-split-story-decor-offset-x), var(--custom-editorial-split-story-decor-offset-y));
+  }
+
+  .custom-editorial-split-story__decor--top-left {
+    inset-block-start: 0;
+    inset-inline-start: 0;
+  }
+
+  .custom-editorial-split-story__decor--section-left {
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+  }
+
+  .custom-editorial-split-story__decor--top-right {
+    inset-block-start: 0;
+    inset-inline-end: 0;
+  }
+
+  .custom-editorial-split-story__decor--section-right {
+    inset-block-start: 0;
+    inset-inline-end: 0;
+  }
+
+  .custom-editorial-split-story__decor--middle-left {
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+  }
+
+  .custom-editorial-split-story__decor--middle-right {
+    inset-block-start: 50%;
+    inset-inline-end: 0;
+  }
+
+  .custom-editorial-split-story__decor--bottom-left {
+    inset-block-end: 0;
+    inset-inline-start: 0;
+  }
+
+  .custom-editorial-split-story__decor--bottom-right {
+    inset-block-end: 0;
+    inset-inline-end: 0;
+  }
+
+  .custom-editorial-split-story__decor-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .custom-editorial-split-story__empty {
+    display: grid;
+    place-items: center;
+    min-height: 10rem;
+    padding: 1.5rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.18);
+    border-radius: 1.25rem;
+    color: rgb(var(--color-foreground-rgb) / 0.66);
+    background: rgb(var(--color-background-rgb) / 0.75);
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-editorial-split-story__heading h1,
+    .custom-editorial-split-story__heading h2,
+    .custom-editorial-split-story__heading h3,
+    .custom-editorial-split-story__heading h4,
+    .custom-editorial-split-story__heading h5,
+    .custom-editorial-split-story__heading h6 {
+      max-width: 100%;
+    }
+
+    .custom-editorial-split-story__heading h1 {
+      font-size: calc(var(--custom-editorial-split-story-heading-size-mobile) * 1.12);
+    }
+
+    .custom-editorial-split-story__heading h2,
+    .custom-editorial-split-story__heading p {
+      font-size: var(--custom-editorial-split-story-heading-size-mobile);
+    }
+
+    .custom-editorial-split-story__heading h3 {
+      font-size: calc(var(--custom-editorial-split-story-heading-size-mobile) * 0.84);
+    }
+
+    .custom-editorial-split-story__heading h4 {
+      font-size: calc(var(--custom-editorial-split-story-heading-size-mobile) * 0.7);
+    }
+
+    .custom-editorial-split-story__heading h5 {
+      font-size: calc(var(--custom-editorial-split-story-heading-size-mobile) * 0.58);
+    }
+
+    .custom-editorial-split-story__heading h6 {
+      font-size: calc(var(--custom-editorial-split-story-heading-size-mobile) * 0.5);
+    }
+
+    .custom-editorial-split-story__body {
+      font-size: var(--custom-editorial-split-story-body-size-mobile);
+      line-height: 1.75;
+    }
+
+    .custom-editorial-split-story__quote-card {
+      padding: 1.35rem;
+    }
+
+    .custom-editorial-split-story__quote-text {
+      font-size: var(--custom-editorial-split-story-quote-size-mobile);
+      line-height: 1.7;
+    }
+
+    .custom-editorial-split-story__quote-author {
+      font-size: var(--custom-editorial-split-story-quote-author-size-mobile);
+    }
+
+    .custom-editorial-split-story--mobile-quote-first .custom-editorial-split-story__column--right {
+      order: 1;
+    }
+
+    .custom-editorial-split-story--mobile-quote-first .custom-editorial-split-story__column--left {
+      order: 2;
+    }
+
+    .custom-editorial-split-story__decor--hide-mobile {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-editorial-split-story__inner {
+      padding:
+        var(--custom-editorial-split-story-padding-top)
+        var(--custom-editorial-split-story-padding-inline)
+        var(--custom-editorial-split-story-padding-bottom);
+    }
+
+    .custom-editorial-split-story__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.72fr);
+      gap: var(--custom-editorial-split-story-gap);
+    }
+
+    .custom-editorial-split-story__column--left {
+      padding-inline-end: clamp(0rem, 2vw, 2rem);
+    }
+
+    .custom-editorial-split-story__column--right {
+      align-content: start;
+      padding-inline-start: clamp(0rem, 1vw, 1rem);
+    }
+
+    .custom-editorial-split-story__quote-card {
+      padding: clamp(2rem, 3vw, 3rem);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial split quote",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "default": "text-first",
+      "options": [
+        { "value": "text-first", "label": "Text first" },
+        { "value": "quote-first", "label": "Quote first" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#c6a34b"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#2b2a28"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Default quote card background",
+      "default": "#f7f1e0"
+    },
+    {
+      "type": "color",
+      "id": "card_border_color",
+      "label": "Default quote card border",
+      "default": "#ecdca8"
+    },
+    {
+      "type": "header",
+      "content": "Decorative images"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_left_image",
+      "label": "Left decorative image"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_right_image",
+      "label": "Right decorative image"
+    },
+    {
+      "type": "range",
+      "id": "decorative_left_width",
+      "label": "Left image width",
+      "min": 40,
+      "max": 640,
+      "step": 10,
+      "unit": "px",
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "decorative_right_width",
+      "label": "Right image width",
+      "min": 40,
+      "max": 640,
+      "step": 10,
+      "unit": "px",
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "decorative_left_opacity",
+      "label": "Left image opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "decorative_right_opacity",
+      "label": "Right image opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "decorative_left_offset_x",
+      "label": "Left image horizontal offset",
+      "min": -240,
+      "max": 240,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "decorative_left_offset_y",
+      "label": "Left image vertical offset",
+      "min": -240,
+      "max": 240,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "decorative_right_offset_x",
+      "label": "Right image horizontal offset",
+      "min": -240,
+      "max": 240,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "decorative_right_offset_y",
+      "label": "Right image vertical offset",
+      "min": -240,
+      "max": 240,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_left_decor_mobile",
+      "label": "Hide left image on mobile",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_right_decor_mobile",
+      "label": "Hide right image on mobile",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 640,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1520
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Quote card radius",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "Title size desktop",
+      "min": 24,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Title size mobile",
+      "min": 18,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "body_size_desktop",
+      "label": "Body text size desktop",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "body_size_mobile",
+      "label": "Body text size mobile",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "heading_gap",
+      "label": "Gap below title",
+      "min": 0,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "quote_size_desktop",
+      "label": "Quote text size desktop",
+      "min": 18,
+      "max": 56,
+      "step": 1,
+      "unit": "px",
+      "default": 29
+    },
+    {
+      "type": "range",
+      "id": "quote_size_mobile",
+      "label": "Quote text size mobile",
+      "min": 16,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "quote_author_size_desktop",
+      "label": "Quote attribution size desktop",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "quote_author_size_mobile",
+      "label": "Quote attribution size mobile",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_inline",
+      "label": "Side padding",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "desktop_gap",
+      "label": "Desktop gap",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Side padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "label": "Mobile gap",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text_content",
+      "name": "Text content",
+      "settings": [
+        {
+          "type": "select",
+          "id": "column",
+          "label": "Column",
+          "default": "left",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "right", "label": "Right" }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow"
+        },
+        {
+          "type": "richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "<p>Section heading</p>",
+          "info": "Use bold or italic formatting on a word if you want it highlighted with the accent color."
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Body text",
+          "default": "<p>Add your editorial story content here.</p>"
+        }
+      ]
+    },
+    {
+      "type": "quote_card",
+      "name": "Quote card",
+      "settings": [
+        {
+          "type": "select",
+          "id": "column",
+          "label": "Column",
+          "default": "right",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "right", "label": "Right" }
+          ]
+        },
+        {
+          "type": "richtext",
+          "id": "quote",
+          "label": "Quote",
+          "default": "<p>Add a quote, pull-quote, note, or editorial callout.</p>"
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Author / attribution",
+          "default": "Quote attribution"
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Card background override"
+        },
+        {
+          "type": "color",
+          "id": "border_color",
+          "label": "Card border override"
+        }
+      ]
+    },
+    {
+      "type": "decorative_image",
+      "name": "Decorative image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "Position",
+          "default": "top-right",
+          "options": [
+            { "value": "top-left", "label": "Top left" },
+            { "value": "top-right", "label": "Top right" },
+            { "value": "middle-left", "label": "Middle left" },
+            { "value": "middle-right", "label": "Middle right" },
+            { "value": "bottom-left", "label": "Bottom left" },
+            { "value": "bottom-right", "label": "Bottom right" }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "width",
+          "label": "Width",
+          "min": 40,
+          "max": 640,
+          "step": 10,
+          "unit": "px",
+          "default": 180
+        },
+        {
+          "type": "range",
+          "id": "opacity",
+          "label": "Opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "default": 100
+        },
+        {
+          "type": "range",
+          "id": "offset_x",
+          "label": "Horizontal offset",
+          "min": -240,
+          "max": 240,
+          "step": 5,
+          "unit": "px",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "offset_y",
+          "label": "Vertical offset",
+          "min": -240,
+          "max": 240,
+          "step": 5,
+          "unit": "px",
+          "default": 0
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_mobile",
+          "label": "Hide on mobile",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial split quote",
+      "blocks": [
+        {
+          "type": "text_content",
+          "settings": {
+            "column": "left",
+            "heading": "<p>Section <em>highlight</em> heading</p>"
+          }
+        },
+        {
+          "type": "quote_card",
+          "settings": {
+            "column": "right"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

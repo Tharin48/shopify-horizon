@@ -1,0 +1,12 @@
+# App-injected Liquid (Yoast) and third-party analytics (PageFly) are not visible to static analysis.
+extends: theme-check:recommended
+
+UndefinedObject:
+  ignore:
+    - snippets/meta-tags.liquid
+    - templates/gift_card.liquid
+    - sections/header.liquid
+
+RemoteAsset:
+  ignore:
+    - snippets/pagefly-main-js.liquid

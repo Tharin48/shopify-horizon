@@ -124,6 +124,10 @@
   %}
 
   :root {
+    {% if settings.custom_product_card_image_background != blank %}
+      --custom-product-card-media-bg: {{ settings.custom_product_card_image_background }};
+    {% endif %}
+
     /* Page Layout */
     --sidebar-width: 25rem;
     --narrow-content-width: 36rem;

@@ -1,0 +1,1132 @@
+{%- assign intro_block = blank -%}
+{%- assign spotlight_block = blank -%}
+
+{%- for block in section.blocks -%}
+  {%- if block.type == 'intro' and intro_block == blank -%}
+    {%- assign intro_block = block -%}
+  {%- endif -%}
+
+  {%- if block.type == 'spotlight' and spotlight_block == blank -%}
+    {%- assign spotlight_block = block -%}
+  {%- endif -%}
+{%- endfor -%}
+
+<section
+  class="custom-editorial-expert-story"
+  style="
+    --custom-editorial-expert-story-max-width: {{ section.settings.max_width }}px;
+    --custom-editorial-expert-story-background: {{ section.settings.background_color }};
+    --custom-editorial-expert-story-text-color: {{ section.settings.text_color }};
+    --custom-editorial-expert-story-accent: {{ section.settings.accent_color }};
+    --custom-editorial-expert-story-padding-top: {{ section.settings.padding_top }}px;
+    --custom-editorial-expert-story-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-editorial-expert-story-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-editorial-expert-story-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-editorial-expert-story-padding-inline: {{ section.settings.padding_inline }}px;
+    --custom-editorial-expert-story-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-editorial-expert-story-column-gap: {{ section.settings.column_gap_desktop }}px;
+    --custom-editorial-expert-story-column-gap-mobile: {{ section.settings.column_gap_mobile }}px;
+    --custom-editorial-expert-story-row-gap: {{ section.settings.row_gap_desktop }}px;
+    --custom-editorial-expert-story-row-gap-mobile: {{ section.settings.row_gap_mobile }}px;
+    --custom-editorial-expert-story-feature-gap: {{ section.settings.feature_gap_desktop }}px;
+    --custom-editorial-expert-story-feature-gap-mobile: {{ section.settings.feature_gap_mobile }}px;
+    --custom-editorial-expert-story-intro-heading-size: {{ section.settings.intro_heading_size_desktop }}px;
+    --custom-editorial-expert-story-intro-heading-size-mobile: {{ section.settings.intro_heading_size_mobile }}px;
+    --custom-editorial-expert-story-intro-body-size: {{ section.settings.intro_body_size_desktop }}px;
+    --custom-editorial-expert-story-intro-body-size-mobile: {{ section.settings.intro_body_size_mobile }}px;
+    --custom-editorial-expert-story-feature-heading-size: {{ section.settings.feature_heading_size_desktop }}px;
+    --custom-editorial-expert-story-feature-heading-size-mobile: {{ section.settings.feature_heading_size_mobile }}px;
+    --custom-editorial-expert-story-feature-body-size: {{ section.settings.feature_body_size_desktop }}px;
+    --custom-editorial-expert-story-feature-body-size-mobile: {{ section.settings.feature_body_size_mobile }}px;
+    --custom-editorial-expert-story-spotlight-heading-size: {{ section.settings.spotlight_heading_size_desktop }}px;
+    --custom-editorial-expert-story-spotlight-heading-size-mobile: {{ section.settings.spotlight_heading_size_mobile }}px;
+    --custom-editorial-expert-story-spotlight-body-size: {{ section.settings.spotlight_body_size_desktop }}px;
+    --custom-editorial-expert-story-spotlight-body-size-mobile: {{ section.settings.spotlight_body_size_mobile }}px;
+    --custom-editorial-expert-story-intro-image-height: {{ section.settings.intro_image_height_desktop }}px;
+    --custom-editorial-expert-story-intro-image-height-mobile: {{ section.settings.intro_image_height_mobile }}px;
+    --custom-editorial-expert-story-intro-image-radius: {{ section.settings.intro_image_radius }}px;
+    --custom-editorial-expert-story-feature-icon-size: {{ section.settings.feature_icon_size_desktop }}px;
+    --custom-editorial-expert-story-feature-icon-size-mobile: {{ section.settings.feature_icon_size_mobile }}px;
+    --custom-editorial-expert-story-spotlight-image-width: {{ section.settings.spotlight_image_width_desktop }}px;
+    --custom-editorial-expert-story-spotlight-image-width-mobile: {{ section.settings.spotlight_image_width_mobile }}px;
+    --custom-editorial-expert-story-spotlight-image-height: {{ section.settings.spotlight_image_height_desktop }}px;
+    --custom-editorial-expert-story-spotlight-image-height-mobile: {{ section.settings.spotlight_image_height_mobile }}px;
+    --custom-editorial-expert-story-decor-width: {{ section.settings.decorative_image_width }}px;
+    --custom-editorial-expert-story-decor-opacity: {{ section.settings.decorative_image_opacity | divided_by: 100.0 }};
+    --custom-editorial-expert-story-decor-offset-x: {{ section.settings.decorative_image_offset_x }}px;
+    --custom-editorial-expert-story-decor-offset-y: {{ section.settings.decorative_image_offset_y }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-editorial-expert-story__inner">
+    {%- if section.settings.decorative_image != blank -%}
+      <div
+        class="custom-editorial-expert-story__decor{% if section.settings.hide_decor_mobile %} custom-editorial-expert-story__decor--hide-mobile{% endif %}"
+        aria-hidden="true"
+      >
+        {{
+          section.settings.decorative_image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '120,240,360,480,720,960,1200',
+            sizes: '(min-width: 990px) 18vw, 30vw',
+            class: 'custom-editorial-expert-story__decor-image',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+
+    <div class="custom-editorial-expert-story__grid">
+      <div class="custom-editorial-expert-story__column custom-editorial-expert-story__column--intro">
+        {%- if intro_block != blank -%}
+          <div class="custom-editorial-expert-story__intro" {{ intro_block.shopify_attributes }}>
+            {%- if intro_block.settings.heading != blank -%}
+              <div class="custom-editorial-expert-story__intro-heading rte">
+                {{ intro_block.settings.heading }}
+              </div>
+            {%- endif -%}
+
+            {%- if intro_block.settings.text != blank -%}
+              <div class="custom-editorial-expert-story__intro-text rte">
+                {{ intro_block.settings.text }}
+              </div>
+            {%- endif -%}
+
+            {%- if intro_block.settings.image != blank -%}
+              <div
+                class="custom-editorial-expert-story__intro-media"
+                style="
+                  --custom-editorial-expert-story-intro-image-position: {{ intro_block.settings.image_position_desktop }};
+                  --custom-editorial-expert-story-intro-image-position-mobile: {{ intro_block.settings.image_position_mobile }};
+                "
+              >
+                <picture>
+                  {%- if intro_block.settings.mobile_image != blank -%}
+                    <source media="(max-width: 749px)" srcset="{{ intro_block.settings.mobile_image | image_url: width: 1200 }}">
+                  {%- endif -%}
+                  {{
+                    intro_block.settings.image
+                    | image_url: width: 2000
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '360,540,720,960,1200,1600,2000',
+                      sizes: '(min-width: 990px) 48vw, 100vw',
+                      class: 'custom-editorial-expert-story__intro-image',
+                      alt: intro_block.settings.image.alt
+                  }}
+                </picture>
+              </div>
+            {%- elsif request.design_mode -%}
+              <div class="custom-editorial-expert-story__empty">Choose an intro image.</div>
+            {%- endif -%}
+          </div>
+        {%- elsif request.design_mode -%}
+          <div class="custom-editorial-expert-story__empty">Add an Intro block for the left column.</div>
+        {%- endif -%}
+      </div>
+
+      <div class="custom-editorial-expert-story__column custom-editorial-expert-story__column--details">
+        <div class="custom-editorial-expert-story__features">
+          {%- assign feature_count = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'feature_item' -%}
+              {%- assign feature_count = feature_count | plus: 1 -%}
+              <article class="custom-editorial-expert-story__feature" {{ block.shopify_attributes }}>
+                {%- if block.settings.icon != blank -%}
+                  <div class="custom-editorial-expert-story__feature-icon">
+                    {{
+                      block.settings.icon
+                      | image_url: width: 240
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '60,90,120,180,240',
+                        sizes: '80px',
+                        alt: block.settings.icon.alt
+                    }}
+                  </div>
+                {%- endif -%}
+
+                {%- if block.settings.heading != blank -%}
+                  <h3 class="custom-editorial-expert-story__feature-heading">{{ block.settings.heading | escape }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.text != blank -%}
+                  <div class="custom-editorial-expert-story__feature-text rte">
+                    {{ block.settings.text }}
+                  </div>
+                {%- endif -%}
+              </article>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if feature_count == 0 and request.design_mode -%}
+            <div class="custom-editorial-expert-story__empty">Add Feature item blocks to build the 2 by 2 grid.</div>
+          {%- endif -%}
+        </div>
+
+        {%- if spotlight_block != blank -%}
+          <div class="custom-editorial-expert-story__spotlight" {{ spotlight_block.shopify_attributes }}>
+            <div class="custom-editorial-expert-story__spotlight-copy">
+              {%- if spotlight_block.settings.heading != blank -%}
+                <div class="custom-editorial-expert-story__spotlight-heading rte">
+                  {{ spotlight_block.settings.heading }}
+                </div>
+              {%- endif -%}
+
+              {%- if spotlight_block.settings.text != blank -%}
+                <div class="custom-editorial-expert-story__spotlight-text rte">
+                  {{ spotlight_block.settings.text }}
+                </div>
+              {%- endif -%}
+            </div>
+
+            <div class="custom-editorial-expert-story__spotlight-media">
+              {%- if spotlight_block.settings.image != blank -%}
+                <picture>
+                  {%- if spotlight_block.settings.mobile_image != blank -%}
+                    <source media="(max-width: 749px)" srcset="{{ spotlight_block.settings.mobile_image | image_url: width: 1200 }}">
+                  {%- endif -%}
+                  {{
+                    spotlight_block.settings.image
+                    | image_url: width: 1600
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '240,360,480,720,960,1200,1600',
+                      sizes: '(min-width: 990px) 24vw, 60vw',
+                      class: 'custom-editorial-expert-story__spotlight-image',
+                      alt: spotlight_block.settings.image.alt
+                  }}
+                </picture>
+              {%- elsif request.design_mode -%}
+                <div class="custom-editorial-expert-story__empty custom-editorial-expert-story__empty--spotlight">
+                  Choose a spotlight image.
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- elsif request.design_mode -%}
+          <div class="custom-editorial-expert-story__empty">Add a Spotlight block for the lower right content.</div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-editorial-expert-story {
+    position: relative;
+    background: var(--custom-editorial-expert-story-background);
+    color: var(--custom-editorial-expert-story-text-color);
+    overflow: clip;
+  }
+
+  .custom-editorial-expert-story__inner {
+    position: relative;
+    max-width: var(--custom-editorial-expert-story-max-width);
+    margin: 0 auto;
+    padding:
+      var(--custom-editorial-expert-story-padding-top-mobile)
+      var(--custom-editorial-expert-story-padding-inline-mobile)
+      var(--custom-editorial-expert-story-padding-bottom-mobile);
+  }
+
+  .custom-editorial-expert-story__decor {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-start: 0;
+    z-index: 0;
+    pointer-events: none;
+    width: min(100%, var(--custom-editorial-expert-story-decor-width));
+    opacity: var(--custom-editorial-expert-story-decor-opacity);
+    transform: translate(var(--custom-editorial-expert-story-decor-offset-x), var(--custom-editorial-expert-story-decor-offset-y));
+  }
+
+  .custom-editorial-expert-story__decor-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .custom-editorial-expert-story__grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--custom-editorial-expert-story-row-gap-mobile);
+  }
+
+  .custom-editorial-expert-story__column {
+    min-width: 0;
+  }
+
+  .custom-editorial-expert-story__intro {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .custom-editorial-expert-story__intro-heading,
+  .custom-editorial-expert-story__spotlight-heading {
+    color: var(--custom-editorial-expert-story-text-color);
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+  }
+
+  .custom-editorial-expert-story__intro-heading > :first-child,
+  .custom-editorial-expert-story__intro-text > :first-child,
+  .custom-editorial-expert-story__feature-text > :first-child,
+  .custom-editorial-expert-story__spotlight-heading > :first-child,
+  .custom-editorial-expert-story__spotlight-text > :first-child {
+    margin-top: 0;
+  }
+
+  .custom-editorial-expert-story__intro-heading > :last-child,
+  .custom-editorial-expert-story__intro-text > :last-child,
+  .custom-editorial-expert-story__feature-text > :last-child,
+  .custom-editorial-expert-story__spotlight-heading > :last-child,
+  .custom-editorial-expert-story__spotlight-text > :last-child {
+    margin-bottom: 0;
+  }
+
+  .custom-editorial-expert-story__intro-heading h1,
+  .custom-editorial-expert-story__intro-heading h2,
+  .custom-editorial-expert-story__intro-heading h3,
+  .custom-editorial-expert-story__intro-heading h4,
+  .custom-editorial-expert-story__intro-heading h5,
+  .custom-editorial-expert-story__intro-heading h6,
+  .custom-editorial-expert-story__intro-heading p {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-size: var(--custom-editorial-expert-story-intro-heading-size-mobile);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+  }
+
+  .custom-editorial-expert-story__spotlight-heading h1,
+  .custom-editorial-expert-story__spotlight-heading h2,
+  .custom-editorial-expert-story__spotlight-heading h3,
+  .custom-editorial-expert-story__spotlight-heading h4,
+  .custom-editorial-expert-story__spotlight-heading h5,
+  .custom-editorial-expert-story__spotlight-heading h6,
+  .custom-editorial-expert-story__spotlight-heading p {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-size: var(--custom-editorial-expert-story-spotlight-heading-size-mobile);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+  }
+
+  .custom-editorial-expert-story__intro-text,
+  .custom-editorial-expert-story__spotlight-text {
+    color: rgb(var(--color-foreground-rgb) / 0.84);
+    font-family: var(--font-body--family);
+    line-height: 1.75;
+  }
+
+  .custom-editorial-expert-story__intro-text {
+    font-size: var(--custom-editorial-expert-story-intro-body-size-mobile);
+  }
+
+  .custom-editorial-expert-story__spotlight-text {
+    font-size: var(--custom-editorial-expert-story-spotlight-body-size-mobile);
+  }
+
+  .custom-editorial-expert-story__intro-media,
+  .custom-editorial-expert-story__empty {
+    overflow: hidden;
+    border-radius: var(--custom-editorial-expert-story-intro-image-radius);
+    background: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .custom-editorial-expert-story__intro-media {
+    height: var(--custom-editorial-expert-story-intro-image-height-mobile);
+  }
+
+  .custom-editorial-expert-story__intro-media picture,
+  .custom-editorial-expert-story__intro-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-editorial-expert-story__intro-image {
+    object-fit: cover;
+    object-position: var(--custom-editorial-expert-story-intro-image-position-mobile, center center);
+  }
+
+  .custom-editorial-expert-story__features {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--custom-editorial-expert-story-feature-gap-mobile);
+  }
+
+  .custom-editorial-expert-story__feature {
+    min-width: 0;
+  }
+
+  .custom-editorial-expert-story__feature-icon {
+    width: var(--custom-editorial-expert-story-feature-icon-size-mobile);
+    height: var(--custom-editorial-expert-story-feature-icon-size-mobile);
+    margin-bottom: 0.9rem;
+  }
+
+  .custom-editorial-expert-story__feature-icon img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .custom-editorial-expert-story__feature-heading {
+    margin: 0;
+    color: var(--custom-editorial-expert-story-text-color);
+    font-family: var(--font-body--family);
+    font-size: var(--custom-editorial-expert-story-feature-heading-size-mobile);
+    font-weight: 500;
+    line-height: 1.28;
+  }
+
+  .custom-editorial-expert-story__feature-text {
+    margin-top: 0.6rem;
+    color: rgb(var(--color-foreground-rgb) / 0.82);
+    font-family: var(--font-body--family);
+    font-size: var(--custom-editorial-expert-story-feature-body-size-mobile);
+    line-height: 1.7;
+  }
+
+  .custom-editorial-expert-story__spotlight {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: var(--custom-editorial-expert-story-row-gap-mobile);
+    align-items: end;
+  }
+
+  .custom-editorial-expert-story__spotlight-copy {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .custom-editorial-expert-story__spotlight-media {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+  }
+
+  .custom-editorial-expert-story__spotlight-image {
+    display: block;
+    width: auto;
+    max-width: min(100%, var(--custom-editorial-expert-story-spotlight-image-width-mobile));
+    height: var(--custom-editorial-expert-story-spotlight-image-height-mobile);
+  }
+
+  .custom-editorial-expert-story__empty {
+    display: grid;
+    place-items: center;
+    min-height: 10rem;
+    padding: 1.5rem;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.18);
+    color: rgb(var(--color-foreground-rgb) / 0.66);
+    text-align: center;
+  }
+
+  .custom-editorial-expert-story__empty--spotlight {
+    min-height: 12rem;
+    width: min(100%, var(--custom-editorial-expert-story-spotlight-image-width-mobile));
+    border-radius: 1.25rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-editorial-expert-story__decor--hide-mobile {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-editorial-expert-story__inner {
+      padding:
+        var(--custom-editorial-expert-story-padding-top)
+        var(--custom-editorial-expert-story-padding-inline)
+        var(--custom-editorial-expert-story-padding-bottom);
+    }
+
+    .custom-editorial-expert-story__grid {
+      grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+      column-gap: var(--custom-editorial-expert-story-column-gap);
+      row-gap: var(--custom-editorial-expert-story-row-gap);
+      align-items: start;
+    }
+
+    .custom-editorial-expert-story__intro-heading h1,
+    .custom-editorial-expert-story__intro-heading h2,
+    .custom-editorial-expert-story__intro-heading h3,
+    .custom-editorial-expert-story__intro-heading h4,
+    .custom-editorial-expert-story__intro-heading h5,
+    .custom-editorial-expert-story__intro-heading h6,
+    .custom-editorial-expert-story__intro-heading p {
+      font-size: var(--custom-editorial-expert-story-intro-heading-size);
+    }
+
+    .custom-editorial-expert-story__spotlight-heading h1,
+    .custom-editorial-expert-story__spotlight-heading h2,
+    .custom-editorial-expert-story__spotlight-heading h3,
+    .custom-editorial-expert-story__spotlight-heading h4,
+    .custom-editorial-expert-story__spotlight-heading h5,
+    .custom-editorial-expert-story__spotlight-heading h6,
+    .custom-editorial-expert-story__spotlight-heading p {
+      font-size: var(--custom-editorial-expert-story-spotlight-heading-size);
+    }
+
+    .custom-editorial-expert-story__intro-text {
+      font-size: var(--custom-editorial-expert-story-intro-body-size);
+      line-height: 1.85;
+    }
+
+    .custom-editorial-expert-story__spotlight-text {
+      font-size: var(--custom-editorial-expert-story-spotlight-body-size);
+      line-height: 1.8;
+    }
+
+    .custom-editorial-expert-story__intro-media {
+      height: var(--custom-editorial-expert-story-intro-image-height);
+    }
+
+    .custom-editorial-expert-story__intro-image {
+      object-position: var(--custom-editorial-expert-story-intro-image-position, center center);
+    }
+
+    .custom-editorial-expert-story__features {
+      gap: var(--custom-editorial-expert-story-feature-gap);
+    }
+
+    .custom-editorial-expert-story__feature-icon {
+      width: var(--custom-editorial-expert-story-feature-icon-size);
+      height: var(--custom-editorial-expert-story-feature-icon-size);
+      margin-bottom: 1rem;
+    }
+
+    .custom-editorial-expert-story__feature-heading {
+      font-size: var(--custom-editorial-expert-story-feature-heading-size);
+    }
+
+    .custom-editorial-expert-story__feature-text {
+      font-size: var(--custom-editorial-expert-story-feature-body-size);
+      line-height: 1.75;
+    }
+
+    .custom-editorial-expert-story__spotlight {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: clamp(1.5rem, 3vw, 3rem);
+      margin-top: var(--custom-editorial-expert-story-row-gap);
+    }
+
+    .custom-editorial-expert-story__spotlight-media {
+      justify-content: center;
+    }
+
+    .custom-editorial-expert-story__spotlight-image {
+      max-width: min(100%, var(--custom-editorial-expert-story-spotlight-image-width));
+      height: var(--custom-editorial-expert-story-spotlight-image-height);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Editorial expert story",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#2b2a28"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#7fae49"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 640,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1560
+    },
+    {
+      "type": "header",
+      "content": "Decorative image"
+    },
+    {
+      "type": "image_picker",
+      "id": "decorative_image",
+      "label": "Decorative image"
+    },
+    {
+      "type": "range",
+      "id": "decorative_image_width",
+      "label": "Decorative image width",
+      "min": 40,
+      "max": 480,
+      "step": 10,
+      "unit": "px",
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "decorative_image_opacity",
+      "label": "Decorative image opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "decorative_image_offset_x",
+      "label": "Decorative image horizontal offset",
+      "min": -240,
+      "max": 240,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "decorative_image_offset_y",
+      "label": "Decorative image vertical offset",
+      "min": -240,
+      "max": 240,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_decor_mobile",
+      "label": "Hide decorative image on mobile",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Intro media"
+    },
+    {
+      "type": "range",
+      "id": "intro_image_height_desktop",
+      "label": "Intro image height desktop",
+      "min": 220,
+      "max": 1200,
+      "step": 10,
+      "unit": "px",
+      "default": 1020
+    },
+    {
+      "type": "range",
+      "id": "intro_image_height_mobile",
+      "label": "Intro image height mobile",
+      "min": 180,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "default": 480
+    },
+    {
+      "type": "range",
+      "id": "intro_image_radius",
+      "label": "Intro image radius",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Feature icons"
+    },
+    {
+      "type": "range",
+      "id": "feature_icon_size_desktop",
+      "label": "Feature icon size desktop",
+      "min": 24,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 68
+    },
+    {
+      "type": "range",
+      "id": "feature_icon_size_mobile",
+      "label": "Feature icon size mobile",
+      "min": 20,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "header",
+      "content": "Spotlight image"
+    },
+    {
+      "type": "range",
+      "id": "spotlight_image_width_desktop",
+      "label": "Spotlight image width desktop",
+      "min": 140,
+      "max": 560,
+      "step": 10,
+      "unit": "px",
+      "default": 340
+    },
+    {
+      "type": "range",
+      "id": "spotlight_image_height_desktop",
+      "label": "Spotlight image height desktop",
+      "min": 120,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "spotlight_image_width_mobile",
+      "label": "Spotlight image width mobile",
+      "min": 120,
+      "max": 420,
+      "step": 10,
+      "unit": "px",
+      "default": 260
+    },
+    {
+      "type": "range",
+      "id": "spotlight_image_height_mobile",
+      "label": "Spotlight image height mobile",
+      "min": 100,
+      "max": 520,
+      "step": 10,
+      "unit": "px",
+      "default": 340
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "intro_heading_size_desktop",
+      "label": "Intro heading size desktop",
+      "min": 24,
+      "max": 88,
+      "step": 2,
+      "unit": "px",
+      "default": 58
+    },
+    {
+      "type": "range",
+      "id": "intro_heading_size_mobile",
+      "label": "Intro heading size mobile",
+      "min": 16,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "intro_body_size_desktop",
+      "label": "Intro body size desktop",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "intro_body_size_mobile",
+      "label": "Intro body size mobile",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "feature_heading_size_desktop",
+      "label": "Feature heading size desktop",
+      "min": 14,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "feature_heading_size_mobile",
+      "label": "Feature heading size mobile",
+      "min": 13,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "feature_body_size_desktop",
+      "label": "Feature body size desktop",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "feature_body_size_mobile",
+      "label": "Feature body size mobile",
+      "min": 11,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "spotlight_heading_size_desktop",
+      "label": "Spotlight heading size desktop",
+      "min": 22,
+      "max": 84,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "spotlight_heading_size_mobile",
+      "label": "Spotlight heading size mobile",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "spotlight_body_size_desktop",
+      "label": "Spotlight body size desktop",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "spotlight_body_size_mobile",
+      "label": "Spotlight body size mobile",
+      "min": 13,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Desktop spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_inline",
+      "label": "Side padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "column_gap_desktop",
+      "label": "Column gap",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 88
+    },
+    {
+      "type": "range",
+      "id": "row_gap_desktop",
+      "label": "Section gap",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "feature_gap_desktop",
+      "label": "Feature grid gap",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Mobile spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 240,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Side padding",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "column_gap_mobile",
+      "label": "Column gap",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "row_gap_mobile",
+      "label": "Section gap",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "feature_gap_mobile",
+      "label": "Feature grid gap",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "blocks": [
+    {
+      "type": "intro",
+      "name": "Intro",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "<p>Crafted by Leading Tea Experts</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>We are a family with a love for tea, and on a mission to make the world better tea.</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image"
+        },
+        {
+          "type": "select",
+          "id": "image_position_desktop",
+          "label": "Image position desktop",
+          "default": "center center",
+          "options": [
+            { "value": "left center", "label": "Left" },
+            { "value": "center center", "label": "Center" },
+            { "value": "right center", "label": "Right" },
+            { "value": "center top", "label": "Top" },
+            { "value": "center bottom", "label": "Bottom" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "image_position_mobile",
+          "label": "Image position mobile",
+          "default": "center center",
+          "options": [
+            { "value": "left center", "label": "Left" },
+            { "value": "center center", "label": "Center" },
+            { "value": "right center", "label": "Right" },
+            { "value": "center top", "label": "Top" },
+            { "value": "center bottom", "label": "Bottom" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "feature_item",
+      "name": "Feature item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Feature heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Add feature details here.</p>"
+        }
+      ]
+    },
+    {
+      "type": "spotlight",
+      "name": "Spotlight",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "<p>Master Tea Maker</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share supporting content for the spotlight story here.</p>"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Editorial expert story",
+      "blocks": [
+        {
+          "type": "intro"
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "heading": "Handpicked Tea"
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "heading": "Packaged Fresh At The Source"
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "heading": "Climate & Plastic Neutral"
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "heading": "Shipped Direct To Your Doorstep"
+          }
+        },
+        {
+          "type": "spotlight"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

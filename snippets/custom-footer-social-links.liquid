@@ -1,0 +1,82 @@
+{%- liquid
+  assign has_links = false
+  if block.settings.facebook_url != blank
+    assign has_links = true
+  elsif block.settings.pinterest_url != blank
+    assign has_links = true
+  elsif block.settings.instagram_url != blank
+    assign has_links = true
+  elsif block.settings.youtube_url != blank
+    assign has_links = true
+  elsif block.settings.tiktok_url != blank
+    assign has_links = true
+  endif
+-%}
+
+{%- if block.settings.heading != blank or has_links -%}
+  <div class="custom-footer__connect-block custom-footer__connect-block--social" {{ block.shopify_attributes }}>
+    {%- if block.settings.heading != blank -%}
+      <h3 class="custom-footer__column-heading custom-footer__column-heading--static">
+        {{ block.settings.heading | escape }}
+      </h3>
+    {%- endif -%}
+
+    <div class="custom-footer__social-list custom-footer__social-list--{{ block.settings.icon_style }}">
+      {%- if block.settings.facebook_url != blank -%}
+        <a
+          class="custom-footer__social-link"
+          href="{{ block.settings.facebook_url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook"
+        >
+          <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">{% render 'icon', icon: 'facebook' %}</svg>
+        </a>
+      {%- endif -%}
+      {%- if block.settings.pinterest_url != blank -%}
+        <a
+          class="custom-footer__social-link"
+          href="{{ block.settings.pinterest_url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Pinterest"
+        >
+          <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">{% render 'icon', icon: 'pinterest' %}</svg>
+        </a>
+      {%- endif -%}
+      {%- if block.settings.instagram_url != blank -%}
+        <a
+          class="custom-footer__social-link"
+          href="{{ block.settings.instagram_url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+        >
+          <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">{% render 'icon', icon: 'instagram' %}</svg>
+        </a>
+      {%- endif -%}
+      {%- if block.settings.youtube_url != blank -%}
+        <a
+          class="custom-footer__social-link"
+          href="{{ block.settings.youtube_url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="YouTube"
+        >
+          <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">{% render 'icon', icon: 'youtube' %}</svg>
+        </a>
+      {%- endif -%}
+      {%- if block.settings.tiktok_url != blank -%}
+        <a
+          class="custom-footer__social-link"
+          href="{{ block.settings.tiktok_url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="TikTok"
+        >
+          <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">{% render 'icon', icon: 'tiktok' %}</svg>
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

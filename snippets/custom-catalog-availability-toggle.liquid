@@ -1,0 +1,78 @@
+{%- doc -%}
+  Availability filter as a toolbar toggle (Search & Discovery).
+  Supports boolean filters and list filters (e.g. “In stock” as one option).
+  Uses url_to_add / url_to_remove so catalog-filter-ajax keeps working.
+
+  @param {object} filter - Storefront collection filter
+  @param {string} [availability_label] - Optional visible label; falls back to filter value label
+{%- enddoc -%}
+{%- if filter and filter.values.size > 0 -%}
+  {%- liquid
+    assign v = blank
+    if filter.type == 'boolean'
+      assign v = filter.values | first
+    elsif filter.type == 'list'
+      for val in filter.values
+        assign ll = val.label | downcase | strip
+        if ll contains 'in stock'
+          assign v = val
+          break
+        endif
+      endfor
+      if v == blank
+        for val in filter.values
+          assign ll = val.label | downcase | strip
+          if ll contains 'available'
+            assign v = val
+            break
+          endif
+        endfor
+      endif
+      if v == blank
+        assign v = filter.values | first
+      endif
+    endif
+  -%}
+  {%- if v != blank -%}
+    {%- liquid
+      assign href = v.url_to_add
+      if v.active
+        assign href = v.url_to_remove
+      endif
+      assign is_disabled = false
+      if v.count == 0 and v.active == false
+        assign is_disabled = true
+      endif
+      assign toggle_label = availability_label | strip
+      if toggle_label == blank
+        assign toggle_label = v.label
+      endif
+    -%}
+    <div class="custom-catalog__availability">
+      {%- if is_disabled -%}
+        <span
+          class="custom-catalog__availability-toggle custom-catalog__availability-toggle--disabled"
+          role="group"
+          aria-label="{{ toggle_label | escape }} — {{ 'content.unavailable' | t }}"
+        >
+          <span class="custom-catalog__availability-label" aria-hidden="true">{{ toggle_label | escape }}</span>
+          <span class="custom-catalog__availability-track" aria-hidden="true">
+            <span class="custom-catalog__availability-thumb"></span>
+          </span>
+        </span>
+      {%- else -%}
+        <a
+          href="{{ href }}"
+          class="custom-catalog__availability-toggle{% if v.active %} is-active{% endif %}"
+          aria-pressed="{% if v.active %}true{% else %}false{% endif %}"
+          aria-label="{% if v.active %}{{ 'actions.clear' | t }}: {{ toggle_label | escape }}{% else %}{{ 'actions.apply' | t }}: {{ toggle_label | escape }}{% endif %}"
+        >
+          <span class="custom-catalog__availability-label">{{ toggle_label | escape }}</span>
+          <span class="custom-catalog__availability-track" aria-hidden="true">
+            <span class="custom-catalog__availability-thumb"></span>
+          </span>
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{%- endif -%}

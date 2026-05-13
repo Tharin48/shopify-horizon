@@ -1,7 +1,13 @@
 import { Component } from '@theme/component';
 import { fetchConfig, preloadImage, onAnimationEnd, yieldToMainThread } from '@theme/utilities';
 import { ThemeEvents, CartAddEvent, CartErrorEvent, CartUpdateEvent, VariantUpdateEvent } from '@theme/events';
-import { cartPerformance } from '@theme/performance';
+import {
+  cartPerformance,
+  logLongTask,
+  observeLongTasks,
+  registerDebugListener,
+  unregisterDebugListener,
+} from '@theme/performance';
 import { morph } from '@theme/morph';
 
 // Error message display duration - gives users time to read the message
@@ -12,6 +18,18 @@ const ERROR_BUTTON_REENABLE_DELAY = 1000;
 
 // Success message display duration for screen readers
 const SUCCESS_MESSAGE_DISPLAY_DURATION = 5000;
+const TEMP_CART_DEBUG_PREFIX = '[TEMP CART DEBUG]';
+
+const shouldLogTempCartDebug = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return false;
+  return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
+};
+
+/** @type {(...args: unknown[]) => void} */
+const logTempCartDebug = (...args) => {
+  if (!shouldLogTempCartDebug()) return;
+  console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
+};
 
 /**
  * @typedef {HTMLElement & {
@@ -70,6 +88,12 @@ export class AddToCartComponent extends Component {
   handleClick(event) {
     const form = this.closest('form');
     if (!form?.checkValidity()) return;
+
+    logTempCartDebug('add-to-cart click start', {
+      formId: form.id || null,
+      buttonLabel: this.refs.addToCartButton?.textContent?.trim() || null,
+      isQuickAdd: this.refs.addToCartButton?.classList.contains('quick-add__button') || false,
+    });
 
     // Check if adding would exceed max before animating
     const productForm = /** @type {ProductFormComponent | null} */ (this.closest('product-form-component'));
@@ -203,6 +227,8 @@ class ProductFormComponent extends Component {
 
   connectedCallback() {
     super.connectedCallback();
+    observeLongTasks('theme');
+    registerDebugListener(this, 'product-form', 'cart-update-listener');
 
     const { signal } = this.#abortController;
     const target = this.closest('.shopify-section, dialog, product-card');
@@ -216,6 +242,7 @@ class ProductFormComponent extends Component {
   disconnectedCallback() {
     super.disconnectedCallback();
 
+    unregisterDebugListener(this, 'cart-update-listener');
     this.#abortController.abort();
   }
 
@@ -282,6 +309,11 @@ class ProductFormComponent extends Component {
   /** @param {Event} event */
   handleSubmit(event) {
     event.preventDefault();
+    logTempCartDebug('product-form submit start', {
+      sourceId: this.id || null,
+      productId: this.dataset.productId || null,
+      variantId: this.refs.variantId?.value || null,
+    });
 
     if (this.#variantChangeInProgress) {
       const intendedVariantId = this.#getIntendedVariantId();
@@ -314,6 +346,7 @@ class ProductFormComponent extends Component {
    * @param {Event} [event]
    */
   #processAddToCart(overrideVariantId, overrideQuantity, event) {
+    const startTime = performance.now();
     const { addToCartTextError } = this.refs;
 
     if (this.#timeout) clearTimeout(this.#timeout);
@@ -382,16 +415,26 @@ class ProductFormComponent extends Component {
       formData.set('quantity', overrideQuantity.toString());
     }
 
-    const cartItemsComponents = document.querySelectorAll('cart-items-component');
-    let cartItemComponentsSectionIds = [];
-    cartItemsComponents.forEach((item) => {
-      if (item instanceof HTMLElement && item.dataset.sectionId) {
-        cartItemComponentsSectionIds.push(item.dataset.sectionId);
-      }
+    const cartItemComponentsSectionIds = Array.from(document.querySelectorAll('cart-items-component'))
+      .filter((item) => item instanceof HTMLElement && item.dataset.sectionId)
+      .map((item) => /** @type {HTMLElement} */ (item).dataset.sectionId)
+      .filter(Boolean);
+
+    if (cartItemComponentsSectionIds.length) {
       formData.append('sections', cartItemComponentsSectionIds.join(','));
-    });
+    }
 
     const fetchCfg = fetchConfig('javascript', { body: formData });
+    const requestVariantId = (overrideVariantId || formData.get('id') || '').toString();
+    const requestQuantity = Number(formData.get('quantity')) || Number(this.dataset.quantityDefault) || 1;
+
+    logTempCartDebug('cart/add request start', {
+      sourceId: this.id || null,
+      productId: this.dataset.productId || null,
+      variantId: requestVariantId,
+      quantity: requestQuantity,
+      sections: cartItemComponentsSectionIds,
+    });
 
     fetch(Theme.routes.cart_add_url, {
       ...fetchCfg,
@@ -402,6 +445,14 @@ class ProductFormComponent extends Component {
     })
       .then((response) => response.json())
       .then(async (response) => {
+        logTempCartDebug('cart/add request end', {
+          sourceId: this.id || null,
+          productId: this.dataset.productId || null,
+          variantId: requestVariantId,
+          didError: Boolean(response.status),
+          hasSections: Boolean(response.sections),
+        });
+
         if (response.status) {
           this.dispatchEvent(
             new CartErrorEvent(form.getAttribute('id') || '', response.message, response.description, response.errors)
@@ -441,6 +492,12 @@ class ProductFormComponent extends Component {
             })
           );
 
+          logTempCartDebug('cart:add dispatched (error)', {
+            sourceId: this.id || null,
+            productId: this.dataset.productId || null,
+            quantity: requestQuantity,
+          });
+
           return;
         } else {
           const id = formData.get('id');
@@ -477,12 +534,31 @@ class ProductFormComponent extends Component {
               sections: response.sections,
             })
           );
+
+          logTempCartDebug('cart:add dispatched (success)', {
+            sourceId: id.toString(),
+            productId: this.dataset.productId || null,
+            quantity: requestQuantity,
+            hasCartResource: Boolean(cart),
+            hasSections: Boolean(response.sections),
+          });
         }
       })
       .catch((error) => {
+        logTempCartDebug('cart/add request error', {
+          sourceId: this.id || null,
+          productId: this.dataset.productId || null,
+          message: error instanceof Error ? error.message : String(error),
+        });
         console.error(error);
       })
       .finally(() => {
+        logTempCartDebug('cart/add request finally', {
+          sourceId: this.id || null,
+          productId: this.dataset.productId || null,
+          variantId: requestVariantId,
+        });
+        logLongTask('product-form', 'processAddToCart', startTime);
         if (event) {
           cartPerformance.measureFromEvent('add:user-action', event);
         }
