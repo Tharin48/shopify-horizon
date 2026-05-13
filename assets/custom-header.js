@@ -38,11 +38,121 @@
   var MOBILE_MQ = '(max-width: 749px)';
   var announcementBarHeightPx = 0;
   var NON_CRITICAL_IDLE_TIMEOUT_MS = 2000;
+  var PERF_DEBUG_SCOPE_PREFIX = '[theme-perf]';
+  var perfDebugEnabled = false;
+  var hasObservedLongTasks = false;
+  var perfRegisteredListeners = typeof WeakMap === 'function' ? new WeakMap() : null;
+
+  try {
+    perfDebugEnabled =
+      window.__HORIZON_PERF_DEBUG__ === true ||
+      new URLSearchParams(window.location.search).get('perf_debug') === 'true';
+  } catch (error) {
+    perfDebugEnabled = window.__HORIZON_PERF_DEBUG__ === true;
+  }
+
+  function observeLongTasks(scope) {
+    if (!perfDebugEnabled || hasObservedLongTasks || typeof PerformanceObserver === 'undefined') {
+      return;
+    }
+
+    try {
+      var observer = new PerformanceObserver(function (list) {
+        list.getEntries().forEach(function (entry) {
+          if (entry.duration <= 50) {
+            return;
+          }
+          console.warn(PERF_DEBUG_SCOPE_PREFIX + '[' + scope + '] long task', {
+            name: entry.name || 'longtask',
+            duration: Math.round(entry.duration),
+            startTime: Math.round(entry.startTime),
+          });
+        });
+      });
+
+      observer.observe({ type: 'longtask', buffered: true });
+      hasObservedLongTasks = true;
+    } catch (error) {
+      console.warn(PERF_DEBUG_SCOPE_PREFIX + '[' + scope + '] failed to observe long tasks', error);
+    }
+  }
+
+  function logLongTask(scope, label, startTime, extra) {
+    if (!perfDebugEnabled) {
+      return;
+    }
+
+    var duration = performance.now() - startTime;
+    if (duration <= 50) {
+      return;
+    }
+
+    console.warn(PERF_DEBUG_SCOPE_PREFIX + '[' + scope + '] ' + label, Object.assign({
+      duration: Math.round(duration),
+    }, extra || {}));
+  }
+
+  function registerDebugListener(target, scope, key) {
+    if (!perfDebugEnabled || !perfRegisteredListeners || !target) {
+      return;
+    }
+
+    var registrations = perfRegisteredListeners.get(target);
+    if (!registrations) {
+      registrations = new Set();
+      perfRegisteredListeners.set(target, registrations);
+    }
+
+    if (registrations.has(key)) {
+      console.warn(PERF_DEBUG_SCOPE_PREFIX + '[' + scope + '] duplicate listener registration', {
+        key: key,
+        target: target,
+      });
+      return;
+    }
+
+    registrations.add(key);
+  }
+
+  function unregisterDebugListener(target, key) {
+    if (!perfRegisteredListeners || !target) {
+      return;
+    }
+
+    var registrations = perfRegisteredListeners.get(target);
+    if (!registrations) {
+      return;
+    }
+
+    registrations.delete(key);
+    if (!registrations.size) {
+      perfRegisteredListeners.delete(target);
+    }
+  }
+
+  function setCachedStyleProperty(target, property, value) {
+    if (!target || !target.style) {
+      return;
+    }
+
+    var cache = target._themePerfStyleCache;
+    if (!cache) {
+      cache = {};
+      target._themePerfStyleCache = cache;
+    }
+
+    if (cache[property] === value) {
+      return;
+    }
+
+    cache[property] = value;
+    target.style.setProperty(property, value);
+  }
 
   function setAnnouncementBarHeightPx(height) {
     var nextHeight = Math.max(0, Math.round(Number(height) || 0));
     announcementBarHeightPx = nextHeight;
-    document.documentElement.style.setProperty('--announcement-bar-height', nextHeight + 'px');
+    setCachedStyleProperty(document.documentElement, '--announcement-bar-height', nextHeight + 'px');
   }
 
   function scheduleNonCriticalTask(callback) {
@@ -111,6 +221,7 @@
   }
 
   function refreshHeaderGroupMeasurements(root) {
+    var startTime = performance.now();
     var hg = document.querySelector('#header-group');
     var staticGroupHeight = 0;
     var nextAnnouncementHeight = 0;
@@ -138,6 +249,10 @@
 
     root._customHeaderStaticGroupHeight = staticGroupHeight;
     setAnnouncementBarHeightPx(nextAnnouncementHeight);
+    logLongTask('custom-header', 'refreshHeaderGroupMeasurements', startTime, {
+      staticGroupHeight: staticGroupHeight,
+      announcementHeight: nextAnnouncementHeight,
+    });
   }
 
   function scrollTopEpsilon() {
@@ -250,13 +365,13 @@
    */
   function updateMobilePortalTopInset() {
     if (typeof window.matchMedia !== 'function' || !window.matchMedia(MOBILE_MQ).matches) {
-      document.documentElement.style.setProperty('--custom-header-mobile-portal-top', '0px');
+      setCachedStyleProperty(document.documentElement, '--custom-header-mobile-portal-top', '0px');
       return;
     }
     var st = getScrollTop();
     var eps = scrollTopEpsilon();
     var inset = st <= eps && announcementBarHeightPx > 0 ? announcementBarHeightPx + 'px' : '0px';
-    document.documentElement.style.setProperty('--custom-header-mobile-portal-top', inset);
+    setCachedStyleProperty(document.documentElement, '--custom-header-mobile-portal-top', inset);
   }
 
   /**
@@ -271,7 +386,8 @@
     }
     var metrics = refreshCustomHeaderMetrics(headerRoot);
     var reserve = Math.max(metrics.defaultHeight || 72, metrics.minimizedHeight || 56);
-    document.documentElement.style.setProperty(
+    setCachedStyleProperty(
+      document.documentElement,
       '--product-gallery-viewport-offset',
       announcementBarHeightPx + reserve + 'px'
     );
@@ -284,12 +400,12 @@
       staticGroupHeight = root._customHeaderStaticGroupHeight || 0;
     }
     var total = staticGroupHeight + getStableCustomHeaderHeightPx(root);
-    document.body.style.setProperty('--header-group-height', total + 'px');
+    setCachedStyleProperty(document.body, '--header-group-height', total + 'px');
   }
 
   function updateBodyHeaderHeight(root) {
     var h = getStableCustomHeaderHeightPx(root);
-    document.body.style.setProperty('--header-height', h + 'px');
+    setCachedStyleProperty(document.body, '--header-height', h + 'px');
     updateHeaderGroupHeight(root);
     syncProductGalleryViewportOffset();
   }
@@ -328,9 +444,16 @@
   }
 
   function initCustomHeader(root) {
-    if (!root || root.dataset.customHeaderJs === 'initialized') {
+    if (!root) {
       return;
     }
+    if (root.dataset.customHeaderJs === 'initialized') {
+      registerDebugListener(root, 'custom-header', 'duplicate-init');
+      unregisterDebugListener(root, 'duplicate-init');
+      return;
+    }
+    observeLongTasks('theme');
+    registerDebugListener(root, 'custom-header', 'init');
 
     var mediaMobile = window.matchMedia(MOBILE_MQ);
     var sectionEl = root.closest('.shopify-section');
@@ -564,6 +687,7 @@
 
     var layoutRaf = null;
     var onScrollFrame = function () {
+      var startTime = performance.now();
       var scrollTop = getScrollTop();
       var delta = scrollTop - prevScrollTop;
       prevScrollTop = scrollTop;
@@ -708,6 +832,10 @@
         }
       }
       /* delta === 0 (idle): keep current state, no change */
+      logLongTask('custom-header', 'onScrollFrame', startTime, {
+        scrollTop: Math.round(scrollTop),
+        headerState: root.dataset.headerState || full,
+      });
     };
 
     function scheduleScrollUpdate() {
@@ -825,6 +953,7 @@
       }
       closeAllMobilePanels();
       setScrollLock(false);
+      unregisterDebugListener(root, 'init');
       root.dataset.customHeaderJs = '';
       delete root._customHeaderScheduleScroll;
       delete root._customHeaderCleanup;

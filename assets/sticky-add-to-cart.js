@@ -94,6 +94,7 @@ class StickyAddToCartComponent extends Component {
     const target = this.#sectionElement;
     target?.addEventListener(ThemeEvents.variantUpdate, this.#handleVariantUpdate, { signal });
     target?.addEventListener(ThemeEvents.variantSelected, this.#handleVariantSelected, { signal });
+    this.refs.stickyBar?.addEventListener('click', this.#handleStickyBarClick, { signal });
 
     document.addEventListener(ThemeEvents.cartUpdate, this.#handleCartAddComplete, { signal });
     document.addEventListener(ThemeEvents.cartError, this.#handleCartAddComplete, { signal });
@@ -273,19 +274,56 @@ class StickyAddToCartComponent extends Component {
 
   // Public action handlers
   /**
+   * Handles direct click delegation for the portaled sticky bar.
+   * Declarative `on:*` handlers no longer resolve once the bar is moved under `document.body`.
+   * @param {MouseEvent} event
+   */
+  #handleStickyBarClick = (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const stickyAddToCartButton = target.closest('[ref="addToCartButton"]');
+    if (!(stickyAddToCartButton instanceof HTMLButtonElement)) return;
+
+    event.preventDefault();
+    this.handleAddToCartClick();
+  };
+
+  /**
    * Handles the add to cart button click in the sticky bar
    */
   handleAddToCartClick = async () => {
-    if (!this.#targetAddToCartButton) return;
-    this.#targetAddToCartButton.dataset.puppet = 'true';
-    this.#targetAddToCartButton.click();
-    const cartIcon = document.querySelector('.header-actions__cart-icon');
+    const productForm = this.#getProductForm();
+    const targetForm = /** @type {HTMLFormElement | null} */ (productForm?.querySelector('form'));
+    const liveTargetAddToCartButton = /** @type {HTMLButtonElement | null} */ (
+      productForm?.querySelector('[ref="addToCartButton"]')
+    );
 
-    if (this.refs.addToCartButton.dataset.added !== 'true') {
-      this.refs.addToCartButton.dataset.added = 'true';
+    if (liveTargetAddToCartButton) {
+      this.#targetAddToCartButton = liveTargetAddToCartButton;
     }
 
-    if (!cartIcon || !this.refs.addToCartButton || !this.refs.productImage) return;
+    if (!(targetForm instanceof HTMLFormElement)) return;
+
+    if (typeof targetForm.requestSubmit === 'function') {
+      targetForm.requestSubmit();
+    } else if (this.#targetAddToCartButton) {
+      this.#targetAddToCartButton.dataset.puppet = 'true';
+      this.#targetAddToCartButton.click();
+    } else {
+      return;
+    }
+
+    const cartIcon = document.querySelector('.header-actions__cart-icon');
+    const stickyAddToCartButton = /** @type {HTMLButtonElement | null} */ (
+      this.refs.stickyBar?.querySelector('[ref="addToCartButton"]')
+    );
+
+    if (stickyAddToCartButton?.dataset.added !== 'true') {
+      stickyAddToCartButton.dataset.added = 'true';
+    }
+
+    if (!cartIcon || !stickyAddToCartButton || !this.refs.productImage) return;
     if (this.#resetTimeout) clearTimeout(this.#resetTimeout);
 
     const flyToCartElement = /** @type {FlyToCart} */ (document.createElement('fly-to-cart'));
@@ -299,9 +337,9 @@ class StickyAddToCartComponent extends Component {
 
     document.body.appendChild(flyToCartElement);
 
-    await onAnimationEnd([this.refs.addToCartButton, flyToCartElement]);
+    await onAnimationEnd([stickyAddToCartButton, flyToCartElement]);
     this.#resetTimeout = setTimeout(() => {
-      this.refs.addToCartButton.removeAttribute('data-added');
+      stickyAddToCartButton.removeAttribute('data-added');
     }, 800);
   };
 
@@ -457,7 +495,14 @@ class StickyAddToCartComponent extends Component {
    * Updates the button text to include quantity
    */
   #updateButtonText() {
-    const { addToCartButton, quantityDisplay, quantityNumber } = this.refs;
+    const stickyRoot = this.refs.stickyBar;
+    const addToCartButton = /** @type {HTMLButtonElement | null} */ (
+      stickyRoot?.querySelector('[ref="addToCartButton"]')
+    );
+    const quantityDisplay = /** @type {HTMLElement | null} */ (stickyRoot?.querySelector('[ref="quantityDisplay"]'));
+    const quantityNumber = /** @type {HTMLElement | null} */ (stickyRoot?.querySelector('[ref="quantityNumber"]'));
+
+    if (!addToCartButton || !quantityDisplay || !quantityNumber) return;
 
     const available = !addToCartButton.disabled;
 

@@ -4233,3 +4233,11 @@ product-recommendations:has([data-has-recommendations='false']) {
     translate: 0px var(--atc-destination, 0px);
   }
 }
+
+#shop-hcaptcha-badge-container {
+  display: none!important;
+}
+
+.yotpo-reviews-tab-layout {
+  display: none!important;
+}

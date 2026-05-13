@@ -131,11 +131,12 @@
                   "type": "_product-rating-summary",
                   "name": "Rating",
                   "settings": {
-                    "integration_mode": "yotpo_star_rating",
+                    "integration_mode": "yotpo_star_rating_widget",
+                    "yotpo_widget_instance_id": "824555",
                     "placeholder_rating": 4.5,
                     "placeholder_review_count": 5,
-                    "shopify_fallback_to_placeholder": true,
-                    "yotpo_show_placeholder_in_editor": true,
+                    "shopify_fallback_to_placeholder": false,
+                    "yotpo_show_placeholder_in_editor": false,
                     "show_review_count": true,
                     "star_color": "#c5a059",
                     "star_empty_color": "#d4d4d4",
@@ -718,6 +719,17 @@
         "cta_size_desktop": 16,
         "cta_size_mobile": 14
       }
+    },
+    "custom_liquid_mNMFK6": {
+      "type": "custom-liquid",
+      "name": "t:names.custom_liquid",
+      "settings": {
+        "custom_liquid": "<div class=\"yotpo-widget-instance\" data-yotpo-instance-id=\"234945\" data-yotpo-product-id=\"{{product.id}}\" data-yotpo-name=\"{{ product.title | escape }}\" data-yotpo-url=\"{{ shop.url }}{{ product.url }}\" data-yotpo-image-url=\"{{ product.featured_image | product_img_url: \"large\" | prepend: \"https:\" | replace: '?', '%3F' | replace: '&','%26'}}\" data-yotpo-price=\"{{ product.price | divided_by: 100.00 }}\" data-yotpo-currency=\"{{ shop.currency }}\" data-yotpo-description=\"{{ product.description | escape }}\"></div>",
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "section_width": "page-width",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
     }
   },
   "order": [
@@ -725,6 +737,7 @@
     "product_story_scroll_jHfTGB",
     "section_JyTyxe",
     "tea_origin_map_ewBtD4",
-    "custom_blog_recipes_B8B4a8"
+    "custom_blog_recipes_B8B4a8",
+    "custom_liquid_mNMFK6"
   ]
 }

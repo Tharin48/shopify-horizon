@@ -121,14 +121,14 @@
             </tr>
           </thead>
 
-          <tbody role="rowgroup">
+          <tbody role="rowgroup" data-csapp_line_wrapper>
             {% for item in cart.items %}
               <tr
                 role="row"
                 class="cart-items__table-row{% if item.parent_relationship.parent != null %} cart-items__nested-line{% endif %}{% unless item.unit_price_measurement %} cart-items__table-row--full-width-variants{% endunless %}"
                 ref="cartItemRows[]"
                 data-parent-key="{{ item.parent_relationship.parent.key }}"
-                data-key="{{ item.key }}"
+                data-key="{{ item.key }}"  data-csapp_line_index
               >
                 <td
                   class="cart-items__media"
@@ -264,7 +264,7 @@
                     {%- endif -%}
                   </div>
 
-                  <div class="cart-items__unit-price-wrapper">
+                  <div class="cart-items__unit-price-wrapper" data-csapp_price >
                     <div>
                       {% if item.original_price != item.final_price %}
                         <span class="visually-hidden">{{ 'content.price_sale' | t }}</span>
@@ -365,7 +365,7 @@
                 <td
                   class="cart-items__price cart-secondary-typography"
                   role="cell"
-                  headers="productTotal"
+                  headers="productTotal" data-csapp_line_price  data-csapp_discount_summery
                 >
                   <text-component value="{{ price | strip_html }}">{{ price }}</text-component>
                   {%- if item.unit_price_measurement -%}

@@ -361,8 +361,22 @@
     }
   }
 
-  for (const moduleConfig of conditionalModules) {
-    ensureModule(moduleConfig);
+  function runInitialConditionalModuleScan(root = document) {
+    for (const moduleConfig of conditionalModules) {
+      ensureModule(moduleConfig, root);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      () => {
+        runInitialConditionalModuleScan();
+      },
+      { once: true }
+    );
+  } else {
+    runInitialConditionalModuleScan();
   }
 
   document.addEventListener('pointerover', handleInteractionModuleEvent, true);
@@ -373,9 +387,7 @@
   document.addEventListener('shopify:section:load', (event) => {
     const root = event.target instanceof Element ? event.target : document;
 
-    for (const moduleConfig of conditionalModules) {
-      ensureModule(moduleConfig, root);
-    }
+    runInitialConditionalModuleScan(root);
   });
 </script>
 

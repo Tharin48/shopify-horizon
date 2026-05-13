@@ -1,7 +1,13 @@
 import { Component } from '@theme/component';
 import { fetchConfig, preloadImage, onAnimationEnd, yieldToMainThread } from '@theme/utilities';
 import { ThemeEvents, CartAddEvent, CartErrorEvent, CartUpdateEvent, VariantUpdateEvent } from '@theme/events';
-import { cartPerformance } from '@theme/performance';
+import {
+  cartPerformance,
+  logLongTask,
+  observeLongTasks,
+  registerDebugListener,
+  unregisterDebugListener,
+} from '@theme/performance';
 import { morph } from '@theme/morph';
 
 // Error message display duration - gives users time to read the message
@@ -19,6 +25,7 @@ const shouldLogTempCartDebug = () => {
   return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
 };
 
+/** @type {(...args: unknown[]) => void} */
 const logTempCartDebug = (...args) => {
   if (!shouldLogTempCartDebug()) return;
   console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
@@ -220,6 +227,8 @@ class ProductFormComponent extends Component {
 
   connectedCallback() {
     super.connectedCallback();
+    observeLongTasks('theme');
+    registerDebugListener(this, 'product-form', 'cart-update-listener');
 
     const { signal } = this.#abortController;
     const target = this.closest('.shopify-section, dialog, product-card');
@@ -233,6 +242,7 @@ class ProductFormComponent extends Component {
   disconnectedCallback() {
     super.disconnectedCallback();
 
+    unregisterDebugListener(this, 'cart-update-listener');
     this.#abortController.abort();
   }
 
@@ -336,6 +346,7 @@ class ProductFormComponent extends Component {
    * @param {Event} [event]
    */
   #processAddToCart(overrideVariantId, overrideQuantity, event) {
+    const startTime = performance.now();
     const { addToCartTextError } = this.refs;
 
     if (this.#timeout) clearTimeout(this.#timeout);
@@ -404,14 +415,14 @@ class ProductFormComponent extends Component {
       formData.set('quantity', overrideQuantity.toString());
     }
 
-    const cartItemsComponents = document.querySelectorAll('cart-items-component');
-    let cartItemComponentsSectionIds = [];
-    cartItemsComponents.forEach((item) => {
-      if (item instanceof HTMLElement && item.dataset.sectionId) {
-        cartItemComponentsSectionIds.push(item.dataset.sectionId);
-      }
+    const cartItemComponentsSectionIds = Array.from(document.querySelectorAll('cart-items-component'))
+      .filter((item) => item instanceof HTMLElement && item.dataset.sectionId)
+      .map((item) => /** @type {HTMLElement} */ (item).dataset.sectionId)
+      .filter(Boolean);
+
+    if (cartItemComponentsSectionIds.length) {
       formData.append('sections', cartItemComponentsSectionIds.join(','));
-    });
+    }
 
     const fetchCfg = fetchConfig('javascript', { body: formData });
     const requestVariantId = (overrideVariantId || formData.get('id') || '').toString();
@@ -547,6 +558,7 @@ class ProductFormComponent extends Component {
           productId: this.dataset.productId || null,
           variantId: requestVariantId,
         });
+        logLongTask('product-form', 'processAddToCart', startTime);
         if (event) {
           cartPerformance.measureFromEvent('add:user-action', event);
         }

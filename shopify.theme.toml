@@ -3,3 +3,7 @@ store = "dilmah-global.myshopify.com"
 
 [environments.srilanka]
 store = "dilmahtea-srilanka.myshopify.com"
+
+[environments.nz]
+store = "dilmah-nz.myshopify.com"
+theme = "154145030282"

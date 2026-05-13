@@ -182,7 +182,7 @@
               "type": "text",
               "name": "t:names.text",
               "settings": {
-                "text": "<p>Flovour, Family, Legacy of kindness. </p>",
+                "text": "<p>Flavour, Family, Legacy of kindness. </p>",
                 "width": "100%",
                 "max_width": "normal",
                 "alignment": "center",
@@ -828,6 +828,75 @@
         "padding_x_mobile": 20
       }
     },
+    "section_xnXwAH": {
+      "type": "section",
+      "blocks": {
+        "icon_button_8Q3apK": {
+          "type": "icon-button",
+          "name": "Icon button",
+          "settings": {
+            "label": "Explore More",
+            "link": "shopify://collections/all",
+            "open_in_new_tab": false,
+            "font_size": 16,
+            "padding_vertical": 12,
+            "padding_horizontal": 16,
+            "border_radius": 50,
+            "border_width": 0,
+            "width_mode": "auto",
+            "desktop_width_percent": 100,
+            "full_width_mobile_tablet": false,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "show_icon": true,
+            "icon": "arrow",
+            "icon_position": "right",
+            "icon_size": 24,
+            "icon_spacing": 8,
+            "color_mode": "custom",
+            "background": "#ffffff",
+            "text_color": "#bc9407",
+            "border_color": "#bc9407",
+            "hover_background": "#ad8702",
+            "hover_text_color": "#ffffff",
+            "hover_border_color": "#bc9407"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "icon_button_8Q3apK"
+      ],
+      "name": "Explore More",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "center",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "custom_class": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 24,
+        "padding-block-end": 48
+      }
+    },
     "category_explore_pX9DGc": {
       "type": "category-explore",
       "blocks": {
@@ -1017,75 +1086,6 @@
         "padding_block_end_desktop": 48,
         "padding_inline_start_desktop": 80,
         "padding_inline_end_desktop": 80
-      }
-    },
-    "section_xnXwAH": {
-      "type": "section",
-      "blocks": {
-        "icon_button_8Q3apK": {
-          "type": "icon-button",
-          "name": "Icon button",
-          "settings": {
-            "label": "Explore More",
-            "link": "shopify://collections/all",
-            "open_in_new_tab": false,
-            "font_size": 16,
-            "padding_vertical": 12,
-            "padding_horizontal": 16,
-            "border_radius": 50,
-            "border_width": 0,
-            "width_mode": "auto",
-            "desktop_width_percent": 100,
-            "full_width_mobile_tablet": false,
-            "inherit_color_scheme": true,
-            "color_scheme": "",
-            "show_icon": true,
-            "icon": "arrow",
-            "icon_position": "right",
-            "icon_size": 24,
-            "icon_spacing": 8,
-            "color_mode": "custom",
-            "background": "#ffffff",
-            "text_color": "#bc9407",
-            "border_color": "#bc9407",
-            "hover_background": "#ad8702",
-            "hover_text_color": "#ffffff",
-            "hover_border_color": "#bc9407"
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "icon_button_8Q3apK"
-      ],
-      "name": "Explore More",
-      "settings": {
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "flex-start",
-        "vertical_alignment": "center",
-        "align_baseline": false,
-        "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "center",
-        "gap": 12,
-        "section_width": "page-width",
-        "section_height": "",
-        "section_height_custom": 50,
-        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-        "custom_class": "",
-        "background_media": "none",
-        "video_position": "cover",
-        "background_image_position": "cover",
-        "border": "none",
-        "border_width": 1,
-        "border_opacity": 100,
-        "border_radius": 0,
-        "toggle_overlay": false,
-        "overlay_color": "#00000026",
-        "overlay_style": "solid",
-        "gradient_direction": "to top",
-        "padding-block-start": 24,
-        "padding-block-end": 48
       }
     },
     "featured_editorial_product_carousel_gpdkQ8": {
@@ -2318,6 +2318,7 @@
       "block_order": [
         "instareel_ig_reels_instagram_reels_feed_hgVDEF"
       ],
+      "disabled": true,
       "name": "Explore the Feed",
       "settings": {
         "content_direction": "column",
@@ -2507,8 +2508,8 @@
     "custom_hero_DNMLjC",
     "leaf_story_3R7cwY",
     "teamakers_pick_wTax67",
-    "category_explore_pX9DGc",
     "section_xnXwAH",
+    "category_explore_pX9DGc",
     "featured_editorial_product_carousel_gpdkQ8",
     "section_6rkTCY",
     "slideshow_AHNTG8",

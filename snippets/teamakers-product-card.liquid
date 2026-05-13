@@ -179,16 +179,16 @@
       </h3>
 
       {% if show_review %}
-        {% assign rating_value = card_product.metafields.reviews.rating.value %}
-        {% assign rating_count = card_product.metafields.reviews.rating_count %}
-        {% if rating_value != blank %}
-          <p class="teamakers-pick__rating">
-            <span class="teamakers-pick__rating-stars" aria-hidden="true">★★★★★</span>
-            <span class="teamakers-pick__rating-value">{{ rating_value }}</span>
-            {% if rating_count != blank %}
-              <span class="teamakers-pick__rating-count">({{ rating_count }})</span>
-            {% endif %}
-          </p>
+        {% if card_product != blank %}
+          <div class="teamakers-pick__rating">
+            <div
+              class="yotpo-widget-instance"
+              data-yotpo-instance-id="824555"
+              data-yotpo-product-id="{{ card_product.id }}"
+              data-yotpo-cart-product-id="{{ card_product.id }}"
+              data-yotpo-section-id="{{ template.name }}"
+            ></div>
+          </div>
         {% endif %}
       {% endif %}
 

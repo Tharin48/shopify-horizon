@@ -1132,7 +1132,7 @@
                   "type": "text",
                   "name": "t:names.text",
                   "settings": {
-                    "text": "<p>© 2026 <a href=\"http://127.0.0.1:9292/\">Dilmah Ceylon Tea</a>. All Right Recerved.</p>",
+                    "text": "<p>© 2026 <a href=\"https://shop.dilmahtea.com/\">Dilmah Ceylon Tea</a>. All Rights Reserved.</p>",
                     "width": "fit-content",
                     "max_width": "normal",
                     "alignment": "left",
@@ -1203,7 +1203,7 @@
                   "type": "social-links",
                   "name": "t:names.social_media_links",
                   "settings": {
-                    "facebook_url": "#https://www.facebook.com/dilmah",
+                    "facebook_url": "https://www.facebook.com/dilmah",
                     "instagram_url": "https://www.instagram.com/dilmahceylontea/",
                     "youtube_url": "https://www.youtube.com/user/DilmahRealTea",
                     "tiktok_url": "https://www.tiktok.com/@dilmah_tea?lang=en",

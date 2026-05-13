@@ -1,5 +1,11 @@
 import { ResizeNotifier } from '@theme/utilities';
 import { DeclarativeShadowElement } from '@theme/component';
+import {
+  logLongTask,
+  observeLongTasks,
+  registerDebugListener,
+  unregisterDebugListener,
+} from '@theme/performance';
 
 /**
  * Event class for overflow minimum items updates
@@ -49,6 +55,7 @@ export class OverflowList extends DeclarativeShadowElement {
 
   async connectedCallback() {
     super.connectedCallback();
+    observeLongTasks('theme');
 
     // Styles for dynamically injected <overflow-list> elements are async.
     // We need to wait for them to be loaded before initializing the element to properly calculate the overflow.
@@ -106,13 +113,10 @@ export class OverflowList extends DeclarativeShadowElement {
       placeholder,
     };
 
-    // Add event listener for reflow requests
-    this.addEventListener(
-      'reflow',
-      /** @param {CustomEvent<{lastVisibleElement?: HTMLElement}>} event */ (event) => {
-        this.#reflowItems(0, event.detail.lastVisibleElement);
-      }
-    );
+    unregisterDebugListener(this, 'reflow-listener');
+    this.removeEventListener('reflow', this.#handleReflowRequest);
+    registerDebugListener(this, 'overflow-list', 'reflow-listener');
+    this.addEventListener('reflow', this.#handleReflowRequest);
 
     // When <overflow-list> is dynamically injected, the browser doesn't remove its <template> automatically.
     // In theory, we could get rid of it now, or in DeclarativeShadowElement, but that would invalidate the layout.
@@ -132,6 +136,8 @@ export class OverflowList extends DeclarativeShadowElement {
   }
 
   disconnectedCallback() {
+    unregisterDebugListener(this, 'reflow-listener');
+    this.removeEventListener('reflow', this.#handleReflowRequest);
     this.#resizeObserver.disconnect();
     this.#mutationObserver.disconnect();
     this.#intersectionObserver.disconnect();
@@ -197,6 +203,13 @@ export class OverflowList extends DeclarativeShadowElement {
   };
 
   /**
+   * @param {CustomEvent<{lastVisibleElement?: HTMLElement}>} event
+   */
+  #handleReflowRequest = (event) => {
+    this.#reflowItems(0, event.detail.lastVisibleElement);
+  };
+
+  /**
    * Move all items to the default slot.
    */
   #moveItemsToDefaultSlot() {
@@ -257,6 +270,7 @@ export class OverflowList extends DeclarativeShadowElement {
    * @param {HTMLElement | null} [lastVisibleElement] Optional element to place in last visible position
    */
   #reflowItems = (listHeight = 0, lastVisibleElement = null) => {
+    const startTime = performance.now();
     const { defaultSlot, overflowSlot, moreSlot, list, placeholder } = this.#refs;
 
     this.#unobserveChanges();
@@ -276,6 +290,7 @@ export class OverflowList extends DeclarativeShadowElement {
     let visibleElements = [];
     /** @type {Element[]} */
     let overflowingElements = [];
+    const overflowingSet = new Set();
     let placeholderWidth = 0;
     let hasOverflow = false;
 
@@ -293,18 +308,19 @@ export class OverflowList extends DeclarativeShadowElement {
 
     lastVisibleElement?.style.setProperty('order', '-1');
 
-    const moreSlotRect = moreSlot.getBoundingClientRect();
+    const moreSlotTop = moreSlot.offsetTop;
 
     elements.forEach((element) => {
-      const elementRect = element.getBoundingClientRect();
+      const elementTop = element instanceof HTMLElement ? element.offsetTop : 0;
 
-      if (elementRect.top > moreSlotRect.top) {
+      if (elementTop > moreSlotTop) {
         if (!overflowingElements.length) {
-          placeholderWidth = elementRect.width;
+          placeholderWidth = element instanceof HTMLElement ? element.offsetWidth : 0;
         }
 
         hasOverflow = true;
         overflowingElements.push(element);
+        overflowingSet.add(element);
       } else {
         visibleElements.push(element);
       }
@@ -317,7 +333,7 @@ export class OverflowList extends DeclarativeShadowElement {
 
     // Move the elements to the correct slot.
     for (const element of elements) {
-      const targetSlot = overflowingElements.includes(element) ? overflowSlot.name : defaultSlot.name;
+      const targetSlot = overflowingSet.has(element) ? overflowSlot.name : defaultSlot.name;
       if (element.slot !== targetSlot) {
         element.slot = targetSlot;
       }
@@ -341,6 +357,10 @@ export class OverflowList extends DeclarativeShadowElement {
     hasOverflow && this.#updateMinimumReached(visibleElements);
 
     this.#observeChanges();
+    logLongTask('overflow-list', 'reflowItems', startTime, {
+      totalItems: elements.length,
+      overflowingItems: overflowingElements.length,
+    });
   };
 
   #observeChanges() {

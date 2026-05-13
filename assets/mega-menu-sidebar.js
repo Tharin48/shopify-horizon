@@ -2,6 +2,13 @@
  * Sidebar mega menu: switches L3 panels when L2 tabs are hovered, focused, or clicked.
  * Updates header submenu height when panel content size changes.
  */
+import {
+  logLongTask,
+  observeLongTasks,
+  registerDebugListener,
+  unregisterDebugListener,
+} from '@theme/performance';
+
 class MegaMenuSidebar extends HTMLElement {
   /** @type {ResizeObserver | undefined} */
   #resizeObserver;
@@ -15,7 +22,16 @@ class MegaMenuSidebar extends HTMLElement {
   /** @type {number | null} */
   #pendingResetTimer = null;
 
+  /** @type {number | null} */
+  #pendingHeightSyncFrame = null;
+
+  /** @type {number | null} */
+  #activeIndex = null;
+
   connectedCallback() {
+    observeLongTasks('theme');
+    registerDebugListener(this, 'mega-menu-sidebar', 'connected');
+
     this.#abortController?.abort();
     this.#abortController = new AbortController();
     const { signal } = this.#abortController;
@@ -24,48 +40,60 @@ class MegaMenuSidebar extends HTMLElement {
 
     this.#resizeObserver?.disconnect();
     this.#resizeObserver = new ResizeObserver(() => {
-      this.#syncSubmenuHeight();
+      this.#scheduleSubmenuHeightSync();
     });
     this.#resizeObserver.observe(this);
   }
 
   disconnectedCallback() {
+    unregisterDebugListener(this, 'connected');
     this.#abortController?.abort();
     this.#abortController = undefined;
     this.#resizeObserver?.disconnect();
     this.#resizeObserver = undefined;
     this.#clearActivateTimer();
     this.#clearResetTimer();
+    this.#cancelHeightSync();
+    this.#activeIndex = null;
   }
 
   /**
    * @param {AbortSignal} signal
    */
   #init(signal) {
-    const tabs = this.querySelectorAll('[data-mega-sidebar-tab]');
-    const panels = this.querySelectorAll('[data-mega-sidebar-panel]');
+    const tabs = Array.from(this.querySelectorAll('[data-mega-sidebar-tab]')).filter((tab) => tab instanceof HTMLElement);
+    const panels = Array.from(this.querySelectorAll('[data-mega-sidebar-panel]')).filter(
+      (panel) => panel instanceof HTMLElement
+    );
     const defaultPanel = this.querySelector('[data-mega-sidebar-default-panel]');
-    const directLinks = this.querySelectorAll('[data-mega-sidebar-direct-link]');
+    const directLinks = Array.from(this.querySelectorAll('[data-mega-sidebar-direct-link]')).filter(
+      (link) => link instanceof HTMLElement
+    );
 
     if (!tabs.length || !panels.length) return;
 
     const fallbackToDefault = () => {
       if (defaultPanel instanceof HTMLElement) {
+        if (this.#activeIndex === null && defaultPanel.hidden === false) {
+          this.#scheduleSubmenuHeightSync();
+          return;
+        }
+
+        this.#activeIndex = null;
         for (const tab of tabs) {
           tab.setAttribute('aria-expanded', 'false');
         }
 
         defaultPanel.hidden = false;
         for (const panel of panels) {
-          if (panel instanceof HTMLElement) panel.hidden = true;
+          panel.hidden = true;
         }
 
-        this.#syncSubmenuHeight();
+        this.#scheduleSubmenuHeightSync();
         return;
       }
 
       const firstTab = tabs[0];
-      if (!(firstTab instanceof HTMLElement)) return;
       const firstIndex = Number(firstTab.getAttribute('data-mega-sidebar-index'));
       if (!Number.isNaN(firstIndex)) {
         activate(firstIndex);
@@ -82,6 +110,12 @@ class MegaMenuSidebar extends HTMLElement {
 
     const activate = (/** @type {number} */ index) => {
       this.#clearResetTimer();
+      if (this.#activeIndex === index) {
+        this.#scheduleSubmenuHeightSync();
+        return;
+      }
+
+      this.#activeIndex = index;
       if (defaultPanel instanceof HTMLElement) {
         defaultPanel.hidden = true;
       }
@@ -91,19 +125,19 @@ class MegaMenuSidebar extends HTMLElement {
         tab.setAttribute('aria-expanded', isMatch ? 'true' : 'false');
       }
       for (const panel of panels) {
-        if (!(panel instanceof HTMLElement)) continue;
         const panelIndex = Number(panel.getAttribute('data-mega-sidebar-index'));
-        if (panelIndex === index) {
-          panel.hidden = false;
-        } else {
-          panel.hidden = true;
-        }
+        panel.hidden = panelIndex !== index;
       }
-      this.#syncSubmenuHeight();
+      this.#scheduleSubmenuHeightSync();
     };
 
     /** @param {number} index */
     const scheduleActivate = (index) => {
+      if (this.#activeIndex === index) {
+        this.#clearResetTimer();
+        return;
+      }
+
       this.#clearActivateTimer();
       this.#clearResetTimer();
       this.#pendingActivateTimer = window.setTimeout(() => {
@@ -166,9 +200,7 @@ class MegaMenuSidebar extends HTMLElement {
     /** @param {KeyboardEvent} event */
     const onDocumentKeydown = (event) => {
       if (!this.contains(document.activeElement)) return;
-      const tabElements = [...this.querySelectorAll('[data-mega-sidebar-tab]')].filter(
-        (el) => el instanceof HTMLElement
-      );
+      const tabElements = tabs;
       if (!tabElements.length) return;
       const currentIndex = tabElements.findIndex((t) => t.getAttribute('aria-expanded') === 'true');
       if (currentIndex < 0) {
@@ -195,6 +227,24 @@ class MegaMenuSidebar extends HTMLElement {
     document.addEventListener('keydown', onDocumentKeydown, { signal });
   }
 
+  #cancelHeightSync() {
+    if (this.#pendingHeightSyncFrame !== null) {
+      cancelAnimationFrame(this.#pendingHeightSyncFrame);
+      this.#pendingHeightSyncFrame = null;
+    }
+  }
+
+  #scheduleSubmenuHeightSync() {
+    if (this.#pendingHeightSyncFrame !== null) {
+      return;
+    }
+
+    this.#pendingHeightSyncFrame = requestAnimationFrame(() => {
+      this.#pendingHeightSyncFrame = null;
+      this.#syncSubmenuHeight();
+    });
+  }
+
   #clearActivateTimer() {
     if (this.#pendingActivateTimer !== null) {
       window.clearTimeout(this.#pendingActivateTimer);
@@ -210,6 +260,7 @@ class MegaMenuSidebar extends HTMLElement {
   }
 
   #syncSubmenuHeight() {
+    const startTime = performance.now();
     const submenu = this.closest('[ref="submenu[]"]');
     if (!(submenu instanceof HTMLElement)) return;
 
@@ -223,19 +274,24 @@ class MegaMenuSidebar extends HTMLElement {
     if (!root) return;
 
     const submenuHeight = submenu.offsetHeight;
-    root.style.setProperty('--submenu-height', `${submenuHeight}px`);
-
-    let headerVisibleHeight = root.offsetHeight;
+    const rootHeight = root.offsetHeight;
+    let headerVisibleHeight = rootHeight;
     if (horizonHeader && root === horizonHeader) {
       const isOverlap = horizonHeader.hasAttribute('data-submenu-overlap-bottom-row');
       const topRow = horizonHeader.querySelector('.header__row--top');
       const topRowHeight = topRow instanceof HTMLElement ? topRow.offsetHeight : 0;
+      const horizonHeight = horizonHeader.offsetHeight;
       headerVisibleHeight =
-        isOverlap && horizonHeader.offsetHeight > 0 ? topRowHeight : horizonHeader.offsetHeight;
+        isOverlap && horizonHeight > 0 ? topRowHeight : horizonHeight;
     }
 
     const fullOpen = submenuHeight === 0 ? 0 : submenuHeight + (headerVisibleHeight ?? 0);
+    root.style.setProperty('--submenu-height', `${submenuHeight}px`);
     root.style.setProperty('--full-open-header-height', `${fullOpen}px`);
+    logLongTask('mega-menu-sidebar', 'syncSubmenuHeight', startTime, {
+      submenuHeight,
+      headerVisibleHeight,
+    });
   }
 }
 
