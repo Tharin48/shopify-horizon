@@ -1,0 +1,6 @@
+{%- comment -%}
+  Above-the-fold stylesheets loaded in head (not from section body) to reduce header FOUC.
+{%- endcomment -%}
+{% # theme-check-disable MissingAsset %}
+{{ 'custom-header.css' | asset_url | stylesheet_tag: preload: true }}
+{% # theme-check-enable MissingAsset %}

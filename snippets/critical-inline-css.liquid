@@ -1,0 +1,66 @@
+{%- comment -%}
+  Minimal first-paint CSS to reduce FOUC before base.css and section styles apply.
+  Brand tokens use color scheme 8 (Dilmah default palette), not scheme 1.
+{%- endcomment -%}
+{%- liquid
+  assign brand_schemes = settings.color_schemes | where: 'id', 'scheme-8'
+  if brand_schemes.size > 0
+    assign brand_scheme = brand_schemes.first
+  else
+    assign brand_scheme = settings.color_schemes.first
+  endif
+
+  assign background_brightness = brand_scheme.settings.background | color_brightness
+  if background_brightness < 64
+    assign opacity_10_25 = 0.25
+  else
+    assign opacity_10_25 = 0.1
+  endif
+-%}
+
+{% style %}
+ 
+
+  html {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    max-width: 100%;
+    overflow-x: clip;
+    color: var(--color-foreground);
+    background-color: var(--color-background);
+  }
+
+  [data-custom-header] {
+    position: relative;
+    z-index: var(--layer-header, 100);
+    min-height: var(--custom-header-default-height, 72px);
+  }
+
+  .hero {
+    position: relative;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .hero__container,
+  .hero__media-grid {
+    position: relative;
+    min-height: inherit;
+  }
+
+  .hero__media,
+  .hero__media-wrapper {
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+{% endstyle %}

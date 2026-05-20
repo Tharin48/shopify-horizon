@@ -170,6 +170,7 @@
   background: rgba(255, 255, 255, 0.8);
   color: #16382f;
   font: inherit;
+  font-size: 16px;
 }
 
 .custom-newsletter-popup__input::placeholder {

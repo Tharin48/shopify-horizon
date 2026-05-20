@@ -177,7 +177,7 @@
       },
       "name": "t:names.custom_header",
       "settings": {
-        "show_tea_club_button": true,
+        "show_tea_club_button": false,
         "tea_club_label": "Tea Club",
         "tea_club_link": "",
         "show_wishlist": false,
@@ -185,7 +185,7 @@
         "wishlist_link": "",
         "show_localization": true,
         "localization_show_language": false,
-        "localization_show_flag": true,
+        "localization_show_flag": false,
         "enable_sticky_header": true,
         "enable_homepage_transparent_header": true,
         "scroll_threshold": 75,

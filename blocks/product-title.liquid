@@ -2,9 +2,17 @@
 {% liquid
   assign show_collection_link = block.settings.show_collection_link
   assign collection_target = block.settings.collection_link_target
+  assign title_is_clickable = true
+  assign is_editorial_product_title = false
+  if request.page_type == 'product'
+    assign title_is_clickable = false
+    if template.suffix == 'editorial'
+      assign is_editorial_product_title = true
+    endif
+  endif
 %}
 
-<div class="product-title-block">
+<div class="product-title-block{% if is_editorial_product_title %} product-title-block--editorial-product{% endif %}">
   {% if closest.product == blank %}
     {% assign text = 'placeholders.product_title' | t %}
     {% assign product_title = '<p role="heading" aria-level="3">' | append: text | append: '</p>' %}
@@ -24,13 +32,19 @@
     {%- endif -%}
   {% else %}
     {% assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title | append: '</p>' %}
-    <a
-      class="contents user-select-text"
-      ref="productTitleLink"
-      href="{{ closest.product.selected_or_first_available_variant.url }}"
-    >
-      {% render 'text', fallback_text: product_title, block: block %}
-    </a>
+    {% if title_is_clickable %}
+      <a
+        class="contents user-select-text"
+        ref="productTitleLink"
+        href="{{ closest.product.selected_or_first_available_variant.url }}"
+      >
+        {% render 'text', fallback_text: product_title, block: block %}
+      </a>
+    {% else %}
+      <div class="contents user-select-text">
+        {% render 'text', fallback_text: product_title, block: block %}
+      </div>
+    {% endif %}
     {%- if show_collection_link -%}
       {%- if collection_target != blank -%}
         <div
@@ -86,6 +100,10 @@
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
+  }
+
+  .product-title-block--editorial-product .text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) > * {
+    line-height: 1.15;
   }
 
   .product-title__collection-link {

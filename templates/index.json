@@ -68,7 +68,7 @@
           "type": "icon-button",
           "name": "Icon button",
           "settings": {
-            "label": "Explore All",
+            "label": "Shop Now",
             "link": "shopify://collections/all-products",
             "open_in_new_tab": false,
             "font_size": 16,
@@ -2441,7 +2441,7 @@
           "type": "icon-button",
           "name": "Icon button",
           "settings": {
-            "label": "Explore More",
+            "label": "Read All",
             "link": "shopify://pages/blog",
             "open_in_new_tab": false,
             "font_size": 16,
@@ -2499,7 +2499,7 @@
         "overlay_color": "#00000026",
         "overlay_style": "solid",
         "gradient_direction": "to top",
-        "padding-block-start": 24,
+        "padding-block-start": 0,
         "padding-block-end": 48
       }
     }

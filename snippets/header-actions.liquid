@@ -65,7 +65,14 @@
 >
   {% if shop.customer_accounts_enabled %}
     {% liquid
-      assign account_actions_style = ''
+      assign account_actions_style = '--shopify-account-color-background: rgb('
+      assign account_actions_style = account_actions_style | append: settings.popover_color_scheme.settings.background.rgba | append: ');'
+      assign account_actions_style = account_actions_style | append: ' --shopify-account-color-text: rgb('
+      assign account_actions_style = account_actions_style | append: settings.popover_color_scheme.settings.foreground.rgba | append: ');'
+      assign account_actions_style = account_actions_style | append: ' --shopify-account-color-accent: rgb('
+      assign account_actions_style = account_actions_style | append: settings.popover_color_scheme.settings.primary_button_background.rgba | append: ');'
+      assign account_actions_style = account_actions_style | append: ' --shopify-account-color-accent-text: rgb('
+      assign account_actions_style = account_actions_style | append: settings.popover_color_scheme.settings.primary_button_text.rgba | append: ');'
       if display_style == 'text' and section
         assign actions_font = section.settings.actions_font | default: 'body'
         assign font_obj = settings.type_heading_font
@@ -79,7 +86,7 @@
         endcase
         assign font_family = font_obj.family | append: ', ' | append: font_obj.fallback_families
         assign font_family_safe = font_family | replace: '"', "'"
-        assign account_actions_style = '--header-actions-font-family: ' | append: font_family_safe | append: '; --header-actions-font-weight: ' | append: font_obj.weight | append: ';'
+        assign account_actions_style = account_actions_style | append: ' --header-actions-font-family: ' | append: font_family_safe | append: '; --header-actions-font-weight: ' | append: font_obj.weight | append: ';'
       endif
     %}
     <div

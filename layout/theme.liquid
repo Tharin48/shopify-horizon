@@ -6,17 +6,8 @@
   lang="{{ request.locale.iso_code }}"
 >
   <head>{% render 'yoast-seo' %}
-    {%- comment -%} Google Tag Manager — global storefront; keep only in layout/theme.liquid for upstream safety. {%- endcomment -%}
-    <!-- Google Tag Manager -->
-    <script>
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-KNRRJS');
-    </script>
-    <!-- End Google Tag Manager -->
-    
+    {%- render 'seo-title-description' -%}
+
     {%- if settings.favicon != blank -%}
       <link
         rel="icon"
@@ -26,8 +17,15 @@
     {%- endif -%}
 
     {% # theme-check-disable RemoteAsset %}
-    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
-    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
+    {% comment %} View-transition render blocker: product pages only so homepage hard refresh is not delayed. {% endcomment %}
+    {% if settings.page_transition_enabled %}
+      <link
+        rel="expect"
+        href="#MainContent"
+        blocking="render"
+        id="view-transition-render-blocker"
+      >
+    {% elsif settings.transition_to_main_product and template.name == 'product' %}
       <link
         rel="expect"
         href="#MainContent"
@@ -37,17 +35,29 @@
     {% endif %}
 
     {%- render 'meta-tags' -%}
+    {%- render 'color-schemes' -%}
+    {%- render 'critical-inline-css' -%}
     {%- render 'stylesheets' -%}
     {%- render 'fonts' -%}
-    {%- render 'scripts' -%}
     {%- render 'theme-styles-variables' -%}
-    {%- render 'color-schemes' -%}
+    {%- render 'scripts' -%}
 
     {% if request.design_mode %}
       {%- render 'theme-editor' -%}
     {% endif %}
 
     {{ content_for_header }}
+
+    {%- comment -%} Google Tag Manager — after theme CSS so first paint is not blocked by tag manager. {%- endcomment -%}
+    <!-- Google Tag Manager -->
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-KNRRJS');
+    </script>
+    <!-- End Google Tag Manager -->
     {% # theme-check-enable RemoteAsset %}
   </head>
 
