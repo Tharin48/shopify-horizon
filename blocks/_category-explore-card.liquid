@@ -6,8 +6,25 @@
   if img_hover != blank and img != blank
     assign has_hover = true
   endif
-  assign alt = block.settings.image_alt | default: title | escape
   assign layout = block.settings.grid_position | default: 'compact_1'
+  assign custom_image_alt = block.settings.image_alt | strip
+  assign link_aria_label = ''
+
+  comment
+    Visible title inside the link already names the control; image alt must be empty to avoid duplicate announcements.
+    When there is no visible title, name the link via aria-label (from custom image alt or a short fallback).
+  endcomment
+  if title != blank
+    assign primary_image_alt = ''
+  elsif custom_image_alt != blank
+    assign primary_image_alt = ''
+    assign link_aria_label = custom_image_alt | escape
+  else
+    assign primary_image_alt = ''
+    if block.settings.link != blank
+      assign link_aria_label = 'accessibility.category_explore_card' | t
+    endif
+  endif
 
   assign mh_m = block.settings.card_min_height_mobile
   assign mh_d = block.settings.card_min_height_desktop
@@ -85,6 +102,9 @@
     <a
       href="{{ block.settings.link }}"
       class="category-explore-card__link"
+      {% if link_aria_label != blank %}
+        aria-label="{{ link_aria_label }}"
+      {% endif %}
       {% if block.settings.open_new_tab %}
         target="_blank"
         rel="noopener noreferrer"
@@ -110,7 +130,7 @@
           widths: '400,600,800,1000,1200,1600',
           sizes: '(min-width: 990px) 35vw, 90vw',
           class: 'category-explore-card__img category-explore-card__img--primary',
-          alt: alt
+          alt: primary_image_alt
       }}
     {% else %}
       <div class="category-explore-card__placeholder" aria-hidden="true"></div>

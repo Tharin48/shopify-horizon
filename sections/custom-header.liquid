@@ -396,6 +396,25 @@
     pointer-events: auto;
   }
 
+  #header-group
+    > .shopify-section:has(
+      .custom-header:has(
+          dropdown-localization-component[data-mobile-drawer='true'] .localization-wrapper:not([hidden])
+        )
+    ) {
+    z-index: calc(var(--custom-header-z) + 2);
+    pointer-events: auto;
+  }
+
+  /*
+   * Cart trigger must stay clickable when the bar is visually hidden (scroll-down state).
+   * pointer-events: none on [data-header-state='hidden'] otherwise blocks the icon entirely.
+   */
+  .custom-header[data-header-state='hidden'] .custom-header__actions-icons {
+    pointer-events: auto;
+    visibility: visible;
+  }
+
   .custom-header[data-header-state='hidden'] .custom-header__primary {
     min-height: var(--custom-header-minimized-height);
     max-height: var(--custom-header-minimized-height);
@@ -739,7 +758,11 @@
   }
 
   .custom-header__actions-icons > header-actions {
-    display: contents;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--gap-sm);
+    flex-shrink: 0;
   }
 
   .custom-header__actions-icons {
@@ -1070,10 +1093,136 @@
       max-height: none;
     }
 
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true'] {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      max-width: 100vw;
+      height: 100dvh;
+      max-height: 100dvh;
+      border: none;
+      border-inline-start: none;
+      border-radius: 0;
+      box-shadow: var(--shadow-popover);
+      background-color: var(--color-background);
+      z-index: 100001;
+      transition-property: display, opacity, translate;
+      transition-duration: 0.3s;
+      transition-timing-function: var(--ease-out-quad);
+      transition-behavior: allow-discrete;
+      translate: 100% 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 1;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true']:not([hidden]) {
+      translate: 0 0;
+    }
+
+    @starting-style {
+      .localization-wrapper[data-custom-header-mobile-localization-panel='true']:not([hidden]) {
+        translate: 100% 0;
+      }
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true']
+      .custom-header__localization-mobile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--gap-sm);
+      padding: max(env(safe-area-inset-top), var(--padding-lg)) var(--padding-lg) var(--padding-md);
+      border-bottom: var(--style-border-width) solid var(--color-border);
+      background-color: var(--color-background);
+      flex: 0 0 auto;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true']
+      .custom-header__localization-mobile-title {
+      margin: 0;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true']
+      .custom-header__localization-mobile-close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true']
+      .custom-header__localization-mobile-close:focus-visible {
+      outline: var(--focus-outline-width) solid currentcolor;
+      outline-offset: 2px;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true'] localization-form-component {
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true'] .localization-form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 0;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true'] .country-selector-form__wrapper {
+      min-height: 0;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true'] .country-filter__input,
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true'] .country-filter .field__label {
+      font-size: 16px;
+    }
+
+    .localization-wrapper[data-custom-header-mobile-localization-panel='true'] .localization-form__list {
+      max-height: none;
+    }
+
     .custom-header:has(
       dropdown-localization-component[data-mobile-drawer='true'] .localization-wrapper:not([hidden])
     ) {
+      top: 0 !important;
       transform: none !important;
+      visibility: visible;
+      pointer-events: auto;
+      will-change: auto;
+      z-index: calc(var(--custom-header-z) + 2);
+    }
+
+    .custom-header:has(
+      dropdown-localization-component[data-mobile-drawer='true'] .localization-wrapper:not([hidden])
+    )
+      .custom-header__primary {
+      overflow: visible;
+      max-height: none;
+    }
+
+    .custom-header:has(
+      dropdown-localization-component[data-mobile-drawer='true'] .localization-wrapper:not([hidden])
+    )
+      .custom-header__primary-inner,
+    .custom-header:has(
+      dropdown-localization-component[data-mobile-drawer='true'] .localization-wrapper:not([hidden])
+    )
+      .custom-header__actions,
+    .custom-header:has(
+      dropdown-localization-component[data-mobile-drawer='true'] .localization-wrapper:not([hidden])
+    )
+      .custom-header__actions-icons {
+      overflow: visible;
     }
 
     .custom-header:has(
@@ -1175,7 +1324,20 @@
       align-items: stretch; /* logo, lower all stretch to full height */
       padding-block: 0;     /* logo fills the entire minimized-height — no dead space */
       gap: 0;               /* logo flush against nav; spacing handled inside lower */
+      height: var(--custom-header-minimized-height);
       min-height: var(--custom-header-minimized-height);
+      max-height: var(--custom-header-minimized-height);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .custom-header[data-header-state='minimized'] .custom-header__primary,
+    .custom-header[data-header-state='hidden'] .custom-header__primary {
+      height: var(--custom-header-minimized-height);
+      min-height: var(--custom-header-minimized-height);
+      max-height: var(--custom-header-minimized-height);
+      box-sizing: border-box;
+      overflow: hidden;
     }
 
     /*

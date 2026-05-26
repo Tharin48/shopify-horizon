@@ -63,14 +63,15 @@
             </div>
             <input
               class="country-filter__input"
-              id="country-filter-input"
+              id="country-filter-input-{{ form_id }}"
               type="search"
               name="country_filter"
               value=""
               placeholder="{{ 'placeholders.search' | t }}"
               role="combobox"
-              aria-owns="country-results"
-              aria-controls="country-results"
+              aria-expanded="false"
+              aria-owns="{{ localization_style }}-country-results"
+              aria-controls="{{ localization_style }}-country-results"
               aria-haspopup="listbox"
               aria-autocomplete="list"
               aria-label="{{ 'accessibility.find_country' | t }}"
@@ -83,7 +84,7 @@
             >
             <label
               class="field__label visually-hidden"
-              for="country-filter-input"
+              for="country-filter-input-{{ form_id }}"
             >
               {{- 'content.search' | t -}}
             </label>
@@ -120,13 +121,14 @@
         <div
           class="localization-form__list"
           id="{{ localization_style }}-country-results"
+          role="listbox"
+          aria-label="{{ 'accessibility.country_region' | t }}"
           ref="countryList"
         >
           {% if show_popular_countries %}
             <ul
-              role="list"
+              role="presentation"
               class="list-unstyled popular-countries"
-              aria-label="{{ 'accessibility.country_region' | t }}"
               ref="popularCountries"
             >
               {%- for country in popular_countries -%}
@@ -173,7 +175,7 @@
             </ul>
           {% endif %}
           <ul
-            role="list"
+            role="presentation"
             class="list-unstyled countries"
           >
             <span

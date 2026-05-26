@@ -1,6 +1,6 @@
 import { DialogComponent, DialogOpenEvent, DialogCloseEvent } from '@theme/dialog';
 import { CartAddEvent } from '@theme/events';
-import { isMobileBreakpoint, isMinWidth990 } from '@theme/utilities';
+import { isMobileBreakpoint } from '@theme/utilities';
 
 const TEMP_CART_DEBUG_PREFIX = '[TEMP CART DEBUG]';
 
@@ -92,7 +92,7 @@ class CartDrawerComponent extends DialogComponent {
   };
 
   /**
-   * Handles cart add events - opens drawer if auto-open (990px+ only) and announces count when open.
+   * Handles cart add events - opens drawer if auto-open and announces count when open.
    * @param {Event} event
    */
   #handleCartAdd = (event) => {
@@ -106,10 +106,10 @@ class CartDrawerComponent extends DialogComponent {
       itemCount: detail.data?.itemCount || null,
       hasSections: Boolean(detail.data?.sections),
       autoOpen: this.hasAttribute('auto-open'),
-      isMinWidth990: isMinWidth990(),
+      isMobile: isMobileBreakpoint(),
     });
 
-    if (this.hasAttribute('auto-open') && isMinWidth990() && !detail.data?.didError) {
+    if (this.hasAttribute('auto-open') && !detail.data?.didError) {
       this.#scheduleAutoOpen();
     }
 

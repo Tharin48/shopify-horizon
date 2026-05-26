@@ -19,7 +19,19 @@
 -%}
 
 {% style %}
- 
+  /*
+   * Brand tokens — first-paint fallback so color: var(--color-foreground) etc. resolve
+   * before color-schemes.liquid full output is parsed by the browser.
+   */
+  :root {
+    --color-background: rgb({{ brand_scheme.settings.background.rgba }});
+    --color-background-rgb: {{ brand_scheme.settings.background.rgb }};
+    --color-foreground: rgb({{ brand_scheme.settings.foreground.rgba }});
+    --color-foreground-rgb: {{ brand_scheme.settings.foreground.rgb }};
+    --color-foreground-heading: rgb({{ brand_scheme.settings.foreground_heading.rgba }});
+    --color-border: rgb({{ brand_scheme.settings.border.rgba }});
+    --opacity-10-25: {{ opacity_10_25 }};
+  }
 
   html {
     max-width: 100%;
@@ -35,6 +47,67 @@
     background-color: var(--color-background);
   }
 
+  /*
+   * Match base.css image rules so images are contained before base.css loads.
+   * Without these, images render at natural (giant) size on cold cache.
+   */
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  /*
+   * Product card image shell — covers teamakers-pick (homepage + collection).
+   * Prevents the "exploding product image" FOUC on first visit.
+   */
+  .teamakers-pick__image-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+  }
+
+  .teamakers-pick__image-stack {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  .teamakers-pick__image--primary,
+  .teamakers-pick__image--secondary {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /*
+   * Catalog grid shell — prevents full-width product cards before
+   * custom-collection-layout.css loads on collection pages.
+   */
+  .custom-catalog__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .custom-catalog__grid-item {
+    min-width: 0;
+  }
+
   [data-custom-header] {
     position: relative;
     z-index: var(--layer-header, 100);
@@ -47,10 +120,19 @@
     overflow: hidden;
   }
 
-  .hero__container,
-  .hero__media-grid {
+  .hero__container {
     position: relative;
+    display: flex;
+    overflow: hidden;
     min-height: inherit;
+  }
+
+  .hero__media-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    width: 100%;
+    height: 100%;
   }
 
   .hero__media,
@@ -58,9 +140,306 @@
     max-width: 100%;
   }
 
-  img,
-  video {
-    max-width: 100%;
-    height: auto;
+  .hero__media-wrapper {
+    position: relative;
+    overflow: hidden;
+    background-color: #000;
   }
+
+  .hero__media-wrapper > .hero__media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    object-fit: cover;
+  }
+
+  .hero__media-poster {
+    opacity: 1;
+  }
+
+  .hero__media-video-source {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .hero__media-video {
+    opacity: 0;
+  }
+
+  /*
+   * Homepage hero LCP — paint headline/body copy before section CSS,
+   * theme-styles-variables, and web fonts finish loading (reduces element render delay).
+   */
+  {% if template.name == 'index' %}
+  /* Homepage hero uses color_scheme scheme-6 (white copy on video) */
+  .hero.color-scheme-6 {
+    --color-foreground: #ffffff;
+    --color-foreground-heading: #ffffff;
+    --color-foreground-rgb: 255 255 255;
+  }
+
+  .hero__content-wrapper {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .hero__content-wrapper :is(a, button) {
+    pointer-events: auto;
+  }
+
+  .hero__content-wrapper .text-block {
+    width: 100%;
+    max-width: 32.5em;
+  }
+
+  .hero__content-wrapper .text-block > *:first-child {
+    margin-block-start: 0;
+  }
+
+  .hero__content-wrapper .text-block.h1 :is(h1, h2, h3, h4, h5, h6),
+  .hero__content-wrapper .text-block.h1 > * {
+    color: #ffffff;
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: clamp(1.75rem, 5vw, 3rem);
+    line-height: 1.15;
+    font-weight: 400;
+  }
+
+  /* LCP element: hero body copy (<p> inside rte-formatter.paragraph) */
+  .hero__content-wrapper rte-formatter.text-block.paragraph,
+  .hero__content-wrapper .text-block.paragraph {
+    color: #ffffff;
+  }
+
+  .hero__content-wrapper rte-formatter.text-block.paragraph :is(p, li),
+  .hero__content-wrapper .text-block.paragraph :is(p, li),
+  .hero__content-wrapper .text-block.paragraph > * {
+    color: #ffffff;
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
+    -webkit-font-smoothing: antialiased;
+  }
+  {% endif %}
+
+  /* Category explore cards (homepage) — contain large source images before section CSS loads */
+  .category-explore-card__media {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .category-explore-card__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+  }
+
+  /*
+   * Policy/FAQ page first-paint shell.
+   * Prevents naked breadcrumb lists, tab bullets, default button pills and
+   * unstyled accordion rows on cold-cache first visits.
+   * Covers policy-faq, policy-shipping, policy-terms, policy-privacy templates.
+   */
+  {% if template.suffix contains 'policy' %}
+  /* Layout grid — without this the inner column spans 100% on first paint */
+  .custom-policy-page {
+    position: relative;
+    overflow: visible;
+    display: grid;
+    grid-template-columns: 16px 1fr 16px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-policy-page {
+      grid-template-columns: 80px 1fr 80px;
+    }
+  }
+
+  .custom-policy-page__inner {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    min-width: 0;
+  }
+
+  /* Breadcrumb — suppress list bullets */
+  .custom-policy-page__breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Tab navigation — suppress list bullets, underline active tab */
+  .custom-policy-page__tabs-shell {
+    border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  }
+
+  .custom-policy-page__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .custom-policy-page__tab-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.5rem;
+    padding: 0.35rem 0.2rem;
+    color: rgb(var(--color-foreground-rgb));
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  .custom-policy-page__tab-link.is-active {
+    color: var(--custom-policy-page-accent, #b08a2f);
+    border-color: var(--custom-policy-page-accent, #b08a2f);
+  }
+
+  /* Page heading */
+  .custom-policy-page__header {
+    text-align: center;
+  }
+
+  .custom-policy-page__title {
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-policy-page__tabs-shell {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .custom-policy-page__tabs-shell::-webkit-scrollbar {
+      display: none;
+    }
+
+    .custom-policy-page__tabs {
+      flex-wrap: nowrap;
+      width: max-content;
+      min-width: max-content;
+    }
+
+    .custom-policy-page__tab-link {
+      white-space: nowrap;
+    }
+  }
+
+  /* FAQ-specific: category filter pills and accordion rows */
+  {% if template.suffix == 'policy-faq' %}
+  .custom-faq-accordion__filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .custom-faq-accordion__filter-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: 0.55rem 1rem;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.2);
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(var(--color-foreground-rgb));
+    cursor: pointer;
+  }
+
+  .custom-faq-accordion__filter-pill.is-active {
+    background: var(--custom-faq-accordion-accent, #b08a2f);
+    border-color: var(--custom-faq-accordion-accent, #b08a2f);
+    color: #ffffff;
+  }
+
+  .custom-faq-accordion__list {
+    display: grid;
+    gap: 0;
+  }
+
+  .custom-faq-accordion__accordion-node {
+    display: block;
+    border-bottom: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+  }
+
+  .custom-faq-accordion__details {
+    width: 100%;
+  }
+
+  .custom-faq-accordion__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .custom-faq-accordion__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .custom-faq-accordion__question {
+    font-size: 1.05rem;
+    line-height: 1.45;
+  }
+
+  .custom-faq-accordion__chevron {
+    display: inline-flex;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .custom-faq-accordion__chevron svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-faq-accordion__filters {
+      justify-content: flex-start;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+
+    .custom-faq-accordion__filter-pill {
+      white-space: nowrap;
+    }
+  }
+  {% endif %}
+  {% endif %}
 {% endstyle %}

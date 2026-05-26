@@ -1,0 +1,45 @@
+{%- comment -%}
+  Body font @font-face only — small blocking set in <head> for LCP paragraph metrics.
+  Other families load via theme-font-faces-deferred.liquid after idle.
+{%- endcomment -%}
+{% style %}
+  {%- liquid
+    assign rendered_fonts = ''
+
+    if template.name == 'index'
+      assign primary_font_display = 'optional'
+    else
+      assign primary_font_display = 'swap'
+    endif
+
+    assign primary_font = settings.type_body_font
+    assign primary_font_bold = primary_font | font_modify: 'weight', 'bold'
+    assign primary_font_italic = primary_font | font_modify: 'style', 'italic'
+    assign primary_font_bold_italic = primary_font_bold | font_modify: 'style', 'italic'
+
+    assign primary_font_face_id = '[primary_font_family]-[primary_font_weight]-[primary_font_style]|' | replace: '[primary_font_family]', primary_font.family | replace: '[primary_font_weight]', primary_font.weight | replace: '[primary_font_style]', primary_font.style
+    assign primary_font_bold_face_id = '[primary_font_bold_family]-[primary_font_bold_weight]-[primary_font_bold_style]|' | replace: '[primary_font_bold_family]', primary_font_bold.family | replace: '[primary_font_bold_weight]', primary_font_bold.weight | replace: '[primary_font_bold_style]', primary_font_bold.style
+    assign primary_font_italic_face_id = '[primary_font_italic_family]-[primary_font_italic_weight]-[primary_font_italic_style]|' | replace: '[primary_font_italic_family]', primary_font_italic.family | replace: '[primary_font_italic_weight]', primary_font_italic.weight | replace: '[primary_font_italic_style]', primary_font_italic.style
+    assign primary_font_bold_italic_face_id = '[primary_font_bold_italic_family]-[primary_font_bold_italic_weight]-[primary_font_bold_italic_style]|' | replace: '[primary_font_bold_italic_family]', primary_font_bold_italic.family | replace: '[primary_font_bold_italic_weight]', primary_font_bold_italic.weight | replace: '[primary_font_bold_italic_style]', primary_font_bold_italic.style
+
+    unless rendered_fonts contains primary_font_face_id
+      echo primary_font | font_face: font_display: primary_font_display
+      assign rendered_fonts = rendered_fonts | append: primary_font_face_id
+    endunless
+
+    unless rendered_fonts contains primary_font_bold_face_id
+      echo primary_font_bold | font_face: font_display: primary_font_display
+      assign rendered_fonts = rendered_fonts | append: primary_font_bold_face_id
+    endunless
+
+    unless rendered_fonts contains primary_font_italic_face_id
+      echo primary_font_italic | font_face: font_display: primary_font_display
+      assign rendered_fonts = rendered_fonts | append: primary_font_italic_face_id
+    endunless
+
+    unless rendered_fonts contains primary_font_bold_italic_face_id
+      echo primary_font_bold_italic | font_face: font_display: primary_font_display
+      assign rendered_fonts = rendered_fonts | append: primary_font_bold_italic_face_id
+    endunless
+  %}
+{% endstyle %}

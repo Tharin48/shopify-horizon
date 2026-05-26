@@ -1,6 +1,25 @@
 {%- comment -%}
-  Above-the-fold stylesheets loaded in head (not from section body) to reduce header FOUC.
+  Template-conditional render-blocking stylesheets for above-the-fold content only.
+
+  Footer, homepage carousels, and product cards load from their sections (or async) so they
+  do not extend LCP element render delay on the homepage hero.
+
+  custom-header.css stays in sections/custom-header.liquid (preload) — not duplicated here.
 {%- endcomment -%}
 {% # theme-check-disable MissingAsset %}
-{{ 'custom-header.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% if template.name == 'index' %}
+  <link
+    rel="preload"
+    href="{{ 'custom-header.css' | asset_url }}"
+    as="style"
+    fetchpriority="high"
+  >
+{% endif %}
+
+{% if template.name == 'collection' %}
+  {{- 'custom-collection-layout.css' | asset_url | stylesheet_tag -}}
+  {{- 'teamakers-product-card.css' | asset_url | stylesheet_tag -}}
+{% endif %}
+
 {% # theme-check-enable MissingAsset %}
