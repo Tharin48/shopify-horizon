@@ -107,14 +107,33 @@
   assign mobile_widths = '416, 600, 800, 1200, 1600'
   assign mobile_widths_array = mobile_widths | split: ', '
 
+  comment
+    Video poster widths — default to full-range for non-LCP sections.
+    Section 1 overrides to narrower widths so the LCP poster is smaller.
+  endcomment
+  assign video_poster_widths = widths
+  assign video_poster_max_width = 2400
+  assign video_poster_widths_mobile = mobile_widths
+  assign video_poster_max_width_mobile = 1600
+
   assign fetch_priority = 'auto'
   assign hero_media_loading = 'lazy'
   assign hero_media_preload = false
 
   if section.index == 1
+    comment
+      Above-the-fold hero: load the poster image immediately so it becomes
+      the LCP element. The video canvas cross-fades over the poster after the
+      first real video frame is painted (see hero-background-video.js).
+      Narrower srcset widths mean the browser downloads a much smaller file.
+    endcomment
     assign fetch_priority = 'high'
     assign hero_media_loading = 'eager'
     assign hero_media_preload = true
+    assign video_poster_widths = '750, 1100, 1500, 1800'
+    assign video_poster_max_width = 1800
+    assign video_poster_widths_mobile = '400, 600, 900, 1200'
+    assign video_poster_max_width_mobile = 1200
   endif
 
   comment
@@ -193,8 +212,8 @@
         render 'hero-background-video',
         video: section.settings.video_1,
         sizes: sizes,
-        poster_widths: widths,
-        poster_image_width: 2400,
+        poster_widths: video_poster_widths,
+        poster_image_width: video_poster_max_width,
         poster_loading: hero_media_loading,
         poster_fetchpriority: fetch_priority,
         class: 'hero__media',
@@ -231,8 +250,8 @@
           render 'hero-background-video',
           video: section.settings.video_1_mobile,
           sizes: sizes_mobile,
-          poster_widths: mobile_widths,
-          poster_image_width: 1600,
+          poster_widths: video_poster_widths_mobile,
+          poster_image_width: video_poster_max_width_mobile,
           poster_loading: hero_media_loading,
           poster_fetchpriority: fetch_priority,
           class: 'hero__media',
@@ -532,6 +551,37 @@
   }
 </style>
 
+{%- comment -%}
+  LCP preload hint: for the first above-the-fold hero section that has a
+  background video, emit a <link rel="preload"> immediately after the inline
+  styles. This appears at the very top of the section's HTML output — before
+  any img tags — so the browser's streaming preload scanner discovers and
+  fetches the poster as early as possible.
+
+  The imagesrcset/imagesizes must exactly match the <img> srcset/sizes
+  rendered by hero-background-video.liquid so the preload is reused (no
+  double-fetch). Using the same video_poster_widths and sizes variables
+  guarantees this.
+{%- endcomment -%}
+{%- if section.index == 1 and media_1 == 'video' and section.settings.video_1 != blank -%}
+  {%- assign _lcp_poster = section.settings.video_1.preview_image -%}
+  {%- if _lcp_poster != blank -%}
+    <link
+      rel="preload"
+      as="image"
+      href="{{ _lcp_poster | image_url: width: video_poster_max_width }}"
+      imagesrcset="
+        {%- assign _widths_arr = video_poster_widths | split: ', ' -%}
+        {%- for _w in _widths_arr -%}
+          {{ _lcp_poster | image_url: width: _w }} {{ _w }}w{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      "
+      imagesizes="{{ sizes }}"
+      fetchpriority="high"
+    >
+  {%- endif -%}
+{%- endif -%}
+
 <div
   id="CustomHero-{{ section.id }}"
   class="hero color-{{ section.settings.color_scheme }}{% if hero_media_aspect_val != blank %} hero--auto{% endif %}{% if section.blocks.size == 0 and section.settings.section_height == 'auto' %} hero--no-blocks-auto-height{% endif %}{% if section.settings.stack_media_on_mobile %} hero--stack-mobile{% endif %}"
@@ -540,6 +590,7 @@
     --hero-border-width: {{ section.settings.border_width }}px;
     --hero-border-opacity: {{ section.settings.border_opacity }}%;
     --blur-opacity: {{ section.settings.reflection_opacity | divided_by: 100.0 }};
+    --hero-video-placeholder-color: {{ section.settings.video_placeholder_color | default: '#111111' }};
     {% if section.settings.section_height == 'custom' %}
       --hero-min-height: {{ section.settings.section_height_custom }}svh;
     {% elsif section.settings.section_height == "full-screen" %}
@@ -698,13 +749,13 @@
   .hero__media-wrapper {
     overflow: hidden;
     position: relative;
-    background-color: #000;
+    background-color: var(--hero-video-placeholder-color, #111);
   }
 
   .hero__media {
     height: 100%;
     width: 100%;
-    background-color: #000;
+    background-color: var(--hero-video-placeholder-color, #111);
     object-fit: cover;
     object-position: center center;
     overflow: hidden;
@@ -730,11 +781,20 @@
   .hero__media-poster {
     z-index: var(--layer-base);
     opacity: 1;
+    /*
+     * Poster fades out once the video canvas is covering it.
+     * Duration is deliberately longer than the canvas fade-in so the
+     * poster is still visible during the very first few video frames,
+     * preventing any flash of the placeholder colour beneath.
+     */
+    transition: opacity 800ms ease;
   }
 
   .hero__media-video {
     z-index: calc(var(--layer-base) + 1);
     opacity: 0;
+    /* Canvas fades in after the first real video frame is drawn. */
+    transition: opacity 600ms ease;
   }
 
   .hero__media-wrapper[data-hero-video-covered='true'] .hero__media-video {
@@ -747,11 +807,14 @@
 
   @media (prefers-reduced-motion: reduce) {
     .hero__media-video {
+      /* Do not autoplay or cross-fade for reduced-motion users; poster stays. */
       display: none;
+      transition: none;
     }
 
     .hero__media-poster {
       opacity: 1;
+      transition: none;
     }
   }
 
@@ -1366,6 +1429,17 @@
       "step": 1,
       "unit": "px",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Video background"
+    },
+    {
+      "type": "color",
+      "id": "video_placeholder_color",
+      "label": "Video placeholder colour",
+      "info": "Shown instantly while the video loads. Choose a colour close to your video's dominant tone so there is no visible flash.",
+      "default": "#111111"
     }
   ],
   "presets": [

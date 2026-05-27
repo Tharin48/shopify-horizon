@@ -27,8 +27,8 @@
   assign video_enhancement_class = video_class | append: ' hero__media-video'
   assign selected_poster_image = video.preview_image
   assign poster_sizes = sizes | default: '100vw'
-  assign poster_responsive_widths = poster_widths | default: '750, 1100, 1500, 2000, 2400'
-  assign poster_transform_width = poster_image_width | default: 2400
+  assign poster_responsive_widths = poster_widths | default: '750, 1100, 1500, 1800'
+  assign poster_transform_width = poster_image_width | default: 1800
   assign poster_loading_attr = poster_loading | default: 'lazy'
   assign poster_fetchpriority_attr = poster_fetchpriority | default: 'auto'
   assign poster_preload = false
