@@ -87,16 +87,7 @@
         {% endif %}
       >
         {%- if block_settings.zoom and media.media_type == 'image' -%}
-          <button
-            type="button"
-            class="button button-unstyled product-media-container__zoom-button"
-            aria-label="{{ 'actions.zoom_media' | t: index: forloop.index }}"
-            on:click="/zoom/{{ forloop.index0 }}"
-            {% if block_settings.zoom %}
-              on:pointerenter="/preloadImage/{{ forloop.index0 }}"
-            {% endif %}
-          >
-          </button>
+          {% render 'product-media-zoom-button', index: forloop.index0, display_index: forloop.index %}
         {%- endif -%}
         {% if block_settings.aspect_ratio != 'adapt' and block_settings.constrain_to_viewport %}
           <div class="product-media-constraint-wrapper">

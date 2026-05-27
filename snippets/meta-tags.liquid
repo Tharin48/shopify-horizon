@@ -27,7 +27,13 @@ You can learn more about this (and learn how to cleanly revert these changes) at
 >
 
 {%- liquid
-  assign og_title = page_title | default: shop.name
+  if template.name == 'index'
+    assign og_title = page_title | default: shop.name
+  elsif page_title contains shop.name
+    assign og_title = page_title
+  else
+    assign og_title = page_title | append: ' | ' | append: shop.name
+  endif
   assign og_url = canonical_url | default: request.origin
   assign og_type = 'website'
   assign og_description = page_description | default: shop.description | default: shop.name
@@ -171,17 +177,6 @@ You can learn more about this (and learn how to cleanly revert these changes) at
 {%- comment -%} End Yoast auto-disable. {%- endcomment -%}
 {%- endif -%}
 
-{%- comment -%}Auto-disabled. Yoast plugin is taking care of SEO output.{%- endcomment -%}
-{%- if disabled_by_yoast_seo -%}
-<title>
-  {{ page_title }}
-  {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
-  {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
-  {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
-</title>
-{%- comment -%} End Yoast auto-disable. {%- endcomment -%}
-{%- endif -%}
-
 {%- comment -%}Auto-disabled. Yoast plugin is taking care of Meta Tags output.{%- endcomment -%}
 {%- if disabled_by_yoast_seo -%}
 <link
@@ -190,14 +185,3 @@ You can learn more about this (and learn how to cleanly revert these changes) at
 >
 {%- comment -%} End Yoast auto-disable. {%- endcomment -%}
 {%- endif -%}
-
-{% if page_description %}
-  {%- comment -%}Auto-disabled. Yoast plugin is taking care of Meta Tags output.{%- endcomment -%}
-{%- if disabled_by_yoast_seo -%}
-<meta
-    name="description"
-    content="{{ page_description | escape }}"
-  >
-{%- comment -%} End Yoast auto-disable. {%- endcomment -%}
-{%- endif -%}
-{% endif %}

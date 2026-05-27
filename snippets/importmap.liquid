@@ -1,0 +1,36 @@
+{%- comment -%}
+  Import map must be in <head> before any body module (e.g. cart-drawer.js in the header)
+  that imports @theme/* aliases. The rest of scripts.liquid loads at end of <body>.
+{%- endcomment -%}
+<script type="importmap">
+  {
+    "imports": {
+      "@theme/overflow-list": "{{ 'overflow-list.js' | asset_url }}",
+      "@theme/product-title": "{{ 'product-title-truncation.js' | asset_url }}",
+      "@theme/component": "{{ 'component.js' | asset_url }}",
+      "@theme/dialog": "{{ 'dialog.js' | asset_url }}",
+      "@theme/events": "{{ 'events.js' | asset_url }}",
+      "@theme/focus": "{{ 'focus.js' | asset_url }}",
+      "@theme/morph": "{{ 'morph.js' | asset_url }}",
+      "@theme/paginated-list": "{{ 'paginated-list.js' | asset_url }}",
+      "@theme/performance": "{{ 'performance.js' | asset_url }}",
+      "@theme/product-form": "{{ 'product-form.js' | asset_url }}",
+      "@theme/recently-viewed-products": "{{ 'recently-viewed-products.js' | asset_url }}",
+      "@theme/scrolling": "{{ 'scrolling.js' | asset_url }}",
+      "@theme/section-renderer": "{{ 'section-renderer.js' | asset_url }}",
+      "@theme/section-hydration": "{{ 'section-hydration.js' | asset_url }}",
+      "@theme/money-formatting": "{{ 'money-formatting.js' | asset_url }}",
+      "@theme/utilities": "{{ 'utilities.js' | asset_url }}",
+      "@theme/variant-picker": "{{ 'variant-picker.js' | asset_url }}",
+      "@theme/media-gallery": "{{ 'media-gallery.js' | asset_url }}",
+      "@theme/quick-add": "{{ 'quick-add.js' | asset_url }}",
+      "@theme/paginated-list-aspect-ratio": "{{ 'paginated-list-aspect-ratio.js' | asset_url }}",
+      "@theme/popover-polyfill": "{{ 'popover-polyfill.js' | asset_url }}",
+      "@theme/gift-card-recipient-form": "{{ 'gift-card-recipient-form.js' | asset_url }}",
+      "@theme/component-quantity-selector": "{{ 'component-quantity-selector.js' | asset_url }}",
+      "@theme/comparison-slider": "{{ 'comparison-slider.js' | asset_url }}",
+      "@theme/sticky-add-to-cart": "{{ 'sticky-add-to-cart.js' | asset_url }}",
+      "@theme/fly-to-cart": "{{ 'fly-to-cart.js' | asset_url }}"
+    }
+  }
+</script>

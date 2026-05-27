@@ -1,0 +1,20 @@
+{%- comment -%}
+  Native SEO title and meta description from Shopify Admin (page_title / page_description).
+  Rendered from layout/theme.liquid. Suppressed when Yoast SEO outputs its own tags.
+{%- endcomment -%}
+{%- if disabled_by_yoast_seo -%}
+  <title>
+    {%- if template.name == 'index' -%}
+      {{ page_title }}
+    {%- else -%}
+      {{ page_title }}
+      {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+      {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} | {{ shop.name }}{% endunless -%}
+    {%- endif -%}
+  </title>
+
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- endif -%}
+{%- endif -%}

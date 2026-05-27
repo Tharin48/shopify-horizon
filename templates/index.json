@@ -68,7 +68,7 @@
           "type": "icon-button",
           "name": "Icon button",
           "settings": {
-            "label": "Explore All",
+            "label": "Shop All",
             "link": "shopify://collections/all-products",
             "open_in_new_tab": false,
             "font_size": 16,
@@ -104,9 +104,9 @@
       ],
       "name": "Custom hero",
       "settings": {
-        "media_type_1": "none",
+        "media_type_1": "video",
+        "video_1": "shopify://files/videos/hero.webm",
         "media_type_2": "video",
-        "video_2": "shopify://files/videos/hero.webm",
         "stack_media_on_mobile": false,
         "custom_mobile_media": false,
         "media_type_1_mobile": "image",
@@ -133,6 +133,160 @@
         "reflection_opacity": 75,
         "padding-block-start": 40,
         "padding-block-end": 40
+      }
+    },
+    "teamakers_pick_wTax67": {
+      "type": "teamakers-pick",
+      "blocks": {
+        "teamakers_pick_tab_pdaBDj": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "Best Sellers",
+            "collection": "best-sellers",
+            "badge_text": "",
+            "default_active": true
+          }
+        },
+        "teamakers_pick_tab_N3aURA": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "New Arrivals",
+            "collection": "new-arrivals",
+            "badge_text": "",
+            "default_active": false
+          }
+        },
+        "teamakers_pick_tab_R6MbrU": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "Favourites",
+            "collection": "founders-favorites",
+            "badge_text": "",
+            "default_active": false
+          }
+        },
+        "teamakers_pick_tab_9X3F7J": {
+          "type": "teamakers-pick-tab",
+          "settings": {
+            "label": "Teawares",
+            "collection": "teaware",
+            "badge_text": "",
+            "default_active": false
+          }
+        }
+      },
+      "block_order": [
+        "teamakers_pick_tab_pdaBDj",
+        "teamakers_pick_tab_N3aURA",
+        "teamakers_pick_tab_R6MbrU",
+        "teamakers_pick_tab_9X3F7J"
+      ],
+      "name": "Teamaker's pick",
+      "settings": {
+        "heading": "Teamaker's Pick",
+        "background_color": "#faf8f5",
+        "heading_color": "#1a1a1a",
+        "active_tab_color": "#b08a2f",
+        "inactive_tab_color": "#3f3f3f",
+        "card_text_color": "#222829",
+        "product_label_color": "#b08a2f",
+        "product_title_color": "#222829",
+        "product_price_color": "#222829",
+        "rating_star_color": "#ffc700",
+        "review_text_color": "#6b6b6b",
+        "sale_badge_color": "#cd9e2d",
+        "products_limit": 5,
+        "products_per_row_desktop": 5,
+        "products_per_row_mobile": "2",
+        "mobile_tab_divider_color": "#c4c4c4",
+        "image_border_radius": 10,
+        "product_image_border_width": 1,
+        "product_image_border_color": "#e5e5e5",
+        "image_ratio": "4 / 5",
+        "show_ratings": true,
+        "show_vendor": true,
+        "show_quick_add": true,
+        "show_sale_badge": true,
+        "product_card_image_background": "",
+        "show_decorative_artwork": true,
+        "decorative_artwork": "shopify://shop_images/x31_1_1_1.png",
+        "decorative_artwork_position": "center-right",
+        "decorative_artwork_opacity": 100,
+        "decorative_artwork_max_width": 140,
+        "section_width": "full-width",
+        "padding-block-start": 60,
+        "padding-block-end": 16,
+        "padding_x_desktop": 80,
+        "padding_x_mobile": 20
+      }
+    },
+    "section_xnXwAH": {
+      "type": "section",
+      "blocks": {
+        "icon_button_8Q3apK": {
+          "type": "icon-button",
+          "name": "Icon button",
+          "settings": {
+            "label": "Explore More",
+            "link": "shopify://collections/all",
+            "open_in_new_tab": false,
+            "font_size": 16,
+            "padding_vertical": 12,
+            "padding_horizontal": 16,
+            "border_radius": 50,
+            "border_width": 0,
+            "width_mode": "auto",
+            "desktop_width_percent": 100,
+            "full_width_mobile_tablet": false,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "show_icon": true,
+            "icon": "arrow",
+            "icon_position": "right",
+            "icon_size": 24,
+            "icon_spacing": 8,
+            "color_mode": "custom",
+            "background": "#ffffff",
+            "text_color": "#bc9407",
+            "border_color": "#bc9407",
+            "hover_background": "#ad8702",
+            "hover_text_color": "#ffffff",
+            "hover_border_color": "#bc9407"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "icon_button_8Q3apK"
+      ],
+      "name": "Explore More",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "center",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "custom_class": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 24,
+        "padding-block-end": 48
       }
     },
     "leaf_story_3R7cwY": {
@@ -743,160 +897,6 @@
         "padding-block-end": 96
       }
     },
-    "teamakers_pick_wTax67": {
-      "type": "teamakers-pick",
-      "blocks": {
-        "teamakers_pick_tab_pdaBDj": {
-          "type": "teamakers-pick-tab",
-          "settings": {
-            "label": "Best Sellers",
-            "collection": "best-sellers",
-            "badge_text": "",
-            "default_active": true
-          }
-        },
-        "teamakers_pick_tab_N3aURA": {
-          "type": "teamakers-pick-tab",
-          "settings": {
-            "label": "New Arrivals",
-            "collection": "new-arrivals",
-            "badge_text": "",
-            "default_active": false
-          }
-        },
-        "teamakers_pick_tab_R6MbrU": {
-          "type": "teamakers-pick-tab",
-          "settings": {
-            "label": "Favourites",
-            "collection": "founders-favorites",
-            "badge_text": "",
-            "default_active": false
-          }
-        },
-        "teamakers_pick_tab_9X3F7J": {
-          "type": "teamakers-pick-tab",
-          "settings": {
-            "label": "Teawares",
-            "collection": "teaware",
-            "badge_text": "",
-            "default_active": false
-          }
-        }
-      },
-      "block_order": [
-        "teamakers_pick_tab_pdaBDj",
-        "teamakers_pick_tab_N3aURA",
-        "teamakers_pick_tab_R6MbrU",
-        "teamakers_pick_tab_9X3F7J"
-      ],
-      "name": "Teamaker's pick",
-      "settings": {
-        "heading": "Teamaker's Pick",
-        "background_color": "#faf8f5",
-        "heading_color": "#1a1a1a",
-        "active_tab_color": "#b08a2f",
-        "inactive_tab_color": "#3f3f3f",
-        "card_text_color": "#222829",
-        "product_label_color": "#b08a2f",
-        "product_title_color": "#222829",
-        "product_price_color": "#222829",
-        "rating_star_color": "#ffc700",
-        "review_text_color": "#6b6b6b",
-        "sale_badge_color": "#cd9e2d",
-        "products_limit": 5,
-        "products_per_row_desktop": 5,
-        "products_per_row_mobile": "2",
-        "mobile_tab_divider_color": "#c4c4c4",
-        "image_border_radius": 10,
-        "product_image_border_width": 1,
-        "product_image_border_color": "#e5e5e5",
-        "image_ratio": "4 / 5",
-        "show_ratings": true,
-        "show_vendor": true,
-        "show_quick_add": true,
-        "show_sale_badge": true,
-        "product_card_image_background": "",
-        "show_decorative_artwork": true,
-        "decorative_artwork": "shopify://shop_images/x31_1_1_1.png",
-        "decorative_artwork_position": "center-right",
-        "decorative_artwork_opacity": 100,
-        "decorative_artwork_max_width": 140,
-        "section_width": "full-width",
-        "padding-block-start": 60,
-        "padding-block-end": 16,
-        "padding_x_desktop": 80,
-        "padding_x_mobile": 20
-      }
-    },
-    "section_xnXwAH": {
-      "type": "section",
-      "blocks": {
-        "icon_button_8Q3apK": {
-          "type": "icon-button",
-          "name": "Icon button",
-          "settings": {
-            "label": "Explore More",
-            "link": "shopify://collections/all",
-            "open_in_new_tab": false,
-            "font_size": 16,
-            "padding_vertical": 12,
-            "padding_horizontal": 16,
-            "border_radius": 50,
-            "border_width": 0,
-            "width_mode": "auto",
-            "desktop_width_percent": 100,
-            "full_width_mobile_tablet": false,
-            "inherit_color_scheme": true,
-            "color_scheme": "",
-            "show_icon": true,
-            "icon": "arrow",
-            "icon_position": "right",
-            "icon_size": 24,
-            "icon_spacing": 8,
-            "color_mode": "custom",
-            "background": "#ffffff",
-            "text_color": "#bc9407",
-            "border_color": "#bc9407",
-            "hover_background": "#ad8702",
-            "hover_text_color": "#ffffff",
-            "hover_border_color": "#bc9407"
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "icon_button_8Q3apK"
-      ],
-      "name": "Explore More",
-      "settings": {
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "flex-start",
-        "vertical_alignment": "center",
-        "align_baseline": false,
-        "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "center",
-        "gap": 12,
-        "section_width": "page-width",
-        "section_height": "",
-        "section_height_custom": 50,
-        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-        "custom_class": "",
-        "background_media": "none",
-        "video_position": "cover",
-        "background_image_position": "cover",
-        "border": "none",
-        "border_width": 1,
-        "border_opacity": 100,
-        "border_radius": 0,
-        "toggle_overlay": false,
-        "overlay_color": "#00000026",
-        "overlay_style": "solid",
-        "gradient_direction": "to top",
-        "padding-block-start": 24,
-        "padding-block-end": 48
-      }
-    },
     "category_explore_pX9DGc": {
       "type": "category-explore",
       "blocks": {
@@ -1265,7 +1265,7 @@
           "type": "_slide",
           "settings": {
             "media_type_1": "image",
-            "image_1": "shopify://shop_images/Sri_Lanka_Paradise_Tea_Selection_-_Loose_Leaf_Tea_-_Black_Tea_with_Creamy_Earl_Grey_-_Global_Version_-_002_-_Large_0a76acd4-3cf1-4842-87cd-b99dc98e020d.jpg",
+            "image_1": "shopify://shop_images/Paradise-earl-gray.webp",
             "content_direction": "column",
             "vertical_on_mobile": true,
             "horizontal_alignment": "flex-start",
@@ -2441,7 +2441,7 @@
           "type": "icon-button",
           "name": "Icon button",
           "settings": {
-            "label": "Explore More",
+            "label": "Read All",
             "link": "shopify://pages/blog",
             "open_in_new_tab": false,
             "font_size": 16,
@@ -2499,16 +2499,16 @@
         "overlay_color": "#00000026",
         "overlay_style": "solid",
         "gradient_direction": "to top",
-        "padding-block-start": 24,
+        "padding-block-start": 0,
         "padding-block-end": 48
       }
     }
   },
   "order": [
     "custom_hero_DNMLjC",
-    "leaf_story_3R7cwY",
     "teamakers_pick_wTax67",
     "section_xnXwAH",
+    "leaf_story_3R7cwY",
     "category_explore_pX9DGc",
     "featured_editorial_product_carousel_gpdkQ8",
     "section_6rkTCY",

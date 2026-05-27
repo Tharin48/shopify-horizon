@@ -411,6 +411,16 @@
     gap: 0.65rem;
   }
 
+  .custom-footer__inner--bottom {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .custom-footer__copyright,
+  .custom-footer__copyright .custom-footer__rte p {
+    text-align: center;
+  }
+
   .custom-footer__decor--left .custom-footer__decor-image,
   .custom-footer__decor--right .custom-footer__decor-image {
     width: min(160px, 32vw);

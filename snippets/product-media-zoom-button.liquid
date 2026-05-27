@@ -1,0 +1,29 @@
+{%- doc -%}
+  Expand control for product media zoom dialog.
+
+  @param {number} index - Zero-based media index for zoom/preload handlers.
+  @param {number} [display_index] - One-based index for aria-label (defaults to index + 1).
+{%- enddoc -%}
+
+{%- liquid
+  assign zoom_index = index | default: 0
+  assign label_index = display_index | default: zoom_index | plus: 1
+-%}
+
+<button
+  type="button"
+  class="button button-unstyled product-media-container__zoom-button"
+  aria-label="{{ 'actions.zoom_media' | t: index: label_index }}"
+  aria-haspopup="dialog"
+  on:click="/zoom/{{ zoom_index }}"
+  on:pointerenter="/preloadImage/{{ zoom_index }}"
+>
+  <span class="product-media-container__zoom-button-icon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" focusable="false">
+      <path
+        d="M3.75 3.75H8.33333V5H5V8.33333H3.75V3.75ZM11.6667 3.75H16.25V8.33333H15V5H11.6667V3.75ZM15 11.6667V15H11.6667V16.25H16.25V11.6667H15ZM5 11.6667H3.75V16.25H8.33333V15H5V11.6667Z"
+        fill="currentColor"
+      />
+    </svg>
+  </span>
+</button>

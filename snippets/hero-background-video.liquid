@@ -1,0 +1,88 @@
+{%- doc -%}
+  Muted autoplay hero background video.
+
+  @param {object} video - Shopify video object (required)
+  @param {boolean} [autoplay] - Default true
+  @param {boolean} [loop] - Default true
+  @param {boolean} [controls] - Default false
+  @param {boolean} [muted] - Default true
+  @param {boolean} [playsinline] - Default true
+  @param {string} [sizes] - sizes attribute for the poster image
+  @param {string} [poster_widths] - responsive widths for the poster image
+  @param {number} [poster_image_width] - largest poster image transform width
+  @param {string} [poster_loading] - poster image loading attribute
+  @param {string} [poster_fetchpriority] - poster image fetchpriority attribute
+  @param {string} [class] - CSS class on the video element
+  @param {string} [data_testid] - Value for data-testid attribute
+{%- enddoc -%}
+
+{%- liquid
+  assign video_autoplay = autoplay | default: true
+  assign video_loop = loop | default: true
+  assign video_controls = controls | default: false
+  assign video_muted = muted | default: true
+  assign video_playsinline = playsinline | default: true
+  assign video_class = class | default: 'hero__media'
+  assign poster_class = video_class | append: ' hero__media-poster'
+  assign video_enhancement_class = video_class | append: ' hero__media-video'
+  assign selected_poster_image = video.preview_image
+  assign poster_sizes = sizes | default: '100vw'
+  assign poster_responsive_widths = poster_widths | default: '750, 1100, 1500, 1800'
+  assign poster_transform_width = poster_image_width | default: 1800
+  assign poster_loading_attr = poster_loading | default: 'lazy'
+  assign poster_fetchpriority_attr = poster_fetchpriority | default: 'auto'
+  assign poster_preload = false
+  assign poster_testid = data_testid | append: '-poster'
+  if poster_loading_attr == 'eager' and poster_fetchpriority_attr == 'high'
+    assign poster_preload = true
+  endif
+-%}
+
+{%- if selected_poster_image != blank -%}
+  {{
+    selected_poster_image
+    | image_url: width: poster_transform_width
+    | image_tag:
+      width: selected_poster_image.width,
+      widths: poster_responsive_widths,
+      height: selected_poster_image.height,
+      alt: '',
+      class: poster_class,
+      sizes: poster_sizes,
+      loading: poster_loading_attr,
+      fetchpriority: poster_fetchpriority_attr,
+      decoding: 'async',
+      preload: poster_preload,
+      data-testid: poster_testid
+  }}
+{%- endif -%}
+
+<video
+  class="hero__media-video-source"
+  {% if video_loop %}loop{% endif %}
+  {% if video_controls %}controls{% endif %}
+  {% if video_muted %}muted{% endif %}
+  {% if video_playsinline %}playsinline{% endif %}
+  preload="none"
+  aria-hidden="true"
+  tabindex="-1"
+  data-hero-background-video
+  data-hero-video-autoplay="{{ video_autoplay }}"
+  data-testid="{{ data_testid }}"
+  {% if selected_poster_image != blank %}
+    poster="{{ selected_poster_image | image_url: width: poster_transform_width }}"
+  {% endif %}
+>
+  {%- for source in video.sources -%}
+    <source
+      data-src="{{ source.url }}"
+      type="{{ source.mime_type }}"
+    >
+  {%- endfor -%}
+</video>
+
+<canvas
+  class="{{ video_enhancement_class }}"
+  data-hero-background-canvas
+  aria-hidden="true"
+></canvas>

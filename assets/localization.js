@@ -388,6 +388,19 @@ class LocalizationFormComponent extends Component {
   };
 
   /**
+   * Sets aria-expanded on the country combobox (required for role="combobox").
+   *
+   * @param {boolean} expanded - Whether the country listbox popup is open.
+   */
+  setCountryComboboxExpanded(expanded) {
+    const { search } = this.refs;
+
+    if (!search) return;
+
+    search.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  }
+
+  /**
    * Handles the scroll event on the country list.
    *
    * @param {Event} event - The scroll event object.
@@ -414,8 +427,29 @@ class LocalizationFormComponent extends Component {
  * @extends {Component<DropdownRefs>}
  */
 class DropdownLocalizationComponent extends Component {
+  #mobilePanelPlaceholder = null;
+  #mobilePanelMounted = false;
+  /**
+   * Stores the panel element when it is moved to document.body so it remains accessible
+   * after the Component MutationObserver fires and wipes this.refs.panel (because the panel
+   * is no longer a descendant of this custom element once it is teleported).
+   *
+   * @type {HTMLElement | null}
+   */
+  #mobilePanelElement = null;
+
+  /**
+   * Returns the panel element regardless of whether it is currently mounted inside this
+   * component or teleported to document.body.
+   *
+   * @returns {HTMLElement | null}
+   */
+  get #panel() {
+    return this.#mobilePanelElement ?? this.refs.panel ?? null;
+  }
+
   get isHidden() {
-    return this.refs.panel.hasAttribute('hidden');
+    return this.#panel?.hasAttribute('hidden') ?? true;
   }
 
   disconnectedCallback() {
@@ -423,6 +457,7 @@ class DropdownLocalizationComponent extends Component {
     this.removeEventListener('keyup', this.#handleKeyUp);
     document.removeEventListener('click', this.#handleClickOutside);
     this.#setMobileDrawerScrollLock(false);
+    this.#restoreMobileDrawerPanel();
   }
 
   #usesMobileDrawer() {
@@ -434,6 +469,75 @@ class DropdownLocalizationComponent extends Component {
 
     document.documentElement.classList.toggle('custom-header-scroll-lock', locked);
     document.documentElement.classList.toggle('is-locked', locked);
+  }
+
+  #addOpenListeners() {
+    if (this.#usesMobileDrawer()) {
+      this.#panel?.addEventListener('keyup', this.#handleKeyUp);
+      this.#panel?.addEventListener('click', this.#handleMobilePanelClick);
+      return;
+    }
+
+    this.addEventListener('keyup', this.#handleKeyUp);
+    document.addEventListener('click', this.#handleClickOutside);
+  }
+
+  #removeOpenListeners() {
+    if (this.#usesMobileDrawer()) {
+      this.#panel?.removeEventListener('keyup', this.#handleKeyUp);
+      this.#panel?.removeEventListener('click', this.#handleMobilePanelClick);
+      return;
+    }
+
+    this.removeEventListener('keyup', this.#handleKeyUp);
+    document.removeEventListener('click', this.#handleClickOutside);
+  }
+
+  #mountMobileDrawerPanel() {
+    if (!this.#usesMobileDrawer() || this.#mobilePanelMounted) return;
+
+    const { panel } = this.refs;
+    if (!panel) return;
+
+    /*
+     * Capture the panel reference NOW, before document.body.appendChild() triggers the
+     * Component MutationObserver microtask that calls #updateRefs(). Once the panel is
+     * outside this custom element's subtree, #updateRefs() will set this.refs.panel to
+     * undefined. #mobilePanelElement keeps the reference alive for the entire drawer
+     * lifecycle and is cleared in #restoreMobileDrawerPanel().
+     */
+    this.#mobilePanelElement = panel;
+
+    if (!this.#mobilePanelPlaceholder) {
+      this.#mobilePanelPlaceholder = document.createComment('custom-header-mobile-localization-panel');
+    }
+
+    const parent = panel.parentNode;
+    if (parent && this.#mobilePanelPlaceholder.parentNode !== parent) {
+      parent.insertBefore(this.#mobilePanelPlaceholder, panel);
+    }
+
+    panel.setAttribute('data-custom-header-mobile-localization-panel', 'true');
+    document.body.appendChild(panel);
+    this.#mobilePanelMounted = true;
+  }
+
+  #restoreMobileDrawerPanel() {
+    if (!this.#mobilePanelMounted) return;
+
+    // Use the stored reference — this.refs.panel is undefined while the panel is at body.
+    const panel = this.#mobilePanelElement;
+    const placeholder = this.#mobilePanelPlaceholder;
+    if (!panel || !placeholder || !placeholder.parentNode) {
+      return;
+    }
+
+    placeholder.parentNode.insertBefore(panel, placeholder);
+    placeholder.remove();
+    this.#mobilePanelPlaceholder = null;
+    panel.removeAttribute('data-custom-header-mobile-localization-panel');
+    this.#mobilePanelMounted = false;
+    this.#mobilePanelElement = null;
   }
 
   /**
@@ -449,16 +553,18 @@ class DropdownLocalizationComponent extends Component {
   showPanel() {
     if (!this.isHidden) return;
 
-    this.addEventListener('keyup', this.#handleKeyUp);
-    document.addEventListener('click', this.#handleClickOutside);
-
+    this.#mountMobileDrawerPanel();
+    this.#addOpenListeners();
     this.#setMobileDrawerScrollLock(true);
-    this.refs.panel.removeAttribute('hidden');
-    this.refs.button.setAttribute('aria-expanded', 'true');
+    this.#panel?.removeAttribute('hidden');
+    this.refs.button?.setAttribute('aria-expanded', 'true');
+    this.refs.localizationForm?.setCountryComboboxExpanded(true);
 
-    onAnimationEnd(this.refs.panel, () => {
-      this.#updateWidth();
-      this.refs.localizationForm?.focusSearchInput();
+    onAnimationEnd(this.#panel, () => {
+      if (!this.#usesMobileDrawer()) {
+        this.#updateWidth();
+        this.refs.localizationForm?.focusSearchInput();
+      }
     });
   }
 
@@ -468,13 +574,15 @@ class DropdownLocalizationComponent extends Component {
   hidePanel = () => {
     if (this.isHidden) return;
 
-    this.removeEventListener('keyup', this.#handleKeyUp);
-    document.removeEventListener('click', this.#handleClickOutside);
+    this.#removeOpenListeners();
 
     this.refs.button?.setAttribute('aria-expanded', 'false');
-    this.refs.panel.setAttribute('hidden', '');
+    // Use the stored reference — this.refs.panel is undefined while the panel is at body.
+    this.#panel?.setAttribute('hidden', '');
+    this.refs.localizationForm?.setCountryComboboxExpanded(false);
     this.refs.localizationForm?.resetForm();
     this.#setMobileDrawerScrollLock(false);
+    this.#restoreMobileDrawerPanel();
   };
 
   /**
@@ -488,11 +596,23 @@ class DropdownLocalizationComponent extends Component {
     }
   };
 
+  #handleMobilePanelClick = (event) => {
+    if (!(event.target instanceof Element)) return;
+
+    if (event.target.closest('.custom-header__localization-mobile-close')) {
+      event.preventDefault();
+      this.hidePanel();
+    }
+  };
+
   /**
-   * Updates the width of the panel.
+   * Updates the width of the panel (desktop dropdown only).
    */
   #updateWidth() {
-    this.style.setProperty('--width', `${this.refs.localizationForm.offsetWidth}px`);
+    const width = this.refs.localizationForm?.offsetWidth;
+    if (width != null) {
+      this.style.setProperty('--width', `${width}px`);
+    }
   }
 
   /**
@@ -536,9 +656,11 @@ class DrawerLocalizationComponent extends Component {
 
     if (target.open) {
       if (countryList) countryList.addEventListener('scroll', this.#onCountryListScroll);
+      localizationForm.setCountryComboboxExpanded(true);
       onAnimationEnd(target, localizationForm.focusSearchInput);
     } else {
       countryList?.removeEventListener('scroll', this.#onCountryListScroll);
+      localizationForm.setCountryComboboxExpanded(false);
       localizationForm.resetForm();
     }
   }

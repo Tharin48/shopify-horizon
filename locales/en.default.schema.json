@@ -874,7 +874,7 @@
     "category_explore_card_min_height_info": "0 uses the default height for this grid slot. Set a value to override.",
     "category_explore_grid_position": "Grid position",
     "category_explore_image_alt": "Image alt text",
-    "category_explore_image_alt_info": "Describe the main image for screen readers. Falls back to the card title if empty.",
+    "category_explore_image_alt_info": "Used as the link name only when the card title is hidden. When the title is shown on the card, leave this empty—the image is decorative and the visible title names the link.",
     "category_explore_image_hover": "Hover image",
     "category_explore_image_hover_info": "Shown on hover (desktop) when a main image is set. Uses a fade transition.",
     "auto_open_cart_drawer": "\"Add to cart\" auto-opens drawer",

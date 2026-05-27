@@ -90,10 +90,10 @@
         "type": "custom-newsletter-popup",
         "settings": {
           "enable_popup": true,
-          "popup_visibility": "key_templates",
+          "popup_visibility": "homepage_only",
           "enable_desktop": true,
           "enable_mobile": true,
-          "delay_seconds": 20,
+          "delay_seconds": 25,
           "display_frequency": "session",
           "frequency_days": 1,
           "heading": "Enjoy 10% Off Your First Order",
@@ -158,11 +158,6 @@
         "disabled": true,
         "settings": {}
       },
-      "2567389343055140935": {
-        "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
-        "disabled": true,
-        "settings": {}
-      },
       "127709043890318779": {
         "type": "shopify://apps/aiod-all-in-1-discount/blocks/install-snippets/9537caf0-36d5-4981-a648-8961a8e85652",
         "disabled": false,
@@ -173,6 +168,11 @@
       },
       "7570552984445421165": {
         "type": "shopify://apps/yotpo-product-reviews/blocks/settings/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+        "disabled": false,
+        "settings": {}
+      },
+      "2567389343055140935": {
+        "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
         "disabled": false,
         "settings": {}
       }

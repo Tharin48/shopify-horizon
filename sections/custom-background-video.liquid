@@ -1,0 +1,461 @@
+{%- liquid
+  assign desktop_height         = section.settings.desktop_height
+  assign mobile_height          = section.settings.mobile_height
+  assign full_width             = section.settings.full_width
+  assign fallback_image         = section.settings.fallback_image
+  assign overlay_color          = section.settings.overlay_color
+  assign overlay_opacity        = section.settings.overlay_opacity
+  assign video                  = section.settings.video
+  assign video_hosted           = section.settings.video_hosted
+  assign video_controls         = section.settings.video_controls
+  assign disable_top_spacing    = section.settings.disable_top_spacing
+  assign disable_bottom_spacing = section.settings.disable_bottom_spacing
+
+  if video_hosted != blank
+    assign video_type = 'hosted'
+  else
+    assign video_type = video.type
+  endif
+-%}
+
+<background-video
+  id="BackgroundVideo-{{ section.id }}"
+  class="background-video background-video--full-width-{{ full_width }} {{ mobile_height }} {{ desktop_height }} section-spacing{% if disable_top_spacing %} section-spacing--disable-top{% endif %}{% if disable_bottom_spacing %} section-spacing--disable-bottom{% endif %}{% unless full_width %} background-video--contained{% endunless %}"
+>
+  {%- if fallback_image != blank -%}
+    <div class="background-video__fallback-img">
+      {{
+        fallback_image
+        | image_url: width: 1920
+        | image_tag:
+          widths: '750, 1100, 1500, 1920',
+          sizes: '100vw',
+          loading: 'lazy',
+          fetchpriority: 'auto',
+          alt: fallback_image.alt | escape
+      }}
+    </div>
+  {%- endif -%}
+
+  <div class="background-video__iframe" data-provider="{{ video_type }}">
+    {%- if video_hosted != blank -%}
+      {{
+        video_hosted
+        | video_tag:
+          autoplay: true,
+          loop: true,
+          controls: false,
+          muted: true,
+          playsinline: true
+      }}
+    {%- elsif video != blank -%}
+      {%- if video.type == 'youtube' -%}
+        <iframe
+          src="about:blank"
+          data-src="https://www.youtube.com/embed/{{ video.id }}?loop=1&autoplay=1&mute=1&disablekb=1&controls=0&playsinline=1&enablejsapi=1&playlist={{ video.id }}"
+          frameborder="0"
+          class="js-youtube"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+          title="{{ section.settings.heading | default: section.settings.fallback_image.alt | escape }}"
+          tabindex="-1"
+          loading="lazy"
+        ></iframe>
+      {%- elsif video.type == 'vimeo' -%}
+        <iframe
+          src="about:blank"
+          data-src="https://player.vimeo.com/video/{{ video.id }}?background=1&autoplay=1&loop=1&muted=1"
+          frameborder="0"
+          class="js-vimeo"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+          title="{{ section.settings.heading | default: section.settings.fallback_image.alt | escape }}"
+          tabindex="-1"
+          loading="lazy"
+        ></iframe>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+
+  <div
+    class="background-video__overlay"
+    style="--overlay-color-rgb: {{ overlay_color.red }},{{ overlay_color.green }},{{ overlay_color.blue }}; --overlay-opacity: {{ overlay_opacity | divided_by: 100.0 }}"
+    aria-hidden="true"
+  ></div>
+
+  <div class="background-video__content-wrap">
+    <div class="background-video__content">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+
+          {%- when 'subheading' -%}
+            <p class="subheading" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </p>
+
+          {%- when 'heading' -%}
+            <{{ block.settings.heading_tag }} class="{{ block.settings.heading_size }}" {{ block.shopify_attributes }}>
+              {{ block.settings.text | newline_to_br }}
+            </{{ block.settings.heading_tag }}>
+
+          {%- when 'text' -%}
+            <div class="rte description-size--{{ block.settings.description_size }}" {{ block.shopify_attributes }}>
+              {{ block.settings.text }}
+            </div>
+
+          {%- when 'button' -%}
+            {%- if video != blank or video_hosted != blank -%}
+              <modal-opener
+                class="video-lightbox-modal__opener"
+                data-modal="#VideoLightbox-{{ section.id }}"
+              >
+                <button
+                  id="VideoLightboxToggle-{{ section.id }}"
+                  class="video-lightbox-modal__button"
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-label="{{ 'accessibility.play_video' | t | default: 'Play video' }}"
+                >
+                  <span aria-hidden="true">{{- 'icon-play.svg' | inline_asset_content -}}</span>
+                </button>
+              </modal-opener>
+
+              <modal-dialog id="VideoLightbox-{{ section.id }}" class="video-lightbox-modal">
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="{{ 'accessibility.play_video' | t | default: 'Video' }}"
+                  class="video-lightbox-modal__content"
+                  tabindex="-1"
+                >
+                  <button
+                    id="ModalClose-{{ section.id }}"
+                    type="button"
+                    class="video-lightbox-modal__toggle"
+                    aria-label="{{ 'accessibility.close' | t }}"
+                  >
+                    {{- 'icon-close.svg' | inline_asset_content -}}
+                  </button>
+
+                  <div class="video-lightbox-modal__content-info">
+                    {%- if video_hosted != blank -%}
+                      {{
+                        video_hosted
+                        | video_tag:
+                          autoplay: false,
+                          loop: false,
+                          controls: true
+                      }}
+                    {%- elsif video != blank -%}
+                      {%- if video.type == 'youtube' -%}
+                        <iframe
+                          src="about:blank"
+                          data-src="https://www.youtube.com/embed/{{ video.id }}?enablejsapi=1"
+                          class="js-youtube"
+                          allow="autoplay; encrypted-media"
+                          allowfullscreen
+                          title="{{ section.settings.fallback_image.alt | escape }}"
+                          loading="lazy"
+                        ></iframe>
+                      {%- elsif video.type == 'vimeo' -%}
+                        <iframe
+                          src="about:blank"
+                          data-src="https://player.vimeo.com/video/{{ video.id }}"
+                          class="js-vimeo"
+                          allow="autoplay; encrypted-media"
+                          allowfullscreen
+                          title="{{ section.settings.fallback_image.alt | escape }}"
+                          loading="lazy"
+                        ></iframe>
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
+                </div>
+              </modal-dialog>
+
+              <script src="{{ 'modal-dialog.js' | asset_url }}" defer="defer"></script>
+            {%- endif -%}
+
+          {%- when 'space' -%}
+            <div
+              style="height: {{ block.settings.height | append: 'px' }}"
+              aria-hidden="true"
+              {{ block.shopify_attributes }}
+            ></div>
+
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- if video_controls -%}
+    <div class="background-video__controls">
+      <button
+        id="VideoPlayToggle-{{ section.id }}"
+        type="button"
+        aria-label="{{ 'accessibility.pause_video' | t | default: 'Toggle video' }}"
+      >
+        <span class="background-video__controls-play" aria-hidden="true">
+          {{- 'icon-play.svg' | inline_asset_content -}}
+        </span>
+        <span class="background-video__controls-pause" aria-hidden="true">
+          {{- 'icon-pause.svg' | inline_asset_content -}}
+        </span>
+      </button>
+    </div>
+  {%- endif -%}
+</background-video>
+
+<script>
+  /*
+   * Lazy-load iframes: swap data-src → src only after the section scrolls into view.
+   * Keeps background iframes out of the critical request chain for Core Web Vitals.
+   */
+  (function () {
+    var section = document.getElementById('BackgroundVideo-{{ section.id }}');
+    if (!section) return;
+
+    function loadIframes() {
+      section.querySelectorAll('iframe[data-src]').forEach(function (iframe) {
+        iframe.src = iframe.dataset.src;
+        delete iframe.dataset.src;
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            loadIframes();
+            observer.disconnect();
+          }
+        });
+      }, { rootMargin: '200px' });
+      observer.observe(section);
+    } else {
+      loadIframes();
+    }
+  })();
+</script>
+
+{{- 'background-video.css' | asset_url | stylesheet_tag -}}
+<script src="{{ 'background-video.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Background video",
+  "class": "section-custom-background-video",
+  "settings": [
+    {
+      "type": "select",
+      "id": "desktop_height",
+      "label": "Desktop height",
+      "options": [
+        { "value": "desktop-height-auto", "label": "Adapt to content" },
+        { "value": "desktop-height-450", "label": "450px" },
+        { "value": "desktop-height-550", "label": "550px" },
+        { "value": "desktop-height-650", "label": "650px" },
+        { "value": "desktop-height-750", "label": "750px" },
+        { "value": "desktop-height-full", "label": "Full screen" }
+      ],
+      "default": "desktop-height-650"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Mobile height",
+      "options": [
+        { "value": "mobile-height-auto", "label": "Adapt to content" },
+        { "value": "mobile-height-350", "label": "350px" },
+        { "value": "mobile-height-400", "label": "400px" },
+        { "value": "mobile-height-450", "label": "450px" },
+        { "value": "mobile-height-500", "label": "500px" },
+        { "value": "mobile-height-full", "label": "Full screen" }
+      ],
+      "default": "mobile-height-500"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "video_controls",
+      "label": "Show play/pause controls",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "video",
+      "id": "video_hosted",
+      "label": "Shopify-hosted video",
+      "info": "Overrides the external URL setting below."
+    },
+    {
+      "type": "video_url",
+      "id": "video",
+      "label": "YouTube or Vimeo URL",
+      "accept": ["youtube", "vimeo"],
+      "placeholder": "https://www.youtube.com/watch?v=…",
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
+      "info": "Used as background video. The lightbox button plays this video with sound."
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image",
+      "label": "Fallback image",
+      "info": "Shown while the video loads. 1920 × 1080 px recommended."
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay colour",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Overlay opacity",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_top_spacing",
+      "label": "Remove top spacing",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_bottom_spacing",
+      "label": "Remove bottom spacing",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Add a tagline"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Heading text",
+          "default": "Background video"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "HTML element",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" }
+          ],
+          "default": "h2"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Size",
+          "options": [
+            { "value": "h3", "label": "Small" },
+            { "value": "h2", "label": "Medium" },
+            { "value": "h1", "label": "Large" }
+          ],
+          "default": "h1"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Content",
+          "default": "<p>Pair text with a video to showcase your brand story, product, or campaign.</p>"
+        },
+        {
+          "type": "select",
+          "id": "description_size",
+          "label": "Size",
+          "options": [
+            { "value": "small", "label": "Small" },
+            { "value": "medium", "label": "Medium" },
+            { "value": "large", "label": "Large" }
+          ],
+          "default": "medium"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Lightbox play button",
+      "limit": 1
+    },
+    {
+      "type": "space",
+      "name": "Spacer",
+      "settings": [
+        {
+          "type": "range",
+          "id": "height",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "px",
+          "label": "Height",
+          "default": 40
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Background video",
+      "blocks": [
+        { "type": "subheading" },
+        { "type": "heading" },
+        { "type": "text" },
+        { "type": "button" }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["*"]
+  }
+}
+{% endschema %}

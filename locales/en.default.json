@@ -14,6 +14,7 @@
     "active_filters": "Active filters:",
     "cart": "Cart",
     "cart_count": "Total items in cart",
+    "category_explore_card": "View category",
     "close_dialog": "Close dialog",
     "country_region": "Country/Region",
     "country_results_count": "{{ count }} results",

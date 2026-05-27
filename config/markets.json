@@ -1,0 +1,43 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "markets": {
+    "sri-lanka": {
+      "parent": "@default"
+    },
+    "chile": {
+      "parent": "@default"
+    },
+    "czech-republic": {
+      "parent": "@default"
+    },
+    "canada": {
+      "parent": "@default"
+    },
+    "international": {
+      "parent": "@default"
+    },
+    "united-states": {
+      "parent": "@default"
+    },
+    "saudi-arabia": {
+      "parent": "@default"
+    },
+    "united-arab-emirates": {
+      "parent": "@default"
+    },
+    "united-kingdom": {
+      "parent": "@default"
+    },
+    "india": {
+      "parent": "@default"
+    }
+  }
+}

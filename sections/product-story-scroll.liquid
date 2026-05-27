@@ -162,12 +162,26 @@
                           {% if story.content != blank %}
                             <div
                               class="product-story-scroll__body rte"
+                              id="{{ panel_id }}-body"
                               {% if story_title != blank %}
                                 aria-labelledby="{{ panel_id }}-title"
                               {% endif %}
                             >
-                              {{ story.content | metafield_tag }}
+                              <div class="product-story-scroll__body-inner">
+                                {{ story.content | metafield_tag }}
+                              </div>
                             </div>
+                            <button
+                              type="button"
+                              class="product-story-scroll__body-toggle button-unstyled"
+                              data-story-body-toggle
+                              data-label-expand="View all"
+                              data-label-collapse="Collapse"
+                              aria-expanded="false"
+                              aria-controls="{{ panel_id }}-body"
+                            >
+                              View all
+                            </button>
                           {% endif %}
                         </div>
                       </div>
@@ -205,9 +219,85 @@
       {% endif %}
     </div>
   </section>
-  {% if curtain_mode %}
+{% if curtain_mode %}
     <script src="{{ 'product-story-scroll.js' | asset_url }}" defer></script>
   {% endif %}
+  <script>
+    (() => {
+      const mobileQuery = window.matchMedia('(max-width: 749px)');
+
+      const syncStoryBodyToggles = (scope = document) => {
+        const sections = scope.querySelectorAll('.product-story-scroll');
+
+        sections.forEach((section) => {
+          section.querySelectorAll('[data-story-body-toggle]').forEach((button) => {
+            const bodyId = button.getAttribute('aria-controls');
+            const body = bodyId ? section.querySelector(`#${CSS.escape(bodyId)}`) : null;
+            const inner = body?.querySelector('.product-story-scroll__body-inner');
+
+            if (!body || !inner) return;
+
+            if (!mobileQuery.matches) {
+              button.hidden = true;
+              button.setAttribute('aria-expanded', 'false');
+              body.classList.remove('is-expanded');
+              button.textContent = button.dataset.labelExpand || 'View all';
+              return;
+            }
+
+            const isOverflowing = inner.scrollHeight > inner.clientHeight + 2;
+            const isExpanded = body.classList.contains('is-expanded');
+
+            button.hidden = !isOverflowing && !isExpanded;
+            button.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+            button.textContent = isExpanded
+              ? (button.dataset.labelCollapse || 'Collapse')
+              : (button.dataset.labelExpand || 'View all');
+          });
+        });
+      };
+
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-story-body-toggle]');
+        if (!(button instanceof HTMLButtonElement)) return;
+        if (!mobileQuery.matches) return;
+
+        const section = button.closest('.product-story-scroll');
+        if (!section) return;
+
+        const bodyId = button.getAttribute('aria-controls');
+        const body = bodyId ? section.querySelector(`#${CSS.escape(bodyId)}`) : null;
+        if (!body) return;
+
+        const willExpand = !body.classList.contains('is-expanded');
+        body.classList.toggle('is-expanded', willExpand);
+        button.setAttribute('aria-expanded', willExpand ? 'true' : 'false');
+        button.textContent = willExpand
+          ? (button.dataset.labelCollapse || 'Collapse')
+          : (button.dataset.labelExpand || 'View all');
+      });
+
+      const runSync = () => syncStoryBodyToggles(document);
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runSync, { once: true });
+      } else {
+        runSync();
+      }
+
+      window.addEventListener('resize', () => syncStoryBodyToggles(document), { passive: true });
+      if (typeof mobileQuery.addEventListener === 'function') {
+        mobileQuery.addEventListener('change', () => syncStoryBodyToggles(document));
+      } else if (typeof mobileQuery.addListener === 'function') {
+        mobileQuery.addListener(() => syncStoryBodyToggles(document));
+      }
+
+      document.addEventListener('shopify:section:load', (event) => {
+        const target = event.target instanceof Element ? event.target : document;
+        syncStoryBodyToggles(target);
+      });
+    })();
+  </script>
 {% endif %}
 
 {% stylesheet %}
@@ -427,6 +517,18 @@
     color: rgb(var(--color-foreground));
   }
 
+  .product-story-scroll__body-inner > :first-child {
+    margin-top: 0;
+  }
+
+  .product-story-scroll__body-inner > :last-child {
+    margin-bottom: 0;
+  }
+
+  .product-story-scroll__body-toggle {
+    display: none;
+  }
+
   .product-story-scroll__body p:first-child {
     margin-top: 0;
   }
@@ -615,6 +717,13 @@
 
   /* Mobile: horizontal carousel — one card per viewport width; no-JS: native scroll + snap */
   @media screen and (max-width: 749px) {
+    .product-story-scroll {
+      --product-story-mobile-card-peek: clamp(1rem, 6vw, 2rem);
+      --product-story-mobile-card-height: clamp(31rem, 78vh, 35rem);
+      --product-story-mobile-image-height: clamp(12rem, 34vh, 14.5rem);
+      --product-story-mobile-body-lines: 10;
+    }
+
     .product-story-scroll__container {
       padding-left: var(--product-story-outer-left-mobile, 0px);
       padding-right: var(--product-story-outer-right-mobile, 0px);
@@ -628,17 +737,75 @@
 
     .product-story-scroll__card-inner {
       grid-template-columns: 1fr;
+      grid-template-rows: minmax(0, var(--product-story-mobile-image-height)) 1fr;
       gap: 0;
+      height: 100%;
+      min-height: 0;
     }
 
     .product-story-scroll__col--media {
       order: -1;
     }
 
+    .product-story-scroll__col--copy {
+      padding: min(var(--product-story-copy-pad, 1.25rem), 1rem);
+    }
+
     .product-story-scroll__figure {
-      min-height: 14rem;
-      max-height: 45vh;
+      min-height: var(--product-story-mobile-image-height);
+      max-height: var(--product-story-mobile-image-height);
+      height: var(--product-story-mobile-image-height);
       border-radius: 1rem 1rem 0 0;
+    }
+
+    .product-story-scroll__copy {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-story-scroll__body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .product-story-scroll__body-inner {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: var(--product-story-mobile-body-lines);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-story-scroll__body.is-expanded {
+      overflow-y: auto;
+      padding-inline-end: 0.25rem;
+    }
+
+    .product-story-scroll__body.is-expanded .product-story-scroll__body-inner {
+      display: block;
+      -webkit-line-clamp: unset;
+      overflow: visible;
+    }
+
+    .product-story-scroll__body-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      margin-top: 0.75rem;
+      align-self: flex-start;
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1.2;
+      color: rgb(var(--color-foreground));
+      text-decoration: underline;
+      text-underline-offset: 0.14em;
+      cursor: pointer;
+    }
+
+    .product-story-scroll__body-toggle[hidden] {
+      display: none;
     }
 
     .product-story-scroll__decor-bg--left {
@@ -650,33 +817,37 @@
     }
 
     .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__carousel {
-      overflow: hidden;
+      overflow: visible;
     }
 
     .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__track {
       display: flex;
       flex-direction: row;
       flex-wrap: nowrap;
+      align-items: stretch;
       gap: var(--gap-md);
       overflow-x: auto;
       overscroll-behavior-x: contain;
       scroll-snap-type: x mandatory;
       scroll-padding-inline: var(--page-margin, 1rem);
       padding-block: 0 0.75rem;
+      padding-inline-end: var(--product-story-mobile-card-peek);
       -webkit-overflow-scrolling: touch;
     }
 
     .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__panel {
-      display: block;
-      flex: 0 0 100%;
-      width: 100%;
-      min-width: 100%;
-      scroll-snap-align: center;
+      display: flex;
+      flex: 0 0 calc(100% - var(--product-story-mobile-card-peek));
+      width: calc(100% - var(--product-story-mobile-card-peek));
+      min-width: calc(100% - var(--product-story-mobile-card-peek));
+      scroll-snap-align: start;
       scroll-snap-stop: always;
     }
 
     .product-story-scroll:not(.product-story-scroll--carousel-off) .product-story-scroll__card {
-      min-height: max(24rem, min(var(--product-story-visible-height), 85dvh));
+      width: 100%;
+      min-height: var(--product-story-mobile-card-height);
+      height: var(--product-story-mobile-card-height);
     }
 
     /* Optional: stacked stories on small screens */

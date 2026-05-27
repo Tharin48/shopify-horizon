@@ -282,6 +282,7 @@
 .mega-menu-sidebar__panel--card-view .mega-menu-sidebar__grid-item,
 .mega-menu-sidebar__panel--default .mega-menu-sidebar__grid-item {
   display: flex;
+  min-width: 0;
   min-height: 0;
 }
 
@@ -370,6 +371,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  min-width: 0;
   min-height: 2.25rem;
 }
 
@@ -382,12 +384,19 @@
 }
 
 .mega-menu-sidebar__tile-label {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   font-family: var(--font-body--family);
   font-style: var(--font-body--style);
   font-weight: var(--font-body--weight);
   font-size: var(--font-size--small);
   line-height: var(--line-height--body);
   color: rgb(var(--color-foreground-rgb));
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-wrap: pretty;
 }
 
 .mega-menu-sidebar__panel--rounded-view .mega-menu-sidebar__tile-label {

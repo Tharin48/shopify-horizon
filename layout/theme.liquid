@@ -6,17 +6,8 @@
   lang="{{ request.locale.iso_code }}"
 >
   <head>{% render 'yoast-seo' %}
-    {%- comment -%} Google Tag Manager — global storefront; keep only in layout/theme.liquid for upstream safety. {%- endcomment -%}
-    <!-- Google Tag Manager -->
-    <script>
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-KNRRJS');
-    </script>
-    <!-- End Google Tag Manager -->
-    
+    {%- render 'seo-title-description' -%}
+
     {%- if settings.favicon != blank -%}
       <link
         rel="icon"
@@ -26,8 +17,15 @@
     {%- endif -%}
 
     {% # theme-check-disable RemoteAsset %}
-    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
-    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
+    {% comment %} View-transition render blocker: product pages only so homepage hard refresh is not delayed. {% endcomment %}
+    {% if settings.page_transition_enabled %}
+      <link
+        rel="expect"
+        href="#MainContent"
+        blocking="render"
+        id="view-transition-render-blocker"
+      >
+    {% elsif settings.transition_to_main_product and template.name == 'product' %}
       <link
         rel="expect"
         href="#MainContent"
@@ -37,11 +35,14 @@
     {% endif %}
 
     {%- render 'meta-tags' -%}
-    {%- render 'stylesheets' -%}
+    {%- render 'critical-inline-css' -%}
     {%- render 'fonts' -%}
-    {%- render 'scripts' -%}
-    {%- render 'theme-styles-variables' -%}
+    {%- render 'stylesheets' -%}
     {%- render 'color-schemes' -%}
+    {%- render 'theme-styles-variables' -%}
+    {%- render 'theme-font-faces-primary' -%}
+    {%- render 'critical-stylesheets' -%}
+    {%- render 'importmap' -%}
 
     {% if request.design_mode %}
       {%- render 'theme-editor' -%}
@@ -52,6 +53,10 @@
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
+    {%- comment -%}
+      Google Tag Manager (noscript) — disabled 2026-05-26.
+      GA4 + Google Ads are handled by the Shopify Google & YouTube app (content_for_header).
+      All tags in GTM-KNRRJS are paused. Uncomment to re-enable GTM.
     <!-- Google Tag Manager (noscript) -->
     <noscript>
       <iframe
@@ -63,6 +68,7 @@
       ></iframe>
     </noscript>
     <!-- End Google Tag Manager (noscript) -->
+    {%- endcomment -%}
     {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
     <div id="header-group">
       {% sections 'header-group' %}
@@ -190,6 +196,22 @@
     {% if settings.quick_add or settings.mobile_quick_add %}
       {% render 'quick-add-modal' %}
     {% endif %}
+
+    {%- render 'theme-font-faces-deferred' -%}
+    {%- render 'scripts' -%}
+
+    {%- comment -%}
+      GTM at end of body — disabled 2026-05-26 (was kept at end of body so hero LCP is not blocked).
+      GA4 + Google Ads are handled by the Shopify Google & YouTube app (content_for_header).
+      All tags in GTM-KNRRJS are paused. Uncomment to re-enable GTM.
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-KNRRJS');
+    </script>
+    {%- endcomment -%}
 
     <script src="{{ 'accessibility-tweaks.js' | asset_url }}" defer></script>
     <script>
