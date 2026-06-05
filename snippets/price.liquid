@@ -13,16 +13,16 @@
   assign show_sale_price_first = show_sale_price_first | default: false
   assign hide_compare_at_price = hide_compare_at_price | default: false
   assign selected_variant = product_resource.selected_or_first_available_variant
-  assign price = selected_variant.price
-  assign compare_at_price = selected_variant.compare_at_price
+  assign price_amount = selected_variant.price
+  assign compare_at_amount = selected_variant.compare_at_price
 
   assign show_compare_price = false
-  if compare_at_price > price
+  if compare_at_amount > price_amount
     assign show_compare_price = true
   endif
 
   if product_resource == blank
-    assign price = 1999
+    assign price_amount = 1999
   endif
 
   # Check if variant has volume pricing
@@ -60,32 +60,23 @@
     assign use_currency = true
   endif
 
-  # Format all prices
-  if use_currency
-    assign price = price | money_with_currency
-    assign compare_at_price = compare_at_price | money_with_currency
-    assign price_min = price_min | money_with_currency
-    assign price_max = price_max | money_with_currency
-  else
-    assign price = price | money
-    assign compare_at_price = compare_at_price | money
-    assign price_min = price_min | money
-    assign price_max = price_max | money
-  endif
 -%}
+
+{%- capture price -%}{%- render 'custom-inr-money', amount: price_amount, with_currency: use_currency -%}{%- endcapture -%}
+{%- capture compare_at_price -%}{%- render 'custom-inr-money', amount: compare_at_amount, with_currency: use_currency -%}{%- endcapture -%}
+{%- if price_min != blank -%}
+  {%- capture price_min -%}{%- render 'custom-inr-money', amount: price_min, with_currency: use_currency -%}{%- endcapture -%}
+{%- endif -%}
+{%- if price_max != blank -%}
+  {%- capture price_max -%}{%- render 'custom-inr-money', amount: price_max, with_currency: use_currency -%}{%- endcapture -%}
+{%- endif -%}
 
 {% if hide_compare_at_price %}
   <div ref="priceContainer">
     <span class="price">{{ price | default: '&nbsp;' }}</span>
   </div>
   {%- if selected_variant.unit_price and show_unit_price %}
-    {%- liquid
-      if use_currency
-        assign unit_price = selected_variant.unit_price | money_with_currency
-      else
-        assign unit_price = selected_variant.unit_price | money
-      endif
-    -%}
+    {%- capture unit_price -%}{%- render 'custom-inr-money', amount: selected_variant.unit_price, with_currency: use_currency -%}{%- endcapture -%}
     {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
   {%- endif -%}
 {% else %}
@@ -144,13 +135,7 @@
     </div>
   {% endif %}
   {%- if selected_variant.unit_price and show_unit_price %}
-    {%- liquid
-      if use_currency
-        assign unit_price = selected_variant.unit_price | money_with_currency
-      else
-        assign unit_price = selected_variant.unit_price | money
-      endif
-    -%}
+    {%- capture unit_price -%}{%- render 'custom-inr-money', amount: selected_variant.unit_price, with_currency: use_currency -%}{%- endcapture -%}
     {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
   {%- endif -%}
 </div>

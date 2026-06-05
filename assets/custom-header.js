@@ -1020,6 +1020,9 @@
 
   function chFmtMoney(cents) {
     if (cents == null) { return ''; }
+    if (window.__customInrMoney && typeof window.__customInrMoney.formatCents === 'function') {
+      return window.__customInrMoney.formatCents(cents);
+    }
     var n = (cents / 100).toFixed(2);
     var cur = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || '';
     return cur ? n + '\u00a0' + cur : n;

@@ -193,9 +193,9 @@
       {% endif %}
 
       <p class="teamakers-pick__price">
-        {{ card_product.price | money }}
+        {%- render 'custom-inr-money', amount: card_product.price -%}
         {% if card_product.compare_at_price > card_product.price %}
-          <s class="teamakers-pick__compare">{{ card_product.compare_at_price | money }}</s>
+          <s class="teamakers-pick__compare">{%- render 'custom-inr-money', amount: card_product.compare_at_price -%}</s>
         {% endif %}
       </p>
     </div>
@@ -213,7 +213,7 @@
           <span class="teamakers-pick__rating-count">(0)</span>
         </p>
       {% endif %}
-      <p class="teamakers-pick__price">{{ 5000 | money }}</p>
+      <p class="teamakers-pick__price">{%- render 'custom-inr-money', amount: 5000 -%}</p>
     </div>
   {% endif %}
 </article>

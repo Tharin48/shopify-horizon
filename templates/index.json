@@ -105,7 +105,7 @@
       "name": "Custom hero",
       "settings": {
         "media_type_1": "video",
-        "video_1": "shopify://files/videos/hero.webm",
+        "video_1": "shopify://files/videos/MTWABT no end frame_89aa1d33-f730-405f-9bde-cdb699f9dac0.webm",
         "media_type_2": "video",
         "stack_media_on_mobile": false,
         "custom_mobile_media": false,
@@ -2309,15 +2309,6 @@
     },
     "17774000331a378ad3": {
       "type": "_blocks",
-      "blocks": {
-        "instareel_ig_reels_instagram_reels_feed_hgVDEF": {
-          "type": "shopify://apps/instareel-ig-reels/blocks/instagram-reels-feed/6399ee9c-54c8-4f76-97d7-8f02f7662aa1",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "instareel_ig_reels_instagram_reels_feed_hgVDEF"
-      ],
       "disabled": true,
       "name": "Explore the Feed",
       "settings": {

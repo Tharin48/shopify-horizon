@@ -1,0 +1,22 @@
+{%- doc -%}
+  Returns the currency symbol, using ₹ when country is India or currency is INR.
+
+  @param {string} [currency_iso] - ISO currency code (defaults to cart currency)
+  @param {string} [country_iso] - ISO country code (defaults to localization country)
+  @param {string} [symbol] - Symbol from Shopify (defaults to cart.currency.symbol)
+{%- enddoc -%}
+
+{%- liquid
+  assign sym_iso = currency_iso | default: cart.currency.iso_code
+  if sym_iso == blank
+    assign sym_iso = localization.country.currency.iso_code
+  endif
+
+  assign sym_country = country_iso | default: localization.country.iso_code
+  assign sym_value = symbol | default: cart.currency.symbol
+
+  if sym_country == 'IN' or sym_iso == 'INR'
+    assign sym_value = '₹'
+  endif
+-%}
+{{- sym_value -}}

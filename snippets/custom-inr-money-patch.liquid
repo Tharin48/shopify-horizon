@@ -1,0 +1,65 @@
+{%- doc -%}
+  Patches JS money format objects for INR when Shopify still exposes Rs.
+  Runs when country is India (IN) or currency is INR.
+{%- enddoc -%}
+
+{%- liquid
+  assign custom_inr_override = false
+  if localization.country.iso_code == 'IN' or cart.currency.iso_code == 'INR'
+    assign custom_inr_override = true
+  endif
+-%}
+
+{%- if custom_inr_override -%}
+  <script>
+    (function () {
+      var COUNTRY_IN = 'IN';
+      var CURRENCY_INR = 'INR';
+      var PAGE_COUNTRY = {{ localization.country.iso_code | json }};
+      var PAGE_CURRENCY = {{ cart.currency.iso_code | json }};
+
+      function isInrSymbolContext() {
+        return PAGE_COUNTRY === COUNTRY_IN || PAGE_CURRENCY === CURRENCY_INR;
+      }
+
+      function fixRsFormat(value) {
+        if (!value || typeof value !== 'string') return value;
+        return value.replace(/Rs\.\s*/g, '₹').replace(/Rs\s+/g, '₹ ');
+      }
+
+      function patchInrMoneyGlobals() {
+        if (!isInrSymbolContext()) return;
+
+        if (window.csapps) {
+          window.csapps.money_format = fixRsFormat(window.csapps.money_format);
+          window.csapps.currency_symbol = '₹';
+        }
+
+        if (window.__pagefly_setting__ && window.__pagefly_setting__.moneyFormat) {
+          window.__pagefly_setting__.moneyFormat = fixRsFormat(window.__pagefly_setting__.moneyFormat);
+        }
+      }
+
+      window.__customInrMoney = {
+        fixRsFormat: fixRsFormat,
+        fixRsPrice: fixRsFormat,
+        formatCents: function (cents) {
+          var amount = (Number(cents) / 100).toFixed(2);
+          if (!isInrSymbolContext()) {
+            var code =
+              (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || '';
+            return code ? amount + '\u00a0' + code : amount;
+          }
+          return '₹' + amount;
+        },
+      };
+
+      patchInrMoneyGlobals();
+      document.addEventListener('DOMContentLoaded', patchInrMoneyGlobals);
+      window.addEventListener('load', patchInrMoneyGlobals);
+      setTimeout(patchInrMoneyGlobals, 0);
+      setTimeout(patchInrMoneyGlobals, 500);
+      setTimeout(patchInrMoneyGlobals, 1500);
+    })();
+  </script>
+{%- endif -%}

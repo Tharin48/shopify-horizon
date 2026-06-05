@@ -1,0 +1,80 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "pf-1becad12": {
+      "type": "pf-1becad12",
+      "settings": {
+        "pf_4217f328_value": "Shop the Dilmah Christmas Market online\n<br><br>&nbsp;Discover the perfect Christmas tea gifts and luxury hampers for every occasion. From festive tea advent calendars and personalized tea gift sets to stocking fillers, seasonal blends, curated assortments, hampers, and signature keepsakes, Dilmah offers something for everyone – whether you’re searching for everyday Christmas gifts, thoughtful surprises, premium tea chests, or limited-edition conscious luxury collections. Each gift carries the promise of single-origin Ceylon tea, celebrated for its freshness, craftsmanship, natural luxury, and ethical sourcing, and arrives in premium, gift-ready packaging designed for modern convenience. With worldwide delivery, Dilmah makes it easy to share the spirit of the season across borders, making your Christmas more memorable with festive tea blends, ethical Christmas gifts, and luxury tea experiences delivered to your doorstep",
+        "pf_69b74fb7_value": "Shop the Dilmah Christmas Market online\n<br><br>&nbsp;Discover the perfect Christmas tea gifts and luxury hampers for every occasion. From festive tea advent calendars and personalized tea gift sets to stocking fillers, seasonal blends, curated assortments, hampers, and signature keepsakes, Dilmah offers something for everyone – whether you’re searching for everyday Christmas gifts, thoughtful surprises, premium tea chests, or limited-edition conscious luxury collections. Each gift carries the promise of single-origin Ceylon tea, celebrated for its freshness, craftsmanship, natural luxury, and ethical sourcing, and arrives in premium, gift-ready packaging designed for modern convenience. With worldwide delivery, Dilmah makes it easy to share the spirit of the season across borders, making your Christmas more memorable with festive tea blends, ethical Christmas gifts, and luxury tea experiences delivered to your doorstep",
+        "pf_56058dc8_code": "<a href=\"javascript:void(0)\" \"\r\n  onclick=\" handleTriggerButtonClick()\" target=\"_blank\"\r\n  rel=\"noreferrer noopener\"><span style=\"width: 100%; text-align: center\"></span><button type=\"button\" style=\"padding: 10px; background: #028f70; color: #fff; border: none; border-radius: 8px\">Try Your Luck!</button></a>",
+        "pf_5683eeae_code": "<a href=\"javascript:void(0)\" \"\r\n  onclick=\" handleTriggerButtonClick()\" target=\"_blank\"\r\n  rel=\"noreferrer noopener\"><span style=\"width: 100%; text-align: center\"></span><button type=\"button\" style=\"padding: 10px; background: #028f70; color: #fff; border: none; border-radius: 8px\">Try Your Luck!</button></a>",
+        "pf_a2fe8382_code": "<a href=\"javascript:void(0)\" \"onclick=\"handleTriggerButtonClick()\" rel=\"noreferrer noopener\"><span style=\"width: 100%; text-align: center\"></span><button type=\"button\" style=\"padding: 10px; background: #028f70; color: #fff; border: none; border-radius: 8px\">Try Your Luck!</button></a>",
+        "pf_094a8d7e_value": "<span style=\"color: rgb(192, 127, 95);\"><span style=\"color: rgb(219, 23, 8);\"><span style=\"color: rgb(217, 173, 53);\"></span><span style=\"color: rgb(217, 173, 53);\">Dilmah</span><br><span style=\"color: rgb(217, 173, 53);\">Advent<br>Calendar</span></span></span>",
+        "pf_e91990a9_value": "<span style=\"color: rgb(192, 127, 95);\"><span style=\"color: rgb(219, 23, 8);\"><span style=\"color: rgb(217, 173, 53);\"></span><span style=\"color: rgb(217, 173, 53);\">Dilmah</span><br><span style=\"color: rgb(217, 173, 53);\">Advent<br>Calendar</span></span></span>",
+        "pf_d763e0e9_value": "<span style=\"color: rgb(192, 127, 95);\"><span style=\"color: rgb(219, 23, 8);\"><span style=\"color: rgb(217, 173, 53);\"></span><span style=\"color: rgb(217, 173, 53);\">Dilmah</span><br><span style=\"color: rgb(217, 173, 53);\">Advent Calendar</span></span></span>",
+        "pf_0d61680f_value": "<a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/rose-marzipan-mint-iced-tea\" target=\"_blank\"></a><a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/christmas-white-chocolate-chai\" target=\"_blank\">View recipe</a>",
+        "pf_b80de7e1_value": "<a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/rose-marzipan-mint-iced-tea\" target=\"_blank\"></a><a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/christmas-white-chocolate-chai\" target=\"_blank\">View recipe</a>",
+        "pf_6cbb4a68_value": "<a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/roast-duck-with-blueberry-and-pomegranate-tea-sauce\" target=\"_blank\">View recipe</a>",
+        "pf_a0a3ca6c_value": "<a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/roast-duck-with-blueberry-and-pomegranate-tea-sauce\" target=\"_blank\">View recipe</a>",
+        "pf_ab20602c_value": "<a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/rose-marzipan-mint-iced-tea\" target=\"_blank\">View recipe</a>",
+        "pf_b29ce177_value": "<a href=\"https://www.teainspired.com/dilmah-recipes/tea-infused-recipes/rose-marzipan-mint-iced-tea\" target=\"_blank\">View recipe</a>",
+        "pf_35a43e1f_value": "<span style=\"color: rgb(0, 0, 0);\"><span style=\"color: rgb(219, 23, 8);\">What's brewing this Christmas?</span></span>",
+        "pf_4351493d_value": "<span style=\"color: rgb(0, 0, 0);\"><span style=\"color: rgb(219, 23, 8);\">What's brewing this Christmas?</span></span>",
+        "pf_77c57c2a_value": "<span style=\"color: rgb(0, 0, 0);\"><span style=\"color: rgb(219, 23, 8);\">What's brewing this Christmas?</span></span>",
+        "pf_66cf5605_value": "<span style=\"color: rgb(255, 255, 255);\"><span style=\"color: rgb(189, 158, 36);\">Spin the<br>Wheel</span></span>",
+        "pf_9940e647_value": "<span style=\"color: rgb(255, 255, 255);\"><span style=\"color: rgb(189, 158, 36);\">Spin the<br>Wheel</span></span>",
+        "pf_cd9b5683_value": "<span style=\"color: rgb(255, 255, 255);\"><span style=\"color: rgb(189, 158, 36);\">Spin the<br>Wheel</span></span>",
+        "pf_7a4beb58_value": "<span style=\"color: rgb(219, 23, 8);\">This Christmas, every cup is a promise</span>",
+        "pf_7abf539e_value": "<span style=\"color: rgb(219, 23, 8);\">This Christmas, every cup is a promise</span>",
+        "pf_cc54d490_value": "<span style=\"color: rgb(219, 23, 8);\">This Christmas, every cup is a promise</span>",
+        "pf_95d12b04_value": "<span style=\"color: rgb(192, 127, 95);\">Gifts for all orders<br>above $60</span>",
+        "pf_c9f6d5de_value": "<span style=\"color: rgb(192, 127, 95);\">Gifts for all orders<br>above $60</span>",
+        "pf_e5505917_value": "<span style=\"color: rgb(192, 127, 95);\">Gifts for all orders<br>above $60</span>",
+        "pf_09f64e37_value": "<span style=\"color: rgb(192, 127, 95);\">Exclusive<br>Christmas teas</span>",
+        "pf_4ec53ab4_value": "<span style=\"color: rgb(192, 127, 95);\">Exclusive<br>Christmas teas</span>",
+        "pf_7e327af2_value": "<span style=\"color: rgb(192, 127, 95);\">Exclusive<br>Christmas teas</span>",
+        "pf_a6a267c4_value": "<font color=\"#d9ad35\">Keep it Safe<br>Personalize<br>your gift<br></font>",
+        "pf_1fcef92a_value": "<span style=\"color: rgb(192, 127, 95);\">Single origin<br>goodness</span>",
+        "pf_3ab4c2b2_value": "<span style=\"color: rgb(192, 127, 95);\">Single origin<br>goodness</span>",
+        "pf_435f3e44_value": "<span style=\"color: rgb(192, 127, 95);\">Single origin<br>goodness</span>",
+        "pf_4162eb3f_value": "<span style=\"color: rgb(217, 173, 53);\">Thoughtful<br>Tea Gifts</span>",
+        "pf_49b31835_value": "<span style=\"color: rgb(192, 127, 95);\">Hassle-free<br>wrapping</span>",
+        "pf_59174ec5_value": "<span style=\"color: rgb(192, 127, 95);\">Hassle-free<br>wrapping</span>",
+        "pf_5f145e02_value": "<font color=\"#d9ad35\">Keep it Safe<br>Personalize your gift<br></font>",
+        "pf_64489aa3_value": "<span style=\"color: rgb(192, 127, 95);\">Hassle-free<br>wrapping</span>",
+        "pf_90dc1419_value": "<span style=\"color: rgb(217, 173, 53);\">Thoughtful<br>Tea Gifts</span>",
+        "pf_3dc8d62c_value": "<span style=\"color: rgb(192, 127, 95);\">Worldwide<br>delivery</span>",
+        "pf_d0615d43_value": "<span style=\"color: rgb(192, 127, 95);\">Worldwide<br>delivery</span>",
+        "pf_f7a3e550_value": "<span style=\"color: rgb(192, 127, 95);\">Worldwide<br>delivery</span>",
+        "pf_0d67dbe2_value": "<span style=\"color: rgb(219, 23, 8);\">Christmas Tea Recipes</span>",
+        "pf_c260e40a_value": "<span style=\"color: rgb(219, 23, 8);\">Christmas Tea Recipes</span>",
+        "pf_d3a86a47_value": "<font color=\"#d9ad35\">Christmas <br>Bundles<br></font>",
+        "pf_ecd71c16_value": "<font color=\"#d9ad35\">Christmas <br>Bundles<br></font>",
+        "pf_c8257d6c_value": "<font color=\"#d9ad35\">Everyday<br>Gifts&nbsp;</font>",
+        "pf_60ca7c87_value": "<font color=\"#d9ad35\">Everyday Gifts&nbsp;</font>",
+        "pf_1d7a9cda_value": "Browse More&nbsp;Recipes",
+        "pf_be262e21_value": "Browse More Recipes",
+        "pf_1f2a1417_value": "Buy Now",
+        "pf_211b4b71_value": "Buy Now",
+        "pf_214422d1_value": "Buy Now",
+        "pf_6f367c96_value": "Buy Now",
+        "pf_da345159_value": "Buy Now",
+        "pf_e0287f5a_value": "Buy Now",
+        "pf_e035db80_value": "Buy Now",
+        "pf_e2166381_value": "Buy Now",
+        "pf_f81f14a0_value": "Buy Now"
+      }
+    }
+  },
+  "order": [
+    "pf-1becad12"
+  ]
+}
