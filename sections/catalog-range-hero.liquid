@@ -1,0 +1,442 @@
+{{ 'custom-collection-layout.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign hero_image_metafield = collection.metafields.custom.range_hero_image
+  assign hero_image = blank
+  if hero_image_metafield != blank and hero_image_metafield.value != blank
+    assign hero_image = hero_image_metafield.value
+  endif
+
+  assign hero_title = collection.metafields.custom.range_hero_title.value | default: collection.metafields.custom.range_hero_title | strip
+  assign hero_description = collection.metafields.custom.range_hero_description
+
+  assign has_hero_content = false
+  if hero_image != blank or hero_title != blank or hero_description != blank
+    assign has_hero_content = true
+  endif
+
+  assign has_text_content = false
+  if hero_title != blank or hero_description != blank
+    assign has_text_content = true
+  endif
+-%}
+
+{%- if has_hero_content -%}
+  <div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+  <section
+    class="section page-width-wide section--full-width color-{{ section.settings.color_scheme }} catalog-range-hero"
+    {{ section.shopify_attributes }}
+    style="
+      --catalog-range-hero-height-desktop: {{ section.settings.hero_height_desktop }}px;
+      --catalog-range-hero-height-mobile: {{ section.settings.hero_height_mobile }}px;
+      --catalog-range-hero-content-max-width: {% if section.settings.content_max_width > 0 %}{{ section.settings.content_max_width }}px{% else %}100%{% endif %};
+      --catalog-range-hero-padding-top: {{ section.settings.padding_top }}px;
+      --catalog-range-hero-padding-bottom: {{ section.settings.padding_bottom }}px;
+      --catalog-range-hero-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+      --catalog-range-hero-padding-inline-desktop: {{ section.settings.padding_inline_desktop }}px;
+      --catalog-range-hero-card-max-width: {{ section.settings.card_max_width }}px;
+      --catalog-range-hero-radius: {{ section.settings.border_radius }}px;
+      --catalog-range-hero-title-color: {{ section.settings.title_color }};
+      --catalog-range-hero-body-color: {{ section.settings.body_color }};
+      --catalog-range-hero-card-bg: {{ section.settings.card_background }};
+      --catalog-range-hero-card-border: {{ section.settings.card_border }};
+      --catalog-range-hero-breadcrumb-link: {{ section.settings.breadcrumb_link_color }};
+      --catalog-range-hero-breadcrumb-current: {{ section.settings.breadcrumb_current_color }};
+      --catalog-range-hero-breadcrumb-separator: {{ section.settings.breadcrumb_separator_color }};
+    "
+  >
+    <div class="catalog-range-hero__inner">
+      <div class="catalog-range-hero__frame">
+        {%- if hero_image != blank -%}
+          {{
+            hero_image
+            | image_url: width: 2400
+            | image_tag:
+              class: 'catalog-range-hero__image',
+              loading: 'eager',
+              fetchpriority: 'high',
+              widths: '720,960,1200,1600,2000,2400',
+              sizes: '100vw',
+              alt: hero_title | default: collection.title
+          }}
+        {%- endif -%}
+
+        <div class="catalog-range-hero__overlay" aria-hidden="true"></div>
+
+        {%- if section.settings.show_breadcrumb -%}
+          <nav class="catalog-range-hero__breadcrumb-nav" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+            <ol class="custom-catalog__breadcrumb catalog-range-hero__breadcrumb">
+              {%- if section.settings.show_home_link -%}
+                <li class="custom-catalog__breadcrumb-item">
+                  <a href="{{ routes.root_url }}">{{ section.settings.home_label | escape }}</a>
+                </li>
+              {%- endif -%}
+              <li class="custom-catalog__breadcrumb-item">
+                <span class="custom-catalog__breadcrumb-current" aria-current="page">{{ collection.title | escape }}</span>
+              </li>
+            </ol>
+          </nav>
+        {%- endif -%}
+
+        {%- if has_text_content -%}
+          <div class="catalog-range-hero__content">
+            <div class="catalog-range-hero__card">
+              {%- if hero_title != blank -%}
+                <h1 class="catalog-range-hero__title">{{ hero_title | escape }}</h1>
+              {%- endif -%}
+
+              {%- if hero_description != blank -%}
+                <div class="catalog-range-hero__body rte">
+                  {{ hero_description | metafield_tag }}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+{% stylesheet %}
+  .catalog-range-hero__inner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--catalog-range-hero-content-max-width, 100%);
+    margin-inline: auto;
+    padding-block: var(--catalog-range-hero-padding-top, 0) var(--catalog-range-hero-padding-bottom, 0);
+  }
+
+  .catalog-range-hero__frame {
+    position: relative;
+    min-height: var(--catalog-range-hero-height-desktop, 420px);
+    overflow: hidden;
+    border-radius: var(--catalog-range-hero-radius, 24px);
+    background:
+      radial-gradient(circle at top left, rgba(255, 245, 230, 0.95), rgba(255, 250, 246, 0.65) 48%, rgba(244, 236, 224, 0.4) 100%),
+      #f7efe6;
+  }
+
+  .catalog-range-hero__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  .catalog-range-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(252, 245, 238, 0.92) 0%, rgba(252, 245, 238, 0.74) 24%, rgba(252, 245, 238, 0.18) 56%, rgba(252, 245, 238, 0.04) 100%);
+    pointer-events: none;
+  }
+
+  .catalog-range-hero__breadcrumb-nav {
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding-inline: 2rem;
+  }
+
+  .catalog-range-hero__breadcrumb {
+    margin: 0;
+    color: var(--catalog-range-hero-breadcrumb-link, rgba(43, 42, 40, 0.72));
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .catalog-range-hero__breadcrumb .custom-catalog__breadcrumb-item + .custom-catalog__breadcrumb-item::before {
+    color: var(--catalog-range-hero-breadcrumb-separator, rgba(43, 42, 40, 0.42));
+  }
+
+  .catalog-range-hero__breadcrumb a {
+    color: var(--catalog-range-hero-breadcrumb-link, rgba(43, 42, 40, 0.72));
+  }
+
+  .catalog-range-hero__breadcrumb a:hover,
+  .catalog-range-hero__breadcrumb a:focus-visible,
+  .catalog-range-hero__breadcrumb .custom-catalog__breadcrumb-current {
+    color: var(--catalog-range-hero-breadcrumb-current, rgba(43, 42, 40, 0.96));
+  }
+
+  .catalog-range-hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    min-height: var(--catalog-range-hero-height-desktop, 420px);
+    padding: 2.75rem 2rem 2rem;
+  }
+
+  .catalog-range-hero__card {
+    width: min(100%, var(--catalog-range-hero-card-max-width, 31rem));
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border: 1px solid var(--catalog-range-hero-card-border, rgba(255, 255, 255, 0.48));
+    border-radius: max(0px, calc(var(--catalog-range-hero-radius, 24px) - 6px));
+    background: var(--catalog-range-hero-card-bg, rgba(255, 250, 245, 0.44));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 22px 60px rgba(88, 67, 33, 0.08);
+  }
+
+  .catalog-range-hero__title {
+    margin: 0;
+    color: var(--catalog-range-hero-title-color, #b08a2f);
+    font-size: clamp(2rem, 3.1vw, 3.35rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  .catalog-range-hero__body {
+    margin-top: 1rem;
+    color: var(--catalog-range-hero-body-color, rgba(31, 28, 25, 0.88));
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 33rem;
+  }
+
+  .catalog-range-hero__body > *:first-child {
+    margin-top: 0;
+  }
+
+  .catalog-range-hero__body > *:last-child {
+    margin-bottom: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .catalog-range-hero__inner {
+      padding-inline: var(--catalog-range-hero-padding-inline-desktop, 2.5rem);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .catalog-range-hero__inner {
+      padding-inline: var(--catalog-range-hero-padding-inline-mobile, 1rem);
+    }
+
+    .catalog-range-hero__frame {
+      min-height: var(--catalog-range-hero-height-mobile, 620px);
+      border-radius: max(0px, calc(var(--catalog-range-hero-radius, 24px) - 4px));
+    }
+
+    .catalog-range-hero__breadcrumb-nav {
+      top: 0.75rem;
+      padding-inline: 1rem;
+    }
+
+    .catalog-range-hero__breadcrumb {
+      font-size: 0.6875rem;
+    }
+
+    .catalog-range-hero__overlay {
+      background:
+        linear-gradient(180deg, rgba(252, 245, 238, 0.12) 0%, rgba(252, 245, 238, 0.04) 42%, rgba(252, 245, 238, 0.78) 72%, rgba(252, 245, 238, 0.96) 100%);
+    }
+
+    .catalog-range-hero__content {
+      min-height: var(--catalog-range-hero-height-mobile, 620px);
+      align-items: flex-end;
+      justify-content: center;
+      padding: 2.5rem 1rem 1rem;
+    }
+
+    .catalog-range-hero__card {
+      width: 100%;
+      text-align: center;
+      background: rgba(255, 249, 242, 0.7);
+    }
+
+    .catalog-range-hero__title {
+      font-size: clamp(2rem, 8vw, 2.8rem);
+    }
+
+    .catalog-range-hero__body {
+      margin-inline: auto;
+      font-size: 0.98rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Catalog range hero",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 0,
+      "max": 2400,
+      "step": 40,
+      "unit": "px",
+      "label": "Content max width",
+      "default": 1920
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal padding (mobile)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Horizontal padding (desktop)",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_home_link",
+      "label": "Show home link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "home_label",
+      "label": "Home label",
+      "default": "Home"
+    },
+    {
+      "type": "color",
+      "id": "breadcrumb_link_color",
+      "label": "Link color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "color",
+      "id": "breadcrumb_current_color",
+      "label": "Current item color",
+      "default": "#2b2a28"
+    },
+    {
+      "type": "color",
+      "id": "breadcrumb_separator_color",
+      "label": "Separator color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "range",
+      "id": "hero_height_desktop",
+      "min": 280,
+      "max": 760,
+      "step": 10,
+      "unit": "px",
+      "label": "Hero height (desktop)",
+      "default": 420
+    },
+    {
+      "type": "range",
+      "id": "hero_height_mobile",
+      "min": 360,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "label": "Hero height (mobile)",
+      "default": 640
+    },
+    {
+      "type": "range",
+      "id": "card_max_width",
+      "min": 260,
+      "max": 760,
+      "step": 20,
+      "unit": "px",
+      "label": "Text card max width",
+      "default": 520
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "color",
+      "id": "body_color",
+      "label": "Body color",
+      "default": "#1f1c19"
+    },
+    {
+      "type": "color_background",
+      "id": "card_background",
+      "label": "Text card background",
+      "default": "rgba(255, 249, 242, 0.44)"
+    },
+    {
+      "type": "color_background",
+      "id": "card_border",
+      "label": "Text card border",
+      "default": "rgba(255, 255, 255, 0.48)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Catalog range hero"
+    }
+  ]
+}
+{% endschema %}

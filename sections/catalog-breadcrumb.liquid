@@ -1,0 +1,240 @@
+{{ 'custom-collection-layout.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign current_collection = collection
+-%}
+
+<section
+  class="section page-width-wide section--full-width color-{{ section.settings.color_scheme }} custom-catalog-breadcrumb"
+  {{ section.shopify_attributes }}
+  style="
+    --custom-catalog-breadcrumb-padding-block-start: {{ section.settings.padding_top }}px;
+    --custom-catalog-breadcrumb-padding-block-end: {{ section.settings.padding_bottom }}px;
+    --custom-catalog-breadcrumb-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-catalog-breadcrumb-padding-inline-desktop: {{ section.settings.padding_inline_desktop }}px;
+    --custom-catalog-breadcrumb-content-max-width: {% if section.settings.content_max_width > 0 %}{{ section.settings.content_max_width }}px{% else %}100%{% endif %};
+    --custom-catalog-breadcrumb-overlay-offset: {{ section.settings.overlay_offset }}px;
+    --custom-catalog-breadcrumb-link-color: {{ section.settings.link_color }};
+    --custom-catalog-breadcrumb-current-color: {{ section.settings.current_color }};
+    --custom-catalog-breadcrumb-separator-color: {{ section.settings.separator_color }};
+  "
+>
+  <div class="custom-catalog-breadcrumb__inner">
+    <nav class="custom-catalog__breadcrumb-nav" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+      <ol class="custom-catalog__breadcrumb">
+        {%- if section.settings.show_home_link -%}
+          <li class="custom-catalog__breadcrumb-item">
+            <a href="{{ routes.root_url }}">{{ section.settings.home_label | escape }}</a>
+          </li>
+        {%- endif -%}
+        <li class="custom-catalog__breadcrumb-item">
+          <span class="custom-catalog__breadcrumb-current" aria-current="page">
+            {%- if current_collection != blank -%}
+              {{ current_collection.title | escape }}
+            {%- else -%}
+              Collection
+            {%- endif -%}
+          </span>
+        </li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+{% stylesheet %}
+  .shopify-section.catalog-breadcrumb-section {
+    position: relative;
+    z-index: 5;
+    overflow: visible;
+  }
+
+  .custom-catalog-breadcrumb {
+    position: relative;
+    z-index: 4;
+    margin-bottom: calc(
+      -1 * (
+        var(--custom-catalog-breadcrumb-padding-block-start, 0px) +
+        1.25rem +
+        var(--custom-catalog-breadcrumb-overlay-offset, 0px)
+      )
+    );
+    pointer-events: none;
+  }
+
+  .custom-catalog-breadcrumb__inner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--custom-catalog-breadcrumb-content-max-width, 100%);
+    margin-inline: auto;
+    padding-block-start: calc(
+      var(--custom-catalog-breadcrumb-padding-block-start, 0px) +
+      var(--custom-catalog-breadcrumb-overlay-offset, 0px)
+    );
+    padding-block-end: var(--custom-catalog-breadcrumb-padding-block-end, 0px);
+    pointer-events: auto;
+  }
+
+  .custom-catalog-breadcrumb .custom-catalog__breadcrumb {
+    margin: 0;
+    color: var(--custom-catalog-breadcrumb-link-color, rgba(43, 42, 40, 0.7));
+    position: relative;
+    z-index: 1;
+  }
+
+  .custom-catalog-breadcrumb .custom-catalog__breadcrumb-item + .custom-catalog__breadcrumb-item::before {
+    color: var(--custom-catalog-breadcrumb-separator-color, rgba(43, 42, 40, 0.45));
+  }
+
+  .custom-catalog-breadcrumb .custom-catalog__breadcrumb a {
+    color: var(--custom-catalog-breadcrumb-link-color, rgba(43, 42, 40, 0.74));
+  }
+
+  .custom-catalog-breadcrumb .custom-catalog__breadcrumb a:hover,
+  .custom-catalog-breadcrumb .custom-catalog__breadcrumb a:focus-visible {
+    color: var(--custom-catalog-breadcrumb-current-color, rgba(43, 42, 40, 0.95));
+  }
+
+  .custom-catalog-breadcrumb .custom-catalog__breadcrumb-current {
+    color: var(--custom-catalog-breadcrumb-current-color, rgba(43, 42, 40, 0.95));
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-catalog-breadcrumb__inner {
+      padding-inline: var(--custom-catalog-breadcrumb-padding-inline-desktop, 2.5rem);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-catalog-breadcrumb {
+      margin-bottom: calc(
+        -1 * (
+          var(--custom-catalog-breadcrumb-padding-block-start, 0px) +
+          1.15rem +
+          calc(var(--custom-catalog-breadcrumb-overlay-offset, 0px) * 0.7)
+        )
+      );
+    }
+
+    .custom-catalog-breadcrumb__inner {
+      padding-inline: var(--custom-catalog-breadcrumb-padding-inline-mobile, 1rem);
+      padding-block-start: calc(
+        var(--custom-catalog-breadcrumb-padding-block-start, 0px) +
+        calc(var(--custom-catalog-breadcrumb-overlay-offset, 0px) * 0.7)
+      );
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Catalog breadcrumb",
+  "tag": "section",
+  "class": "section-wrapper catalog-breadcrumb-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "overlay_offset",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Hero overlay offset",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 0,
+      "max": 2400,
+      "step": 40,
+      "unit": "px",
+      "label": "Content max width",
+      "default": 1920
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "Link color",
+      "default": "#8f6d1f"
+    },
+    {
+      "type": "color",
+      "id": "current_color",
+      "label": "Current item color",
+      "default": "#2b2a28"
+    },
+    {
+      "type": "color",
+      "id": "separator_color",
+      "label": "Separator color",
+      "default": "#8f6d1f"
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal padding (mobile)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Horizontal padding (desktop)",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "show_home_link",
+      "label": "Show home link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "home_label",
+      "label": "Home label",
+      "default": "Home"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Catalog breadcrumb"
+    }
+  ]
+}
+{% endschema %}

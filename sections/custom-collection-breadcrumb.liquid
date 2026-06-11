@@ -1,0 +1,149 @@
+{{ 'custom-collection-layout.css' | asset_url | stylesheet_tag }}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+{%- liquid
+  assign current_collection = collection
+-%}
+
+<section
+  class="section page-width-wide color-{{ section.settings.color_scheme }} custom-catalog-breadcrumb"
+  {{ section.shopify_attributes }}
+  style="
+    --custom-catalog-breadcrumb-padding-block-start: {{ section.settings.padding_top }}px;
+    --custom-catalog-breadcrumb-padding-block-end: {{ section.settings.padding_bottom }}px;
+    --custom-catalog-breadcrumb-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --custom-catalog-breadcrumb-padding-inline-desktop: {{ section.settings.padding_inline_desktop }}px;
+    --custom-catalog-breadcrumb-content-max-width: {% if section.settings.content_max_width > 0 %}{{ section.settings.content_max_width }}px{% else %}100%{% endif %};
+  "
+>
+  <div class="custom-catalog-breadcrumb__inner">
+    <nav class="custom-catalog__breadcrumb-nav" aria-label="{{ 'accessibility.breadcrumb' | t }}">
+      <ol class="custom-catalog__breadcrumb">
+        {%- if section.settings.show_home_link -%}
+          <li class="custom-catalog__breadcrumb-item">
+            <a href="{{ routes.root_url }}">{{ section.settings.home_label | escape }}</a>
+          </li>
+        {%- endif -%}
+        <li class="custom-catalog__breadcrumb-item">
+          <span class="custom-catalog__breadcrumb-current" aria-current="page">
+            {%- if current_collection != blank -%}
+              {{ current_collection.title | escape }}
+            {%- else -%}
+              Collection
+            {%- endif -%}
+          </span>
+        </li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-catalog-breadcrumb__inner {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--custom-catalog-breadcrumb-content-max-width, 100%);
+    margin-inline: auto;
+    padding-block: var(--custom-catalog-breadcrumb-padding-block-start, 0)
+      var(--custom-catalog-breadcrumb-padding-block-end, 0);
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-catalog-breadcrumb__inner {
+      padding-inline: var(--custom-catalog-breadcrumb-padding-inline-desktop, 2.5rem);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-catalog-breadcrumb__inner {
+      padding-inline: var(--custom-catalog-breadcrumb-padding-inline-mobile, 1rem);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Catalog breadcrumb",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "min": 0,
+      "max": 2400,
+      "step": 40,
+      "unit": "px",
+      "label": "Content max width",
+      "default": 1920
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Horizontal padding (mobile)",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_desktop",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Horizontal padding (desktop)",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "show_home_link",
+      "label": "Show home link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "home_label",
+      "label": "Home label",
+      "default": "Home"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Catalog breadcrumb"
+    }
+  ]
+}
+{% endschema %}

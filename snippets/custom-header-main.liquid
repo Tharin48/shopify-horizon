@@ -79,33 +79,17 @@
 
           <div class="custom-header__logo-row">
             <div class="custom-header__logo">
-              {%- if request.page_type == 'index' -%}
-                <h1 class="custom-header__logo-heading">
-                  <a href="{{ routes.root_url }}" class="custom-header__logo-link">
-                    {%- if settings.logo != blank -%}
-                      {{
-                        settings.logo
-                        | image_url: width: 144
-                        | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
-                      }}
-                    {%- else -%}
-                      <span class="custom-header__logo-text">{{ shop.name }}</span>
-                    {%- endif -%}
-                  </a>
-                </h1>
-              {%- else -%}
-                <a href="{{ routes.root_url }}" class="custom-header__logo-link">
-                  {%- if settings.logo != blank -%}
-                    {{
-                      settings.logo
-                      | image_url: width: 144
-                      | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
-                    }}
-                  {%- else -%}
-                    <span class="custom-header__logo-text">{{ shop.name }}</span>
-                  {%- endif -%}
-                </a>
-              {%- endif -%}
+              <a href="{{ routes.root_url }}" class="custom-header__logo-link">
+                {%- if settings.logo != blank -%}
+                  {{
+                    settings.logo
+                    | image_url: width: 144
+                    | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
+                  }}
+                {%- else -%}
+                  <span class="custom-header__logo-text">{{ shop.name }}</span>
+                {%- endif -%}
+              </a>
             </div>
           </div>
         </div>

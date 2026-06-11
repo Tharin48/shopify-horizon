@@ -1,6 +1,6 @@
 {%- comment -%}
   Custom catalog collection — layout shell + tea-type visual row, storefront filters (collection.filters), toolbar, product grid.
-  Order: breadcrumb → tea-type row (metaobjects or blocks + Search & Discovery Tea type) → format pills + active chips → toolbar → grid.
+  Order: tea-type row (metaobjects or blocks + Search & Discovery Tea type) → format pills + active chips → toolbar → grid.
 {%- endcomment -%}
 
 {{ 'custom-collection-layout.css' | asset_url | stylesheet_tag }}
@@ -263,22 +263,8 @@
     --custom-catalog-toolbar-accent: rgb({{ section.settings.color_scheme.settings.primary.rgba }});
   ">
   <div class="custom-catalog__inner">
-    {%- comment -%} 1) Breadcrumb {%- endcomment -%}
-    {%- if section.settings.show_breadcrumb -%}
-      <nav class="custom-catalog__breadcrumb-nav" aria-label="{{ 'accessibility.breadcrumb' | t }}">
-        <ol class="custom-catalog__breadcrumb">
-          <li class="custom-catalog__breadcrumb-item">
-            <a href="{{ routes.root_url }}">{{ section.settings.breadcrumb_home_label | escape }}</a>
-          </li>
-          <li class="custom-catalog__breadcrumb-item">
-            <span class="custom-catalog__breadcrumb-current">{{ collection.title | escape }}</span>
-          </li>
-        </ol>
-      </nav>
-    {%- endif -%}
-
     {%- comment -%}
-      2) TOP TEA-TYPE VISUAL ROW — Tea Type metaobject entries (Content) or legacy theme blocks; matched to Tea type storefront filter.
+      1) TOP TEA-TYPE VISUAL ROW — Tea Type metaobject entries (Content) or legacy theme blocks; matched to Tea type storefront filter.
     {%- endcomment -%}
     {%- if section.settings.show_tea_type_row and tea_type_row_has_items -%}
       {%- capture tea_type_row_items -%}
@@ -1198,19 +1184,6 @@
         "type": "color_background",
         "id": "product_card_image_background",
         "label": "Product card image background"
-      }, {
-        "type": "header",
-        "content": "Breadcrumb"
-      }, {
-        "type": "checkbox",
-        "id": "show_breadcrumb",
-        "label": "Show breadcrumb",
-        "default": true
-      }, {
-        "type": "text",
-        "id": "breadcrumb_home_label",
-        "label": "Home label",
-        "default": "Home"
       }, {
         "type": "header",
         "content": "Top tea-type visual row"
