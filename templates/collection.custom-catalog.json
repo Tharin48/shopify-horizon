@@ -9,31 +9,6 @@
  */
 {
   "sections": {
-    "catalog_range_hero": {
-      "type": "catalog-range-hero",
-      "settings": {
-        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-        "padding_top": 0,
-        "padding_bottom": 24,
-        "content_max_width": 0,
-        "padding_inline_mobile": 0,
-        "padding_inline_desktop": 0,
-        "show_breadcrumb": true,
-        "show_home_link": true,
-        "home_label": "Home",
-        "breadcrumb_link_color": "#b08a2f",
-        "breadcrumb_current_color": "#2b2a28",
-        "breadcrumb_separator_color": "#b08a2f",
-        "hero_height_desktop": 340,
-        "hero_height_mobile": 520,
-        "card_max_width": 520,
-        "border_radius": 0,
-        "title_color": "#b08a2f",
-        "body_color": "#1f1c19",
-        "card_background": "rgba(255,249,242,0.44)",
-        "card_border": "rgba(255,255,255,0.48)"
-      }
-    },
     "custom_catalog_main": {
       "type": "custom-collection-layout",
       "blocks": {
@@ -98,7 +73,7 @@
       ],
       "settings": {
         "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-        "padding_top": 0,
+        "padding_top": 24,
         "padding_bottom": 48,
         "content_max_width": 1920,
         "padding_inline_mobile": 16,
@@ -110,6 +85,8 @@
         "card_show_reviews": true,
         "card_show_sale_badge": true,
         "card_show_quick_add": true,
+        "show_breadcrumb": true,
+        "breadcrumb_home_label": "Home",
         "show_tea_type_row": true,
         "tea_type_visual_source": "metaobjects",
         "tea_type_metaobject_definition": "tea_type",
@@ -159,7 +136,6 @@
     }
   },
   "order": [
-    "catalog_range_hero",
     "custom_catalog_main"
   ]
 }

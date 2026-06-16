@@ -1,46 +1,26 @@
 {%- doc -%}
   Fallback brewing card (no nested block): optional theme media + text.
   @param {object} [media] - Image from settings
-  @param {object} [media_2] - Optional second image from settings
   @param {string} text - Card body copy
 {%- enddoc -%}
-<li class="custom-brewing-tabs__card{% if media == blank and media_2 == blank %} custom-brewing-tabs__card--no-media{% endif %}">
-  {%- if media != blank or media_2 != blank -%}
-    <span class="custom-brewing-tabs__card-icon{% if media != blank and media_2 != blank %} custom-brewing-tabs__card-icon--pair{% endif %}">
-      {%- if media != blank -%}
-        {%- liquid
-          assign alt = media.alt | default: text | default: 'Brewing step'
-          assign w = media.width | default: 96
-          assign h = w | divided_by: media.aspect_ratio | round
-        -%}
-        {{
-          media
-          | image_url: width: 240
-          | image_tag:
-            loading: 'lazy',
-            width: w,
-            height: h,
-            class: 'custom-brewing-tabs__card-image',
-            alt: alt
-        }}
-      {%- endif -%}
-      {%- if media_2 != blank -%}
-        {%- liquid
-          assign alt_2 = media_2.alt | default: text | default: 'Brewing step'
-          assign w_2 = media_2.width | default: 96
-          assign h_2 = w_2 | divided_by: media_2.aspect_ratio | round
-        -%}
-        {{
-          media_2
-          | image_url: width: 240
-          | image_tag:
-            loading: 'lazy',
-            width: w_2,
-            height: h_2,
-            class: 'custom-brewing-tabs__card-image',
-            alt: alt_2
-        }}
-      {%- endif -%}
+<li class="custom-brewing-tabs__card{% if media == blank %} custom-brewing-tabs__card--no-media{% endif %}">
+  {%- if media != blank -%}
+    <span class="custom-brewing-tabs__card-icon">
+      {%- liquid
+        assign alt = media.alt | default: text | default: 'Brewing step'
+        assign w = media.width | default: 96
+        assign h = w | divided_by: media.aspect_ratio | round
+      -%}
+      {{
+        media
+        | image_url: width: 240
+        | image_tag:
+          loading: 'lazy',
+          width: w,
+          height: h,
+          class: 'custom-brewing-tabs__card-image',
+          alt: alt
+      }}
     </span>
   {%- endif -%}
   <span class="custom-brewing-tabs__card-text">{{ text | escape }}</span>

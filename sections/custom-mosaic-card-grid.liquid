@@ -7,7 +7,6 @@
     --custom-mosaic-card-grid-heading: {{ section.settings.heading_color }};
     --custom-mosaic-card-grid-body: {{ section.settings.body_color }};
     --custom-mosaic-card-grid-accent: {{ section.settings.accent_color }};
-    --custom-mosaic-card-grid-header-align: {{ section.settings.header_alignment | default: 'start' }};
     --custom-mosaic-card-grid-row-height: {{ section.settings.row_height }}px;
     --custom-mosaic-card-grid-mobile-row-height: {{ section.settings.mobile_row_height }}px;
     --custom-mosaic-card-grid-radius: {{ section.settings.card_radius }}px;
@@ -166,10 +165,7 @@
   }
 
   .custom-mosaic-card-grid__header {
-    display: grid;
-    justify-items: var(--custom-mosaic-card-grid-header-align);
     margin-bottom: 1.5rem;
-    text-align: var(--custom-mosaic-card-grid-header-align);
   }
 
   .custom-mosaic-card-grid__heading {
@@ -181,7 +177,7 @@
     color: var(--custom-mosaic-card-grid-body);
     line-height: 1.55;
     margin-top: 0.75rem;
-    max-width: min(100%, 44rem);
+    max-width: 44rem;
   }
 
   .custom-mosaic-card-grid__grid {
@@ -345,6 +341,10 @@
       display: none;
     }
 
+    .custom-mosaic-card-grid__header {
+      text-align: center;
+    }
+
     .custom-mosaic-card-grid--mobile-stack .custom-mosaic-card-grid__grid {
       align-items: start;
       gap: var(--custom-mosaic-card-grid-gap-mobile);
@@ -402,17 +402,6 @@
       "type": "textarea",
       "id": "intro",
       "label": "Intro"
-    },
-    {
-      "type": "select",
-      "id": "header_alignment",
-      "label": "Header alignment",
-      "default": "start",
-      "options": [
-        { "value": "start", "label": "Left" },
-        { "value": "center", "label": "Center" },
-        { "value": "end", "label": "End" }
-      ]
     },
     {
       "type": "text",
