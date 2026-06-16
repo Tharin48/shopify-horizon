@@ -1,0 +1,298 @@
+{{ 'tup-choose-team.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tup-choose-team.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign products_source = section.settings.products_collection.products
+  assign first_product = blank
+  assign fallback_url = section.settings.fallback_url | default: '/collections/t-series'
+
+  for product in products_source limit: 50
+    if first_product == blank
+      assign first_product = product
+    endif
+  endfor
+-%}
+
+<section
+  id="tup-choose-team-{{ section.id }}"
+  class="tup-choose-team"
+  data-tup-choose-team
+  {{ section.shopify_attributes }}
+>
+  <div class="tup-choose-team__inner">
+    <div class="tup-choose-team__header">
+      {%- if section.settings.campaign_label != blank -%}
+        <p class="tup-choose-team__eyebrow">{{ section.settings.campaign_label }}</p>
+      {%- endif -%}
+      <h2 class="tup-choose-team__title">{{ section.settings.section_title }}</h2>
+      {%- if section.settings.description != blank -%}
+        <p class="tup-choose-team__description">{{ section.settings.description }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="tup-choose-team__tabs" aria-label="Team filters">
+      <button class="tup-choose-team__tab is-active" type="button">Today's Teams</button>
+      <button class="tup-choose-team__tab" type="button">All Teams</button>
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="tup-choose-team__cards" aria-label="Choose your team">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'team' -%}
+            {%- assign country_code = block.settings.country_code | strip | upcase -%}
+            <button
+              type="button"
+              class="tup-team-card{% if forloop.first %} is-selected{% endif %}"
+              data-country-code="{{ country_code | escape }}"
+              aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              <span class="tup-team-card__flag">
+                {%- if block.settings.flag != blank -%}
+                  {{
+                    block.settings.flag
+                    | image_url: width: 96
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '48, 72, 96',
+                      sizes: '48px',
+                      alt: block.settings.team_name
+                  }}
+                {%- else -%}
+                  <span class="tup-team-card__flag-text">{{ country_code | slice: 0, 2 }}</span>
+                {%- endif -%}
+              </span>
+              <span class="tup-team-card__status">{{ block.settings.badge }}</span>
+              <span class="tup-team-card__name">{{ block.settings.team_name }}</span>
+              <span class="tup-team-card__blend">{{ block.settings.blend_hint }}</span>
+            </button>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="tup-choose-team__profile" data-product-profile>
+      <div class="tup-choose-team__image-panel">
+        {%- if first_product.featured_image -%}
+          {{
+            first_product.featured_image
+            | image_url: width: 860
+            | image_tag:
+              class: 'tup-choose-team__product-image',
+              loading: 'lazy',
+              widths: '360, 520, 720, 860',
+              sizes: '(min-width: 990px) 34vw, 90vw',
+              alt: first_product.title
+          }}
+        {%- else -%}
+          <div class="tup-choose-team__placeholder" data-product-image-placeholder>
+            Select a team to discover its T-Series blend.
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="tup-choose-team__content">
+        <p class="tup-choose-team__blend-badge" data-product-blend-badge>
+          {{ first_product.metafields.custom.tup_blend_label | default: section.settings.default_blend_badge }}
+        </p>
+        <h3 class="tup-choose-team__product-title" data-product-title>
+          {{ first_product.title | default: section.settings.empty_title }}
+        </h3>
+        <p class="tup-choose-team__story" data-product-story>
+          {{ first_product.metafields.custom.tup_match_day_story | default: section.settings.empty_story }}
+        </p>
+        <p class="tup-choose-team__price" data-product-price>
+          {%- if first_product != blank -%}
+            {{ first_product.selected_or_first_available_variant.price | money }}
+          {%- endif -%}
+        </p>
+
+        <div class="tup-choose-team__actions">
+          <button
+            type="button"
+            class="tup-choose-team__add"
+            data-product-add-to-cart
+            {% unless first_product.selected_or_first_available_variant.available %}
+              disabled
+            {% endunless %}
+          >
+            Add to Cart
+          </button>
+          <a
+            class="tup-choose-team__view"
+            href="{% if first_product != blank %}{{ first_product.url }}{% else %}{{ fallback_url }}{% endif %}"
+            data-fallback-url="{{ fallback_url | escape }}"
+            data-product-link
+          >
+            View Product
+          </a>
+        </div>
+
+        <p class="tup-choose-team__message" data-product-message role="status"></p>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-tup-products-json>
+    [
+      {%- for product in products_source limit: 50 -%}
+        {%- liquid
+          assign variant = product.selected_or_first_available_variant
+          assign country_codes = product.metafields.custom.tup_country_codes.value
+          assign blend_label = product.metafields.custom.tup_blend_label.value | default: product.metafields.custom.tup_blend_label
+          assign match_day_story = product.metafields.custom.tup_match_day_story.value | default: product.metafields.custom.tup_match_day_story
+          assign product_image = ''
+          if product.featured_image
+            assign product_image = product.featured_image | image_url: width: 860
+          endif
+        -%}
+        {
+          "id": {{ product.id | json }},
+          "variantId": {{ variant.id | json }},
+          "title": {{ product.title | json }},
+          "handle": {{ product.handle | json }},
+          "image": {{ product_image | json }},
+          "price": {{ variant.price | money | json }},
+          "url": {{ product.url | json }},
+          "available": {{ variant.available | json }},
+          "custom": {
+            "tup_country_codes": {{ country_codes | default: product.metafields.custom.tup_country_codes | json }},
+            "tup_blend_label": {{ blend_label | json }},
+            "tup_match_day_story": {{ match_day_story | json }}
+          }
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "T Up choose team",
+  "settings": [
+    {
+      "type": "text",
+      "id": "campaign_label",
+      "label": "Campaign label",
+      "default": "FIFA World Cup 2026"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Choose Your Team"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Select the country you're supporting and discover the T-Series blend matched to their match-day character."
+    },
+    {
+      "type": "collection",
+      "id": "products_collection",
+      "label": "T-Series products collection"
+    },
+    {
+      "type": "text",
+      "id": "default_blend_badge",
+      "label": "Default blend badge",
+      "default": "T-Series Blend"
+    },
+    {
+      "type": "text",
+      "id": "empty_title",
+      "label": "Fallback title",
+      "default": "No T-Series blend has been assigned to this team yet."
+    },
+    {
+      "type": "textarea",
+      "id": "empty_story",
+      "label": "Fallback story",
+      "default": "Choose another team or explore the full T-Series collection."
+    },
+    {
+      "type": "url",
+      "id": "fallback_url",
+      "label": "Shop T-Series URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "team",
+      "name": "Team card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "team_name",
+          "label": "Team name",
+          "default": "England"
+        },
+        {
+          "type": "text",
+          "id": "country_code",
+          "label": "Country/team code",
+          "info": "Use uppercase 3-letter codes such as ENG, FRA, USA, ARG.",
+          "default": "ENG"
+        },
+        {
+          "type": "image_picker",
+          "id": "flag",
+          "label": "Flag image"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge",
+          "default": "Today"
+        },
+        {
+          "type": "text",
+          "id": "blend_hint",
+          "label": "Blend hint",
+          "default": "Ceylon Black"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "T Up choose team",
+      "blocks": [
+        {
+          "type": "team",
+          "settings": {
+            "team_name": "England",
+            "country_code": "ENG",
+            "blend_hint": "Ceylon Black"
+          }
+        },
+        {
+          "type": "team",
+          "settings": {
+            "team_name": "France",
+            "country_code": "FRA",
+            "blend_hint": "Oolong"
+          }
+        },
+        {
+          "type": "team",
+          "settings": {
+            "team_name": "Brazil",
+            "country_code": "BRA",
+            "blend_hint": "Passion Fruit"
+          }
+        },
+        {
+          "type": "team",
+          "settings": {
+            "team_name": "Argentina",
+            "country_code": "ARG",
+            "blend_hint": "Yerba Mate Blend"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

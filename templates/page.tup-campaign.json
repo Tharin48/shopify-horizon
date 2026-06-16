@@ -1,0 +1,119 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "tup_campaign_hero": {
+      "type": "tup-campaign-hero",
+      "settings": {}
+    },
+    "tup_upcoming_matches": {
+      "type": "tup-upcoming-matches",
+      "settings": {},
+      "blocks": {
+        "match_eng_fra": {
+          "type": "match",
+          "settings": {
+            "team_a_name": "England",
+            "team_b_name": "France",
+            "match_group": "Group D",
+            "kickoff_text": "Kick-off in 10h 00m",
+            "match_status": "upcoming",
+            "match_id": "eng-fra-001"
+          }
+        },
+        "match_bra_arg": {
+          "type": "match",
+          "settings": {
+            "team_a_name": "Brazil",
+            "team_b_name": "Argentina",
+            "match_group": "Group C",
+            "kickoff_text": "Kick-off in 4h 10m",
+            "match_status": "upcoming",
+            "match_id": "bra-arg-001"
+          }
+        },
+        "match_esp_ger": {
+          "type": "match",
+          "settings": {
+            "team_a_name": "Spain",
+            "team_b_name": "Germany",
+            "match_group": "Group E",
+            "kickoff_text": "Kick-off in 6h 00m",
+            "match_status": "upcoming",
+            "match_id": "esp-ger-001"
+          }
+        }
+      },
+      "block_order": [
+        "match_eng_fra",
+        "match_bra_arg",
+        "match_esp_ger"
+      ]
+    },
+    "tup_choose_team": {
+      "type": "tup-choose-team",
+      "settings": {},
+      "blocks": {
+        "team_eng": {
+          "type": "team",
+          "settings": {
+            "team_name": "England",
+            "country_code": "ENG",
+            "blend_hint": "Ceylon Black"
+          }
+        },
+        "team_fra": {
+          "type": "team",
+          "settings": {
+            "team_name": "France",
+            "country_code": "FRA",
+            "blend_hint": "Oolong"
+          }
+        },
+        "team_bra": {
+          "type": "team",
+          "settings": {
+            "team_name": "Brazil",
+            "country_code": "BRA",
+            "blend_hint": "Passion Fruit"
+          }
+        },
+        "team_arg": {
+          "type": "team",
+          "settings": {
+            "team_name": "Argentina",
+            "country_code": "ARG",
+            "blend_hint": "Yerba Mate Blend"
+          }
+        },
+        "team_ger": {
+          "type": "team",
+          "settings": {
+            "team_name": "Germany",
+            "country_code": "GER",
+            "blend_hint": "Breakfast Tea"
+          }
+        }
+      },
+      "block_order": [
+        "team_eng",
+        "team_fra",
+        "team_bra",
+        "team_arg",
+        "team_ger"
+      ]
+    }
+  },
+  "order": [
+    "tup_campaign_hero",
+    "tup_upcoming_matches",
+    "tup_choose_team"
+  ]
+}

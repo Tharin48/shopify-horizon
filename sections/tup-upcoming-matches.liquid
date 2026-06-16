@@ -1,0 +1,234 @@
+{{ 'tup-upcoming-matches.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tup-upcoming-matches.js' | asset_url }}" defer></script>
+
+<section
+  id="tup-upcoming-matches-{{ section.id }}"
+  class="tup-upcoming-matches"
+  data-tup-upcoming-matches
+  data-api-endpoint-url="{{ section.settings.api_endpoint_url | escape }}"
+  data-show-api-data="{{ section.settings.show_api_data }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="tup-upcoming-matches__inner">
+    <div class="tup-upcoming-matches__header">
+      <h2 class="tup-upcoming-matches__title">{{ section.settings.section_title }}</h2>
+      <span class="tup-upcoming-matches__label">{{ section.settings.campaign_label }}</span>
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="tup-upcoming-matches__scroller" aria-label="{{ section.settings.section_title }}">
+        <div class="tup-upcoming-matches__track" data-upcoming-track>
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'match' -%}
+              <button
+                type="button"
+                class="tup-upcoming-match-card"
+                data-match-id="{{ block.settings.match_id | default: block.id | escape }}"
+                data-match-state="{{ block.settings.match_status }}"
+                data-match-details='{"id":{{ block.settings.match_id | default: block.id | json }},"state":{{ block.settings.match_status | json }},"teamAName":{{ block.settings.team_a_name | json }},"teamBName":{{ block.settings.team_b_name | json }},"stage":{{ block.settings.match_group | json }},"kickoffText":{{ block.settings.kickoff_text | json }}}'
+                aria-pressed="false"
+                {{ block.shopify_attributes }}
+              >
+                <span class="tup-upcoming-match-card__team">
+                  <span class="tup-upcoming-match-card__flag">
+                    {%- if block.settings.team_a_flag -%}
+                      {{
+                        block.settings.team_a_flag
+                        | image_url: width: 96
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '48, 72, 96',
+                          sizes: '48px',
+                          alt: block.settings.team_a_name
+                      }}
+                    {%- else -%}
+                      <span class="tup-upcoming-match-card__flag-text">
+                        {{ block.settings.team_a_name | slice: 0, 2 | upcase }}
+                      </span>
+                    {%- endif -%}
+                  </span>
+                  <span class="tup-upcoming-match-card__team-name">{{ block.settings.team_a_name }}</span>
+                </span>
+
+                <span class="tup-upcoming-match-card__vs">vs</span>
+
+                <span class="tup-upcoming-match-card__team">
+                  <span class="tup-upcoming-match-card__flag">
+                    {%- if block.settings.team_b_flag -%}
+                      {{
+                        block.settings.team_b_flag
+                        | image_url: width: 96
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '48, 72, 96',
+                          sizes: '48px',
+                          alt: block.settings.team_b_name
+                      }}
+                    {%- else -%}
+                      <span class="tup-upcoming-match-card__flag-text">
+                        {{ block.settings.team_b_name | slice: 0, 2 | upcase }}
+                      </span>
+                    {%- endif -%}
+                  </span>
+                  <span class="tup-upcoming-match-card__team-name">{{ block.settings.team_b_name }}</span>
+                </span>
+
+                <span class="tup-upcoming-match-card__details">
+                  <span class="tup-upcoming-match-card__group">{{ block.settings.match_group }}</span>
+                  <span class="tup-upcoming-match-card__countdown">{{ block.settings.kickoff_text }}</span>
+                </span>
+              </button>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- else -%}
+      <p class="tup-upcoming-matches__fallback">{{ section.settings.fallback_message }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "T Up upcoming matches",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Upcoming Matches"
+    },
+    {
+      "type": "text",
+      "id": "campaign_label",
+      "label": "Campaign label",
+      "default": "FIFA World Cup 2026"
+    },
+    {
+      "type": "url",
+      "id": "api_endpoint_url",
+      "label": "API endpoint URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_api_data",
+      "label": "Show API data",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "fallback_message",
+      "label": "Fallback message",
+      "default": "Add match cards in the theme editor."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "match",
+      "name": "Match",
+      "settings": [
+        {
+          "type": "text",
+          "id": "team_a_name",
+          "label": "Team A name",
+          "default": "England"
+        },
+        {
+          "type": "image_picker",
+          "id": "team_a_flag",
+          "label": "Team A flag"
+        },
+        {
+          "type": "text",
+          "id": "team_b_name",
+          "label": "Team B name",
+          "default": "France"
+        },
+        {
+          "type": "image_picker",
+          "id": "team_b_flag",
+          "label": "Team B flag"
+        },
+        {
+          "type": "text",
+          "id": "match_group",
+          "label": "Group or stage",
+          "default": "Group D"
+        },
+        {
+          "type": "text",
+          "id": "kickoff_text",
+          "label": "Kick-off countdown text",
+          "default": "Kick-off in 10h 00m"
+        },
+        {
+          "type": "select",
+          "id": "match_status",
+          "label": "Match status",
+          "options": [
+            {
+              "value": "upcoming",
+              "label": "Upcoming"
+            },
+            {
+              "value": "live",
+              "label": "Live"
+            },
+            {
+              "value": "completed",
+              "label": "Completed"
+            }
+          ],
+          "default": "upcoming"
+        },
+        {
+          "type": "text",
+          "id": "match_id",
+          "label": "Match ID",
+          "default": "eng-fra-001"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "T Up upcoming matches",
+      "blocks": [
+        {
+          "type": "match",
+          "settings": {
+            "team_a_name": "England",
+            "team_b_name": "France",
+            "match_group": "Group D",
+            "kickoff_text": "Kick-off in 10h 00m",
+            "match_status": "upcoming",
+            "match_id": "eng-fra-001"
+          }
+        },
+        {
+          "type": "match",
+          "settings": {
+            "team_a_name": "Brazil",
+            "team_b_name": "Argentina",
+            "match_group": "Group C",
+            "kickoff_text": "Kick-off in 4h 10m",
+            "match_status": "upcoming",
+            "match_id": "bra-arg-001"
+          }
+        },
+        {
+          "type": "match",
+          "settings": {
+            "team_a_name": "Spain",
+            "team_b_name": "Germany",
+            "match_group": "Group E",
+            "kickoff_text": "Kick-off in 6h 00m",
+            "match_status": "upcoming",
+            "match_id": "esp-ger-001"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

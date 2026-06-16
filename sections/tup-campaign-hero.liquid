@@ -1,0 +1,604 @@
+{{ 'tup-campaign-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tup-campaign-hero.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign bundle_product = section.settings.bundle_product
+  assign bundle_variant = bundle_product.selected_or_first_available_variant
+  assign bundle_description = section.settings.bundle_description_override | strip
+
+  if bundle_description == blank and bundle_product != blank
+    assign bundle_description = bundle_product.description | strip_html | strip | truncate: 145
+  endif
+
+  assign bundle_image_alt = bundle_product.featured_image.alt | default: bundle_product.title
+-%}
+
+<section
+  id="tup-campaign-hero-{{ section.id }}"
+  class="tup-campaign-hero"
+  data-tup-campaign-hero
+  data-decorative-background="{{ section.settings.show_decorative_background }}"
+  data-api-endpoint-url="{{ section.settings.api_endpoint_url | escape }}"
+  data-fallback-competition="{{ section.settings.fallback_competition | escape }}"
+  data-fallback-stage="{{ section.settings.fallback_stage | escape }}"
+  data-fallback-status="{{ section.settings.fallback_status | escape }}"
+  data-fallback-team-a="{{ section.settings.fallback_team_a | escape }}"
+  data-fallback-team-b="{{ section.settings.fallback_team_b | escape }}"
+  data-fallback-score-a="{{ section.settings.fallback_score_a }}"
+  data-fallback-score-b="{{ section.settings.fallback_score_b }}"
+  data-fallback-venue="{{ section.settings.fallback_venue | escape }}"
+  style="
+    --tup-section-max-width: {{ section.settings.section_max_width }}px;
+    --tup-heading-font-size-desktop: {{ section.settings.heading_font_size_desktop }}px;
+    --tup-heading-font-size-mobile: {{ section.settings.heading_font_size_mobile }}px;
+    --tup-description-font-size: {{ section.settings.description_font_size }}px;
+    --tup-product-title-font-size: {{ section.settings.product_title_font_size }}px;
+    --tup-price-font-size: {{ section.settings.price_font_size }}px;
+    --tup-match-score-font-size: {{ section.settings.match_score_font_size }}px;
+  "
+  {% if bundle_variant %}
+    data-bundle-variant-id="{{ bundle_variant.id }}"
+  {% endif %}
+  {{ section.shopify_attributes }}
+>
+  <div class="tup-campaign-hero__inner">
+    <div class="tup-campaign-hero__watermark" aria-hidden="true">FIFA 2026</div>
+
+    <div class="tup-campaign-hero__left">
+      {%- if section.settings.campaign_badge != blank -%}
+        <div class="tup-campaign-hero__eyebrow">{{ section.settings.campaign_badge }}</div>
+      {%- endif -%}
+
+      <h1 class="tup-campaign-hero__title">
+        <span class="tup-campaign-hero__title-line">{{ section.settings.heading_line_1 }}</span>
+        <span class="tup-campaign-hero__title-line tup-campaign-hero__title-line--accent">
+          {{- section.settings.heading_line_2 -}}
+        </span>
+      </h1>
+
+      {%- if section.settings.description != blank -%}
+        <div class="tup-campaign-hero__description">
+          {{ section.settings.description | escape | newline_to_br }}
+        </div>
+      {%- endif -%}
+
+      <div class="tup-scoreboard">
+        <div class="tup-scoreboard__heading">
+          <span class="tup-scoreboard__title">Score Board</span>
+          <span
+            class="tup-match-card__status"
+            data-match-status
+            data-status="{{ section.settings.fallback_status }}"
+          >
+            {{- section.settings.fallback_status -}}
+          </span>
+        </div>
+
+        <div class="tup-scoreboard__viewport" tabindex="0" aria-label="Match slider">
+          <div class="tup-scoreboard__track" data-match-track>
+          <article class="tup-match-card" data-match-card aria-label="Featured match">
+            <div class="tup-match-card__top">
+              <span class="tup-match-card__competition" data-match-competition>
+                {{- section.settings.fallback_competition -}}
+              </span>
+              <span class="tup-match-card__stage" data-match-stage>{{ section.settings.fallback_stage }}</span>
+            </div>
+
+            <div class="tup-match-card__meta">28.11.2022 · 14:00 · TERMINADO</div>
+
+            <div class="tup-match-card__body">
+              <div class="tup-match-card__team">
+                <span class="tup-match-card__crest" aria-hidden="true">
+                  {%- if section.settings.fallback_team_a_flag -%}
+                    {{
+                      section.settings.fallback_team_a_flag
+                      | image_url: width: 96
+                      | image_tag:
+                        class: 'tup-match-card__flag',
+                        loading: 'lazy',
+                        widths: '48, 72, 96',
+                        sizes: '48px',
+                        alt: section.settings.fallback_team_a
+                    }}
+                  {%- else -%}
+                    KR
+                  {%- endif -%}
+                </span>
+                <span class="tup-match-card__team-name" data-match-team-a>{{ section.settings.fallback_team_a }}</span>
+              </div>
+
+              <div class="tup-match-card__score" data-match-score>
+                {{ section.settings.fallback_score_a }} - {{ section.settings.fallback_score_b }}
+              </div>
+
+              <div class="tup-match-card__team">
+                <span class="tup-match-card__crest" aria-hidden="true">
+                  {%- if section.settings.fallback_team_b_flag -%}
+                    {{
+                      section.settings.fallback_team_b_flag
+                      | image_url: width: 96
+                      | image_tag:
+                        class: 'tup-match-card__flag',
+                        loading: 'lazy',
+                        widths: '48, 72, 96',
+                        sizes: '48px',
+                        alt: section.settings.fallback_team_b
+                    }}
+                  {%- else -%}
+                    GH
+                  {%- endif -%}
+                </span>
+                <span class="tup-match-card__team-name" data-match-team-b>{{ section.settings.fallback_team_b }}</span>
+              </div>
+            </div>
+
+            <div class="tup-match-card__footer">
+              <span class="tup-match-card__official">A. Taylor</span>
+              <span class="tup-match-card__venue" data-match-venue>{{ section.settings.fallback_venue }}</span>
+            </div>
+          </article>
+
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'match' -%}
+              <article class="tup-match-card" data-match-card aria-label="Match card" {{ block.shopify_attributes }}>
+                <div class="tup-match-card__top">
+                  <span class="tup-match-card__competition" data-match-competition>
+                    {{- block.settings.competition -}}
+                  </span>
+                  <span class="tup-match-card__stage" data-match-stage>{{ block.settings.stage }}</span>
+                </div>
+
+                <div class="tup-match-card__meta">{{ block.settings.match_meta }}</div>
+
+                <div class="tup-match-card__body">
+                  <div class="tup-match-card__team">
+                    <span class="tup-match-card__crest" aria-hidden="true">
+                      {%- if block.settings.team_a_flag -%}
+                        {{
+                          block.settings.team_a_flag
+                          | image_url: width: 96
+                          | image_tag:
+                            class: 'tup-match-card__flag',
+                            loading: 'lazy',
+                            widths: '48, 72, 96',
+                            sizes: '48px',
+                            alt: block.settings.team_a
+                        }}
+                      {%- else -%}
+                        {{ block.settings.team_a_code }}
+                      {%- endif -%}
+                    </span>
+                    <span class="tup-match-card__team-name" data-match-team-a>{{ block.settings.team_a }}</span>
+                  </div>
+
+                  <div class="tup-match-card__score" data-match-score>
+                    {{ block.settings.score_a }} - {{ block.settings.score_b }}
+                  </div>
+
+                  <div class="tup-match-card__team">
+                    <span class="tup-match-card__crest" aria-hidden="true">
+                      {%- if block.settings.team_b_flag -%}
+                        {{
+                          block.settings.team_b_flag
+                          | image_url: width: 96
+                          | image_tag:
+                            class: 'tup-match-card__flag',
+                            loading: 'lazy',
+                            widths: '48, 72, 96',
+                            sizes: '48px',
+                            alt: block.settings.team_b
+                        }}
+                      {%- else -%}
+                        {{ block.settings.team_b_code }}
+                      {%- endif -%}
+                    </span>
+                    <span class="tup-match-card__team-name" data-match-team-b>{{ block.settings.team_b }}</span>
+                  </div>
+                </div>
+
+                <div class="tup-match-card__footer">
+                  <span class="tup-match-card__official">{{ block.settings.official }}</span>
+                  <span class="tup-match-card__venue" data-match-venue>{{ block.settings.venue }}</span>
+                </div>
+              </article>
+            {%- endif -%}
+          {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tup-campaign-hero__bundle">
+      <div class="tup-campaign-hero__product-image-wrap">
+        {%- if bundle_product.featured_image -%}
+          {{
+            bundle_product.featured_image
+            | image_url: width: 760
+            | image_tag:
+              class: 'tup-campaign-hero__product-image',
+              loading: 'eager',
+              widths: '360, 520, 760, 1040',
+              sizes: '(min-width: 990px) 24vw, 90vw',
+              alt: bundle_image_alt
+          }}
+        {%- else -%}
+          <div class="tup-campaign-hero__product-placeholder">
+            Select the campaign bundle
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="tup-campaign-hero__bundle-content">
+        {%- if section.settings.bundle_badge != blank -%}
+          <div class="tup-campaign-hero__bundle-badge">{{ section.settings.bundle_badge }}</div>
+        {%- endif -%}
+
+        {%- if bundle_product != blank -%}
+          <h2 class="tup-campaign-hero__product-title">{{ bundle_product.title }}</h2>
+
+          {%- if bundle_description != blank -%}
+            <p class="tup-campaign-hero__product-description">{{ bundle_description }}</p>
+          {%- endif -%}
+
+          <div class="tup-campaign-hero__price">
+            {{ bundle_variant.price | money }}
+          </div>
+
+          <button
+            type="button"
+            class="tup-campaign-hero__button"
+            data-tup-add-to-cart
+            {% unless bundle_variant.available %}
+              disabled
+            {% endunless %}
+          >
+            {%- if bundle_variant.available -%}
+              Add to cart
+            {%- else -%}
+              Sold out
+            {%- endif -%}
+          </button>
+          <p class="tup-campaign-hero__message" data-tup-cart-message role="status"></p>
+        {%- else -%}
+          <h2 class="tup-campaign-hero__product-title">The T-Series Match-Day Selection</h2>
+          <p class="tup-campaign-hero__empty">
+            Choose the fixed campaign bundle product in this section's settings. Customers will not choose
+            individual products here.
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "T Up campaign hero",
+  "blocks": [
+    {
+      "type": "match",
+      "name": "Match card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "competition",
+          "label": "Competition",
+          "default": "World Cup"
+        },
+        {
+          "type": "text",
+          "id": "stage",
+          "label": "Stage",
+          "default": "Group Stage"
+        },
+        {
+          "type": "text",
+          "id": "match_meta",
+          "label": "Match meta",
+          "default": "28.11.2022 · 17:00 · UPCOMING"
+        },
+        {
+          "type": "text",
+          "id": "team_a",
+          "label": "Team A",
+          "default": "Brazil"
+        },
+        {
+          "type": "text",
+          "id": "team_a_code",
+          "label": "Team A crest text",
+          "default": "BR"
+        },
+        {
+          "type": "image_picker",
+          "id": "team_a_flag",
+          "label": "Team A flag image"
+        },
+        {
+          "type": "text",
+          "id": "team_b",
+          "label": "Team B",
+          "default": "Serbia"
+        },
+        {
+          "type": "text",
+          "id": "team_b_code",
+          "label": "Team B crest text",
+          "default": "RS"
+        },
+        {
+          "type": "image_picker",
+          "id": "team_b_flag",
+          "label": "Team B flag image"
+        },
+        {
+          "type": "number",
+          "id": "score_a",
+          "label": "Score A",
+          "default": 0
+        },
+        {
+          "type": "number",
+          "id": "score_b",
+          "label": "Score B",
+          "default": 0
+        },
+        {
+          "type": "text",
+          "id": "official",
+          "label": "Official",
+          "default": "Fixture pending"
+        },
+        {
+          "type": "text",
+          "id": "venue",
+          "label": "Venue",
+          "default": "Lusail Stadium"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "campaign_badge",
+      "label": "Campaign badge",
+      "default": "FIFA World Cup 2026"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "Heading line 1",
+      "default": "Your Team."
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2",
+      "label": "Heading line 2",
+      "default": "Your Blend."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Choose the team you're supporting and discover the Dilmah T-Series blend made for your match-day ritual."
+    },
+    {
+      "type": "product",
+      "id": "bundle_product",
+      "label": "Bundle product"
+    },
+    {
+      "type": "text",
+      "id": "bundle_badge",
+      "label": "Bundle badge",
+      "default": "Campaign Offer"
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_description_override",
+      "label": "Bundle description override"
+    },
+    {
+      "type": "text",
+      "id": "fallback_competition",
+      "label": "Fallback competition",
+      "default": "World Cup"
+    },
+    {
+      "type": "text",
+      "id": "fallback_stage",
+      "label": "Fallback stage",
+      "default": "Group Stage"
+    },
+    {
+      "type": "select",
+      "id": "fallback_status",
+      "label": "Fallback status",
+      "options": [
+        {
+          "value": "live",
+          "label": "Live"
+        },
+        {
+          "value": "upcoming",
+          "label": "Upcoming"
+        },
+        {
+          "value": "completed",
+          "label": "Completed"
+        }
+      ],
+      "default": "live"
+    },
+    {
+      "type": "text",
+      "id": "fallback_team_a",
+      "label": "Fallback team A",
+      "default": "South Korea"
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_team_a_flag",
+      "label": "Fallback team A flag image"
+    },
+    {
+      "type": "text",
+      "id": "fallback_team_b",
+      "label": "Fallback team B",
+      "default": "Ghana"
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_team_b_flag",
+      "label": "Fallback team B flag image"
+    },
+    {
+      "type": "number",
+      "id": "fallback_score_a",
+      "label": "Fallback score A",
+      "default": 2
+    },
+    {
+      "type": "number",
+      "id": "fallback_score_b",
+      "label": "Fallback score B",
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "fallback_venue",
+      "label": "Fallback venue",
+      "default": "Education City Stadium"
+    },
+    {
+      "type": "url",
+      "id": "api_endpoint_url",
+      "label": "API endpoint URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_decorative_background",
+      "label": "Show decorative background",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Section max width",
+      "min": 1000,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_desktop",
+      "label": "Heading font size desktop",
+      "min": 12,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_mobile",
+      "label": "Heading font size mobile",
+      "min": 12,
+      "max": 88,
+      "step": 1,
+      "unit": "px",
+      "default": 46
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "label": "Description font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "product_title_font_size",
+      "label": "Bundle title font size",
+      "min": 12,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Price font size",
+      "min": 12,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "match_score_font_size",
+      "label": "Match score font size",
+      "min": 12,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 38
+    }
+  ],
+  "presets": [
+    {
+      "name": "T Up campaign hero",
+      "blocks": [
+        {
+          "type": "match",
+          "settings": {
+            "competition": "World Cup",
+            "stage": "Group Stage",
+            "match_meta": "28.11.2022 · 17:00 · UPCOMING",
+            "team_a": "Brazil",
+            "team_a_code": "BR",
+            "team_b": "Serbia",
+            "team_b_code": "RS",
+            "score_a": 0,
+            "score_b": 0,
+            "official": "Fixture pending",
+            "venue": "Lusail Stadium"
+          }
+        },
+        {
+          "type": "match",
+          "settings": {
+            "competition": "World Cup",
+            "stage": "Group Stage",
+            "match_meta": "28.11.2022 · 20:00 · UPCOMING",
+            "team_a": "Portugal",
+            "team_a_code": "PT",
+            "team_b": "Uruguay",
+            "team_b_code": "UY",
+            "score_a": 0,
+            "score_b": 0,
+            "official": "Fixture pending",
+            "venue": "Lusail Stadium"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
