@@ -81,7 +81,7 @@
     if child.type == '_brewing-step-card'
       assign bt = child.settings.brewing_tab | default: 'hot' | strip | downcase
       assign has_step = false
-      if child.settings.step_text != blank or child.settings.custom_image != blank
+      if child.settings.step_text != blank or child.settings.custom_image != blank or child.settings.custom_image_2 != blank
         assign has_step = true
       endif
       if bt == 'cold'
@@ -122,12 +122,16 @@
     assign legacy_hot_filled = true
   elsif s.hot_card_1_media != blank or s.hot_card_2_media != blank or s.hot_card_3_media != blank
     assign legacy_hot_filled = true
+  elsif s.hot_card_1_media_2 != blank or s.hot_card_2_media_2 != blank or s.hot_card_3_media_2 != blank
+    assign legacy_hot_filled = true
   endif
 
   assign legacy_cold_filled = false
   if s.cold_card_1 != blank or s.cold_card_2 != blank or s.cold_card_3 != blank or s.cold_card_4 != blank or s.cold_footer != blank or s.cold_link_label != blank
     assign legacy_cold_filled = true
   elsif s.cold_card_1_media != blank or s.cold_card_2_media != blank or s.cold_card_3_media != blank or s.cold_card_4_media != blank
+    assign legacy_cold_filled = true
+  elsif s.cold_card_1_media_2 != blank or s.cold_card_2_media_2 != blank or s.cold_card_3_media_2 != blank or s.cold_card_4_media_2 != blank
     assign legacy_cold_filled = true
   endif
   if cold_intro_show != blank
@@ -317,9 +321,9 @@
             {%- endif -%}
           {%- endfor -%}
         {%- else -%}
-          {% render 'brewing-legacy-card', media: s.hot_card_1_media, text: s.hot_card_1 %}
-          {% render 'brewing-legacy-card', media: s.hot_card_2_media, text: s.hot_card_2 %}
-          {% render 'brewing-legacy-card', media: s.hot_card_3_media, text: s.hot_card_3 %}
+          {% render 'brewing-legacy-card', media: s.hot_card_1_media, media_2: s.hot_card_1_media_2, text: s.hot_card_1 %}
+          {% render 'brewing-legacy-card', media: s.hot_card_2_media, media_2: s.hot_card_2_media_2, text: s.hot_card_2 %}
+          {% render 'brewing-legacy-card', media: s.hot_card_3_media, media_2: s.hot_card_3_media_2, text: s.hot_card_3 %}
         {%- endif -%}
       </ul>
       {%- if s.hot_footer != blank -%}
@@ -360,10 +364,10 @@
             {%- endif -%}
           {%- endfor -%}
         {%- else -%}
-          {% render 'brewing-legacy-card', media: s.cold_card_1_media, text: s.cold_card_1 %}
-          {% render 'brewing-legacy-card', media: s.cold_card_2_media, text: s.cold_card_2 %}
-          {% render 'brewing-legacy-card', media: s.cold_card_3_media, text: s.cold_card_3 %}
-          {% render 'brewing-legacy-card', media: s.cold_card_4_media, text: s.cold_card_4 %}
+          {% render 'brewing-legacy-card', media: s.cold_card_1_media, media_2: s.cold_card_1_media_2, text: s.cold_card_1 %}
+          {% render 'brewing-legacy-card', media: s.cold_card_2_media, media_2: s.cold_card_2_media_2, text: s.cold_card_2 %}
+          {% render 'brewing-legacy-card', media: s.cold_card_3_media, media_2: s.cold_card_3_media_2, text: s.cold_card_3 %}
+          {% render 'brewing-legacy-card', media: s.cold_card_4_media, media_2: s.cold_card_4_media_2, text: s.cold_card_4 %}
         {%- endif -%}
       </ul>
       {%- if s.cold_footer != blank -%}
@@ -537,15 +541,21 @@
     color: rgb(var(--color-foreground-rgb) / 0.85);
   }
 
+  .custom-brewing-tabs__card-icon--pair {
+    gap: 0.6rem;
+    width: auto;
+    min-width: calc(5rem + 0.6rem);
+  }
+
   .custom-brewing-tabs__card-icon svg {
     width: 100%;
     height: 100%;
   }
 
   .custom-brewing-tabs__card-image {
-    width: 100%;
+    width: 2.5rem;
     max-width: 4.5rem;
-    height: auto;
+    height: 2.5rem;
     object-fit: contain;
   }
 
@@ -674,6 +684,11 @@
       "label": "Card 1 icon image"
     },
     {
+      "type": "image_picker",
+      "id": "hot_card_1_media_2",
+      "label": "Card 1 second icon image"
+    },
+    {
       "type": "text",
       "id": "hot_card_2",
       "label": "Card 2",
@@ -685,6 +700,11 @@
       "label": "Card 2 icon image"
     },
     {
+      "type": "image_picker",
+      "id": "hot_card_2_media_2",
+      "label": "Card 2 second icon image"
+    },
+    {
       "type": "text",
       "id": "hot_card_3",
       "label": "Card 3",
@@ -694,6 +714,11 @@
       "type": "image_picker",
       "id": "hot_card_3_media",
       "label": "Card 3 icon image"
+    },
+    {
+      "type": "image_picker",
+      "id": "hot_card_3_media_2",
+      "label": "Card 3 second icon image"
     },
     {
       "type": "text",
@@ -734,6 +759,11 @@
       "label": "Card 1 icon image"
     },
     {
+      "type": "image_picker",
+      "id": "cold_card_1_media_2",
+      "label": "Card 1 second icon image"
+    },
+    {
       "type": "text",
       "id": "cold_card_2",
       "label": "Card 2",
@@ -743,6 +773,11 @@
       "type": "image_picker",
       "id": "cold_card_2_media",
       "label": "Card 2 icon image"
+    },
+    {
+      "type": "image_picker",
+      "id": "cold_card_2_media_2",
+      "label": "Card 2 second icon image"
     },
     {
       "type": "text",
@@ -756,6 +791,11 @@
       "label": "Card 3 icon image"
     },
     {
+      "type": "image_picker",
+      "id": "cold_card_3_media_2",
+      "label": "Card 3 second icon image"
+    },
+    {
       "type": "text",
       "id": "cold_card_4",
       "label": "Card 4",
@@ -765,6 +805,11 @@
       "type": "image_picker",
       "id": "cold_card_4_media",
       "label": "Card 4 icon image"
+    },
+    {
+      "type": "image_picker",
+      "id": "cold_card_4_media_2",
+      "label": "Card 4 second icon image"
     },
     {
       "type": "text",

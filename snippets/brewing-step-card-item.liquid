@@ -1,6 +1,6 @@
 {%- doc -%}
   Renders one brewing step card (nested block or equivalent settings).
-  @param {object} step_block - Nested theme block with settings: brewing_tab, step_text, custom_image
+  @param {object} step_block - Nested theme block with settings: brewing_tab, step_text, custom_image, custom_image_2
   @param {boolean} [preview] - Theme editor / visual preview
 {%- enddoc -%}
 {%- liquid
@@ -11,23 +11,24 @@
   endif
   assign step_text = bs.step_text
   assign icon_media = bs.custom_image
+  assign icon_media_2 = bs.custom_image_2
   assign show_placeholder = false
-  if preview and step_text == blank and icon_media == blank
+  if preview and step_text == blank and icon_media == blank and icon_media_2 == blank
     assign show_placeholder = true
   endif
   assign show_icon_row = false
-  if icon_media != blank or show_placeholder
+  if icon_media != blank or icon_media_2 != blank or show_placeholder
     assign show_icon_row = true
   endif
 -%}
-{%- if step_text != blank or icon_media != blank or show_placeholder -%}
+{%- if step_text != blank or icon_media != blank or icon_media_2 != blank or show_placeholder -%}
   <li
     class="custom-brewing-tabs__card{% if show_icon_row == false %} custom-brewing-tabs__card--no-media{% endif %}"
     data-brewing-step-tab="{{ tab }}"
     {{ step_block.shopify_attributes }}
   >
     {%- if show_icon_row -%}
-      <span class="custom-brewing-tabs__card-icon">
+      <span class="custom-brewing-tabs__card-icon{% if icon_media != blank and icon_media_2 != blank %} custom-brewing-tabs__card-icon--pair{% endif %}">
         {%- if icon_media != blank -%}
           {%- liquid
             assign alt = icon_media.alt | default: step_text | default: 'Brewing step'
@@ -44,7 +45,25 @@
               class: 'custom-brewing-tabs__card-image',
               alt: alt
           }}
-        {%- else -%}
+        {%- endif -%}
+        {%- if icon_media_2 != blank -%}
+          {%- liquid
+            assign alt_2 = icon_media_2.alt | default: step_text | default: 'Brewing step'
+            assign w_2 = icon_media_2.width | default: 96
+            assign h_2 = w_2 | divided_by: icon_media_2.aspect_ratio | round
+          -%}
+          {{
+            icon_media_2
+            | image_url: width: 240
+            | image_tag:
+              loading: 'lazy',
+              width: w_2,
+              height: h_2,
+              class: 'custom-brewing-tabs__card-image',
+              alt: alt_2
+          }}
+        {%- endif -%}
+        {%- if icon_media == blank and icon_media_2 == blank -%}
           <span class="custom-brewing-tabs__card-icon-placeholder">Icon image</span>
         {%- endif -%}
       </span>

@@ -81,7 +81,7 @@
     if child.type == '_brewing-step-card'
       assign bt = child.settings.brewing_tab | default: 'hot' | strip | downcase
       assign has_step = false
-      if child.settings.step_text != blank or child.settings.custom_image != blank
+      if child.settings.step_text != blank or child.settings.custom_image != blank or child.settings.custom_image_2 != blank
         assign has_step = true
       endif
       if bt == 'cold'
@@ -122,12 +122,16 @@
     assign legacy_hot_filled = true
   elsif s.hot_card_1_media != blank or s.hot_card_2_media != blank or s.hot_card_3_media != blank
     assign legacy_hot_filled = true
+  elsif s.hot_card_1_media_2 != blank or s.hot_card_2_media_2 != blank or s.hot_card_3_media_2 != blank
+    assign legacy_hot_filled = true
   endif
 
   assign legacy_cold_filled = false
   if s.cold_card_1 != blank or s.cold_card_2 != blank or s.cold_card_3 != blank or s.cold_card_4 != blank or s.cold_footer != blank or s.cold_link_label != blank
     assign legacy_cold_filled = true
   elsif s.cold_card_1_media != blank or s.cold_card_2_media != blank or s.cold_card_3_media != blank or s.cold_card_4_media != blank
+    assign legacy_cold_filled = true
+  elsif s.cold_card_1_media_2 != blank or s.cold_card_2_media_2 != blank or s.cold_card_3_media_2 != blank or s.cold_card_4_media_2 != blank
     assign legacy_cold_filled = true
   endif
   if cold_intro_show != blank
