@@ -135,6 +135,63 @@
         "padding-block-end": 40
       }
     },
+    "tup_home_rewards": {
+      "type": "tup-home-rewards",
+      "blocks": {
+        "reward_bundle_offers": {
+          "type": "reward",
+          "settings": {
+            "icon": "tag",
+            "title": "Exclusive Bundle Offers",
+            "text": "Special bundles crafted for true supporters."
+          }
+        },
+        "reward_match_day": {
+          "type": "reward",
+          "settings": {
+            "icon": "calendar",
+            "title": "Match Day Rewards",
+            "text": "Exciting rewards for every matchday."
+          }
+        },
+        "reward_tseries": {
+          "type": "reward",
+          "settings": {
+            "icon": "leaf",
+            "title": "Curated T-Series Experiences",
+            "text": "Premium teas. Memorable moments."
+          }
+        }
+      },
+      "block_order": [
+        "reward_bundle_offers",
+        "reward_match_day",
+        "reward_tseries"
+      ],
+      "name": "T Up home rewards",
+      "settings": {
+        "image": "",
+        "mobile_image": "",
+        "eyebrow": "FIFA World Cup 2026",
+        "title": "Every Match\nComes With Rewards",
+        "description": "Win or lose, your support deserves something special. Unlock exclusive T-Series bundle offers, limited-edition match day rewards and tea experiences inspired by the world's greatest tournament.",
+        "cta_label": "Explore World Cup Hub",
+        "cta_link": "",
+        "show_cta": true,
+        "background_style": "cream",
+        "width_mode": "page",
+        "custom_max_width": 1280,
+        "padding_x_desktop": 64,
+        "padding_x_mobile": 16,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "eyebrow_font_size": 12,
+        "title_font_size": 40,
+        "body_font_size": 14,
+        "card_title_font_size": 18,
+        "card_text_font_size": 12
+      }
+    },
     "teamakers_pick_wTax67": {
       "type": "teamakers-pick",
       "blocks": {
@@ -2497,6 +2554,7 @@
   },
   "order": [
     "custom_hero_DNMLjC",
+    "tup_home_rewards",
     "teamakers_pick_wTax67",
     "section_xnXwAH",
     "leaf_story_3R7cwY",

@@ -80,7 +80,7 @@
       >
     {% endif %}
     <div
-      class="teamakers-pick__image-wrap{% if secondary_media != blank %} teamakers-pick__image-wrap--has-secondary{% endif %}"
+      class="teamakers-pick__image-wrap tup-country-flag-badge-host{% if secondary_media != blank %} teamakers-pick__image-wrap--has-secondary{% endif %}"
       {% if use_horizon_quick_add %}
         style="
           --quick-add-display: {% if has_horizon_quick_add %}flex{% else %}none{% endif %};
@@ -136,6 +136,7 @@
           {% endif %}
         </span>
       </a>
+      {% render 'tup-country-flag-badge', product_resource: card_product, position: 'bottom-left' %}
 
       {% if has_horizon_quick_add %}
         {% render 'quick-add',

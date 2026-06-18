@@ -11,109 +11,133 @@
   "sections": {
     "tup_campaign_hero": {
       "type": "tup-campaign-hero",
-      "settings": {}
+      "settings": {
+        "campaign_badge": "FIFA World Cup 2026",
+        "heading_line_1": "Your Team.",
+        "heading_line_2": "Your Blend.",
+        "description": "Choose the team you're supporting and discover the Dilmah T-Series blend made for your match-day ritual.",
+        "bundle_product": "",
+        "bundle_badge": "Campaign Offer",
+        "bundle_title_override": "",
+        "bundle_description_override": "",
+        "bundle_price_override": "",
+        "bundle_button_label": "Add to cart",
+        "bundle_sold_out_label": "Sold out",
+        "show_decorative_background": true,
+        "section_max_width": 1800,
+        "heading_font_size_desktop": 32,
+        "heading_font_size_mobile": 24,
+        "description_font_size": 14,
+        "bundle_badge_font_size": 12,
+        "product_title_font_size": 32,
+        "product_description_font_size": 14,
+        "price_font_size": 32,
+        "button_font_size": 14,
+        "match_score_font_size": 24
+      }
     },
     "tup_upcoming_matches": {
       "type": "tup-upcoming-matches",
-      "settings": {},
-      "blocks": {
-        "match_eng_fra": {
-          "type": "match",
-          "settings": {
-            "team_a_name": "England",
-            "team_b_name": "France",
-            "match_group": "Group D",
-            "kickoff_text": "Kick-off in 10h 00m",
-            "match_status": "upcoming",
-            "match_id": "eng-fra-001"
-          }
-        },
-        "match_bra_arg": {
-          "type": "match",
-          "settings": {
-            "team_a_name": "Brazil",
-            "team_b_name": "Argentina",
-            "match_group": "Group C",
-            "kickoff_text": "Kick-off in 4h 10m",
-            "match_status": "upcoming",
-            "match_id": "bra-arg-001"
-          }
-        },
-        "match_esp_ger": {
-          "type": "match",
-          "settings": {
-            "team_a_name": "Spain",
-            "team_b_name": "Germany",
-            "match_group": "Group E",
-            "kickoff_text": "Kick-off in 6h 00m",
-            "match_status": "upcoming",
-            "match_id": "esp-ger-001"
-          }
-        }
-      },
-      "block_order": [
-        "match_eng_fra",
-        "match_bra_arg",
-        "match_esp_ger"
-      ]
+      "settings": {
+        "section_title": "Upcoming Matches",
+        "campaign_label": "FIFA World Cup 2026"
+      }
     },
     "tup_choose_team": {
       "type": "tup-choose-team",
-      "settings": {},
+      "settings": {
+        "campaign_label": "FIFA World Cup 2026",
+        "section_title": "Choose Your Team",
+        "description": "Select the country you're supporting and discover the T-Series blend matched to their match-day character.",
+        "products_collection": "t-series-designer-gourmet-teas",
+        "section_width": "full",
+        "section_max_width": 1800,
+        "padding_x": 24,
+        "padding_x_mobile": 16,
+        "campaign_label_font_size": 12,
+        "section_title_font_size": 32,
+        "description_font_size": 14,
+        "tab_font_size": 14,
+        "team_card_name_font_size": 14,
+        "team_card_meta_font_size": 12,
+        "team_card_badge_font_size": 12,
+        "blend_badge_font_size": 12,
+        "product_title_font_size": 24,
+        "product_story_font_size": 14,
+        "product_price_font_size": 32,
+        "button_font_size": 14
+      }
+    },
+    "tup_pre_match_ritual": {
+      "type": "tup-pre-match-ritual",
       "blocks": {
-        "team_eng": {
-          "type": "team",
+        "ritual_step_choose": {
+          "type": "ritual_step",
           "settings": {
-            "team_name": "England",
-            "country_code": "ENG",
-            "blend_hint": "Ceylon Black"
+            "icon": "blend",
+            "title": "Choose Your Blend",
+            "value": "Your selected team's T-Series tea",
+            "description": "Start with the blend matched to the team you're backing."
           }
         },
-        "team_fra": {
-          "type": "team",
+        "ritual_step_steep": {
+          "type": "ritual_step",
           "settings": {
-            "team_name": "France",
-            "country_code": "FRA",
-            "blend_hint": "Oolong"
+            "icon": "steep",
+            "title": "Steep With Care",
+            "value": "4 minutes",
+            "description": "Let the leaves open slowly for a full, balanced cup."
           }
         },
-        "team_bra": {
-          "type": "team",
+        "ritual_step_serve": {
+          "type": "ritual_step",
           "settings": {
-            "team_name": "Brazil",
-            "country_code": "BRA",
-            "blend_hint": "Passion Fruit"
+            "icon": "warm",
+            "title": "Serve Warm",
+            "value": "95°C",
+            "description": "Bring out the aroma, depth, and character of your tea."
           }
         },
-        "team_arg": {
-          "type": "team",
+        "ritual_step_sip": {
+          "type": "ritual_step",
           "settings": {
-            "team_name": "Argentina",
-            "country_code": "ARG",
-            "blend_hint": "Yerba Mate Blend"
-          }
-        },
-        "team_ger": {
-          "type": "team",
-          "settings": {
-            "team_name": "Germany",
-            "country_code": "GER",
-            "blend_hint": "Breakfast Tea"
+            "icon": "kickoff",
+            "title": "Sip Before Kick-Off",
+            "value": "Match-day ready",
+            "description": "Settle in, take a moment, and enjoy the ritual before the first whistle."
           }
         }
       },
       "block_order": [
-        "team_eng",
-        "team_fra",
-        "team_bra",
-        "team_arg",
-        "team_ger"
-      ]
+        "ritual_step_choose",
+        "ritual_step_steep",
+        "ritual_step_serve",
+        "ritual_step_sip"
+      ],
+      "settings": {
+        "eyebrow": "FIFA World Cup 2026",
+        "title": "The Pre-Match Ritual",
+        "subtitle": "Prepare your brew before the first whistle. A simple T-Series ritual for every match-day moment.",
+        "cta_label": "Explore T-Series",
+        "cta_link": "",
+        "show_cta": true,
+        "background_style": "white",
+        "eyebrow_font_size": 12,
+        "title_font_size": 32,
+        "subtitle_font_size": 14,
+        "step_label_font_size": 12,
+        "card_title_font_size": 18,
+        "value_font_size": 12,
+        "description_font_size": 12,
+        "cta_font_size": 14,
+        "icon_size": 24
+      }
     }
   },
   "order": [
     "tup_campaign_hero",
     "tup_upcoming_matches",
-    "tup_choose_team"
+    "tup_choose_team",
+    "tup_pre_match_ritual"
   ]
 }

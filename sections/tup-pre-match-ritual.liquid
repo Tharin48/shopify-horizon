@@ -1,0 +1,391 @@
+{{ 'tup-pre-match-ritual.css' | asset_url | stylesheet_tag }}
+
+<section
+  id="tup-pre-match-ritual-{{ section.id }}"
+  class="tup-pre-match-ritual tup-pre-match-ritual--{{ section.settings.background_style }}"
+  style="
+    --tup-ritual-eyebrow-size: {{ section.settings.eyebrow_font_size }}px;
+    --tup-ritual-title-size: {{ section.settings.title_font_size }}px;
+    --tup-ritual-subtitle-size: {{ section.settings.subtitle_font_size }}px;
+    --tup-ritual-step-size: {{ section.settings.step_label_font_size }}px;
+    --tup-ritual-card-title-size: {{ section.settings.card_title_font_size }}px;
+    --tup-ritual-value-size: {{ section.settings.value_font_size }}px;
+    --tup-ritual-description-size: {{ section.settings.description_font_size }}px;
+    --tup-ritual-cta-size: {{ section.settings.cta_font_size }}px;
+    --tup-ritual-icon-size: {{ section.settings.icon_size }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="tup-pre-match-ritual__inner">
+    <div class="tup-pre-match-ritual__header">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="tup-pre-match-ritual__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.title != blank -%}
+        <h2 class="tup-pre-match-ritual__title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.subtitle != blank -%}
+        <div class="tup-pre-match-ritual__subtitle">
+          {{ section.settings.subtitle | newline_to_br }}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="tup-pre-match-ritual__grid" role="list">
+      {%- if section.blocks.size > 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'ritual_step' -%}
+            <article class="tup-pre-match-ritual__card" role="listitem" {{ block.shopify_attributes }}>
+              {%- if block.settings.icon != blank -%}
+                {%- assign icon_key = block.settings.icon | handleize -%}
+                <div class="tup-pre-match-ritual__icon" aria-hidden="true">
+                  {%- case icon_key -%}
+                    {%- when 'blend' or 'choose' or 'choose-blend' or '01' -%}
+                      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M6.5 18.5c6.8.2 11-3.8 11-10.9 0-.7-.6-1.3-1.3-1.2C9.1 6.9 5.3 11 6.5 18.5Z" />
+                        <path d="M6.8 18.2c2.4-4.5 5.2-7 9-8.9" />
+                      </svg>
+                    {%- when 'steep' or 'timer' or '02' -%}
+                      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M9 3h6" />
+                        <path d="M12 3v3" />
+                        <path d="M12 21a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z" />
+                        <path d="M12 10v4l2.4 1.4" />
+                      </svg>
+                    {%- when 'warm' or 'serve' or 'cup' or '03' -%}
+                      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M6 9h9v5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V9Z" />
+                        <path d="M15 10h1.5a2.5 2.5 0 0 1 0 5H15" />
+                        <path d="M7 21h8" />
+                        <path d="M8 4c-.6.7-.6 1.3 0 2" />
+                        <path d="M12 4c-.6.7-.6 1.3 0 2" />
+                      </svg>
+                    {%- when 'kickoff' or 'whistle' or 'sip' or '04' -%}
+                      <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                        <path d="M5 12.5h7.8c2.6 0 4.7 1.9 4.7 4.2v.3H9.8A4.8 4.8 0 0 1 5 12.5Z" />
+                        <path d="M13 12.5 17.5 7H20l-3.5 5.5" />
+                        <path d="M18.8 16.9H21" />
+                        <path d="M8.5 15.2h.1" />
+                      </svg>
+                    {%- else -%}
+                      {{ block.settings.icon }}
+                  {%- endcase -%}
+                </div>
+              {%- endif -%}
+
+              <div class="tup-pre-match-ritual__card-content">
+                <p class="tup-pre-match-ritual__step">Step {{ forloop.index }}</p>
+
+                {%- if block.settings.title != blank -%}
+                  <h3 class="tup-pre-match-ritual__card-title">{{ block.settings.title }}</h3>
+                {%- endif -%}
+
+                {%- if block.settings.value != blank -%}
+                  <p class="tup-pre-match-ritual__value">{{ block.settings.value }}</p>
+                {%- endif -%}
+
+                {%- if block.settings.description != blank -%}
+                  <p class="tup-pre-match-ritual__description">{{ block.settings.description }}</p>
+                {%- endif -%}
+              </div>
+            </article>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- capture default_steps -%}
+          blend||Choose Your Blend||Your selected team's T-Series tea||Start with the blend matched to the team you're backing.
+          --step--
+          steep||Steep With Care||4 minutes||Let the leaves open slowly for a full, balanced cup.
+          --step--
+          warm||Serve Warm||95°C||Bring out the aroma, depth, and character of your tea.
+          --step--
+          kickoff||Sip Before Kick-Off||Match-day ready||Settle in, take a moment, and enjoy the ritual before the first whistle.
+        {%- endcapture -%}
+        {%- assign default_step_items = default_steps | split: '--step--' -%}
+        {%- for default_step in default_step_items -%}
+          {%- assign step_parts = default_step | strip | split: '||' -%}
+          {%- assign icon_key = step_parts[0] | handleize -%}
+          <article class="tup-pre-match-ritual__card" role="listitem">
+            <div class="tup-pre-match-ritual__icon" aria-hidden="true">
+              {%- case icon_key -%}
+                {%- when 'blend' -%}
+                  <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M6.5 18.5c6.8.2 11-3.8 11-10.9 0-.7-.6-1.3-1.3-1.2C9.1 6.9 5.3 11 6.5 18.5Z" />
+                    <path d="M6.8 18.2c2.4-4.5 5.2-7 9-8.9" />
+                  </svg>
+                {%- when 'steep' -%}
+                  <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M9 3h6" />
+                    <path d="M12 3v3" />
+                    <path d="M12 21a7 7 0 1 0 0-14 7 7 0 0 0 0 14Z" />
+                    <path d="M12 10v4l2.4 1.4" />
+                  </svg>
+                {%- when 'warm' -%}
+                  <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M6 9h9v5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V9Z" />
+                    <path d="M15 10h1.5a2.5 2.5 0 0 1 0 5H15" />
+                    <path d="M7 21h8" />
+                    <path d="M8 4c-.6.7-.6 1.3 0 2" />
+                    <path d="M12 4c-.6.7-.6 1.3 0 2" />
+                  </svg>
+                {%- when 'kickoff' -%}
+                  <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                    <path d="M5 12.5h7.8c2.6 0 4.7 1.9 4.7 4.2v.3H9.8A4.8 4.8 0 0 1 5 12.5Z" />
+                    <path d="M13 12.5 17.5 7H20l-3.5 5.5" />
+                    <path d="M18.8 16.9H21" />
+                    <path d="M8.5 15.2h.1" />
+                  </svg>
+              {%- endcase -%}
+            </div>
+            <div class="tup-pre-match-ritual__card-content">
+              <p class="tup-pre-match-ritual__step">Step {{ forloop.index }}</p>
+              <h3 class="tup-pre-match-ritual__card-title">{{ step_parts[1] }}</h3>
+              <p class="tup-pre-match-ritual__value">{{ step_parts[2] }}</p>
+              <p class="tup-pre-match-ritual__description">{{ step_parts[3] }}</p>
+            </div>
+          </article>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.show_cta and section.settings.cta_label != blank and section.settings.cta_link != blank -%}
+      <div class="tup-pre-match-ritual__cta-wrap">
+        <a class="tup-pre-match-ritual__cta" href="{{ section.settings.cta_link }}">
+          {{ section.settings.cta_label }}
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "T Up Pre-Match Ritual",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "FIFA World Cup 2026"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "The Pre-Match Ritual"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Prepare your brew before the first whistle. A simple T-Series ritual for every match-day moment."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "CTA label",
+      "default": "Explore T-Series"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "CTA link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cta",
+      "label": "Show CTA",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "background_style",
+      "label": "Background style",
+      "default": "cream",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Text sizes"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_font_size",
+      "label": "Eyebrow size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "title_font_size",
+      "label": "Title size",
+      "min": 12,
+      "max": 86,
+      "step": 1,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "subtitle_font_size",
+      "label": "Subtitle size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "step_label_font_size",
+      "label": "Step label size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "card_title_font_size",
+      "label": "Card title size",
+      "min": 12,
+      "max": 34,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "value_font_size",
+      "label": "Value size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "cta_font_size",
+      "label": "CTA size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Icon size",
+      "min": 12,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    }
+  ],
+  "blocks": [
+    {
+      "type": "ritual_step",
+      "name": "Ritual step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "Icon",
+          "info": "Use blend, steep, warm, or kickoff for the built-in icons. Custom text is also supported.",
+          "default": "blend"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Choose Your Blend"
+        },
+        {
+          "type": "text",
+          "id": "value",
+          "label": "Value",
+          "default": "Your selected team's T-Series tea"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Start with the blend matched to the team you're backing."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "T Up Pre-Match Ritual",
+      "blocks": [
+        {
+          "type": "ritual_step",
+          "settings": {
+            "icon": "blend",
+            "title": "Choose Your Blend",
+            "value": "Your selected team's T-Series tea",
+            "description": "Start with the blend matched to the team you're backing."
+          }
+        },
+        {
+          "type": "ritual_step",
+          "settings": {
+            "icon": "steep",
+            "title": "Steep With Care",
+            "value": "4 minutes",
+            "description": "Let the leaves open slowly for a full, balanced cup."
+          }
+        },
+        {
+          "type": "ritual_step",
+          "settings": {
+            "icon": "warm",
+            "title": "Serve Warm",
+            "value": "95°C",
+            "description": "Bring out the aroma, depth, and character of your tea."
+          }
+        },
+        {
+          "type": "ritual_step",
+          "settings": {
+            "icon": "kickoff",
+            "title": "Sip Before Kick-Off",
+            "value": "Match-day ready",
+            "description": "Settle in, take a moment, and enjoy the ritual before the first whistle."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

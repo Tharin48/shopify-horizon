@@ -96,6 +96,9 @@
         {% else %}
           {%- render 'product-media', media: media, sizes: media_sizes, is_main_product_media: forloop.first -%}
         {% endif %}
+        {%- if forloop.first -%}
+          {% render 'tup-country-flag-badge', product_resource: closest.product, position: 'bottom-right' %}
+        {%- endif -%}
       </div>
     {%- endfor -%}
   </div>

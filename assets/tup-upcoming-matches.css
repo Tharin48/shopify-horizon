@@ -49,7 +49,8 @@
   overscroll-behavior-x: contain;
   padding: 0 1.5rem 0.55rem;
   scroll-padding-inline: 1.5rem;
-  scroll-snap-type: x mandatory;
+  scroll-behavior: auto;
+  scroll-snap-type: none;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -62,6 +63,7 @@
   display: flex;
   gap: 0.8rem;
   min-width: min-content;
+  width: max-content;
 }
 
 .tup-upcoming-match-card {
@@ -69,30 +71,14 @@
   background: rgba(255, 255, 255, 0.86);
   border: 1px solid var(--tup-upcoming-gold-soft);
   border-radius: 1rem;
-  box-shadow: 0 14px 34px rgba(38, 31, 18, 0.07);
   color: var(--tup-upcoming-ink);
-  cursor: pointer;
   display: grid;
   flex: 0 0 clamp(19rem, 23vw, 26rem);
   gap: 1rem;
   grid-template-columns: minmax(4.6rem, auto) auto minmax(4.6rem, auto) 1fr;
   min-height: 5.45rem;
   padding: 0.9rem 1rem;
-  scroll-snap-align: start;
   text-align: left;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.tup-upcoming-match-card:hover,
-.tup-upcoming-match-card:focus-visible,
-.tup-upcoming-match-card.is-selected {
-  border-color: var(--tup-upcoming-gold);
-  box-shadow: 0 18px 38px rgba(38, 31, 18, 0.11);
-  outline: none;
-  transform: translateY(-1px);
 }
 
 .tup-upcoming-match-card__team {
@@ -170,6 +156,115 @@
   text-transform: uppercase;
 }
 
+.tup-upcoming-match-card__score {
+  color: var(--tup-upcoming-ink);
+  display: block;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+
+.tup-upcoming-skeleton {
+  animation: tupUpcomingSkeletonPulse 1.35s ease-in-out infinite;
+  background: linear-gradient(90deg, rgba(198, 154, 0, 0.08), rgba(198, 154, 0, 0.18), rgba(198, 154, 0, 0.08));
+  background-size: 220% 100%;
+  border-radius: 999px;
+  display: block;
+}
+
+.tup-upcoming-skeleton--flag {
+  border-radius: 0.65rem;
+  height: 2.65rem;
+  width: 2.65rem;
+}
+
+.tup-upcoming-skeleton--text {
+  height: 0.72rem;
+  margin-top: 0.4rem;
+  width: 4.6rem;
+}
+
+.tup-upcoming-skeleton--wide {
+  width: 7.5rem;
+}
+
+.tup-upcoming-match-card__empty {
+  color: var(--tup-upcoming-muted);
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.tup-upcoming-match-card--message {
+  align-items: center;
+  grid-template-columns: 1fr auto;
+  min-width: min(26rem, calc(100vw - 3rem));
+}
+
+.tup-api-retry {
+  align-items: center;
+  background: rgba(198, 154, 0, 0.1);
+  border: 1px solid rgba(198, 154, 0, 0.42);
+  border-radius: 999px;
+  color: #987b22;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  gap: 0.42rem;
+  justify-content: center;
+  letter-spacing: 0.07em;
+  line-height: 1;
+  min-height: 2.15rem;
+  padding: 0.58rem 0.9rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tup-api-retry__icon {
+  border: 1.5px solid currentColor;
+  border-left-color: transparent;
+  border-radius: 999px;
+  display: block;
+  height: 0.8rem;
+  position: relative;
+  width: 0.8rem;
+}
+
+.tup-api-retry__icon::after {
+  border-right: 1.5px solid currentColor;
+  border-top: 1.5px solid currentColor;
+  content: '';
+  height: 0.28rem;
+  position: absolute;
+  right: -0.1rem;
+  top: -0.06rem;
+  transform: rotate(28deg);
+  width: 0.28rem;
+}
+
+.tup-api-retry[aria-busy='true'] .tup-api-retry__icon {
+  animation: tupUpcomingRetrySpin 0.8s linear infinite;
+}
+
+@keyframes tupUpcomingRetrySpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes tupUpcomingSkeletonPulse {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
 .tup-upcoming-matches__fallback {
   color: var(--tup-upcoming-muted);
   margin: 0.75rem 0 0;
@@ -203,5 +298,10 @@
     grid-column: 1 / -1;
     padding-left: 0;
     padding-top: 0.75rem;
+  }
+
+  .tup-upcoming-match-card--message {
+    align-items: stretch;
+    grid-template-columns: 1fr;
   }
 }
