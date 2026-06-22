@@ -27,7 +27,6 @@
   id="tup-campaign-hero-{{ section.id }}"
   class="tup-campaign-hero"
   data-tup-campaign-hero
-  data-decorative-background="{{ section.settings.show_decorative_background }}"
   style="
     --tup-section-max-width: {{ section.settings.section_max_width }}px;
     --tup-heading-font-size-desktop: {{ section.settings.heading_font_size_desktop }}px;
@@ -308,12 +307,6 @@
       "id": "bundle_sold_out_label",
       "label": "Bundle sold out label",
       "default": "Sold out"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_decorative_background",
-      "label": "Show decorative background",
-      "default": true
     },
     {
       "type": "image_picker",

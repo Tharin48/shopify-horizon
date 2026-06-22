@@ -8,12 +8,15 @@
  * ------------------------------------------------------------
  */
 {
-  "markets": {
-    "india": {
-      "parent": "@default"
-    },
-    "sri-lanka": {
-      "parent": "@default"
+  "context": {
+    "market": "sri-lanka"
+  },
+  "parent": "index.json",
+  "sections": {
+    "tup_home_rewards": {
+      "disabled": true,
+      "settings": {},
+      "blocks": {}
     }
   }
 }
