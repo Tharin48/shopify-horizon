@@ -11,7 +11,7 @@
   const { escapeHtml, getList, parseGameDate, dateSortValue } = shared;
   const SECTION_SELECTOR = '[data-tup-choose-team]';
   const NO_MATCH_TITLE = 'No T-Series blend has been assigned to this team yet.';
-  const DEBUG_SELECTION = true;
+  const DEBUG_SELECTION = false;
   const LOG_PREFIX = '[T Up Choose Team]';
 
   /** @param {HTMLElement} section @returns {TupChooseTeamProduct[]} */

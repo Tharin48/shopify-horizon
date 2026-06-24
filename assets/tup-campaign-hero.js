@@ -105,12 +105,6 @@
           (reward.teamA === awayCode && reward.teamB === homeCode)
       ) || null;
 
-    console.log(`${LOG_PREFIX} selected match codes:`, {
-      homeCode,
-      awayCode,
-      matchedReward,
-    });
-
     return matchedReward;
   };
 

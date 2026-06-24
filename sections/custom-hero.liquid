@@ -136,6 +136,51 @@
   endif
 %}
 
+{%- comment -%}
+  Responsive preview image for video slots — avoids loading a 2000 px image on 414 px mobile screens.
+  Emitted as a <style> block so we can use @media breakpoints, which an inline style cannot do.
+{%- endcomment -%}
+{%- if prioritize_first_view_hero -%}
+  {%- if media_1 == 'video' and section.settings.video_1.preview_image != blank -%}
+    {% style %}
+      .hero--{{ section.id }} .hero__preview-1 {
+        background-image: url('{{ section.settings.video_1.preview_image | image_url: width: 828 }}');
+      }
+      @media (min-width: 750px) {
+        .hero--{{ section.id }} .hero__preview-1 {
+          background-image: url('{{ section.settings.video_1.preview_image | image_url: width: 1920 }}');
+        }
+      }
+    {% endstyle %}
+  {%- endif -%}
+  {%- if media_2 == 'video' and section.settings.video_2.preview_image != blank -%}
+    {% style %}
+      .hero--{{ section.id }} .hero__preview-2 {
+        background-image: url('{{ section.settings.video_2.preview_image | image_url: width: 828 }}');
+      }
+      @media (min-width: 750px) {
+        .hero--{{ section.id }} .hero__preview-2 {
+          background-image: url('{{ section.settings.video_2.preview_image | image_url: width: 1920 }}');
+        }
+      }
+    {% endstyle %}
+  {%- endif -%}
+  {%- if media_1_mobile == 'video' and section.settings.video_1_mobile.preview_image != blank -%}
+    {% style %}
+      .hero--{{ section.id }} .hero__preview-1-mobile {
+        background-image: url('{{ section.settings.video_1_mobile.preview_image | image_url: width: 828 }}');
+      }
+    {% endstyle %}
+  {%- endif -%}
+  {%- if media_2_mobile == 'video' and section.settings.video_2_mobile.preview_image != blank -%}
+    {% style %}
+      .hero--{{ section.id }} .hero__preview-2-mobile {
+        background-image: url('{{ section.settings.video_2_mobile.preview_image | image_url: width: 828 }}');
+      }
+    {% endstyle %}
+  {%- endif -%}
+{%- endif -%}
+
 {% capture media_slot_1 %}
   {%- if media_1 == 'image' and media_1_mobile == 'image' -%}
     {%- comment -%} Both desktop and mobile are images. Assume similar images, and this is art direction: use picture element. {%- endcomment -%}
@@ -188,10 +233,7 @@
 
   {%- if media_1 == 'video' -%}
     <div
-      class="{{ media_wrapper_desktop_class }}"
-      {% if prioritize_first_view_hero and section.settings.video_1.preview_image != blank %}
-        style="background-image: url('{{ section.settings.video_1.preview_image | image_url: width: 2000 }}');"
-      {% endif %}
+      class="{{ media_wrapper_desktop_class }}{% if prioritize_first_view_hero and section.settings.video_1.preview_image != blank %} hero__preview-1{% endif %}"
     >
       {{
         section.settings.video_1
@@ -202,7 +244,7 @@
           muted: true,
           playsinline: true,
           preload: hero_video_preload,
-          image_size: '2000x',
+          image_size: '1440x',
           class: 'hero__media',
           data-testid: 'hero-desktop-video-1'
       }}
@@ -231,10 +273,7 @@
 
     {%- if media_1_mobile == 'video' -%}
       <div
-        class="{{ media_wrapper_mobile_class }}"
-        {% if prioritize_first_view_hero and section.settings.video_1_mobile.preview_image != blank %}
-          style="background-image: url('{{ section.settings.video_1_mobile.preview_image | image_url: width: 1200 }}');"
-        {% endif %}
+        class="{{ media_wrapper_mobile_class }}{% if prioritize_first_view_hero and section.settings.video_1_mobile.preview_image != blank %} hero__preview-1-mobile{% endif %}"
       >
         {{
           section.settings.video_1_mobile
@@ -306,10 +345,7 @@
 
   {%- if media_2 == 'video' -%}
     <div
-      class="{{ media_wrapper_desktop_class }}"
-      {% if prioritize_first_view_hero and section.settings.video_2.preview_image != blank %}
-        style="background-image: url('{{ section.settings.video_2.preview_image | image_url: width: 2000 }}');"
-      {% endif %}
+      class="{{ media_wrapper_desktop_class }}{% if prioritize_first_view_hero and section.settings.video_2.preview_image != blank %} hero__preview-2{% endif %}"
     >
       {{
         section.settings.video_2
@@ -320,7 +356,7 @@
           muted: true,
           playsinline: true,
           preload: hero_video_preload,
-          image_size: '2000x',
+          image_size: '1440x',
           class: 'hero__media',
           data-testid: 'hero-desktop-video-2'
       }}
@@ -349,10 +385,7 @@
 
     {%- if media_2_mobile == 'video' -%}
       <div
-        class="{{ media_wrapper_mobile_class }}"
-        {% if prioritize_first_view_hero and section.settings.video_2_mobile.preview_image != blank %}
-          style="background-image: url('{{ section.settings.video_2_mobile.preview_image | image_url: width: 1200 }}');"
-        {% endif %}
+        class="{{ media_wrapper_mobile_class }}{% if prioritize_first_view_hero and section.settings.video_2_mobile.preview_image != blank %} hero__preview-2-mobile{% endif %}"
       >
         {{
           section.settings.video_2_mobile
@@ -553,7 +586,7 @@
 
 <div
   id="CustomHero-{{ section.id }}"
-  class="hero color-{{ section.settings.color_scheme }}{% if hero_media_aspect_val != blank %} hero--auto{% endif %}{% if section.blocks.size == 0 and section.settings.section_height == 'auto' %} hero--no-blocks-auto-height{% endif %}{% if section.settings.stack_media_on_mobile %} hero--stack-mobile{% endif %}"
+  class="hero hero--{{ section.id }} color-{{ section.settings.color_scheme }}{% if hero_media_aspect_val != blank %} hero--auto{% endif %}{% if section.blocks.size == 0 and section.settings.section_height == 'auto' %} hero--no-blocks-auto-height{% endif %}{% if section.settings.stack_media_on_mobile %} hero--stack-mobile{% endif %}"
   style="
     --hero-border-style: {{ section.settings.border }};
     --hero-border-width: {{ section.settings.border_width }}px;
