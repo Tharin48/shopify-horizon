@@ -11,9 +11,82 @@
   const { escapeHtml, getList, parseGameDate, normalizeStatus, dateSortValue } = shared;
   const SECTION_SELECTOR = '[data-tup-campaign-hero]';
   const LOG_PREFIX = '[T Up Campaign Hero]';
+  const DEFAULT_MATCH_DURATION_HOURS = 2;
+  const REWARD_WINDOW_HOURS = 24;
 
   /** @param {unknown} value @returns {string} */
   const normalizeCode = (value) => String(value || '').trim().toUpperCase();
+
+  /** @param {unknown} value @returns {Date | null} */
+  const parseApiTimestamp = (value) => {
+    if (!value) return null;
+
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+
+    if (typeof value === 'number') {
+      const timestamp = value < 1e12 ? value * 1000 : value;
+      const date = new Date(timestamp);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    const timestamp = Date.parse(String(value));
+    return Number.isNaN(timestamp) ? null : new Date(timestamp);
+  };
+
+  /** @param {TupJsonObject} match @returns {boolean} */
+  const isCompletedMatch = (match) =>
+    match.status === 'completed' || normalizeStatus(match.time_elapsed, match.finished) === 'completed';
+
+  /** @param {TupJsonObject} match @returns {Date | null} */
+  const getScheduledKickoffTime = (match) => {
+    if (match.date instanceof Date) return match.date;
+
+    const fixture = match.fixture && typeof match.fixture === 'object'
+      ? /** @type {TupJsonObject} */ (match.fixture)
+      : null;
+    const fixtureDate = parseApiTimestamp(fixture?.date);
+    if (fixtureDate) return fixtureDate;
+
+    return parseGameDate(match) || parseApiTimestamp(match.local_date || match.date || match.datetime);
+  };
+
+  /** @param {TupJsonObject} match @returns {Date | null} */
+  const getMatchEndTime = (match) => {
+    if (!isCompletedMatch(match)) return null;
+    if (match.matchEndTime instanceof Date) return match.matchEndTime;
+
+    const fixture = match.fixture && typeof match.fixture === 'object'
+      ? /** @type {TupJsonObject} */ (match.fixture)
+      : null;
+    const exactFinishedTime = [
+      match.finished_at,
+      match.completed_at,
+      fixture?.finished_at,
+      fixture?.completed_at,
+      match.updated_at,
+    ]
+      .map(parseApiTimestamp)
+      .find((date) => date instanceof Date);
+
+    if (exactFinishedTime) return exactFinishedTime;
+
+    const kickoffTime = getScheduledKickoffTime(match);
+    if (!kickoffTime) return null;
+    return new Date(kickoffTime.getTime() + DEFAULT_MATCH_DURATION_HOURS * 60 * 60 * 1000);
+  };
+
+  /** @param {TupJsonObject} match @param {number} hours @returns {boolean} */
+  const isRewardWithinWindow = (match, hours) => {
+    const matchEndTime = getMatchEndTime(match);
+    if (!matchEndTime) return false;
+    return Date.now() <= matchEndTime.getTime() + hours * 60 * 60 * 1000;
+  };
+
+  /** @param {TupHeroMatch} match @param {number} hours @returns {boolean} */
+  const isHeroRewardWithinWindow = (match, hours) => {
+    if (!(match.matchEndTime instanceof Date)) return false;
+    return Date.now() <= match.matchEndTime.getTime() + hours * 60 * 60 * 1000;
+  };
 
   /** @param {unknown} value @returns {string} */
   const getRichTextPlainText = (value) => {
@@ -78,6 +151,7 @@
           teamB: reward.teamB,
           discountCode: reward.discountCode,
           active: reward.active,
+          expiryText: reward.expiryText,
         }))
       );
 
@@ -105,6 +179,8 @@
           (reward.teamA === awayCode && reward.teamB === homeCode)
       ) || null;
 
+    if (matchedReward) console.log('Matched reward:', homeCode, awayCode, matchedReward);
+
     return matchedReward;
   };
 
@@ -128,7 +204,7 @@
 
   /** @param {TupJsonObject} game @param {TupMatchStatusState} status @returns {string} */
   const formatMatchMeta = (game, status) => {
-    const date = parseGameDate(game);
+    const date = parseGameDate(game) || getScheduledKickoffTime(game);
     const statusLabel = status === 'completed' ? 'FINISHED' : status === 'live' ? 'NOW HAPPENING' : 'UPCOMING';
     if (!date) return statusLabel;
     return `${date.toLocaleDateString(undefined, {
@@ -193,10 +269,26 @@
       fifaCode: '',
       group: '',
     };
-    const date = parseGameDate(game);
+    const date = parseGameDate(game) || getScheduledKickoffTime(game);
     const status = normalizeMatchStatus(game, date);
+    const matchEndTime = getMatchEndTime({ ...game, status, date });
+    const expiryTime = matchEndTime
+      ? new Date(matchEndTime.getTime() + REWARD_WINDOW_HOURS * 60 * 60 * 1000)
+      : null;
+    const now = new Date();
     const teamA = homeTeam.name || String(game.home_team_name_en || game.home_team_label || 'Team A');
     const teamB = awayTeam.name || String(game.away_team_name_en || game.away_team_label || 'Team B');
+
+    if (status === 'completed') {
+      console.log(`${LOG_PREFIX} Reward window:`, {
+        status,
+        kickoffTime: date,
+        matchEndTime,
+        expiryTime,
+        now,
+        isExpired: !expiryTime || now.getTime() > expiryTime.getTime(),
+      });
+    }
 
     return {
       id: String(game.id || game._id || `${teamA}-${teamB}`),
@@ -211,6 +303,7 @@
       meta: formatMatchMeta(game, status),
       official: '',
       date,
+      matchEndTime,
       teamACode: normalizeCode(homeTeam.fifaCode),
       teamBCode: normalizeCode(awayTeam.fifaCode),
       teamAFlag: homeTeam.flag || '',
@@ -253,36 +346,52 @@
     }
   };
 
-  /** @param {TupMatchReward | null | undefined} reward @returns {string} */
-  const createRewardMarkup = (reward) => {
+  /** @param {TupMatchReward | null | undefined} reward @param {boolean} expired @returns {string} */
+  const createRewardMarkup = (reward, expired) => {
     if (!reward) return '';
 
-    const rewardText =
-      reward.rewardText || 'Use this code at checkout for your match-day T-Series reward.';
-    const expiryText = reward.expiryText
-      ? `<p class="tup-match-reward__expiry">${escapeHtml(reward.expiryText)}</p>`
+    const expiryText = !expired
+      ? '<p class="tup-match-reward__expiry">Available for 24h after full-time.</p>'
+      : '';
+    const title = expired ? 'Reward expired' : 'Win or lose, claim your discount';
+    const description = expired
+      ? '<p class="tup-match-reward__text">This match-day reward has expired.</p>'
       : '';
 
     return `
-      <div class="tup-match-reward" data-match-reward>
-        <p class="tup-match-reward__text">${escapeHtml(rewardText)}</p>
+      <div class="tup-match-reward${expired ? ' is-expired' : ''}" data-match-reward>
+        <p class="tup-match-reward__title">${escapeHtml(title)}</p>
+        ${description}
         ${expiryText}
-        <div class="tup-match-reward__actions">
-          <span class="tup-match-reward__code" data-reward-code>${escapeHtml(reward.discountCode)}</span>
-          <button
-            type="button"
-            class="tup-match-reward__copy"
-            data-copy-reward
-            data-discount-code="${escapeHtml(reward.discountCode)}"
-            aria-label="Copy discount code"
-          >
-            <span data-copy-label>Copy</span>
-          </button>
-        </div>
+        ${
+          expired
+            ? ''
+            : `
+              <div class="tup-match-reward__actions">
+                <span class="tup-match-reward__code" data-reward-code>${escapeHtml(reward.discountCode)}</span>
+                <button
+                  type="button"
+                  class="tup-match-reward__copy"
+                  data-copy-reward
+                  data-discount-code="${escapeHtml(reward.discountCode)}"
+                  aria-label="Copy discount code"
+                >
+                  <span data-copy-label>Copy</span>
+                </button>
+              </div>
+            `
+        }
         <p class="tup-match-reward__message" data-copy-message role="status"></p>
       </div>
     `;
   };
+
+  /** @returns {string} */
+  const createLiveRewardMarkup = () => `
+    <div class="tup-match-reward" data-match-reward>
+      <p class="tup-match-reward__text">Wait until the match ends to get your reward.</p>
+    </div>
+  `;
 
   /**
    * @param {TupHeroMatch} match
@@ -292,6 +401,7 @@
   const createMatchCard = (match, rewards) => {
     const article = document.createElement('article');
     const reward = findRewardForMatch(match, rewards);
+    const rewardExpired = Boolean(reward) && !isHeroRewardWithinWindow(match, REWARD_WINDOW_HOURS);
     const teamACrest = match.teamAFlag
       ? `<img class="tup-match-card__flag" src="${escapeHtml(match.teamAFlag)}" alt="${escapeHtml(match.teamA)}" loading="lazy">`
       : escapeHtml(match.teamACode || match.teamA.slice(0, 2).toUpperCase());
@@ -330,7 +440,7 @@
         </div>
       </div>
       ${footerMarkup}
-      ${createRewardMarkup(reward)}
+      ${match.status === 'live' ? createLiveRewardMarkup() : createRewardMarkup(reward, rewardExpired)}
     `;
     return article;
   };
@@ -361,6 +471,8 @@
 
   /** @param {HTMLButtonElement} button @returns {Promise<void>} */
   const copyDiscountCode = async (button) => {
+    if (button.disabled || button.closest('[data-match-reward]')?.classList.contains('is-expired')) return;
+
     const code = String(button.dataset.discountCode || '').trim();
     if (!code) return;
 

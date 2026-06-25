@@ -302,6 +302,10 @@
   padding: 0.7rem 0.95rem 0.85rem;
 }
 
+.tup-match-reward.is-expired {
+  opacity: 0.68;
+}
+
 .tup-match-reward__title,
 .tup-match-reward__text,
 .tup-match-reward__expiry,
@@ -387,6 +391,14 @@
 
 .tup-match-reward__copy:hover {
   background: rgba(198, 154, 0, 0.22);
+}
+
+.tup-match-reward__copy:disabled {
+  cursor: not-allowed;
+}
+
+.tup-match-reward__copy:disabled:hover {
+  background: rgba(198, 154, 0, 0.13);
 }
 
 .tup-match-card__empty {

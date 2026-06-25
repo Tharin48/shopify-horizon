@@ -56,6 +56,7 @@ declare global {
     meta: string;
     official: string;
     date: Date | null;
+    matchEndTime: Date | null;
     teamACode: string;
     teamBCode: string;
     teamAFlag: string;
