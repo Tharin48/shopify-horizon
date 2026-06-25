@@ -105,7 +105,7 @@
       "name": "Custom hero",
       "settings": {
         "media_type_1": "video",
-        "video_1": "shopify://files/videos/MTWABT no end frame_89aa1d33-f730-405f-9bde-cdb699f9dac0.webm",
+        "video_1": "shopify://files/videos/hero-3.webm",
         "media_type_2": "video",
         "stack_media_on_mobile": false,
         "custom_mobile_media": false,
@@ -930,6 +930,7 @@
         "reward_match_day",
         "reward_tseries"
       ],
+      "disabled": true,
       "name": "T Up home rewards",
       "settings": {
         "image": "shopify://shop_images/bundle-offer.png",
