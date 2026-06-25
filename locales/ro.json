@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "Încarcă clipul video: {{ description }}",
@@ -87,7 +78,9 @@
     "price_filter_high": "Preț mare",
     "product_button_named": "{{ product_title }}. {{ action }}",
     "promo_banner_image": "Banner promoțional",
-    "slide_background_image": "Fundal pentru diapozitivul evidențiat"
+    "slide_background_image": "Fundal pentru diapozitivul evidențiat",
+    "category_explore_card": "View category",
+    "product_rating": "Product rating"
   },
   "actions": {
     "add_to_cart": "Adaugă în coș",

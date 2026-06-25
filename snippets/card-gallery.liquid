@@ -172,6 +172,7 @@
         attributes: slideshow_attributes
       %}
     </a>
+    {% render 'tup-country-flag-badge', product_resource: product, position: 'bottom-left' %}
   {% elsif product != blank and product.media.size == 0 %}
     <product-title class="product-card-gallery__title-placeholder">
       <a

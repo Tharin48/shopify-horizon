@@ -49,6 +49,27 @@ declare global {
 
   interface Window {
     Shopify: Shopify;
+    Theme?: Theme;
+    TupWorldCupShared?: {
+      TEAMS_ENDPOINT: string;
+      GAMES_ENDPOINT: string;
+      escapeHtml: (value: unknown) => string;
+      fetchJson: (url: string) => Promise<unknown>;
+      getList: (payload: unknown, key: string) => TupJsonObject[];
+      getApiState: (
+        section: HTMLElement,
+        stateKey: 'tupHeroApiState' | 'tupChooseTeamApiState' | 'tupUpcomingApiState'
+      ) => TupApiState;
+      setRetryBusy: (section: HTMLElement, busy: boolean) => void;
+      fetchMissingApiPayloads: (
+        section: HTMLElement,
+        stateKey: 'tupHeroApiState' | 'tupChooseTeamApiState' | 'tupUpcomingApiState',
+        logPrefix: string
+      ) => Promise<Partial<Record<TupApiKey, unknown>>>;
+      parseGameDate: (game: TupJsonObject) => Date | null;
+      normalizeStatus: (status: unknown, finished: unknown) => TupMatchStatusState;
+      dateSortValue: (date: Date | null | undefined) => number;
+    };
     /** Opt-in: set on `window` in devtools to log cart / catalog AJAX debug. */
     __HORIZON_TEMP_CART_DEBUG__?: boolean;
     /** Set by `custom-policy-page-spa.js` to avoid double init. */

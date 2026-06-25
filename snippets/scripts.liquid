@@ -152,6 +152,10 @@
       selector: 'volume-pricing-info',
       src: "{{ 'volume-pricing-info.js' | asset_url }}",
     },
+    {
+      selector: '[data-yotpo-lazy]',
+      src: "{{ 'yotpo-lazy.js' | asset_url }}",
+    },
   ];
 
   const loadedModules = new Set();

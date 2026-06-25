@@ -1,0 +1,33 @@
+{%- doc -%}
+  Formats money and normalizes INR display to use ₹ instead of Rs.
+
+  Override applies when country is India (IN) or currency is INR.
+  All other country/currency combinations use Shopify defaults unchanged.
+
+  @param {number} [amount] - Price in cents; formatted via money filters
+  @param {string} [formatted] - Pre-formatted money string to normalize
+  @param {boolean} [with_currency] - Use money_with_currency when amount is set
+{%- enddoc -%}
+
+{%- liquid
+  assign inr_money_result = formatted | default: ''
+
+  if amount != blank
+    assign inr_with_currency = with_currency | default: false
+    if inr_with_currency
+      assign inr_money_result = amount | money_with_currency
+    else
+      assign inr_money_result = amount | money
+    endif
+  endif
+
+  assign custom_inr_override = false
+  if localization.country.iso_code == 'IN' or cart.currency.iso_code == 'INR'
+    assign custom_inr_override = true
+  endif
+
+  if custom_inr_override and inr_money_result != blank
+    assign inr_money_result = inr_money_result | replace: 'Rs.', '₹' | replace: 'Rs ', '₹ '
+  endif
+-%}
+{{- inr_money_result -}}

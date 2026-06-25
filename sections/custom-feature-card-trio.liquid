@@ -1,0 +1,606 @@
+<section
+  class="custom-feature-card-trio"
+  {% if section.settings.range_tab_key != blank %}data-range-panel-key="{{ section.settings.range_tab_key | escape }}"{% endif %}
+  style="
+    --custom-feature-card-trio-max-width: {{ section.settings.max_width }}px;
+    --custom-feature-card-trio-background: {{ section.settings.background_color }};
+    --custom-feature-card-trio-heading: {{ section.settings.heading_color }};
+    --custom-feature-card-trio-body: {{ section.settings.body_color }};
+    --custom-feature-card-trio-accent: {{ section.settings.accent_color }};
+    --custom-feature-card-trio-card-background: {{ section.settings.card_background_color }};
+    --custom-feature-card-trio-radius: {{ section.settings.card_radius }}px;
+    --custom-feature-card-trio-height: {{ section.settings.card_height }}px;
+    --custom-feature-card-trio-gap: {{ section.settings.desktop_gap }}px;
+    --custom-feature-card-trio-gap-mobile: {{ section.settings.mobile_gap }}px;
+    --custom-feature-card-trio-padding-top: {{ section.settings.padding_top }}px;
+    --custom-feature-card-trio-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --custom-feature-card-trio-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --custom-feature-card-trio-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --custom-feature-card-trio-content-padding: {{ section.settings.card_content_padding }}px;
+    --custom-feature-card-trio-content-padding-mobile: {{ section.settings.card_content_padding_mobile }}px;
+    --custom-feature-card-trio-arrow-size: {{ section.settings.arrow_button_size }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-feature-card-trio__inner">
+    {%- if section.settings.heading != blank or section.settings.intro != blank -%}
+      <header class="custom-feature-card-trio__header">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="custom-feature-card-trio__heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.intro != blank -%}
+          <div class="custom-feature-card-trio__intro">
+            {{ section.settings.intro | escape | newline_to_br }}
+          </div>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="custom-feature-card-trio__grid">
+      {%- for block in section.blocks -%}
+        {%- assign has_link = false -%}
+        {%- if block.settings.link_url != blank -%}
+          {%- assign has_link = true -%}
+        {%- endif -%}
+
+        <article
+          class="custom-feature-card-trio__card custom-feature-card-trio__card--{{ block.settings.width_style }}"
+          style="--custom-feature-card-trio-copy-width: {{ block.settings.content_max_width }}px;"
+          {{ block.shopify_attributes }}
+        >
+          <div class="custom-feature-card-trio__media">
+            {%- if block.settings.mobile_image != blank -%}
+              <picture>
+                <source
+                  media="(max-width: 749px)"
+                  srcset="
+                    {{ block.settings.mobile_image | image_url: width: 480 }} 480w,
+                    {{ block.settings.mobile_image | image_url: width: 720 }} 720w,
+                    {{ block.settings.mobile_image | image_url: width: 960 }} 960w
+                  "
+                  sizes="100vw"
+                >
+                {%- if block.settings.image != blank -%}
+                  {{
+                    block.settings.image
+                    | image_url: width: 2000
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '480,720,960,1200,1600,2000',
+                      sizes: '(min-width: 990px) 40vw, 100vw',
+                      class: 'custom-feature-card-trio__image',
+                      alt: block.settings.image.alt
+                  }}
+                {%- else -%}
+                  {{
+                    block.settings.mobile_image
+                    | image_url: width: 2000
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '480,720,960,1200,1600,2000',
+                      sizes: '(min-width: 990px) 40vw, 100vw',
+                      class: 'custom-feature-card-trio__image',
+                      alt: block.settings.mobile_image.alt
+                  }}
+                {%- endif -%}
+              </picture>
+            {%- elsif block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 2000
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '480,720,960,1200,1600,2000',
+                  sizes: '(min-width: 990px) 40vw, 100vw',
+                  class: 'custom-feature-card-trio__image',
+                  alt: block.settings.image.alt
+              }}
+            {%- else -%}
+              <div class="custom-feature-card-trio__empty">Choose an image</div>
+            {%- endif -%}
+          </div>
+
+          <div class="custom-feature-card-trio__content">
+            <div class="custom-feature-card-trio__copy">
+              {%- if block.settings.heading != blank -%}
+                <h3 class="custom-feature-card-trio__card-heading">{{ block.settings.heading | escape }}</h3>
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <p
+                  class="custom-feature-card-trio__card-text{% unless block.settings.show_text_on_mobile %} custom-feature-card-trio__card-text--hide-mobile{% endunless %}"
+                >
+                  {{ block.settings.text | escape }}
+                </p>
+              {%- endif -%}
+            </div>
+
+            {%- if has_link and block.settings.show_arrow_button -%}
+              <a
+                class="custom-feature-card-trio__arrow-button"
+                href="{{ block.settings.link_url }}"
+                aria-label="{{ block.settings.link_label | default: block.settings.heading | default: 'Open card' | escape }}"
+              >
+                <svg viewBox="0 0 20 20" focusable="false" aria-hidden="true">
+                  {% render 'icon', icon: 'arrow' %}
+                </svg>
+              </a>
+            {%- endif -%}
+          </div>
+
+          {%- if has_link and block.settings.show_arrow_button == false -%}
+            <a
+              class="custom-feature-card-trio__link"
+              href="{{ block.settings.link_url }}"
+              aria-label="{{ block.settings.link_label | default: block.settings.heading | default: 'Open card' | escape }}"
+            ></a>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+
+      {%- if section.blocks.size == 0 and request.design_mode -%}
+        <div class="custom-feature-card-trio__empty">Add card blocks to build this row.</div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .custom-feature-card-trio {
+    background: var(--custom-feature-card-trio-background);
+  }
+
+  .custom-feature-card-trio__inner {
+    margin: 0 auto;
+    max-width: var(--custom-feature-card-trio-max-width);
+    padding:
+      var(--custom-feature-card-trio-padding-top-mobile)
+      16px
+      var(--custom-feature-card-trio-padding-bottom-mobile);
+  }
+
+  .custom-feature-card-trio__header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .custom-feature-card-trio__heading {
+    color: var(--custom-feature-card-trio-heading);
+    margin: 0;
+  }
+
+  .custom-feature-card-trio__intro {
+    color: var(--custom-feature-card-trio-body);
+    line-height: 1.55;
+    margin: 0.75rem auto 0;
+    max-width: 44rem;
+  }
+
+  .custom-feature-card-trio__grid {
+    display: grid;
+    gap: var(--custom-feature-card-trio-gap-mobile);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .custom-feature-card-trio__card,
+  .custom-feature-card-trio__empty {
+    background: var(--custom-feature-card-trio-card-background);
+    border-radius: var(--custom-feature-card-trio-radius);
+    min-height: 18rem;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .custom-feature-card-trio__media,
+  .custom-feature-card-trio__content,
+  .custom-feature-card-trio__link {
+    inset: 0;
+    position: absolute;
+  }
+
+  .custom-feature-card-trio__media picture,
+  .custom-feature-card-trio__image {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  .custom-feature-card-trio__image {
+    object-fit: cover;
+    transform: scale(1);
+    transition: transform 320ms ease;
+  }
+
+  .custom-feature-card-trio__content {
+    align-items: flex-end;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    padding: var(--custom-feature-card-trio-content-padding-mobile);
+    z-index: 1;
+  }
+
+  .custom-feature-card-trio__copy {
+    max-width: min(100%, var(--custom-feature-card-trio-copy-width, 16rem));
+  }
+
+  .custom-feature-card-trio__card-heading {
+    color: var(--custom-feature-card-trio-heading);
+    margin: 0;
+  }
+
+  .custom-feature-card-trio__card-text {
+    color: var(--custom-feature-card-trio-body);
+    line-height: 1.5;
+    margin: 0.35rem 0 0;
+  }
+
+  .custom-feature-card-trio__arrow-button {
+    align-items: center;
+    background: rgb(255 255 255 / 0.18);
+    border: 1px solid rgb(43 42 40 / 0.32);
+    border-radius: 999px;
+    color: #2b2a28;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: var(--custom-feature-card-trio-arrow-size);
+    justify-content: center;
+    text-decoration: none;
+    width: var(--custom-feature-card-trio-arrow-size);
+  }
+
+  .custom-feature-card-trio__arrow-button svg {
+    display: block;
+    height: 1rem;
+    width: 1rem;
+  }
+
+  .custom-feature-card-trio__empty {
+    align-items: center;
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.18);
+    color: rgb(var(--color-foreground-rgb) / 0.66);
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .custom-feature-card-trio__card:hover .custom-feature-card-trio__image,
+    .custom-feature-card-trio__card:focus-within .custom-feature-card-trio__image {
+      transform: scale(1.06);
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-feature-card-trio__inner {
+      padding:
+        var(--custom-feature-card-trio-padding-top)
+        48px
+        var(--custom-feature-card-trio-padding-bottom);
+    }
+
+    .custom-feature-card-trio__grid {
+      gap: var(--custom-feature-card-trio-gap);
+    }
+
+    .custom-feature-card-trio__content {
+      padding: var(--custom-feature-card-trio-content-padding);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-feature-card-trio__card-heading {
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .custom-feature-card-trio__card-text {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .custom-feature-card-trio__card-text--hide-mobile {
+      display: none;
+    }
+
+    .custom-feature-card-trio__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .custom-feature-card-trio__card {
+      min-height: clamp(11rem, 34vw, 13.5rem);
+    }
+
+    .custom-feature-card-trio__card:first-child {
+      grid-column: 1 / -1;
+      min-height: clamp(14rem, 52vw, 18rem);
+    }
+
+    .custom-feature-card-trio__copy {
+      max-width: 100%;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .custom-feature-card-trio__grid {
+      display: flex;
+      gap: var(--custom-feature-card-trio-gap);
+    }
+
+    .custom-feature-card-trio__card {
+      flex: 1 1 0;
+      height: var(--custom-feature-card-trio-height);
+      min-height: 0;
+    }
+
+    .custom-feature-card-trio__card--wide {
+      flex: 1.4 1 0;
+    }
+
+    .custom-feature-card-trio__card--standard {
+      flex: 0.8 1 0;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Feature card trio",
+  "tag": "section",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Section heading"
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro"
+    },
+    {
+      "type": "text",
+      "id": "range_tab_key",
+      "label": "Range tab key",
+      "info": "Match a tab target key from the Range Hero to show this section when that pill is selected."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "color",
+      "id": "card_background_color",
+      "label": "Card background color",
+      "default": "#f6f1e8"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#1f1812"
+    },
+    {
+      "type": "color",
+      "id": "body_color",
+      "label": "Body color",
+      "default": "#4b4137"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 640,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "label": "Desktop card height",
+      "min": 220,
+      "max": 520,
+      "step": 10,
+      "unit": "px",
+      "default": 340
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "desktop_gap",
+      "label": "Desktop gap",
+      "min": 8,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "mobile_gap",
+      "label": "Mobile gap",
+      "min": 8,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "card_content_padding",
+      "label": "Card content padding",
+      "min": 12,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "card_content_padding_mobile",
+      "label": "Card content padding mobile",
+      "min": 12,
+      "max": 36,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "arrow_button_size",
+      "label": "Arrow button size",
+      "min": 32,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Card heading"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_text_on_mobile",
+          "label": "Show description on mobile",
+          "default": true
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_arrow_button",
+          "label": "Show arrow button",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "width_style",
+          "label": "Desktop width style",
+          "default": "standard",
+          "options": [
+            { "value": "wide", "label": "Wide" },
+            { "value": "standard", "label": "Standard" }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "content_max_width",
+          "label": "Content max width",
+          "min": 120,
+          "max": 420,
+          "step": 10,
+          "unit": "px",
+          "default": 220
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Feature card trio",
+      "blocks": [
+        { "type": "card" },
+        { "type": "card" },
+        { "type": "card" }
+      ]
+    }
+  ]
+}
+{% endschema %}

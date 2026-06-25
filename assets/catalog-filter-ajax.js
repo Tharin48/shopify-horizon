@@ -38,7 +38,6 @@ const FILTER_LINK_ROOTS = [
  */
 const FILTER_LINK_EXCLUDE = [
   '[data-catalog-product-grid]',
-  'results-list',
 ];
 
 /**
@@ -99,7 +98,7 @@ class CatalogFilterAjax {
     const link = /** @type {Element} */ (e.target).closest('a[href]');
     if (!link) return;
 
-    // Never intercept product card links (or anything inside the results-list element) —
+    // Never intercept product card links —
     // those must navigate to the PDP normally. Check this before the filter-root match
     // because [data-catalog-results-region] wraps the product grid.
     if (FILTER_LINK_EXCLUDE.some((sel) => link.closest(sel) !== null)) return;

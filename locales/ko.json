@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "동영상 로드: {{ description }}",
@@ -86,7 +77,9 @@
     "price_filter_high": "높은 가격",
     "product_button_named": "{{ product_title }}. {{ action }}",
     "promo_banner_image": "프로모션 배너",
-    "slide_background_image": "추천 슬라이드 배경"
+    "slide_background_image": "추천 슬라이드 배경",
+    "category_explore_card": "View category",
+    "product_rating": "Product rating"
   },
   "actions": {
     "add_to_cart": "카트에 추가",

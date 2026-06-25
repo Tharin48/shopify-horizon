@@ -1,0 +1,474 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "range_hero": {
+      "type": "custom-range-hero",
+      "blocks": {
+        "tab_luxury": {
+          "type": "tab",
+          "settings": {
+            "label": "Luxury tea",
+            "link": "",
+            "target_key": "luxury",
+            "is_active": false
+          }
+        },
+        "tab_wellness": {
+          "type": "tab",
+          "settings": {
+            "label": "Natural Wellness",
+            "link": "",
+            "target_key": "wellness",
+            "is_active": false
+          }
+        },
+        "tab_origin": {
+          "type": "tab",
+          "settings": {
+            "label": "Pure Origin Speciality",
+            "link": "",
+            "target_key": "origin",
+            "is_active": false
+          }
+        },
+        "tab_inspired": {
+          "type": "tab",
+          "settings": {
+            "label": "Tea Inspired Drinks",
+            "link": "",
+            "target_key": "inspired",
+            "is_active": false
+          }
+        },
+        "tab_everyday": {
+          "type": "tab",
+          "settings": {
+            "label": "Everyday Gourmet",
+            "link": "",
+            "target_key": "everyday",
+            "is_active": false
+          }
+        }
+      },
+      "block_order": [
+        "tab_luxury",
+        "tab_wellness",
+        "tab_origin",
+        "tab_inspired",
+        "tab_everyday"
+      ],
+      "settings": {
+        "show_breadcrumb": true,
+        "home_label": "Shop",
+        "heading": "Explore Our Tea Range",
+        "intro": "Discover our curated selection across luxury, wellness, and origin categories, crafted with the spirit of Ceylon.",
+        "hero_image": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_11_14_33_PM.png",
+        "background_color": "#ffffff",
+        "text_color": "#222829",
+        "accent_color": "#b08a2f",
+        "overlay_color": "#ffffff",
+        "max_width": 1440,
+        "hero_height": 470,
+        "hero_height_mobile": 360,
+        "tab_overlap": 28,
+        "padding_top": 0,
+        "padding_bottom": 48,
+        "padding_inline": 0,
+        "padding_top_mobile": 12,
+        "padding_bottom_mobile": 36,
+        "padding_inline_mobile": 0
+      }
+    },
+    "luxury_range": {
+      "type": "custom-mosaic-card-grid",
+      "blocks": {
+        "luxury_card_1": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/Rectangle_9.png",
+            "heading": "t-Series",
+            "text": "A collection of the World's Best Tea",
+            "show_text_on_mobile": false,
+            "link_url": "",
+            "link_label": "",
+            "show_arrow_button": true,
+            "content_max_width": 240,
+            "column_span": "2",
+            "row_span": "2",
+            "desktop_start_column": "1",
+            "desktop_start_row": "1"
+          }
+        },
+        "luxury_card_2": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/Rectangle_10.jpg",
+            "heading": "85 Reserve",
+            "text": "Handpicked. Small-batch. Master-crafted.",
+            "show_text_on_mobile": false,
+            "link_url": "",
+            "link_label": "",
+            "show_arrow_button": true,
+            "content_max_width": 300,
+            "column_span": "4",
+            "row_span": "1",
+            "desktop_start_column": "3",
+            "desktop_start_row": "1"
+          }
+        },
+        "luxury_card_3": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/Rectangle_12.jpg",
+            "heading": "VSRT",
+            "text": "Handpicked. Small-batch. Master-crafted.",
+            "show_text_on_mobile": false,
+            "link_url": "",
+            "link_label": "",
+            "show_arrow_button": true,
+            "content_max_width": 240,
+            "column_span": "2",
+            "row_span": "1",
+            "desktop_start_column": "3",
+            "desktop_start_row": "2"
+          }
+        },
+        "luxury_card_4": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_04_19_42_PM.png",
+            "heading": "Watte",
+            "text": "Single Garden Origins",
+            "show_text_on_mobile": false,
+            "link_url": "",
+            "link_label": "",
+            "show_arrow_button": true,
+            "content_max_width": 220,
+            "column_span": "2",
+            "row_span": "1",
+            "desktop_start_column": "5",
+            "desktop_start_row": "2"
+          }
+        }
+      },
+      "block_order": [
+        "luxury_card_1",
+        "luxury_card_2",
+        "luxury_card_3",
+        "luxury_card_4"
+      ],
+      "settings": {
+        "heading": "Our Luxury Range",
+        "intro": "",
+        "range_tab_key": "luxury",
+        "mobile_layout": "stack",
+        "background_color": "#ffffff",
+        "heading_color": "#1f1812",
+        "body_color": "#4b4137",
+        "accent_color": "#b08a2f",
+        "max_width": 1440,
+        "row_height": 250,
+        "mobile_row_height": 120,
+        "card_radius": 12,
+        "desktop_gap": 16,
+        "mobile_gap": 16,
+        "card_content_padding": 18,
+        "card_content_padding_mobile": 16,
+        "arrow_button_size": 38,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "padding_top_mobile": 36,
+        "padding_bottom_mobile": 0
+      }
+    },
+    "wellness_range": {
+      "type": "custom-feature-card-trio",
+      "blocks": {
+        "wellness_card_1": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/arana.png",
+            "heading": "Arana",
+            "text": "Ayurvedic Herbal Balance",
+            "show_text_on_mobile": true,
+            "link_url": "",
+            "link_label": "",
+            "show_arrow_button": true,
+            "width_style": "wide",
+            "content_max_width": 260
+          }
+        },
+        "wellness_card_2": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/c19d71e52c28fadd99cc92d56832aa82db496e08.png",
+            "heading": "Cinnamon",
+            "text": "Spice Wellness Infusions",
+            "show_text_on_mobile": true,
+            "link_url": "",
+            "link_label": "",
+            "show_arrow_button": true,
+            "width_style": "standard",
+            "content_max_width": 200
+          }
+        },
+        "wellness_card_3": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/28a658b5743495d2869e030504bb343edd5ad26c.png",
+            "heading": "Organic",
+            "text": "Pure Botanical Blends",
+            "show_text_on_mobile": true,
+            "link_url": "",
+            "link_label": "",
+            "show_arrow_button": true,
+            "width_style": "standard",
+            "content_max_width": 200
+          }
+        }
+      },
+      "block_order": [
+        "wellness_card_1",
+        "wellness_card_2",
+        "wellness_card_3"
+      ],
+      "settings": {
+        "heading": "Natural Wellness",
+        "intro": "",
+        "range_tab_key": "wellness",
+        "background_color": "#ffffff",
+        "card_background_color": "#f6f1e8",
+        "heading_color": "#1f1812",
+        "body_color": "#4b4137",
+        "accent_color": "#b08a2f",
+        "max_width": 1440,
+        "card_height": 520,
+        "card_radius": 12,
+        "desktop_gap": 16,
+        "mobile_gap": 16,
+        "card_content_padding": 18,
+        "card_content_padding_mobile": 16,
+        "arrow_button_size": 38,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "padding_top_mobile": 36,
+        "padding_bottom_mobile": 0
+      }
+    },
+    "tea_inspired_range": {
+      "type": "custom-editorial-promo-banner",
+      "settings": {
+        "section_heading": "Tea Inspired",
+        "range_tab_key": "inspired",
+        "image": "shopify://shop_images/632f8d1f7ea1669d86b682cbf3168dc798c0020e.png",
+        "eyebrow": "ELIXIR COLLECTION",
+        "heading": "Elevated Tea Experiences",
+        "text": "Crafted from handpicked Ceylon tea - perfect for iced teas, infused waters, tea mixology, shakes and smoothies.",
+        "button_label": "Discover Elixir",
+        "button_link": "",
+        "background_color": "#ffffff",
+        "card_background_color": "#f7ede6",
+        "heading_color": "#1f1812",
+        "body_color": "#4b4137",
+        "accent_color": "#b08a2f",
+        "button_text_color": "#ffffff",
+        "button_background_color": "#b08a2f",
+        "button_border_color": "#b08a2f",
+        "max_width": 1440,
+        "banner_height": 500,
+        "banner_height_mobile": 320,
+        "banner_radius": 12,
+        "content_width": 360,
+        "content_padding": 56,
+        "content_padding_mobile": 24,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "padding_top_mobile": 36,
+        "padding_bottom_mobile": 0
+      }
+    },
+    "pure_origin_range": {
+      "type": "custom-discovery-card-carousel",
+      "blocks": {
+        "pure_origin_card_1": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_04_44_16_PM.png",
+            "heading": "Ceylon Green",
+            "subheading": "Pure Highlands Freshness",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        },
+        "pure_origin_card_2": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_04_51_32_PM.png",
+            "heading": "Ceylon Gourmet",
+            "subheading": "Refined Everyday Ceylon",
+            "button_label": "discover",
+            "link_url": ""
+          }
+        },
+        "pure_origin_card_3": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_04_56_38_PM.png",
+            "heading": "Exquisitely Flavoured Tea",
+            "subheading": "Amazing apart, but unbelievable together",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        },
+        "pure_origin_card_4": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_05_04_45_PM.png",
+            "heading": "Ceylon Tea Journey",
+            "subheading": "A Taste Across Regions",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        },
+        "pure_origin_card_5": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_Mar_15_2026_05_02_16_PM.png",
+            "heading": "Exceptional Tea",
+            "subheading": "Rare Origins. True Character.",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "pure_origin_card_1",
+        "pure_origin_card_2",
+        "pure_origin_card_3",
+        "pure_origin_card_4",
+        "pure_origin_card_5"
+      ],
+      "settings": {
+        "heading": "Pure Origin Specialty",
+        "range_tab_key": "origin",
+        "intro": "",
+        "section_width_mode": "contained",
+        "show_desktop_peek": true,
+        "background_color": "#ffffff",
+        "card_background_color": "#f7ede6",
+        "heading_color": "#222829",
+        "body_color": "#4b4137",
+        "accent_color": "#bc9407",
+        "border_color": "#222829",
+        "max_width": 1920,
+        "desktop_card_width": 190,
+        "mobile_card_width": 190,
+        "card_height": 520,
+        "card_height_mobile": 420,
+        "card_radius": 12,
+        "desktop_gap": 16,
+        "mobile_gap": 12,
+        "card_content_padding": 18,
+        "card_content_padding_mobile": 18,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "padding_top_mobile": 36,
+        "padding_bottom_mobile": 36
+      }
+    },
+    "everyday_gourmet_range": {
+      "type": "custom-discovery-card-carousel",
+      "blocks": {
+        "everyday_gourmet_card_1": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/ChatGPT_Image_Mar_6_2026_04_28_13_PM_1.png",
+            "heading": "Premium",
+            "subheading": "Classic Daily Ceylon",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        },
+        "everyday_gourmet_card_2": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/Paradise-earl-gray.webp",
+            "heading": "Paradise",
+            "subheading": "Tropical Fruit Infusions",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        },
+        "everyday_gourmet_card_3": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/Sep_2024_Social_Media_EFT_Mango_and_Strawberry_WT-1_-_Small_631b0966-0051-4315-94fa-43fa0bd78c30.png",
+            "heading": "Green Tea",
+            "subheading": "Light, Fresh, Revitalising",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        },
+        "everyday_gourmet_card_4": {
+          "type": "card",
+          "settings": {
+            "image": "shopify://shop_images/Vanilla_Ceylon_Tea_-_Small_14db8e34-c64c-48ed-bc00-84ae50a28518.png",
+            "heading": "Ceylon Gold",
+            "subheading": "Rich & Balanced Taste",
+            "button_label": "Discover",
+            "link_url": ""
+          }
+        }
+      },
+      "block_order": [
+        "everyday_gourmet_card_1",
+        "everyday_gourmet_card_2",
+        "everyday_gourmet_card_3",
+        "everyday_gourmet_card_4"
+      ],
+      "settings": {
+        "heading": "Everyday Gourmet",
+        "range_tab_key": "everyday",
+        "intro": "",
+        "section_width_mode": "contained",
+        "show_desktop_peek": false,
+        "background_color": "#fffdf8",
+        "card_background_color": "#f7ede6",
+        "heading_color": "#1f1812",
+        "body_color": "#4b4137",
+        "accent_color": "#b08a2f",
+        "border_color": "#7f7468",
+        "max_width": 1440,
+        "desktop_card_width": 240,
+        "mobile_card_width": 190,
+        "card_height": 430,
+        "card_height_mobile": 320,
+        "card_radius": 12,
+        "desktop_gap": 16,
+        "mobile_gap": 12,
+        "card_content_padding": 18,
+        "card_content_padding_mobile": 16,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 36
+      }
+    }
+  },
+  "order": [
+    "range_hero",
+    "luxury_range",
+    "wellness_range",
+    "tea_inspired_range",
+    "pure_origin_range",
+    "everyday_gourmet_range"
+  ]
+}

@@ -35,7 +35,7 @@
     >
       <span class="facets__label">{{ filter.label }}</span>
       <facet-status-component class="facets__status">
-        <template ref="moneyFormat">{{ shop.money_format }}</template>
+        <template ref="moneyFormat">{% render 'custom-inr-money-format' %}</template>
 
         <span
           class="hide-when-empty"
@@ -45,16 +45,22 @@
         >
           {%- if filter.min_value.value != null or filter.max_value.value != null %}
             {%- if filter.min_value.value != null and filter.max_value.value != null %}
-              {{- filter.min_value.value | money | strip_html -}}
+              {%- capture filter_min_display -%}{%- render 'custom-inr-money', amount: filter.min_value.value -%}{%- endcapture -%}
+              {%- capture filter_max_display -%}{%- render 'custom-inr-money', amount: filter.max_value.value -%}{%- endcapture -%}
+              {{- filter_min_display | strip_html -}}
               –
-              {{- filter.max_value.value | money | strip_html -}}
+              {{- filter_max_display | strip_html -}}
             {%- elsif filter.min_value.value != null -%}
-              {{ filter.min_value.value | money | strip_html }}–{{ filter.range_max | money | strip_html }}
+              {%- capture filter_min_display -%}{%- render 'custom-inr-money', amount: filter.min_value.value -%}{%- endcapture -%}
+              {%- capture filter_range_display -%}{%- render 'custom-inr-money', amount: filter.range_max -%}{%- endcapture -%}
+              {{ filter_min_display | strip_html }}–{{ filter_range_display | strip_html }}
 
             {%- elsif filter.max_value.value != null -%}
-              {{- 0 | money | strip_html -}}
+              {%- capture filter_zero_display -%}{%- render 'custom-inr-money', amount: 0 -%}{%- endcapture -%}
+              {%- capture filter_max_display -%}{%- render 'custom-inr-money', amount: filter.max_value.value -%}{%- endcapture -%}
+              {{- filter_zero_display | strip_html -}}
               –
-              {{- filter.max_value.value | money | strip_html -}}
+              {{- filter_max_display | strip_html -}}
             {%- endif -%}
           {%- endif -%}
         </span>
@@ -80,7 +86,7 @@
           {%- endif %}
         "
         id="facet-inputs-{{ filter.param_name | escape | replace: '.', '-' }}"
-        data-money-format="{{ shop.money_format | strip_html }}"
+        data-money-format="{% render 'custom-inr-money-format' %}"
         data-currency="{{ localization.country.currency.iso_code }}"
         on:change="/updatePriceFilterAndResults"
       >
@@ -110,7 +116,7 @@
                 class="field__label price-facet__label"
                 for="{{ filter.label | escape }}-GTE-{{ id_prefix }}"
               >
-                {{ cart.currency.symbol }}
+                {% render 'custom-currency-symbol' %}
               </label>
             </div>
 
@@ -137,7 +143,7 @@
                 class="field__label price-facet__label"
                 for="{{ filter.label | escape }}-LTE-{{ id_prefix }}"
               >
-                {{ cart.currency.symbol }}
+                {% render 'custom-currency-symbol' %}
               </label>
             </div>
           </div>
@@ -151,7 +157,7 @@
             {%- endif %}
           "
         >
-          {%- assign formatted_highest_price = filter.range_max | money -%}
+          {%- capture formatted_highest_price -%}{%- render 'custom-inr-money', amount: filter.range_max -%}{%- endcapture -%}
           {{ 'content.price_filter_html' | t: price: formatted_highest_price }}
         </div>
 

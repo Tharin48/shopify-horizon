@@ -1,0 +1,243 @@
+/* Extracted from sections/custom-editorial-service-cards.liquid {%% stylesheet %%} block. Loaded presence-based via stylesheet_tag. */
+  .custom-editorial-service-cards {
+    position: relative;
+    background: var(--custom-editorial-service-cards-background);
+    color: var(--custom-editorial-service-cards-text-color);
+    overflow: clip;
+  }
+
+  .custom-editorial-service-cards__inner {
+    position: relative;
+    max-width: var(--custom-editorial-service-cards-max-width);
+    margin: 0 auto;
+    padding:
+      var(--custom-editorial-service-cards-padding-top-mobile)
+      var(--custom-editorial-service-cards-padding-inline-mobile)
+      var(--custom-editorial-service-cards-padding-bottom-mobile);
+  }
+
+  .custom-editorial-service-cards__decor {
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+    width: min(100%,  var(--custom-editorial-service-cards-left-decor-width));
+  }
+
+  .custom-editorial-service-cards__decor--left {
+    inset-inline-start: 0;
+    inset-block-start: 0;
+    width: min(100%, var(--custom-editorial-service-cards-left-decor-width));
+    opacity: var(--custom-editorial-service-cards-left-decor-opacity);
+    transform: translate(
+      var(--custom-editorial-service-cards-left-decor-offset-x),
+      var(--custom-editorial-service-cards-left-decor-offset-y)
+    );
+  }
+
+  .custom-editorial-service-cards__decor--right {
+    inset-inline-end: 0;
+    inset-block-end: 0;
+    width: min(100%, var(--custom-editorial-service-cards-right-decor-width));
+    opacity: var(--custom-editorial-service-cards-right-decor-opacity);
+    transform: translate(
+      var(--custom-editorial-service-cards-right-decor-offset-x),
+      var(--custom-editorial-service-cards-right-decor-offset-y)
+    );
+  }
+
+  .custom-editorial-service-cards__decor-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .custom-editorial-service-cards__header,
+  .custom-editorial-service-cards__grid {
+    position: relative;
+    z-index: 1;
+  }
+
+  .custom-editorial-service-cards__header {
+    display: grid;
+    gap: var(--custom-editorial-service-cards-header-gap);
+    max-width: 44rem;
+    margin: 0 auto 2rem;
+    text-align: center;
+  }
+
+  .custom-editorial-service-cards__heading {
+    color: var(--custom-editorial-service-cards-text-color);
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+  }
+
+  .custom-editorial-service-cards__heading > :first-child,
+  .custom-editorial-service-cards__text > :first-child,
+  .custom-editorial-service-cards__card-heading > :first-child,
+  .custom-editorial-service-cards__card-text > :first-child {
+    margin-top: 0;
+  }
+
+  .custom-editorial-service-cards__heading > :last-child,
+  .custom-editorial-service-cards__text > :last-child,
+  .custom-editorial-service-cards__card-heading > :last-child,
+  .custom-editorial-service-cards__card-text > :last-child {
+    margin-bottom: 0;
+  }
+
+  .custom-editorial-service-cards__heading h1,
+  .custom-editorial-service-cards__heading h2,
+  .custom-editorial-service-cards__heading h3,
+  .custom-editorial-service-cards__heading h4,
+  .custom-editorial-service-cards__heading h5,
+  .custom-editorial-service-cards__heading h6,
+  .custom-editorial-service-cards__heading p {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-size: var(--custom-editorial-service-cards-heading-size-mobile);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+
+  .custom-editorial-service-cards__text {
+    color: rgb(var(--color-foreground-rgb) / 0.84);
+    font-family: var(--font-body--family);
+    font-size: var(--custom-editorial-service-cards-body-size-mobile);
+    line-height: 1.85;
+  }
+
+  .custom-editorial-service-cards__grid {
+    display: grid;
+    gap: var(--custom-editorial-service-cards-grid-gap-mobile);
+  }
+
+  .custom-editorial-service-cards__card,
+  .custom-editorial-service-cards__empty {
+    padding: var(--custom-editorial-service-cards-card-padding-mobile);
+    border-radius: var(--custom-editorial-service-cards-card-radius);
+    background: var(--custom-editorial-service-cards-card-background);
+    box-shadow: 0 1.25rem 2.5rem rgb(18 18 18 / var(--custom-editorial-service-cards-card-shadow-opacity));
+  }
+
+  .custom-editorial-service-cards__empty {
+    border: 1px dashed rgb(var(--color-foreground-rgb) / 0.18);
+    color: rgb(var(--color-foreground-rgb) / 0.66);
+    text-align: center;
+  }
+
+  .custom-editorial-service-cards__icon-shell {
+    margin-bottom: 1.25rem;
+  }
+
+  .custom-editorial-service-cards__icon {
+    display: grid;
+    place-items: center;
+    width: var(--custom-editorial-service-cards-icon-size-mobile);
+    height: var(--custom-editorial-service-cards-icon-size-mobile);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--custom-editorial-service-cards-accent) 10%, white);
+  }
+
+  .custom-editorial-service-cards__icon img {
+    display: block;
+    width: 58%;
+    height: 58%;
+    object-fit: contain;
+  }
+
+  .custom-editorial-service-cards__card-heading {
+    color: var(--custom-editorial-service-cards-text-color);
+    font-family: var(--font-heading--family);
+    font-style: var(--font-heading--style);
+    font-weight: var(--font-heading--weight);
+  }
+
+  .custom-editorial-service-cards__card-heading h1,
+  .custom-editorial-service-cards__card-heading h2,
+  .custom-editorial-service-cards__card-heading h3,
+  .custom-editorial-service-cards__card-heading h4,
+  .custom-editorial-service-cards__card-heading h5,
+  .custom-editorial-service-cards__card-heading h6,
+  .custom-editorial-service-cards__card-heading p {
+    margin: 0;
+    font-family: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    font-size: var(--custom-editorial-service-cards-card-heading-size-mobile);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .custom-editorial-service-cards__card-text {
+    margin-top: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.82);
+    font-family: var(--font-body--family);
+    font-size: var(--custom-editorial-service-cards-card-body-size-mobile);
+    line-height: 1.8;
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-editorial-service-cards__decor--hide-mobile {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-editorial-service-cards__inner {
+      padding:
+        var(--custom-editorial-service-cards-padding-top)
+        var(--custom-editorial-service-cards-padding-inline)
+        var(--custom-editorial-service-cards-padding-bottom);
+    }
+
+    .custom-editorial-service-cards__header {
+      margin-bottom: 3rem;
+    }
+
+    .custom-editorial-service-cards__heading h1,
+    .custom-editorial-service-cards__heading h2,
+    .custom-editorial-service-cards__heading h3,
+    .custom-editorial-service-cards__heading h4,
+    .custom-editorial-service-cards__heading h5,
+    .custom-editorial-service-cards__heading h6,
+    .custom-editorial-service-cards__heading p {
+      font-size: var(--custom-editorial-service-cards-heading-size);
+    }
+
+    .custom-editorial-service-cards__text {
+      font-size: var(--custom-editorial-service-cards-body-size);
+    }
+
+    .custom-editorial-service-cards__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--custom-editorial-service-cards-grid-gap);
+      max-width: 78rem;
+      margin: 0 auto;
+    }
+
+    .custom-editorial-service-cards__card {
+      padding: var(--custom-editorial-service-cards-card-padding);
+    }
+
+    .custom-editorial-service-cards__icon {
+      width: var(--custom-editorial-service-cards-icon-size);
+      height: var(--custom-editorial-service-cards-icon-size);
+    }
+
+    .custom-editorial-service-cards__card-heading h1,
+    .custom-editorial-service-cards__card-heading h2,
+    .custom-editorial-service-cards__card-heading h3,
+    .custom-editorial-service-cards__card-heading h4,
+    .custom-editorial-service-cards__card-heading h5,
+    .custom-editorial-service-cards__card-heading h6,
+    .custom-editorial-service-cards__card-heading p {
+      font-size: var(--custom-editorial-service-cards-card-heading-size);
+    }
+
+    .custom-editorial-service-cards__card-text {
+      font-size: var(--custom-editorial-service-cards-card-body-size);
+    }
+  }

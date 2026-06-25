@@ -1,0 +1,18 @@
+{%- doc -%}
+  Returns shop money_format with Rs replaced by ₹ when country is India or currency is INR.
+  Used for JS money formatting (facets, apps).
+{%- enddoc -%}
+
+{%- liquid
+  assign inr_money_format = shop.money_format | strip_html
+
+  assign custom_inr_override = false
+  if localization.country.iso_code == 'IN' or cart.currency.iso_code == 'INR'
+    assign custom_inr_override = true
+  endif
+
+  if custom_inr_override
+    assign inr_money_format = inr_money_format | replace: 'Rs.', '₹' | replace: 'Rs ', '₹ '
+  endif
+-%}
+{{- inr_money_format -}}

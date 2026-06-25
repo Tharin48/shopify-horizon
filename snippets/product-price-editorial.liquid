@@ -37,16 +37,11 @@
     assign use_currency = true
   endif
 
-  if use_currency
-    assign price_money = price_cents | money_with_currency
-    assign compare_money = compare_cents | money_with_currency
-  else
-    assign price_money = price_cents | money
-    assign compare_money = compare_cents | money
-  endif
-
   assign group_label = 'products.product.price_display_group' | t
 -%}
+
+{%- capture price_money -%}{%- render 'custom-inr-money', amount: price_cents, with_currency: use_currency -%}{%- endcapture -%}
+{%- capture compare_money -%}{%- render 'custom-inr-money', amount: compare_cents, with_currency: use_currency -%}{%- endcapture -%}
 
 <div
   ref="priceContainer"
@@ -65,13 +60,13 @@
         role="group"
         aria-label="{{ group_label | escape }}"
       >
-        <span class="product-price-editorial__current product-price-editorial__sale">{{ 2500 | money }}</span>
-        <s class="product-price-editorial__compare">{{ 3200 | money }}</s>
+        <span class="product-price-editorial__current product-price-editorial__sale">{%- render 'custom-inr-money', amount: 2500 -%}</span>
+        <s class="product-price-editorial__compare">{%- render 'custom-inr-money', amount: 3200 -%}</s>
         <span class="product-price-editorial__discount">{{ 'products.product.discount_percent_off' | t: percent: 20 }}</span>
       </div>
     {%- else -%}
       <div class="product-price-editorial__row">
-        <span class="product-price-editorial__current product-price-editorial__regular-only">{{ 1999 | money }}</span>
+        <span class="product-price-editorial__current product-price-editorial__regular-only">{%- render 'custom-inr-money', amount: 1999 -%}</span>
       </div>
     {%- endif -%}
   {%- elsif show_sale -%}
@@ -104,13 +99,7 @@
   {%- endif -%}
 
   {%- if selected_variant and selected_variant.unit_price and show_unit_price -%}
-    {%- liquid
-      if use_currency
-        assign unit_price = selected_variant.unit_price | money_with_currency
-      else
-        assign unit_price = selected_variant.unit_price | money
-      endif
-    -%}
+    {%- capture unit_price -%}{%- render 'custom-inr-money', amount: selected_variant.unit_price, with_currency: use_currency -%}{%- endcapture -%}
     {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
   {%- endif -%}
 </div>

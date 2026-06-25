@@ -1,0 +1,64 @@
+{{ 'tup-upcoming-matches.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tup-worldcup-shared.js' | asset_url }}" defer></script>
+<script src="{{ 'tup-upcoming-matches.js' | asset_url }}" defer></script>
+
+<section
+  id="tup-upcoming-matches-{{ section.id }}"
+  class="tup-upcoming-matches"
+  data-tup-upcoming-matches
+  {{ section.shopify_attributes }}
+>
+  <div class="tup-upcoming-matches__inner">
+    <div class="tup-upcoming-matches__header">
+      <h2 class="tup-upcoming-matches__title">{{ section.settings.section_title }}</h2>
+      <span class="tup-upcoming-matches__label">{{ section.settings.campaign_label }}</span>
+    </div>
+
+    <div class="tup-upcoming-matches__scroller" aria-label="{{ section.settings.section_title }}">
+      <div class="tup-upcoming-matches__track" data-upcoming-track>
+        {%- for index in (1..4) -%}
+          <div class="tup-upcoming-match-card tup-upcoming-match-card--skeleton" aria-hidden="true">
+            <span class="tup-upcoming-match-card__team">
+              <span class="tup-upcoming-skeleton tup-upcoming-skeleton--flag"></span>
+              <span class="tup-upcoming-skeleton tup-upcoming-skeleton--text"></span>
+            </span>
+            <span class="tup-upcoming-match-card__vs">vs</span>
+            <span class="tup-upcoming-match-card__team">
+              <span class="tup-upcoming-skeleton tup-upcoming-skeleton--flag"></span>
+              <span class="tup-upcoming-skeleton tup-upcoming-skeleton--text"></span>
+            </span>
+            <span class="tup-upcoming-match-card__details">
+              <span class="tup-upcoming-skeleton tup-upcoming-skeleton--text"></span>
+              <span class="tup-upcoming-skeleton tup-upcoming-skeleton--text tup-upcoming-skeleton--wide"></span>
+            </span>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "T Up upcoming matches",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Upcoming Matches"
+    },
+    {
+      "type": "text",
+      "id": "campaign_label",
+      "label": "Campaign label",
+      "default": "FIFA World Cup 2026"
+    }
+  ],
+  "presets": [
+    {
+      "name": "T Up upcoming matches"
+    }
+  ]
+}
+{% endschema %}

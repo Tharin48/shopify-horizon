@@ -1,0 +1,427 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "section": {
+      "type": "section",
+      "blocks": {
+        "text_tqQTNE": {
+          "type": "text",
+          "name": "Title",
+          "settings": {
+            "text": "<p>{{ closest.collection.title }}</p>",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "h2",
+            "font": "var(--font-primary--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_twGGkJ": {
+          "type": "text",
+          "name": "Description",
+          "settings": {
+            "text": "{{ closest.collection.description }}",
+            "width": "fit-content",
+            "max_width": "normal",
+            "alignment": "left",
+            "type_preset": "rte",
+            "font": "var(--font-primary--family)",
+            "font_size": "",
+            "line_height": "normal",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_tqQTNE",
+        "text_twGGkJ"
+      ],
+      "disabled": true,
+      "name": "Collection heading",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-1",
+        "custom_class": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "main": {
+      "type": "main-collection",
+      "blocks": {
+        "filters": {
+          "type": "filters",
+          "static": true,
+          "settings": {
+            "enable_filtering": true,
+            "filter_style": "horizontal",
+            "filter_width": "centered",
+            "text_label_case": "default",
+            "show_swatch_label": false,
+            "show_filter_label": false,
+            "enable_sorting": true,
+            "enable_grid_density": true,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "padding-block-start": 8,
+            "padding-block-end": 8,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0,
+            "facets_margin_bottom": 8,
+            "facets_margin_right": 20
+          },
+          "blocks": {}
+        },
+        "product-card": {
+          "type": "_product-card",
+          "static": true,
+          "settings": {
+            "product_card_gap": 4,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "card-gallery": {
+              "type": "_product-card-gallery",
+              "settings": {
+                "image_ratio": "adapt",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "product_title_4nY4eT": {
+              "type": "product-title",
+              "name": "t:names.product_title",
+              "settings": {
+                "width": "100%",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 4,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0,
+                "show_collection_link": false,
+                "collection_link_target": "",
+                "collection_link_font_size": 14,
+                "collection_link_text_color": "#6b6b6b",
+                "collection_link_padding_top": 12,
+                "collection_link_padding_bottom": 0
+              },
+              "blocks": {}
+            },
+            "price_EzJzMm": {
+              "type": "price",
+              "settings": {
+                "show_sale_price_first": true,
+                "show_installments": false,
+                "show_tax_info": false,
+                "type_preset": "h6",
+                "width": "100%",
+                "alignment": "left",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "color": "var(--color-foreground)",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "card-gallery",
+            "product_title_4nY4eT",
+            "price_EzJzMm"
+          ]
+        }
+      },
+      "disabled": true,
+      "settings": {
+        "layout_type": "grid",
+        "product_card_size": "medium",
+        "mobile_product_card_size": "small",
+        "enable_infinite_scroll": false,
+        "products_per_page": 16,
+        "product_grid_width": "centered",
+        "full_width_on_mobile": true,
+        "columns_gap_horizontal": 16,
+        "columns_gap_vertical": 24,
+        "padding-inline-start": 0,
+        "padding-inline-end": 0,
+        "color_scheme": "scheme-1",
+        "padding-block-start": 0,
+        "padding-block-end": 32
+      }
+    },
+    "reusable_collection_catalog_aDCHBP": {
+      "type": "reusable-collection-catalog",
+      "blocks": {
+        "tea_type_zKyW4J": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Black tea",
+            "filter_value": "black"
+          }
+        },
+        "tea_type_tXeJGY": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Oolong tea",
+            "filter_value": "oolong"
+          }
+        },
+        "tea_type_gXbkQi": {
+          "type": "tea_type",
+          "settings": {
+            "title": "White tea",
+            "filter_value": "white"
+          }
+        },
+        "tea_type_64xpin": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Green tea",
+            "filter_value": "green"
+          }
+        },
+        "tea_type_RP3xiy": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Flavored tea",
+            "filter_value": "flavored"
+          }
+        },
+        "tea_type_mdah8K": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Herbal infusion tea",
+            "filter_value": "herbal"
+          }
+        },
+        "tea_type_XaURKQ": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Caffeine free",
+            "filter_value": "caffeine-free"
+          }
+        },
+        "tea_type_LqhJMH": {
+          "type": "tea_type",
+          "settings": {
+            "title": "Chai",
+            "filter_value": "chai"
+          }
+        }
+      },
+      "block_order": [
+        "tea_type_zKyW4J",
+        "tea_type_tXeJGY",
+        "tea_type_gXbkQi",
+        "tea_type_64xpin",
+        "tea_type_RP3xiy",
+        "tea_type_mdah8K",
+        "tea_type_XaURKQ",
+        "tea_type_LqhJMH"
+      ],
+      "name": "Reusable catalog",
+      "settings": {
+        "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
+        "padding_top": 24,
+        "padding_bottom": 48,
+        "content_max_width": 0,
+        "padding_inline_mobile": 16,
+        "padding_inline_desktop": 40,
+        "grid_gap_desktop": 28,
+        "grid_gap_mobile": 20,
+        "enable_infinite_scroll": false,
+        "products_per_page": 16,
+        "card_show_vendor": true,
+        "card_show_reviews": true,
+        "card_show_sale_badge": true,
+        "card_show_quick_add": true,
+        "product_card_image_background": "",
+        "show_breadcrumb": true,
+        "breadcrumb_home_label": "Home",
+        "show_tea_type_row": true,
+        "tea_type_visual_source": "metaobjects",
+        "tea_type_metaobject_definition": "tea_type",
+        "tea_type_metaobject_order": "",
+        "tea_type_metaobject_sort_key": "",
+        "tea_type_row_aria_label": "Shop by tea type",
+        "tea_type_button_fallback_aria": "Tea category",
+        "tea_type_unavailable_suffix": "Filter unavailable",
+        "facet_label_our_ranges": "Our Ranges",
+        "facet_param_hint_our_ranges": "",
+        "our_ranges_dropdown_collections": [
+          "85-reserve",
+          "arana-herbal-infusions",
+          "black-tea",
+          "best-sellers",
+          "adventure",
+          "all-episodes",
+          "all-products",
+          "auctions",
+          "blueberry-tea",
+          "black-tea-1",
+          "breakfast-teas",
+          "dilmah-bundles",
+          "calm",
+          "ceylon-golden-pekoe",
+          "premium-ceylon-golden-pekoe",
+          "dilmah-ceylon-green-tea",
+          "chai",
+          "chai-collection",
+          "chocolate",
+          "christmas-advent",
+          "christmas-bundles",
+          "christmas-hampers",
+          "christmas-tales",
+          "christmas-tea-advent-calendars",
+          "christmas-teas",
+          "cinnamon",
+          "cups-mugs",
+          "current-promotions",
+          "customised-gifting",
+          "de-stress"
+        ],
+        "facet_label_tea_type": "Tea type",
+        "facet_param_hint_tea_type": "custom.tea_type",
+        "facet_label_tea_format": "Tea format",
+        "facet_param_hint_tea_format": "custom.tea_format",
+        "facet_label_flavor": "Flavor",
+        "facet_param_hint_flavor": "shopify.flavor",
+        "facet_label_time_of_day": "Time of day",
+        "facet_param_hint_time_of_day": "custom.time_of_day",
+        "show_availability_toggle": true,
+        "facet_label_availability": "",
+        "facet_param_hint_availability": "",
+        "availability_toggle_label": "In stock",
+        "active_filters_aria_label": "Active filters",
+        "chip_remove_character": "×",
+        "chip_remove_sr_suffix": "Remove filter",
+        "show_format_pills": true,
+        "show_format_pill_counts": true,
+        "format_pill_count_suffix": "products",
+        "format_pills_aria_label": "Tea format",
+        "format_pill_1": "Tea bags",
+        "format_pill_2": "Loose tea",
+        "format_pill_3": "Refills",
+        "format_pill_4": "Pyramid",
+        "format_pill_5": "Gift sets",
+        "mock_chip_1": "Origin: Ceylon",
+        "mock_chip_2": "Caffeine: Medium",
+        "clear_all_label": "Clear all",
+        "show_toolbar_facets": true,
+        "show_item_count": true,
+        "show_grid_toggle": true,
+        "show_sort_control": true,
+        "toolbar_our_ranges": "Our Ranges ▾",
+        "toolbar_tea_type": "Tea Type ▾",
+        "toolbar_tea_format": "Tea Format ▾",
+        "toolbar_flavors": "Flavors ▾",
+        "toolbar_time_of_day": "Time of Day ▾",
+        "sort_label_prefix": "Sort",
+        "item_count_template": "[start]–[end] of [total] products",
+        "grid_toggle_aria_label": "Product layout",
+        "grid_toggle_grid_label": "Grid view",
+        "grid_toggle_list_label": "List view",
+        "empty_collection_message": "No products in this collection yet.",
+        "pagination_aria_label": "Pagination"
+      }
+    },
+    "pf-b5183793": {
+      "type": "pf-b5183793",
+      "settings": {}
+    }
+  },
+  "order": [
+    "section",
+    "main",
+    "reusable_collection_catalog_aDCHBP",
+    "pf-b5183793"
+  ]
+}

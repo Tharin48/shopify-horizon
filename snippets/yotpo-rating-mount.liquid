@@ -1,0 +1,56 @@
+{% doc %}
+  Renders a Yotpo widget-instance star-rating mount with optional viewport lazy hydration.
+
+  Lazy mounts omit the `yotpo-widget-instance` class (carrying `data-yotpo-lazy`)
+  so the Yotpo loader skips them until `yotpo-lazy.js` promotes them near the
+  viewport. Use lazy mode in product lists (collection/search/featured grids);
+  use eager mode for single, above-the-fold mounts (e.g. the PDP rating summary).
+
+  @param {object} product - Shopify product object (required).
+  @param {string} [instance_id] - Yotpo widget instance ID. Default '824555'.
+  @param {boolean} [lazy] - Defer hydration until near viewport. Default true.
+  @param {string} [class] - Extra class names for the mount element.
+
+  @example
+    {% render 'yotpo-rating-mount', product: card_product %}
+{% enddoc %}
+
+{% liquid
+  assign yotpo_product = product
+  assign yotpo_instance_id = instance_id | default: '824555'
+
+  assign yotpo_lazy = lazy
+  if yotpo_lazy == nil
+    assign yotpo_lazy = true
+  endif
+
+  # Render eager in the theme editor so merchants see widgets without scrolling.
+  if request.design_mode
+    assign yotpo_lazy = false
+  endif
+
+  assign yotpo_extra_class = class | default: ''
+%}
+
+{%- if yotpo_product != blank -%}
+  {%- if yotpo_lazy -%}
+    <div
+      class="yotpo-rating-mount{% if yotpo_extra_class != blank %} {{ yotpo_extra_class }}{% endif %}"
+      data-yotpo-lazy
+      data-yotpo-instance-id="{{ yotpo_instance_id }}"
+      data-yotpo-product-id="{{ yotpo_product.id }}"
+      data-yotpo-cart-product-id="{{ yotpo_product.id }}"
+      data-yotpo-section-id="{{ template.name }}"
+      role="region"
+      aria-label="{{ 'accessibility.product_rating' | t }}"
+    ></div>
+  {%- else -%}
+    <div
+      class="yotpo-widget-instance{% if yotpo_extra_class != blank %} {{ yotpo_extra_class }}{% endif %}"
+      data-yotpo-instance-id="{{ yotpo_instance_id }}"
+      data-yotpo-product-id="{{ yotpo_product.id }}"
+      data-yotpo-cart-product-id="{{ yotpo_product.id }}"
+      data-yotpo-section-id="{{ template.name }}"
+    ></div>
+  {%- endif -%}
+{%- endif -%}

@@ -70,6 +70,43 @@
     var(--tp-image-border-color, rgb(var(--color-foreground-rgb) / 0.08));
 }
 
+.teamakers-pick__image-wrap .tup-country-flag-badge {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.25rem;
+  justify-content: center;
+  pointer-events: none;
+  position: absolute;
+  z-index: 6;
+}
+
+.teamakers-pick__image-wrap .tup-country-flag-badge--bottom-left {
+  bottom: 0.75rem;
+  left: 0.75rem;
+}
+
+.teamakers-pick__image-wrap .tup-country-flag-badge__item {
+  align-items: center;
+  background: #fff;
+  border: 1px solid rgba(188, 148, 7, 0.2);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 3px;
+  width: 36px;
+}
+
+.teamakers-pick__image-wrap .tup-country-flag-badge__item img {
+  border-radius: 999px;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
 /* Placeholder / single asset without link wrapper */
 .teamakers-pick__image-wrap > .teamakers-pick__image--primary:only-child {
   display: block;

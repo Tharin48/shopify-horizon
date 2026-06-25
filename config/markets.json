@@ -9,34 +9,10 @@
  */
 {
   "markets": {
-    "sri-lanka": {
-      "parent": "@default"
-    },
-    "chile": {
-      "parent": "@default"
-    },
-    "czech-republic": {
-      "parent": "@default"
-    },
-    "canada": {
-      "parent": "@default"
-    },
-    "international": {
-      "parent": "@default"
-    },
-    "united-states": {
-      "parent": "@default"
-    },
-    "saudi-arabia": {
-      "parent": "@default"
-    },
-    "united-arab-emirates": {
-      "parent": "@default"
-    },
-    "united-kingdom": {
-      "parent": "@default"
-    },
     "india": {
+      "parent": "@default"
+    },
+    "sri-lanka": {
       "parent": "@default"
     }
   }
