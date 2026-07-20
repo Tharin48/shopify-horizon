@@ -383,6 +383,11 @@
 {% endif %}
 
 {% if template == 'product' or template.name == 'product' or request.page_type == 'product' %}
+   {{ 'loop-subscription-info.css' | asset_url | stylesheet_tag }}
+  <script
+    src="{{ 'loop-subscription-info.js' | asset_url }}"
+    defer
+  ></script>
   <script
     src="{{ 'sticky-add-to-cart.js' | asset_url }}"
     type="module"

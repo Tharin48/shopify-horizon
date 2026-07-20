@@ -13,3 +13,9 @@ store = "dilmah-eu.myshopify.com"
 
 [environments.chile]
 store = "dilmah-chile.myshopify.com"
+
+[environments.southafrica]
+store = "dilmah-sa.myshopify.com"
+
+[environments.singapore]
+store = "dilmah-sg.myshopify.com"

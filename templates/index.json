@@ -42,7 +42,7 @@
           "type": "text",
           "name": "t:names.text",
           "settings": {
-            "text": "<p>Every great cup begins with something greater. Care, craft, and a belief in doing things right. sip your way through stories of flavour, family, and a legacy of kindness. </p>",
+            "text": "<p>Grown with care, crafted with love and grounded in kindness. Every great cup of Dilmah is brewed with a promise of taste, goodness and purpose. </p>",
             "width": "100%",
             "max_width": "normal",
             "alignment": "center",
@@ -1052,7 +1052,7 @@
           "type": "_category-explore-card",
           "settings": {
             "grid_position": "wide",
-            "title": "Ice Tea",
+            "title": "Dilmah Iced Teas",
             "link": "shopify://collections/dilmah-elixir-of-ceylon-tea-mini-pet-bottles",
             "open_new_tab": false,
             "card_min_height_mobile": 0,
@@ -1387,7 +1387,7 @@
               "type": "text",
               "name": "t:names.text",
               "settings": {
-                "text": "<p>PARADISE COLLECTION</p>",
+                "text": "<p>PARADISE TEA COLLECTION</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1438,7 +1438,7 @@
             "text_Nhcj3F": {
               "type": "text",
               "settings": {
-                "text": "<p>an uplifting selection of teas inspired by the island’s sun-kissed orchards, fragrant spice gardens, and rich tea heritage. Each brew brings together delicious tropical fruit, aromatic spices, and the purity of fresh Ceylon tea, crafted using artisanal orthodox methods to ensure richer flavour, natural goodness, and unmistakable authenticity<br/><br/></p>",
+                "text": "<p>Discover the Spirited Flavours of Sri Lanka<br/>The Paradise Tea Collection by Dilmah is an <br/>uplifting collection bringing the delicious tropical <br/>flavour of fruits, aromatic spices and the purity of <br/>fresh Ceylon tea. Made traditionally, an <br/>experience to savour</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1464,7 +1464,7 @@
               "type": "icon-button",
               "name": "Icon button",
               "settings": {
-                "label": "Explore",
+                "label": "Shop Our Teas",
                 "link": "shopify://collections/paradise-range",
                 "open_in_new_tab": false,
                 "font_size": 16,
@@ -1580,7 +1580,7 @@
             "text_UKVTQR": {
               "type": "text",
               "settings": {
-                "text": "<p>Introducing our latest products, made especially for the season. Shop your favorites before they're gone!</p>",
+                "text": "<p>The Perfect Brew for Every Mood Take a look at our favourite teas and herbal infusions, perfect for the season</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1606,7 +1606,7 @@
               "type": "icon-button",
               "name": "Icon button",
               "settings": {
-                "label": "Explore",
+                "label": "Shop Our Teas",
                 "link": "shopify://collections/herbal-tea-infusion",
                 "open_in_new_tab": false,
                 "font_size": 16,
@@ -1722,7 +1722,7 @@
             "text_3xgVyQ": {
               "type": "text",
               "settings": {
-                "text": "<p>It is with this principle in mind that the selection of Dilmah Exquisitely Flavoured Tea was crafted. Each tea is designed to offer a taste experience that is as pleasurable as it is authentic and functional.</p>",
+                "text": "<p>The Heart of Gastronomy is in the Harmony of Flavours That has, and always has been the identity of Dilmah’s Exquisitely Flavoured Teas. Each tea is crafted to o_er a taste experiece that stays true to Ceylon’s fines tea, with a flavourul twist</p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -1748,7 +1748,7 @@
               "type": "icon-button",
               "name": "Icon button",
               "settings": {
-                "label": "Explore",
+                "label": "Shop Our Teas",
                 "link": "shopify://collections/dilmah-exquisitely-flavoured-tea-eft",
                 "open_in_new_tab": false,
                 "font_size": 16,
@@ -1922,7 +1922,7 @@
                   "type": "text",
                   "name": "t:names.text",
                   "settings": {
-                    "text": "<p>A minimum of 15% of our pretax profits directly benefits people and the planet, fulfilling our founder's philosophy of making business a matter of human service</p>",
+                    "text": "<p>Rooted in our founder's belief that business is a matter of human service, at least 15% of our pre\u0002tax profits help uplift communities and protect nature.</p>",
                     "width": "100%",
                     "max_width": "normal",
                     "alignment": "left",

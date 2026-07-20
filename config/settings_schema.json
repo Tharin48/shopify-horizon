@@ -8,6 +8,151 @@
     "theme_support_url": "https://support.shopify.com/"
   },
   {
+    "name": "Ecom Settings",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Tea Format"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 1",
+        "id": "tea_format_1_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 1",
+        "id": "tea_format_1_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 2",
+        "id": "tea_format_2_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 2",
+        "id": "tea_format_2_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 3",
+        "id": "tea_format_3_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 3",
+        "id": "tea_format_3_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 4",
+        "id": "tea_format_4_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 4",
+        "id": "tea_format_4_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 5",
+        "id": "tea_format_5_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 5",
+        "id": "tea_format_5_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 6",
+        "id": "tea_format_6_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 6",
+        "id": "tea_format_6_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 7",
+        "id": "tea_format_7_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 7",
+        "id": "tea_format_7_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 8",
+        "id": "tea_format_8_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 8",
+        "id": "tea_format_8_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 9",
+        "id": "tea_format_9_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 9",
+        "id": "tea_format_9_text"
+      },
+      {
+        "type": "paragraph",
+        "content": "---------------------------------------------"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 10",
+        "id": "tea_format_10_image"
+      },
+      {
+        "type": "text",
+        "label": "Tea Format 10",
+        "id": "tea_format_10_text"
+      }
+    ]
+  },
+  {
     "name": "t:names.logo_and_favicon",
     "settings": [
       {

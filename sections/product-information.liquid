@@ -58,6 +58,8 @@
   additional_blocks: additional_blocks
 %}
 
+{% render 'loop-subscription-info-settings', section: section %}
+
 {% stylesheet %}
   /*
     Stacking: fixed ATC lives inside product-information.shopify-section. Following sections often use
@@ -307,6 +309,115 @@
       "step": 1,
       "unit": "px",
       "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Loop subscription info popup"
+    },
+    {
+      "type": "checkbox",
+      "id": "loop_info_enabled",
+      "label": "Enable subscription info popup",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "loop_info_popup_title",
+      "label": "Popup title",
+      "default": "Great reasons to subscribe"
+    },
+    {
+      "type": "text",
+      "id": "loop_info_close_label",
+      "label": "Close icon accessibility label",
+      "default": "Close subscription benefits popup"
+    },
+    {
+      "type": "text",
+      "id": "loop_info_button_text",
+      "label": "Button text",
+      "default": "Got it"
+    },
+    {
+      "type": "header",
+      "content": "Benefit 1"
+    },
+    {
+      "type": "select",
+      "id": "loop_info_benefit_1_icon",
+      "label": "Benefit 1 icon type",
+      "options": [
+        { "value": "calendar", "label": "Calendar" },
+        { "value": "bell", "label": "Bell" },
+        { "value": "pencil", "label": "Pencil" }
+      ],
+      "default": "calendar"
+    },
+    {
+      "type": "text",
+      "id": "loop_info_benefit_1_title",
+      "label": "Benefit 1 title",
+      "default": "Flexible frequency"
+    },
+    {
+      "type": "richtext",
+      "id": "loop_info_benefit_1_description",
+      "label": "Benefit 1 description",
+      "default": "<p>Not sure how much of something you need, or how often? Adjust quantities and frequencies anytime.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Benefit 2"
+    },
+    {
+      "type": "select",
+      "id": "loop_info_benefit_2_icon",
+      "label": "Benefit 2 icon type",
+      "options": [
+        { "value": "calendar", "label": "Calendar" },
+        { "value": "bell", "label": "Bell" },
+        { "value": "pencil", "label": "Pencil" }
+      ],
+      "default": "bell"
+    },
+    {
+      "type": "text",
+      "id": "loop_info_benefit_2_title",
+      "label": "Benefit 2 title",
+      "default": "Order reminders"
+    },
+    {
+      "type": "richtext",
+      "id": "loop_info_benefit_2_description",
+      "label": "Benefit 2 description",
+      "default": "<p>We'll let you know before each shipment. Delay, reschedule or cancel if needed — we'll only bill you when your order ships.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Benefit 3"
+    },
+    {
+      "type": "select",
+      "id": "loop_info_benefit_3_icon",
+      "label": "Benefit 3 icon type",
+      "options": [
+        { "value": "calendar", "label": "Calendar" },
+        { "value": "bell", "label": "Bell" },
+        { "value": "pencil", "label": "Pencil" }
+      ],
+      "default": "pencil"
+    },
+    {
+      "type": "text",
+      "id": "loop_info_benefit_3_title",
+      "label": "Benefit 3 title",
+      "default": "You're in control"
+    },
+    {
+      "type": "richtext",
+      "id": "loop_info_benefit_3_description",
+      "label": "Benefit 3 description",
+      "default": "<p>Add or remove subscriptions, cancel orders, edit frequencies and quantities through our customer-friendly portal.</p>"
     }
   ],
   "presets": []

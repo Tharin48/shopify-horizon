@@ -1,0 +1,159 @@
+{%- doc -%}
+  Renders tea format cards from the current product's Tea Format Collection metaobject.
+
+  The selector uses direct product references and normal product links. Invalid or
+  unpublished references are skipped by Shopify and guarded against here.
+
+  @param {object} product_resource - The product currently rendered by the picker.
+  @param {object} tea_format_collection - The referenced Tea Format Collection metaobject.
+  @param {object[]} tea_products - Valid storefront product references from the metaobject.
+  @param {number} valid_tea_products_count - Number of renderable product references.
+  @param {object} block - The variant-picker block.
+{%- enddoc -%}
+
+{%- liquid
+  assign block_settings = block.settings
+  assign tea_format_heading = block_settings.tea_format_heading | default: 'Choose Tea Format'
+  assign show_format_icon = block_settings.tea_format_show_icon
+  if show_format_icon == nil
+    assign show_format_icon = true
+  endif
+  assign show_format_label = block_settings.tea_format_show_label
+  if show_format_label == nil
+    assign show_format_label = true
+  endif
+  assign desktop_columns = block_settings.tea_format_desktop_columns | default: 3
+  assign mobile_columns = block_settings.tea_format_mobile_columns | default: '2'
+  assign image_aspect = block_settings.tea_format_image_aspect | default: 'portrait'
+  assign card_radius = block_settings.tea_format_card_radius | default: 16
+  assign selected_border = block_settings.tea_format_selected_border | default: '#c99a00'
+  assign selected_text = block_settings.tea_format_selected_text | default: '#c99a00'
+  assign card_background = block_settings.tea_format_card_background | default: '#f7f7f3'
+-%}
+
+{%- if tea_format_collection != blank and valid_tea_products_count > 1 -%}
+  {{ 'tea-format-selector.css' | asset_url | stylesheet_tag }}
+
+  <fieldset
+    class="variant-option variant-option--tea-format tea-format-selector"
+    data-tea-format-selector
+    style="
+      --tea-format-desktop-columns: {{ desktop_columns }};
+      --tea-format-mobile-columns: {{ mobile_columns }};
+      --tea-format-card-radius: {{ card_radius }}px;
+      --tea-format-selected-border: {{ selected_border }};
+      --tea-format-selected-text: {{ selected_text }};
+      --tea-format-card-background: {{ card_background }};
+    "
+  >
+    <div class="tea-format-selector__heading-ecom">
+      {{ tea_format_heading | escape }}
+    </div>
+
+    <div class="tea-format-selector__grid tea-format-selector__grid--{{ image_aspect }}">
+      {%- liquid
+        assign tea_format_render_order = 'tea-bags,loose-leaf,refills,__remaining__' | split: ','
+        assign ordered_tea_format_handles = '|tea-bags|loose-leaf|refills|'
+      -%}
+      {%- for tea_format_render_handle in tea_format_render_order -%}
+        {%- for tea_product in tea_products -%}
+          {%- if tea_product.id != blank and tea_product.url != blank and tea_product.published_at != blank -%}
+            {%- liquid
+              assign tea_format_value = tea_product.metafields.custom.tea_format.value
+              assign tea_format_handle = tea_format_value.system.handle | strip | downcase
+              assign tea_format_handle_marker = '|' | append: tea_format_handle | append: '|'
+
+              if tea_format_render_handle == '__remaining__'
+                if ordered_tea_format_handles contains tea_format_handle_marker
+                  continue
+                endif
+              elsif tea_format_handle != tea_format_render_handle
+                continue
+              endif
+
+            assign related_media = tea_product.featured_media
+            assign related_title = tea_product.title
+            assign format_label = tea_format_value.format.value | strip
+            assign format_image = blank
+
+            for counter in (1..10)
+              assign setting_text_key = 'tea_format_' | append: counter | append: '_text'
+              assign setting_image_key = 'tea_format_' | append: counter | append: '_image'
+              assign configured_format_title = settings[setting_text_key] | strip
+              assign configured_format_handle = configured_format_title | handleize
+
+              if configured_format_title != blank and tea_format_handle == configured_format_handle
+                assign format_image = settings[setting_image_key]
+                break
+              elsif configured_format_title != blank and tea_format_handle contains configured_format_handle
+                assign format_image = settings[setting_image_key]
+                break
+              endif
+            endfor
+
+            assign is_current_product = false
+            if tea_product.id == product_resource.id
+              assign is_current_product = true
+            endif
+
+            assign card_classes = 'tea-format-card'
+            if is_current_product
+              assign card_classes = card_classes | append: ' tea-format-card--selected'
+            endif
+            unless tea_product.available
+              assign card_classes = card_classes | append: ' tea-format-card--unavailable'
+            endunless
+
+            assign image_alt = related_media.alt | default: related_title
+          -%}
+
+          <a
+            class="{{ card_classes }}"
+            href="{{ tea_product.url }}"
+            aria-label="{{ format_label | escape }}{% unless tea_product.available %} - {{ 'products.product.sold_out' | t }}{% endunless %}"
+            {% if is_current_product %}
+              aria-current="page"
+            {% endif %}
+          >
+            <span class="tea-format-card__media">
+              {%- if related_media != blank -%}
+                {{
+                  related_media
+                  | image_url: width: 800
+                  | image_tag:
+                    widths: '240, 360, 480, 600, 800',
+                    sizes: '(min-width: 990px) 30vw, (min-width: 750px) 40vw, 50vw',
+                    loading: 'lazy',
+                    class: 'tea-format-card__image',
+                    alt: image_alt
+                }}
+              {%- else -%}
+                {{ 'product-apparel-1' | placeholder_svg_tag: 'tea-format-card__image tea-format-card__image--placeholder' }}
+              {%- endif -%}
+
+              {%- if show_format_label and format_label != blank or show_format_icon and format_image != blank -%}
+                <span class="tea-format-card__icon" aria-hidden="true">
+                  {%- if show_format_label and format_label != blank -%}
+                    <span class="tea-format-card__icon-label">{{ format_label | escape }}</span>
+                  {%- endif -%}
+                  {%- if show_format_icon and format_image != blank -%}
+                    <span class="tea-format-card__icon-graphic">
+                      {{ format_image }}
+                    </span>
+                  {%- endif -%}
+                </span>
+              {%- endif -%}
+            </span>
+
+            {%- unless tea_product.available -%}
+              <span class="tea-format-card__sold-out">
+                {{ 'products.product.sold_out' | t }}
+              </span>
+            {%- endunless -%}
+          </a>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+    </div>
+  </fieldset>
+{%- endif -%}

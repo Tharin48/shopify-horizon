@@ -260,6 +260,10 @@
               },
               "blocks": {}
             },
+            "loop_subscriptions_loop_widget_x7w8md": {
+              "type": "shopify://apps/loop-subscriptions/blocks/loop_widget/267a7c64-5cb3-4552-b817-5485165f0a0b",
+              "settings": {}
+            },
             "buy_buttons_eYQEYi": {
               "type": "_custom-buy-buttons",
               "name": "Custom buy buttons",
@@ -559,6 +563,7 @@
             "price_tVjtKg",
             "divider_VJhene",
             "variant_picker_R3rGDr",
+            "loop_subscriptions_loop_widget_x7w8md",
             "buy_buttons_eYQEYi",
             "group_KTiCTi",
             "custom_accordion_8XDnzt",
@@ -580,7 +585,20 @@
         "enable_sticky_add_to_cart": true,
         "color_scheme": "scheme-5bf16c0f-71fe-4f88-a41b-39ff84fcf691",
         "padding-block-start": 0,
-        "padding-block-end": 0
+        "padding-block-end": 0,
+        "loop_info_enabled": true,
+        "loop_info_popup_title": "Great reasons to subscribe",
+        "loop_info_close_label": "Close subscription benefits popup",
+        "loop_info_button_text": "Got it",
+        "loop_info_benefit_1_icon": "calendar",
+        "loop_info_benefit_1_title": "Flexible frequency",
+        "loop_info_benefit_1_description": "<p>Not sure how much of something you need, or how often? Adjust quantities and frequencies anytime.</p>",
+        "loop_info_benefit_2_icon": "bell",
+        "loop_info_benefit_2_title": "Order reminders",
+        "loop_info_benefit_2_description": "<p>We'll let you know before each shipment. Delay, reschedule or cancel if needed — we'll only bill you when your order ships.</p>",
+        "loop_info_benefit_3_icon": "pencil",
+        "loop_info_benefit_3_title": "You're in control",
+        "loop_info_benefit_3_description": "<p>Add or remove subscriptions, cancel orders, edit frequencies and quantities through our customer-friendly portal.</p>"
       }
     },
     "product_story_scroll_jHfTGB": {

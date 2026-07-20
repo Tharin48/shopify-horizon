@@ -1,0 +1,533 @@
+/**
+ * Loop Subscription benefits info icon + modal
+ * Scoped to Dilmah branding; uses theme CSS variables where possible.
+ */
+
+/* Info trigger tokens (inline beside Loop subscribe label) */
+.dilmah-loop-info__trigger {
+  --dilmah-loop-info-grey: #6d7175;
+  --dilmah-loop-info-grey-border: #c9cccf;
+  --dilmah-loop-info-grey-hover-bg: #f6f6f7;
+  --dilmah-loop-info-text: #1a1a1a;
+  --dilmah-loop-info-gold: #c99a00;
+}
+
+/* Inline label row injected beside the Loop subscribe label */
+.dilmah-loop-info__label-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+/* 16px Polaris-style info icon */
+.dilmah-loop-info__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--dilmah-loop-info-grey-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--dilmah-loop-info-grey);
+  cursor: pointer;
+  line-height: 0;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.dilmah-loop-info__trigger:hover,
+.dilmah-loop-info__trigger:focus-visible {
+  background: var(--dilmah-loop-info-grey-hover-bg);
+  border-color: var(--dilmah-loop-info-grey);
+  color: var(--dilmah-loop-info-text);
+  outline: none;
+}
+
+.dilmah-loop-info__trigger:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--dilmah-loop-info-gold);
+}
+
+.dilmah-loop-info__trigger svg {
+  width: 10px;
+  height: 10px;
+  display: block;
+}
+
+/* .dilmah-loop-info__visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+} */
+
+/* Expanded subscribe option card (Loop widget scope) */
+[id^='loop-widget-container-id-'] .loop-widget-purchase-option.dilmah-loop-info--layout-ready:not(.loop-widget-purchase-option-onetime) {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+[id^='loop-widget-container-id-']
+  .loop-widget-purchase-option.dilmah-loop-info--layout-ready:not(.loop-widget-purchase-option-onetime).loop-widget-purchase-option-selected {
+  background: #ffffff !important;
+  border: 1px solid #dddddd !important;
+  border-radius: 5px !important;
+  padding: 20px !important;
+  margin-bottom: 12px;
+}
+
+.dilmah-loop-info__option-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.dilmah-loop-info__option-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.dilmah-loop-info__option-prices {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.dilmah-loop-info__option-prices [id^='loop-widget-purchase-option-price-id-'] {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.dilmah-loop-info__option-prices .loop-widget-purchase-option-compare-at-price,
+.dilmah-loop-info__option-prices [class*='compare-at'],
+.dilmah-loop-info__option-prices .dilmah-loop-info__compare-at-price {
+  font-size: 14px;
+  font-weight: 400;
+  color: #8a8a8a !important;
+  text-decoration: line-through;
+}
+
+.dilmah-loop-info__option-body {
+  display: none;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.loop-widget-purchase-option.dilmah-loop-info--layout-ready.loop-widget-purchase-option-selected .dilmah-loop-info__option-body,
+.loop-widget-purchase-option.dilmah-loop-info--layout-ready.dilmah-loop-info--selected .dilmah-loop-info__option-body {
+  display: block;
+}
+
+.dilmah-loop-info__checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-block: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dilmah-loop-info__checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #1a1a1a;
+}
+
+.dilmah-loop-info__checklist-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: #c99a00;
+}
+
+.dilmah-loop-info__checklist-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.dilmah-loop-info__checklist-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dilmah-loop-info__delivery {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.dilmah-loop-info__delivery-label,
+.dilmah-loop-info__delivery .loop-widget-sp-selector-label,
+.dilmah-loop-info__delivery .loop-widget-sp-button-selector-label {
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1a1a1a;
+}
+
+/* ECOM LIVE FIX | START */
+.dilmah-loop-info__delivery .loop-widget-sp-selector-label {
+  display: none !important;
+}
+.loop-widget-sp-selector-container::after {
+  content: unset;
+}
+.loop-widget-purchase-option:hover {
+  transform: unset;
+}
+small#shopify-buyer-consent {
+  display: none;
+}
+/* ECOM LIVE FIX | END */
+
+
+.dilmah-loop-info__delivery .loop-widget-sp-selector-container,
+.dilmah-loop-info__delivery select.loop-widget-sp-selector,
+.dilmah-loop-info__delivery .loop-widget-sp-button-container,
+.dilmah-loop-info__delivery [id^='loop-widget-sp-button-group-id-'] {
+  width: 100% !important;
+  max-width: 100%;
+  margin: 0 !important;
+}
+
+.dilmah-loop-info__delivery select.loop-widget-sp-selector {
+  display: block;
+  width: 100% !important;
+  min-height: 44px;
+  padding: 10px 36px 10px 12px !important;
+  border: 1px solid #c3cfd9 !important;
+  border-radius: 6px !important;
+  background-color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1a1a1a;
+  appearance: auto;
+}
+
+.dilmah-loop-info__delivery .loop-widget-sp-button-container,
+.dilmah-loop-info__delivery [id^='loop-widget-sp-button-group-id-'] {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dilmah-loop-info__delivery .loop-widget-sp-button {
+  width: 100%;
+  min-height: 44px;
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 14px;
+}
+
+.dilmah-loop-info--layout-ready .loop-widget-spg-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.dilmah-loop-info--layout-ready .loop-widget-sp-selector-description,
+.dilmah-loop-info--layout-ready [id^='loop-widget-sp-selector-description-id-'],
+.dilmah-loop-info--layout-ready .loop-widget-sp-selector-label-as-text {
+  display: none !important;
+}
+
+/* Modal overlay */
+.dilmah-loop-info__overlay {
+  --dilmah-loop-info-text: #1a1a1a;
+  --dilmah-loop-info-muted: #5f6368;
+  --dilmah-loop-info-icon-bg: #d9f2df;
+  --dilmah-loop-info-icon-color: #1a1a1a;
+  --dilmah-loop-info-modal-width: 416px;
+  --dilmah-loop-info-modal-radius: 24px;
+  --dilmah-loop-info-modal-padding: 28px;
+  --dilmah-loop-info-modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  --dilmah-loop-info-gold: #c99a00;
+  --dilmah-loop-info-gold-hover: #b38b00;
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--layer-temporary, 20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    visibility 0s linear 0.2s;
+}
+
+.dilmah-loop-info__overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.dilmah-loop-info__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.dilmah-loop-info__dialog {
+  position: relative;
+  width: var(--dilmah-loop-info-modal-width);
+  max-width: 100%;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: var(--dilmah-loop-info-modal-padding);
+  border: 0;
+  border-radius: var(--dilmah-loop-info-modal-radius);
+  background: #ffffff;
+  box-shadow: var(--dilmah-loop-info-modal-shadow);
+  color: var(--dilmah-loop-info-text);
+  font-family: var(--font-body--family, inherit);
+  transform: translateY(8px);
+  transition: transform 0.2s ease;
+}
+
+.dilmah-loop-info__overlay.is-open .dilmah-loop-info__dialog {
+  transform: translateY(0);
+}
+
+.dilmah-loop-info__dialog:focus {
+  outline: none;
+}
+
+.dilmah-loop-info__close {
+  position: absolute;
+  top: var(--dilmah-loop-info-modal-padding);
+  right: var(--dilmah-loop-info-modal-padding);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #000000;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.dilmah-loop-info__close:hover,
+.dilmah-loop-info__close:focus-visible {
+  opacity: 0.65;
+  outline: none;
+}
+
+.dilmah-loop-info__title {
+  margin: 0 2rem 24px 0;
+  font-family: var(--font-body--family, inherit);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--dilmah-loop-info-text);
+  letter-spacing: 0;
+}
+
+.dilmah-loop-info__benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dilmah-loop-info__benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 0;
+  background: transparent;
+}
+
+.dilmah-loop-info__benefit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--dilmah-loop-info-icon-bg);
+  color: var(--dilmah-loop-info-icon-color);
+}
+
+.dilmah-loop-info__benefit-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.dilmah-loop-info__benefit-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.dilmah-loop-info__benefit-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--dilmah-loop-info-text);
+}
+
+.dilmah-loop-info__benefit-description {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--dilmah-loop-info-muted);
+}
+
+.dilmah-loop-info__benefit-description > :first-child {
+  margin-top: 0;
+}
+
+.dilmah-loop-info__benefit-description > :last-child {
+  margin-bottom: 0;
+}
+
+.dilmah-loop-info__benefit-description p {
+  margin: 0 0 0.5em;
+}
+
+.dilmah-loop-info__benefit-description p:last-child {
+  margin-bottom: 0;
+}
+
+.dilmah-loop-info__benefit-description a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.dilmah-loop-info__benefit-description a:hover,
+.dilmah-loop-info__benefit-description a:focus-visible {
+  color: var(--dilmah-loop-info-text);
+}
+
+.dilmah-loop-info__benefit-description strong,
+.dilmah-loop-info__benefit-description b {
+  font-weight: 700;
+}
+
+.dilmah-loop-info__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  margin: 28px 0 0;
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dilmah-loop-info-gold);
+  color: #ffffff;
+  font-family: var(--button-font-family-primary, var(--font-body--family, inherit));
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dilmah-loop-info__cta:hover,
+.dilmah-loop-info__cta:focus-visible {
+  background: var(--dilmah-loop-info-gold-hover);
+  outline: none;
+}
+
+.dilmah-loop-info__cta:focus-visible {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--dilmah-loop-info-gold);
+}
+
+@media screen and (max-width: 749px) {
+  .dilmah-loop-info__overlay {
+    padding: 16px;
+  }
+
+  .dilmah-loop-info__dialog {
+    width: calc(100% - 32px);
+    border-radius: 22px;
+  }
+
+  .dilmah-loop-info__title {
+    margin-right: 1.75rem;
+  }
+}
+
+/* ECOM OVERRIDES | START */
+.dilmah-loop-info__delivery {
+  position: relative;
+}
+
+.dilmah-loop-info__delivery select.loop-widget-sp-selector {
+  appearance: none;
+  webkit-appearance: none;
+}
+
+.dilmah-loop-info__delivery:after {
+  content: " ";
+  right: 20px;
+  top: 65%;
+  width: 7px;
+  height: 7px;
+  display: block;
+  position: absolute;
+  z-index: 1;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  transform: rotate(135deg);
+}
+/* ECOM OVERRIDES | END */

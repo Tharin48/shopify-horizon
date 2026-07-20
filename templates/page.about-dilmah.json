@@ -44,7 +44,7 @@
             "eyebrow": "About US",
             "heading_source": "custom",
             "custom_heading": "Who We Are",
-            "intro": "<p><strong>Dilmah </strong>is a globally renowned Sri Lankan family tea company, with an unparalleled reputation for producing authentic, natural and ethical Sri Lankan tea of the finest quality. The Company pioneered the concept of Single Origin Tea in 1985, offering tea which was ‘picked, perfected and packed’ where it is grown, giving power back to Sri Lankan tea growers and consumers around the world. As the first producer-owned tea brand, Dilmah is the only fully vertically integrated tea company with presence along the entire value chain including ownership in several of Sri Lanka’s finest tea gardens, factories, printing and packaging facilities. Dilmah products are sold in over 100 countries supported by an extensive global distribution network.<br/><br/></p>"
+            "intro": "<p><strong>Dilmah</strong> was founded by master teamaker Merrill J Fernando on a lifelong passion to share the finest Ceylon tea with the world while making business a matter of human service. Today, his sons Dilhan & Malik, and the next generation of the Fernando family continue this legacy, remaining true to the values that have guided us from the beginning; authenticity, quality and kindness to the craft of tea, the people and the nation that nurture it. As the world’s first producer-owned tea brand, Dilmah pioneered Single Origin Tea in 1985, bringing tea that is picked, perfected and packed at source, empowering Sri Lankan tea growers while preserving the character of our island’s finest gardens.</p>"
           }
         },
         "hero_image": {
@@ -69,8 +69,6 @@
         "layout": "text_left_image_right",
         "background_color": "#ffffff",
         "accent_color": "#b08a2f",
-        "decorative_left_image": "shopify://shop_images/x31_1_1_1.png",
-        "decorative_right_image": "shopify://shop_images/Group.svg",
         "max_width": 1920,
         "padding_top": 0,
         "padding_bottom": 56,
@@ -236,23 +234,23 @@
           "settings": {
             "icon": "shopify://shop_images/7910d1kcqvdmmu74v3b_1.svg",
             "heading": "Handpicked Tea",
-            "text": "<p>Made from crackling fresh young buds of the tea plant, hand-picked and sun-dried.</p>"
+            "text": "<p>Picked the traditional way, fresh and dried, preserving freshness</p>"
           }
         },
         "feature_item_nP8Vhh": {
           "type": "feature_item",
           "settings": {
             "icon": "shopify://shop_images/vfwsatwayfmmmu760lm_1.svg",
-            "heading": "Packaged Fresh At The Source",
-            "text": "<p>Garden fresh, unblended tea is a hallmark of Dilmah and offers a unique taste of unblended Ceylon Tea packed at source.</p>"
+            "heading": "Packaged Fresh at Source",
+            "text": "<p>Garden-fresh, unblended tea, the hallmark of Dilmah and its quality</p>"
           }
         },
         "feature_item_fJVDRF": {
           "type": "feature_item",
           "settings": {
             "icon": "shopify://shop_images/3sy3aj7zdzjmmu76l9w_1.svg",
-            "heading": "Climate & Plastic Neutral",
-            "text": "<p>We started our sustainability journey in 2000, since then we have eliminated 421,052Kgs of plastics.</p>"
+            "heading": "Climate Friendly & Plastic Neutral",
+            "text": "<p>With a journey of sustainability spanning 26 years, we have eliminated tonnes of plastic usage.</p>"
           }
         },
         "feature_item_EGpxmD": {
@@ -260,7 +258,7 @@
           "settings": {
             "icon": "shopify://shop_images/wdq34q3ckjpmmu7elq0_1.svg",
             "heading": "Shipped Direct To Your Doorstep",
-            "text": "<p>Get your favorite Dilmah Tea delivered<br/>direct to your doorstep.</p>"
+            "text": "<p>All your favourite Dilmah teas right to your doorstep with a simple click of a button.</p>"
           }
         },
         "spotlight_za3qHd": {

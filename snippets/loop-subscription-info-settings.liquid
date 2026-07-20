@@ -1,0 +1,31 @@
+{% doc %}
+  Outputs Loop subscription info popup settings as JSON for `loop-subscription-info.js`.
+
+  @param {section} section - The product-information section object.
+{% enddoc %}
+
+<script type="application/json" id="DilmahLoopInfoSettings">
+  {
+    "enabled": {{ section.settings.loop_info_enabled | default: true | json }},
+    "title": {{ section.settings.loop_info_popup_title | default: 'Great reasons to subscribe' | json }},
+    "closeLabel": {{ section.settings.loop_info_close_label | default: 'Close subscription benefits popup' | json }},
+    "buttonText": {{ section.settings.loop_info_button_text | default: 'Got it' | json }},
+    "benefits": [
+      {
+        "icon": {{ section.settings.loop_info_benefit_1_icon | default: 'calendar' | json }},
+        "title": {{ section.settings.loop_info_benefit_1_title | default: 'Flexible frequency' | json }},
+        "descriptionHtml": {{ section.settings.loop_info_benefit_1_description | default: '<p>Not sure how much of something you need, or how often? Adjust quantities and frequencies anytime.</p>' | json }}
+      },
+      {
+        "icon": {{ section.settings.loop_info_benefit_2_icon | default: 'bell' | json }},
+        "title": {{ section.settings.loop_info_benefit_2_title | default: 'Order reminders' | json }},
+        "descriptionHtml": {{ section.settings.loop_info_benefit_2_description | default: "<p>We'll let you know before each shipment. Delay, reschedule or cancel if needed — we'll only bill you when your order ships.</p>" | json }}
+      },
+      {
+        "icon": {{ section.settings.loop_info_benefit_3_icon | default: 'pencil' | json }},
+        "title": {{ section.settings.loop_info_benefit_3_title | default: "You're in control" | json }},
+        "descriptionHtml": {{ section.settings.loop_info_benefit_3_description | default: '<p>Add or remove subscriptions, cancel orders, edit frequencies and quantities through our customer-friendly portal.</p>' | json }}
+      }
+    ]
+  }
+</script>

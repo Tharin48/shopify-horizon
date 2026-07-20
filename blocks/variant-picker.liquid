@@ -8,7 +8,12 @@
 -%}
 
 {% unless product_resource == blank %}
-  {% render 'variant-main-picker', product_resource: product_resource, section: section, product: product %}
+  {% render 'variant-main-picker',
+    product_resource: product_resource,
+    section: section,
+    product: product,
+    block: block
+  %}
 {% endunless %}
 
 {% schema %}
@@ -51,6 +56,94 @@
       "id": "alignment",
       "label": "t:settings.alignment",
       "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Choose Tea Format"
+    },
+    {
+      "type": "checkbox",
+      "id": "tea_format_enabled",
+      "label": "Enable tea format selector",
+      "default": true,
+      "info": "Shows products from the product's Tea Format Collection metaobject."
+    },
+    {
+      "type": "text",
+      "id": "tea_format_heading",
+      "label": "Tea format heading",
+      "default": "Choose Tea Format"
+    },
+    {
+      "type": "select",
+      "id": "tea_format_image_aspect",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait (4:5)" },
+        { "value": "adapt", "label": "Adapt" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "range",
+      "id": "tea_format_card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "tea_format_show_icon",
+      "label": "Show product format icon",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "tea_format_show_label",
+      "label": "Show product format label",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "tea_format_desktop_columns",
+      "label": "Desktop columns",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "tea_format_mobile_columns",
+      "label": "Mobile columns",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "color",
+      "id": "tea_format_selected_border",
+      "label": "Selected border colour",
+      "default": "#c99a00"
+    },
+    {
+      "type": "color",
+      "id": "tea_format_selected_text",
+      "label": "Selected text colour",
+      "default": "#c99a00"
+    },
+    {
+      "type": "color",
+      "id": "tea_format_card_background",
+      "label": "Card background colour",
+      "default": "#f7f7f3"
     },
     {
       "type": "header",
