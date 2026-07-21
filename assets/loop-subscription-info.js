@@ -404,6 +404,11 @@
       (entry) => String(entry.id) === String(variantId),
     )
     const variantPrice = Number(variant?.price)
+    const sellingPlans = Array.isArray(product.selling_plan_groups)
+      ? product.selling_plan_groups.flatMap((group) =>
+          Array.isArray(group?.selling_plans) ? group.selling_plans : [],
+        )
+      : []
 
     if (
       !variant ||
@@ -427,7 +432,39 @@
 
         const percent =
           ((variantPrice - allocationPrice) / variantPrice) * 100
-        return Math.round((percent + Number.EPSILON) * 100) / 100
+        const roundedPercent =
+          Math.round((percent + Number.EPSILON) * 100) / 100
+        const sellingPlan = sellingPlans.find(
+          (plan) =>
+            String(plan?.id) === String(allocation?.selling_plan_id),
+        )
+        const adjustment = sellingPlan?.price_adjustments?.[0]
+        const configuredPercent =
+          adjustment?.value_type === 'percentage'
+            ? Number(adjustment.value)
+            : null
+
+        if (
+          Number.isFinite(configuredPercent) &&
+          configuredPercent > 0 &&
+          configuredPercent < 100
+        ) {
+          const configuredAllocationPrice =
+            variantPrice * (1 - configuredPercent / 100)
+
+          // Shopify rounds allocation prices to the currency's minor unit.
+          // Prefer Loop's configured percentage only when that rounding fully
+          // explains the difference from the storefront allocation price.
+          if (
+            Math.abs(allocationPrice - configuredAllocationPrice) <= 1
+          ) {
+            return Math.round(
+              (configuredPercent + Number.EPSILON) * 100,
+            ) / 100
+          }
+        }
+
+        return roundedPercent
       })
       .filter((percent) => percent !== null && percent > 0)
 

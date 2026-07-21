@@ -6,7 +6,11 @@
   assign accordion_product = product | default: closest.product
 
   assign accordion_brewing_block = blank
+  assign accordion_suited_for_block = blank
+  assign accordion_rich_text_block = blank
   assign accordion_row_brewing_only = true
+  assign accordion_row_suited_for_only = true
+  assign accordion_row_rich_text_only = true
   assign accordion_row_has_children = false
 
   for accordion_row_child in block.blocks
@@ -17,17 +21,41 @@
       if accordion_brewing_block == blank
         assign accordion_brewing_block = accordion_row_child
       endif
+      assign accordion_row_suited_for_only = false
+      assign accordion_row_rich_text_only = false
+    elsif accordion_row_child_type contains 'custom-suited-for'
+      if accordion_suited_for_block == blank
+        assign accordion_suited_for_block = accordion_row_child
+      endif
+      assign accordion_row_brewing_only = false
+      assign accordion_row_rich_text_only = false
+    elsif accordion_row_child_type contains 'custom-accordion-rich-text'
+      if accordion_rich_text_block == blank
+        assign accordion_rich_text_block = accordion_row_child
+      endif
+      assign accordion_row_brewing_only = false
+      assign accordion_row_suited_for_only = false
     elsif accordion_row_child_type contains '@app'
       comment
-        App blocks only: still treat row as brewing-only for hide logic.
+        App blocks only: still treat row as brewing-only, suited-for-only, or rich-text-only for hide logic.
       endcomment
     else
       assign accordion_row_brewing_only = false
+      assign accordion_row_suited_for_only = false
+      assign accordion_row_rich_text_only = false
     endif
   endfor
 
   if accordion_row_has_children == false or accordion_brewing_block == blank
     assign accordion_row_brewing_only = false
+  endif
+
+  if accordion_row_has_children == false or accordion_suited_for_block == blank
+    assign accordion_row_suited_for_only = false
+  endif
+
+  if accordion_row_has_children == false or accordion_rich_text_block == blank
+    assign accordion_row_rich_text_only = false
   endif
 
   assign accordion_heading_brewing = false
@@ -41,6 +69,10 @@
     assign accordion_remove_if_panel_empty = true
   elsif accordion_heading_brewing
     assign accordion_remove_if_panel_empty = true
+  elsif accordion_row_suited_for_only
+    assign accordion_remove_if_panel_empty = true
+  elsif accordion_row_rich_text_only
+    assign accordion_remove_if_panel_empty = true
   endif
 %}
 
@@ -53,6 +85,25 @@
   {% endcapture %}
   {% assign brewing_accordion_hide_flag = brewing_accordion_hide_flag | strip %}
   {% if brewing_accordion_hide_flag == '1' %}
+    {% assign skip_accordion_row = true %}
+  {% endif %}
+{% elsif accordion_row_suited_for_only %}
+  {% capture suited_for_accordion_hide_flag %}
+    {% render 'suited-for-accordion-row-hide', product_resource: accordion_product %}
+  {% endcapture %}
+  {% assign suited_for_accordion_hide_flag = suited_for_accordion_hide_flag | strip %}
+  {% if suited_for_accordion_hide_flag == '1' %}
+    {% assign skip_accordion_row = true %}
+  {% endif %}
+{% elsif accordion_row_rich_text_only and accordion_rich_text_block != blank %}
+  {% capture rich_text_accordion_hide_flag %}
+    {% render 'custom-accordion-rich-text-hide',
+      rich_text_block: accordion_rich_text_block,
+      product_resource: accordion_product
+    %}
+  {% endcapture %}
+  {% assign rich_text_accordion_hide_flag = rich_text_accordion_hide_flag | strip %}
+  {% if rich_text_accordion_hide_flag == '1' %}
     {% assign skip_accordion_row = true %}
   {% endif %}
 {% endif %}
@@ -116,6 +167,12 @@
     },
     {
       "type": "_custom-brewing-tabs"
+    },
+    {
+      "type": "_custom-suited-for"
+    },
+    {
+      "type": "_custom-accordion-rich-text"
     }
   ],
   "settings": [

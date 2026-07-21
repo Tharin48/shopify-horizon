@@ -22,13 +22,33 @@
   if show_format_label == nil
     assign show_format_label = true
   endif
-  assign desktop_columns = block_settings.tea_format_desktop_columns | default: 3
-  assign mobile_columns = block_settings.tea_format_mobile_columns | default: '2'
   assign image_aspect = block_settings.tea_format_image_aspect | default: 'portrait'
   assign card_radius = block_settings.tea_format_card_radius | default: 16
   assign selected_border = block_settings.tea_format_selected_border | default: '#c99a00'
   assign selected_text = block_settings.tea_format_selected_text | default: '#c99a00'
   assign card_background = block_settings.tea_format_card_background | default: '#f7f7f3'
+
+  assign tea_bag_icon = blank
+  assign loose_leaf_icon = blank
+  assign refill_icon = blank
+
+  for counter in (1..10)
+    assign setting_text_key = 'tea_format_' | append: counter | append: '_text'
+    assign setting_image_key = 'tea_format_' | append: counter | append: '_image'
+    assign configured_icon_title = settings[setting_text_key] | strip
+    assign configured_icon_handle = configured_icon_title | handleize
+    assign configured_icon_image = settings[setting_image_key]
+
+    if configured_icon_image != blank
+      if configured_icon_handle == 'tea-bag' or configured_icon_handle == 'tea-bags'
+        assign tea_bag_icon = configured_icon_image
+      elsif configured_icon_handle == 'loose-leaf'
+        assign loose_leaf_icon = configured_icon_image
+      elsif configured_icon_handle == 'refill' or configured_icon_handle == 'refills'
+        assign refill_icon = configured_icon_image
+      endif
+    endif
+  endfor
 -%}
 
 {%- if tea_format_collection != blank and valid_tea_products_count > 1 -%}
@@ -38,8 +58,6 @@
     class="variant-option variant-option--tea-format tea-format-selector"
     data-tea-format-selector
     style="
-      --tea-format-desktop-columns: {{ desktop_columns }};
-      --tea-format-mobile-columns: {{ mobile_columns }};
       --tea-format-card-radius: {{ card_radius }}px;
       --tea-format-selected-border: {{ selected_border }};
       --tea-format-selected-text: {{ selected_text }};
@@ -50,10 +68,13 @@
       {{ tea_format_heading | escape }}
     </div>
 
-    <div class="tea-format-selector__grid tea-format-selector__grid--{{ image_aspect }}">
+    <div
+      class="tea-format-selector__grid tea-format-selector__grid--{{ image_aspect }}"
+      data-tea-format-count="{{ valid_tea_products_count }}"
+    >
       {%- liquid
-        assign tea_format_render_order = 'tea-bags,loose-leaf,refills,__remaining__' | split: ','
-        assign ordered_tea_format_handles = '|tea-bags|loose-leaf|refills|'
+        assign tea_format_render_order = 'tea-bags,tea-bag,refills-tea-bags,refills-tea-bag,loose-leaf,refills-loose-leaf,refills,refill,__remaining__' | split: ','
+        assign ordered_tea_format_handles = '|tea-bags|tea-bag|refills-tea-bags|refills-tea-bag|loose-leaf|refills-loose-leaf|refills|refill|'
       -%}
       {%- for tea_format_render_handle in tea_format_render_order -%}
         {%- for tea_product in tea_products -%}
@@ -74,7 +95,16 @@
             assign related_media = tea_product.featured_media
             assign related_title = tea_product.title
             assign format_label = tea_format_value.format.value | strip
-            assign format_image = blank
+            if format_label == blank
+              assign format_label = related_title
+            endif
+
+            if tea_format_handle == blank
+              assign tea_format_handle = format_label | handleize
+            endif
+
+            assign primary_format_icon = blank
+            assign fallback_format_icon = blank
 
             for counter in (1..10)
               assign setting_text_key = 'tea_format_' | append: counter | append: '_text'
@@ -83,13 +113,26 @@
               assign configured_format_handle = configured_format_title | handleize
 
               if configured_format_title != blank and tea_format_handle == configured_format_handle
-                assign format_image = settings[setting_image_key]
+                assign fallback_format_icon = settings[setting_image_key]
                 break
               elsif configured_format_title != blank and tea_format_handle contains configured_format_handle
-                assign format_image = settings[setting_image_key]
+                assign fallback_format_icon = settings[setting_image_key]
                 break
               endif
             endfor
+
+            case tea_format_handle
+              when 'loose-leaf'
+                assign primary_format_icon = loose_leaf_icon
+              when 'tea-bag', 'tea-bags'
+                assign primary_format_icon = tea_bag_icon
+              when 'refills-loose-leaf', 'refills-tea-bag', 'refills-tea-bags', 'refill', 'refills'
+                assign primary_format_icon = refill_icon
+            endcase
+
+            if primary_format_icon == blank
+              assign primary_format_icon = fallback_format_icon
+            endif
 
             assign is_current_product = false
             if tea_product.id == product_resource.id
@@ -119,10 +162,10 @@
               {%- if related_media != blank -%}
                 {{
                   related_media
-                  | image_url: width: 800
+                  | image_url: width: 480
                   | image_tag:
-                    widths: '240, 360, 480, 600, 800',
-                    sizes: '(min-width: 990px) 30vw, (min-width: 750px) 40vw, 50vw',
+                    widths: '160, 240, 320, 480',
+                    sizes: '(min-width: 750px) 136px, 128px',
                     loading: 'lazy',
                     class: 'tea-format-card__image',
                     alt: image_alt
@@ -131,19 +174,18 @@
                 {{ 'product-apparel-1' | placeholder_svg_tag: 'tea-format-card__image tea-format-card__image--placeholder' }}
               {%- endif -%}
 
-              {%- if show_format_label and format_label != blank or show_format_icon and format_image != blank -%}
+              {%- if show_format_icon and primary_format_icon != blank -%}
                 <span class="tea-format-card__icon" aria-hidden="true">
-                  {%- if show_format_label and format_label != blank -%}
-                    <span class="tea-format-card__icon-label">{{ format_label | escape }}</span>
-                  {%- endif -%}
-                  {%- if show_format_icon and format_image != blank -%}
-                    <span class="tea-format-card__icon-graphic">
-                      {{ format_image }}
-                    </span>
-                  {%- endif -%}
+                  <span class="tea-format-card__icon-graphic">
+                    {{ primary_format_icon }}
+                  </span>
                 </span>
               {%- endif -%}
             </span>
+
+            {%- if show_format_label and format_label != blank -%}
+              <span class="tea-format-card__label">{{ format_label | escape }}</span>
+            {%- endif -%}
 
             {%- unless tea_product.available -%}
               <span class="tea-format-card__sold-out">

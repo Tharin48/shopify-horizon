@@ -7,10 +7,9 @@
   endif
 
   comment
-    Metafields (namespace custom):
-    - suited_for OR suit_for — list of choices, or single line text like "Afternoon • Evening"
-    - Legacy booleans suited_morning, etc. if neither list/text has data
-    Storefront: hidden when no metafield data. Theme editor: placeholder / fallbacks when previewing.
+    Metafield: custom.time_of_day — list of choices / metaobject refs, or single line text
+    like "Afternoon • Evening". Tokens must match morning, afternoon, evening, night.
+    Storefront: hidden when no metafield data. Theme editor: placeholder when previewing.
   endcomment
 
   assign show_morning = false
@@ -20,14 +19,18 @@
   assign editor_placeholder = false
 
   if product != blank
-    assign suited_primary = product.metafields.custom.suited_for
-    assign suited_alt = product.metafields.custom.suit_for
+    assign tod_mf = product.metafields.custom.time_of_day
 
-    if suited_primary != blank and suited_primary.value != blank
-      assign suited_mf_type = suited_primary.type | default: ''
-      if suited_mf_type contains 'list'
-        for slot in suited_primary.value
-          assign token = slot | strip | downcase
+    if tod_mf != blank and tod_mf.value != blank
+      assign tod_mf_type = tod_mf.type | default: ''
+      if tod_mf_type contains 'list'
+        for slot in tod_mf.value
+          assign token = ''
+          if slot.system != blank
+            assign token = slot.system.handle | default: slot.display_name | strip | downcase
+          else
+            assign token = slot | strip | downcase
+          endif
           if token == 'morning'
             assign show_morning = true
           elsif token == 'afternoon'
@@ -39,10 +42,10 @@
           endif
         endfor
       else
-        assign raw_primary = suited_primary.value | strip
-        assign norm_primary = raw_primary | replace: '•', ',' | replace: '·', ',' | replace: '|', ','
-        assign segs_primary = norm_primary | split: ','
-        for part in segs_primary
+        assign raw_tod = tod_mf.value | strip
+        assign norm_tod = raw_tod | replace: '•', ',' | replace: '·', ',' | replace: '|', ','
+        assign segs_tod = norm_tod | split: ','
+        for part in segs_tod
           assign token = part | strip | downcase
           if token == 'morning'
             assign show_morning = true
@@ -54,55 +57,6 @@
             assign show_night = true
           endif
         endfor
-      endif
-    elsif suited_alt != blank and suited_alt.value != blank
-      assign suited_mf_type = suited_alt.type | default: ''
-      if suited_mf_type contains 'list'
-        for slot in suited_alt.value
-          assign token = slot | strip | downcase
-          if token == 'morning'
-            assign show_morning = true
-          elsif token == 'afternoon'
-            assign show_afternoon = true
-          elsif token == 'evening'
-            assign show_evening = true
-          elsif token == 'night'
-            assign show_night = true
-          endif
-        endfor
-      else
-        assign raw_alt = suited_alt.value | strip
-        assign norm_alt = raw_alt | replace: '•', ',' | replace: '·', ',' | replace: '|', ','
-        assign segs_alt = norm_alt | split: ','
-        for part in segs_alt
-          assign token = part | strip | downcase
-          if token == 'morning'
-            assign show_morning = true
-          elsif token == 'afternoon'
-            assign show_afternoon = true
-          elsif token == 'evening'
-            assign show_evening = true
-          elsif token == 'night'
-            assign show_night = true
-          endif
-        endfor
-      endif
-    else
-      assign mf_m = product.metafields.custom.suited_morning
-      assign mf_a = product.metafields.custom.suited_afternoon
-      assign mf_e = product.metafields.custom.suited_evening
-      assign mf_n = product.metafields.custom.suited_night
-      if mf_m != blank
-        assign show_morning = mf_m.value
-      endif
-      if mf_a != blank
-        assign show_afternoon = mf_a.value
-      endif
-      if mf_e != blank
-        assign show_evening = mf_e.value
-      endif
-      if mf_n != blank
-        assign show_night = mf_n.value
       endif
     endif
   endif
@@ -291,7 +245,7 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "Uses product metafields custom.suited_for or custom.suit_for (same labels: Suited for / Suit for). Supports list fields or one line of text with values such as Afternoon • Evening (words must match morning, afternoon, evening, night). Legacy booleans suited_morning, etc. if those are empty. Storefront hides the block when no data is set."
+      "content": "Uses product metafield custom.time_of_day. Supports list fields (choice list or Time of day metaobjects) or one line of text with values such as Afternoon • Evening (words must match morning, afternoon, evening, night). Storefront hides the block when no data is set."
     },
     {
       "type": "text",

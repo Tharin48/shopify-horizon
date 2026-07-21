@@ -247,12 +247,27 @@
               },
               "blocks": {}
             },
+            "custom_aiod_bundle_EP8WKh": {
+              "type": "_custom-aiod-bundle",
+              "name": "Custom AIOD",
+              "settings": {},
+              "blocks": {}
+            },
             "variant_picker_R3rGDr": {
               "type": "variant-picker",
               "settings": {
                 "variant_style": "buttons",
                 "show_swatches": false,
                 "alignment": "left",
+                "tea_format_enabled": true,
+                "tea_format_heading": "Available in",
+                "tea_format_image_aspect": "portrait",
+                "tea_format_card_radius": 6,
+                "tea_format_show_icon": true,
+                "tea_format_show_label": true,
+                "tea_format_selected_border": "#c99a00",
+                "tea_format_selected_text": "#c99a00",
+                "tea_format_card_background": "#f7f7f3",
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -305,85 +320,6 @@
                 }
               },
               "block_order": []
-            },
-            "group_KTiCTi": {
-              "type": "group",
-              "name": "Suitable for",
-              "settings": {
-                "content_direction": "column",
-                "vertical_on_mobile": true,
-                "horizontal_alignment": "flex-start",
-                "vertical_alignment": "center",
-                "align_baseline": false,
-                "horizontal_alignment_flex_direction_column": "flex-start",
-                "vertical_alignment_flex_direction_column": "center",
-                "gap": 12,
-                "width": "fill",
-                "custom_width": 100,
-                "width_mobile": "fill",
-                "custom_width_mobile": 100,
-                "height": "fit",
-                "custom_height": 100,
-                "inherit_color_scheme": false,
-                "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
-                "background_media": "none",
-                "video_position": "cover",
-                "background_image_position": "cover",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_radius": 0,
-                "toggle_overlay": false,
-                "overlay_color": "#00000026",
-                "overlay_style": "solid",
-                "gradient_direction": "to top",
-                "link": "",
-                "open_in_new_tab": false,
-                "placeholder": "",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {
-                "custom_suited_for_84PkwF": {
-                  "type": "_custom-suited-for",
-                  "name": "Custom suited for",
-                  "settings": {
-                    "heading": "Suited for",
-                    "label_morning": "Morning",
-                    "label_afternoon": "Afternoon",
-                    "label_evening": "Evening",
-                    "label_night": "Night",
-                    "fallback_morning": false,
-                    "fallback_afternoon": false,
-                    "fallback_evening": false,
-                    "fallback_night": false,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                },
-                "divider_rPdzch": {
-                  "type": "_divider",
-                  "name": "t:names.divider",
-                  "disabled": true,
-                  "settings": {
-                    "thickness": 1,
-                    "corner_radius": "square",
-                    "width_percent": 100,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "custom_suited_for_84PkwF",
-                "divider_rPdzch"
-              ]
             },
             "custom_accordion_8XDnzt": {
               "type": "_custom-accordion",
@@ -444,12 +380,39 @@
                     "text_3VJzAQ"
                   ]
                 },
+                "accordion_row_AMTWYP": {
+                  "type": "_accordion-row",
+                  "name": "t:names.accordion_row",
+                  "settings": {
+                    "heading": "Ingredients & Storage Information",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  },
+                  "blocks": {
+                    "custom_accordion_rich_text_ingredients": {
+                      "type": "_custom-accordion-rich-text",
+                      "name": "Accordion rich text",
+                      "settings": {
+                        "metafield_key": "ingredients_storage_information",
+                        "padding-block-start": 0,
+                        "padding-block-end": 0,
+                        "padding-inline-start": 0,
+                        "padding-inline-end": 0
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "custom_accordion_rich_text_ingredients"
+                  ]
+                },
                 "accordion_row_7kNwP7": {
                   "type": "_accordion-row",
                   "name": "t:names.accordion_row",
                   "settings": {
                     "heading": "Brewing guide",
-                    "open_by_default": true,
+                    "open_by_default": false,
                     "icon": "none",
                     "width": 20
                   },
@@ -494,6 +457,41 @@
                     "custom_brewing_tabs_JFhk9n"
                   ]
                 },
+                "accordion_row_suitedFor": {
+                  "type": "_accordion-row",
+                  "name": "Suited for",
+                  "settings": {
+                    "heading": "Suited for",
+                    "open_by_default": false,
+                    "icon": "none",
+                    "width": 20
+                  },
+                  "blocks": {
+                    "custom_suited_for_84PkwF": {
+                      "type": "_custom-suited-for",
+                      "name": "Custom suited for",
+                      "settings": {
+                        "heading": "",
+                        "label_morning": "Morning",
+                        "label_afternoon": "Afternoon",
+                        "label_evening": "Evening",
+                        "label_night": "Night",
+                        "fallback_morning": false,
+                        "fallback_afternoon": false,
+                        "fallback_evening": false,
+                        "fallback_night": false,
+                        "padding-block-start": 0,
+                        "padding-block-end": 0,
+                        "padding-inline-start": 0,
+                        "padding-inline-end": 0
+                      },
+                      "blocks": {}
+                    }
+                  },
+                  "block_order": [
+                    "custom_suited_for_84PkwF"
+                  ]
+                },
                 "accordion_row_99KkzY": {
                   "type": "_accordion-row",
                   "name": "Shipping",
@@ -504,24 +502,11 @@
                     "width": 20
                   },
                   "blocks": {
-                    "text_bfmEGF": {
-                      "type": "text",
+                    "custom_accordion_rich_text_shipping": {
+                      "type": "_custom-accordion-rich-text",
+                      "name": "Accordion rich text",
                       "settings": {
-                        "text": "{{ closest.product.metafields.custom.shipping_info | metafield_tag }}",
-                        "width": "100%",
-                        "max_width": "normal",
-                        "alignment": "left",
-                        "type_preset": "rte",
-                        "font": "var(--font-body--family)",
-                        "font_size": "1rem",
-                        "line_height": "normal",
-                        "letter_spacing": "normal",
-                        "case": "none",
-                        "wrap": "pretty",
-                        "color": "var(--color-foreground)",
-                        "background": false,
-                        "background_color": "#00000026",
-                        "corner_radius": 0,
+                        "metafield_key": "shipping_info",
                         "padding-block-start": 0,
                         "padding-block-end": 0,
                         "padding-inline-start": 0,
@@ -531,13 +516,15 @@
                     }
                   },
                   "block_order": [
-                    "text_bfmEGF"
+                    "custom_accordion_rich_text_shipping"
                   ]
                 }
               },
               "block_order": [
                 "accordion_row_eaYi6b",
+                "accordion_row_AMTWYP",
                 "accordion_row_7kNwP7",
+                "accordion_row_suitedFor",
                 "accordion_row_99KkzY"
               ]
             },
@@ -562,10 +549,10 @@
             "text_7BEm3E",
             "price_tVjtKg",
             "divider_VJhene",
+            "custom_aiod_bundle_EP8WKh",
             "variant_picker_R3rGDr",
             "loop_subscriptions_loop_widget_x7w8md",
             "buy_buttons_eYQEYi",
-            "group_KTiCTi",
             "custom_accordion_8XDnzt",
             "pair_with_CAbztJ"
           ]

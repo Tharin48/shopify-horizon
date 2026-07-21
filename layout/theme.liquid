@@ -178,7 +178,7 @@
 
     <main
       id="MainContent"
-      class="content-for-layout"
+      class="content-for-layout template-{{ request.page_type | handle }}"
       role="main"
       data-page-transition-enabled="{{ settings.page_transition_enabled }}"
       data-product-transition="{{ settings.transition_to_main_product }}"

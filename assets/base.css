@@ -4241,3 +4241,177 @@ product-recommendations:has([data-has-recommendations='false']) {
 .yotpo-reviews-tab-layout {
   display: none!important;
 }
+
+
+
+/* AIOD bundle as Product and shows in the collection page START */
+
+ .ecom-custom-aiod-bundle-hide {
+     display: none;
+ }
+
+.template-product .aiod-bundle-custom-wrapper + .shopify-app-block, .template-product .aiod-bundle-custom-wrapper ~ .buy-buttons-block {
+    display: none;
+}
+
+
+.template-product .aiod-bundle-custom-wrapper .aiod-bundle-discount-wrap:not(:has(.csapp_btn.csapps-add-to-cart-btn)) {
+    display: none;
+}
+
+/* this request by Dilmah 2025-09-30 START */
+.template-product .aiod-bundle-custom-wrapper  .csapp_bundle_saveprice {
+  display: none;
+}
+/* this request by Dilmah 2025-09-30 END */
+
+.template-product .aiod-bundle-custom-wrapper .loader {
+    display: none;
+}
+
+.template-product .aiod-bundle-custom-wrapper + form {
+    display: none;
+}
+
+.template-product .aiod-bundle-custom-wrapper .csapps-bunlde-tiers {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.template-product .aiod-bundle-custom-wrapper   .csapp_bundle_title {
+    display: none;
+}
+
+.template-product .aiod-bundle-custom-wrapper  .csapps-bunlde-wrapper {
+    display: none;
+}
+
+.template-product .aiod-bundle-custom-wrapper  .csapps-bunlde_desc:empty {
+    display: none;
+}
+
+.template-product  .aiod-bundle-custom-wrapper  .csapp_total_bundle {
+    text-align: left;
+}
+
+.template-product  .aiod-bundle-custom-wrapper .csapp_total_bundle .csapps-total_price {
+    text-align: left;
+}
+
+.template-product  .aiod-bundle-custom-wrapper .csapp_total_bundle .csapps-btn_wrapper {
+    text-align: left;
+}
+
+.template-product .aiod-bundle-custom-wrapper .aiod-bundle-discount-wrap {
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.template-product .product__meta:has(.aiod-bundle-discount-wrap) .product__title {
+    color: #007c85;
+}
+
+.template-product .product__meta:has(.aiod-bundle-discount-wrap) .product__header {
+    margin-bottom: 0;
+}
+
+/* in collection page START */
+.template-collection .aiod-bundle-custom-wrapper .loader {
+  display: none;
+}
+
+.template-collection .product-item:has(.aiod-bundle-custom-wrapper) .price {
+    display: none;
+}
+
+.template-collection  .aiod-bundle-custom-wrapper .aiod-bundle-discount-wrap {
+    padding: 0;
+    max-width: unset;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .aiod-bundle-discount-wrap .csapps-bunlde-tiers {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .csapp_bundle_title {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .csapps-bunlde-wrapper {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .csapps-error {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper + button {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .csapps-bunlde_desc {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .csapps-total_price {
+    margin: 0 !important;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .cs-price-heading {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper del {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .csbundle-total-price {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .cs-save-heading {
+    display: none;
+}
+
+.template-collection .aiod-bundle-custom-wrapper .csbundle-save-price.money {
+    font-size: 18px;
+    color: #bb9107;
+    font-weight: 500;
+    font-family: Montserrat, sans-serif;
+}
+
+.template-collection .aiod-bundle-custom-wrapper  .csapp_btn.csapps-add-to-cart-btn {
+    border-radius: 10px;
+    line-height: 3 !important;
+    position: relative;
+    border: none;
+    height: auto;
+    font-size: 12px;
+    text-align: center;
+    width: 86%;
+    padding: 0;
+    transition: all .4s;
+    letter-spacing: 2px;
+    font-weight: 600;
+    color: white !important;
+    vertical-align: top;
+}
+
+@media only screen and (max-width: 768px) {
+    .template-collection .aiod-bundle-custom-wrapper  .csapp_btn.csapps-add-to-cart-btn {
+        width: 100%;
+        font-size: 10px 
+    }
+    .template-collection .aiod-bundle-custom-wrapper .csapps-total_price {
+        margin: 0 !important;
+        margin-bottom: 20px !important;
+    }
+    .template-collection .collection__window .product-item .cart_row:has(.aiod-bundle-custom-wrapper) {
+        margin-top: 0px;
+    }
+}
+/* in collection page END */
+
+/* AIOD bundle as Product and shows in the collection page END */
+

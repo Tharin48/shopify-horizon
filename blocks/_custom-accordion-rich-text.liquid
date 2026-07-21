@@ -1,0 +1,162 @@
+{%- liquid
+  assign block_settings = block.settings
+  assign product_resource = closest.product | default: product
+  assign preview = false
+  if request.design_mode or request.visual_preview_mode
+    assign preview = true
+  endif
+
+  assign rich_mf = blank
+  case block_settings.metafield_key
+    when 'ingredients_storage_information'
+      assign rich_mf = product_resource.metafields.custom.ingredients_storage_information
+    when 'shipping_info'
+      assign rich_mf = product_resource.metafields.custom.shipping_info
+  endcase
+
+  assign has_content = false
+  if rich_mf != blank and rich_mf.value != blank
+    assign has_content = true
+  endif
+
+  assign render_block = false
+  if has_content
+    assign render_block = true
+  elsif preview
+    assign render_block = true
+  endif
+-%}
+
+{%- if render_block -%}
+  <div
+    class="custom-accordion-rich-text rte spacing-style"
+    style="{% render 'spacing-style', settings: block_settings %}"
+    {{ block.shopify_attributes }}
+  >
+    {%- if has_content -%}
+      {{ rich_mf | metafield_tag }}
+    {%- elsif preview -%}
+      <p class="custom-accordion-rich-text__hint">{{ 'products.product.accordion_rich_text_editor_placeholder' | t }}</p>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .custom-accordion-rich-text.rte .metafield-rich_text_field :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-h5--family);
+    font-style: var(--font-h5--style);
+    font-weight: var(--font-h5--weight);
+    font-size: var(--font-h5--size);
+    line-height: var(--font-h5--line-height);
+    letter-spacing: var(--font-h5--letter-spacing);
+    text-transform: var(--font-h5--case);
+    color: var(--color, var(--font-h5-color));
+    margin-block: 1rem 0.35rem;
+  }
+
+  .custom-accordion-rich-text.rte .metafield-rich_text_field :first-child:is(h1, h2, h3, h4, h5, h6),
+  .custom-accordion-rich-text.rte .metafield-rich_text_field :first-child:empty + :is(h1, h2, h3, h4, h5, h6) {
+    margin-block-start: 0;
+  }
+
+  .custom-accordion-rich-text.rte .metafield-rich_text_field p {
+    margin-block: 0.35rem 0.75rem;
+  }
+
+  .custom-accordion-rich-text.rte .metafield-rich_text_field :is(ul, ol) {
+    margin-block: 0.25rem 0.75rem;
+    padding-inline-start: 1.25em;
+  }
+
+  .custom-accordion-rich-text.rte .metafield-rich_text_field :last-child {
+    margin-block-end: 0;
+  }
+
+  .custom-accordion-rich-text__hint {
+    margin: 0;
+    font-size: var(--font-paragraph-small--size, 0.875rem);
+    color: rgb(var(--color-foreground-rgb) / 0.55);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Accordion rich text",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Renders a product rich text metafield with heading and list styles tuned for accordion panels. Row is hidden on the storefront when the metafield is empty."
+    },
+    {
+      "type": "select",
+      "id": "metafield_key",
+      "label": "Product metafield",
+      "options": [
+        {
+          "value": "ingredients_storage_information",
+          "label": "Ingredients & storage information"
+        },
+        {
+          "value": "shipping_info",
+          "label": "Shipping info"
+        }
+      ],
+      "default": "ingredients_storage_information"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Accordion rich text",
+      "category": "t:categories.product",
+      "settings": {
+        "metafield_key": "ingredients_storage_information"
+      }
+    }
+  ]
+}
+{% endschema %}

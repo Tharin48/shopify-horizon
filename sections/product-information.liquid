@@ -1,5 +1,15 @@
+{%- capture ajax_document_title -%}
+  {{ page_title }}{% unless page_title contains shop.name %} | {{ shop.name }}{% endunless %}
+{%- endcapture -%}
 
-
+<div
+  data-ajax-product-section
+  data-product-section-id="{{ section.id }}"
+  data-product-id="{{ closest.product.id }}"
+  data-product-url="{{ closest.product.url }}"
+  data-product-title="{{ closest.product.title | escape }}"
+  data-document-title="{{ ajax_document_title | strip | escape }}"
+>
 <script type="application/ld+json">
   {{ closest.product | structured_data }}
 </script>
@@ -59,6 +69,9 @@
 %}
 
 {% render 'loop-subscription-info-settings', section: section %}
+
+<span class="visually-hidden" aria-live="polite" aria-atomic="true" data-ajax-product-live></span>
+</div>
 
 {% stylesheet %}
   /*

@@ -1,0 +1,55 @@
+{%- doc -%}
+  Outputs "1" when the parent accordion row should be omitted on the storefront:
+  product has no custom.time_of_day values that map to morning, afternoon, evening, or night.
+
+  Theme editor preview keeps the row visible so merchants can configure the block.
+
+  @param {object} [product_resource] - Resolved product (template product or closest.product)
+
+  Keep token parsing in sync with blocks/_custom-suited-for.liquid.
+{%- enddoc -%}
+{%- liquid
+  assign product = product_resource | default: product
+  assign hide_accordion_row = false
+
+  if request.design_mode or request.visual_preview_mode
+    assign hide_accordion_row = false
+  elsif product == blank
+    assign hide_accordion_row = true
+  else
+    assign tod_mf = product.metafields.custom.time_of_day
+    assign visible_count = 0
+
+    if tod_mf != blank and tod_mf.value != blank
+      assign tod_mf_type = tod_mf.type | default: ''
+      if tod_mf_type contains 'list'
+        for slot in tod_mf.value
+          assign token = ''
+          if slot.system != blank
+            assign token = slot.system.handle | default: slot.display_name | strip | downcase
+          else
+            assign token = slot | strip | downcase
+          endif
+          if token == 'morning' or token == 'afternoon' or token == 'evening' or token == 'night'
+            assign visible_count = visible_count | plus: 1
+          endif
+        endfor
+      else
+        assign raw_tod = tod_mf.value | strip
+        assign norm_tod = raw_tod | replace: '•', ',' | replace: '·', ',' | replace: '|', ','
+        assign segs_tod = norm_tod | split: ','
+        for part in segs_tod
+          assign token = part | strip | downcase
+          if token == 'morning' or token == 'afternoon' or token == 'evening' or token == 'night'
+            assign visible_count = visible_count | plus: 1
+          endif
+        endfor
+      endif
+    endif
+
+    if visible_count == 0
+      assign hide_accordion_row = true
+    endif
+  endif
+-%}
+{%- if hide_accordion_row -%}1{%- endif -%}
