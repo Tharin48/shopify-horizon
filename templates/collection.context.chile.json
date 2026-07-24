@@ -8,15 +8,16 @@
  * ------------------------------------------------------------
  */
 {
-  "markets": {
-    "india": {
-      "parent": "@default"
-    },
-    "sri-lanka": {
-      "parent": "@default"
-    },
-    "chile": {
-      "parent": "@default"
+  "context": {
+    "market": "chile"
+  },
+  "parent": "collection.json",
+  "sections": {
+    "reusable_collection_catalog_aDCHBP": {
+      "settings": {
+        "tea_type_metaobject_order": "Black Tea,\nOolong Tea\nGreen Tea\nWhite Tea\nFlavored Tea\nCaffeine Free\nHerbal Infusion Tea"
+      },
+      "blocks": {}
     }
   }
 }

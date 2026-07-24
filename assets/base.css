@@ -4247,7 +4247,7 @@ product-recommendations:has([data-has-recommendations='false']) {
 /* AIOD bundle as Product and shows in the collection page START */
 
  .ecom-custom-aiod-bundle-hide {
-     display: none;
+     display: none !important;
  }
 
 .template-product .aiod-bundle-custom-wrapper + .shopify-app-block, .template-product .aiod-bundle-custom-wrapper ~ .buy-buttons-block {
@@ -4313,6 +4313,38 @@ product-recommendations:has([data-has-recommendations='false']) {
 
 .template-product .product__meta:has(.aiod-bundle-discount-wrap) .product__header {
     margin-bottom: 0;
+}
+
+.template-product .aiod-bundle-custom-wrapper  .csapp_btn.csapps-add-to-cart-btn {
+  line-height: 3 !important;
+  position: relative;
+  border: none;
+  height: auto;
+  font-size: 12px;
+  text-align: center;
+  width: 50%;
+  padding: 0;
+  transition: all .4s;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: #fff !important;
+  vertical-align: top;
+  background: var(--color-primary-button-background);
+  border-radius: 999px;
+  height: var(--height-buy-buttons);
+  max-width: 177.3px;
+  padding-left: 13px;
+}
+
+.template-product .aiod-bundle-custom-wrapper .csapp_btn.csapps-add-to-cart-btn:after {
+    content: " ";
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    left: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: url('data:image/svg+xml,<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"><path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="var(--icon-stroke-width)" d="M16.608 9.421V6.906H3.392v8.016c0 .567.224 1.112.624 1.513.4.402.941.627 1.506.627H8.63M8.818 3h2.333c.618 0 1.212.247 1.649.686a2.35 2.35 0 0 1 .683 1.658v1.562H6.486V5.344c0-.622.246-1.218.683-1.658A2.33 2.33 0 0 1 8.82 3"/><path stroke="white" stroke-linecap="round" stroke-width="var(--icon-stroke-width)" d="M14.608 12.563v5m2.5-2.5h-5"/></svg>');
 }
 
 /* in collection page START */
@@ -4381,22 +4413,6 @@ product-recommendations:has([data-has-recommendations='false']) {
     font-family: Montserrat, sans-serif;
 }
 
-.template-collection .aiod-bundle-custom-wrapper  .csapp_btn.csapps-add-to-cart-btn {
-    border-radius: 10px;
-    line-height: 3 !important;
-    position: relative;
-    border: none;
-    height: auto;
-    font-size: 12px;
-    text-align: center;
-    width: 86%;
-    padding: 0;
-    transition: all .4s;
-    letter-spacing: 2px;
-    font-weight: 600;
-    color: white !important;
-    vertical-align: top;
-}
 
 @media only screen and (max-width: 768px) {
     .template-collection .aiod-bundle-custom-wrapper  .csapp_btn.csapps-add-to-cart-btn {

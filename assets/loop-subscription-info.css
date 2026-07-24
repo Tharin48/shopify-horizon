@@ -21,6 +21,18 @@
   vertical-align: middle;
 }
 
+/*
+ * Loop changes its native badge for each selected frequency. Keep that
+ * internal element available to Loop, but display the aggregate discount in
+ * the separate theme-owned badge so plan changes do not produce a second
+ * visible badge update.
+ */
+[id^='loop-widget-container-id-']
+  .loop-widget-purchase-option:not(.loop-widget-purchase-option-onetime)
+  [id^='loop-widget-purchase-option-discount-badge-id-'] {
+  display: none !important;
+}
+
 /* 16px Polaris-style info icon */
 .dilmah-loop-info__trigger {
   display: inline-flex;
@@ -148,6 +160,17 @@
   margin-block: 12px 0;
   padding: 0;
   list-style: none;
+}
+
+/*
+ * Loop recreates the checklist inside its description node when a selling
+ * plan changes. Keep that transient copy hidden until the enhancement moves
+ * the same element below the complete delivery selector.
+ */
+[id^='loop-widget-container-id-']
+  .loop-widget-sp-selector-description
+  .dilmah-loop-info__checklist {
+  display: none;
 }
 
 .dilmah-loop-info__checklist-item {

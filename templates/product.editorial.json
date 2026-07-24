@@ -149,8 +149,8 @@
                   "type": "product-title",
                   "name": "t:names.title",
                   "settings": {
-                    "width": "fit-content",
-                    "max_width": "normal",
+                    "width": "100%",
+                    "max_width": "none",
                     "alignment": "left",
                     "type_preset": "h2",
                     "font": "var(--font-heading--family)",
@@ -355,7 +355,7 @@
                       "settings": {
                         "text": "{{ closest.product.description }}",
                         "width": "100%",
-                        "max_width": "normal",
+                        "max_width": "none",
                         "alignment": "left",
                         "type_preset": "rte",
                         "font": "var(--font-body--family)",
@@ -459,9 +459,9 @@
                 },
                 "accordion_row_suitedFor": {
                   "type": "_accordion-row",
-                  "name": "Suited for",
+                  "name": "Suite for",
                   "settings": {
-                    "heading": "Suited for",
+                    "heading": "Suite for",
                     "open_by_default": false,
                     "icon": "none",
                     "width": 20

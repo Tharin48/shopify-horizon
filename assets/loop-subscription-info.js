@@ -20,8 +20,6 @@
   const LAYOUT_ATTR = 'data-dilmah-loop-layout-enhanced'
   const CHECKLIST_ATTR = 'data-dilmah-loop-checklist-injected'
   const DISCOUNT_BADGE_ATTR = 'data-dilmah-loop-discount-badge'
-  const DISCOUNT_BADGE_SELECTOR =
-    '[id^="loop-widget-purchase-option-discount-badge-id-"]'
   const CUSTOM_DISCOUNT_BADGE_SELECTOR =
     `[${DISCOUNT_BADGE_ATTR}="custom"]`
   const SETTINGS_ID = 'DilmahLoopInfoSettings'
@@ -485,18 +483,13 @@
 
   /**
    * Finds or creates the single badge managed by this theme customization.
-   * Loop's own badge is always preferred and is never moved.
+   * This badge is deliberately separate from Loop's native badge. Loop updates
+   * its badge whenever the selected selling plan changes; writing the aggregate
+   * "Up to" value into that same node causes a visible second render.
    * @param {HTMLElement} option
    * @returns {HTMLElement | null}
    */
   function getDiscountBadge(option) {
-    const loopBadge = option.querySelector(DISCOUNT_BADGE_SELECTOR)
-    if (loopBadge instanceof HTMLElement) {
-      option.querySelector(CUSTOM_DISCOUNT_BADGE_SELECTOR)?.remove()
-      loopBadge.setAttribute(DISCOUNT_BADGE_ATTR, 'loop')
-      return loopBadge
-    }
-
     const existingCustomBadge = option.querySelector(
       CUSTOM_DISCOUNT_BADGE_SELECTOR,
     )
@@ -527,16 +520,11 @@
    */
   function updateSubscriptionDiscountBadge(option, productId) {
     const summary = getSubscriptionDiscountSummary(productId)
-    const loopBadge = option.querySelector(DISCOUNT_BADGE_SELECTOR)
     const customBadge = option.querySelector(CUSTOM_DISCOUNT_BADGE_SELECTOR)
-    const existingBadge = loopBadge || customBadge
 
     if (!summary) {
-      if (loopBadge instanceof HTMLElement) {
-        customBadge?.remove()
-      }
-      if (existingBadge instanceof HTMLElement && !existingBadge.hidden) {
-        existingBadge.hidden = true
+      if (customBadge instanceof HTMLElement && !customBadge.hidden) {
+        customBadge.hidden = true
       }
       return
     }
@@ -559,9 +547,7 @@
    * @param {HTMLElement} option
    */
   function positionInfoTriggerAfterDiscountBadge(option) {
-    const badge =
-      option.querySelector(DISCOUNT_BADGE_SELECTOR) ||
-      option.querySelector(CUSTOM_DISCOUNT_BADGE_SELECTOR)
+    const badge = option.querySelector(CUSTOM_DISCOUNT_BADGE_SELECTOR)
     const trigger = option.querySelector(SELECTORS.infoTrigger)
 
     if (
@@ -1423,12 +1409,6 @@
     document
       .querySelectorAll(CUSTOM_DISCOUNT_BADGE_SELECTOR)
       .forEach((badge) => badge.remove())
-
-    document
-      .querySelectorAll(`[${DISCOUNT_BADGE_ATTR}="loop"]`)
-      .forEach((badge) => {
-        badge.removeAttribute(DISCOUNT_BADGE_ATTR)
-      })
 
     document
       .querySelectorAll('.dilmah-loop-info__label-wrap')
