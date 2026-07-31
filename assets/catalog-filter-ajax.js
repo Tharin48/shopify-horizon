@@ -165,6 +165,7 @@ class CatalogFilterAjax {
 
       const freshDoc = new DOMParser().parseFromString(sectionHtml, 'text/html');
       this.#swapRegions(freshDoc);
+      ensureDrawerFacetsOpen(this.#root);
       this.#restoreCatalogProductGridView();
 
       if (push) {
@@ -333,6 +334,48 @@ function initCatalogFilterAjax() {
 /** @type {boolean} */
 let catalogFacetOutsideCloseBound = false;
 
+/** @type {boolean} */
+let catalogDrawerFacetsBound = false;
+
+/**
+ * Mobile filter drawer facet/sort accordions (toolbar dropdowns are separate).
+ *
+ * @param {Element} el
+ * @returns {boolean}
+ */
+function isDrawerFacetDetails(el) {
+  return el instanceof HTMLDetailsElement && el.classList.contains('custom-catalog__facet-dd--drawer');
+}
+
+/**
+ * Ensure every mobile-drawer facet/sort accordion stays open.
+ *
+ * @param {ParentNode} [scope]
+ */
+function ensureDrawerFacetsOpen(scope = document) {
+  scope.querySelectorAll('details.custom-catalog__facet-dd--drawer').forEach((el) => {
+    if (el instanceof HTMLDetailsElement) {
+      el.open = true;
+    }
+  });
+}
+
+/**
+ * Open all drawer accordions when the filter drawer opens (default expanded state).
+ */
+function ensureCatalogDrawerFacetsDefaultOpen() {
+  if (catalogDrawerFacetsBound) return;
+  catalogDrawerFacetsBound = true;
+
+  document.addEventListener('dialog:open', (e) => {
+    const component = e.target;
+    if (!(component instanceof Element)) return;
+
+    const drawer = component.querySelector('.custom-catalog__mobile-filters-drawer');
+    if (drawer) ensureDrawerFacetsOpen(drawer);
+  });
+}
+
 /**
  * Close catalog facet/sort <details> dropdowns when clicking outside or pressing Escape.
  * One document listener so behavior survives Section Rendering API swaps without rebinding.
@@ -346,7 +389,7 @@ function ensureCatalogFacetOutsideClose() {
     if (!(target instanceof Node)) return;
 
     document.querySelectorAll('details.custom-catalog__facet-dd[open]').forEach((el) => {
-      if (el instanceof HTMLDetailsElement && !el.contains(target)) {
+      if (!isDrawerFacetDetails(el) && !el.contains(target)) {
         el.open = false;
       }
     });
@@ -356,13 +399,14 @@ function ensureCatalogFacetOutsideClose() {
     if (e.key !== 'Escape') return;
 
     document.querySelectorAll('details.custom-catalog__facet-dd[open]').forEach((el) => {
-      if (el instanceof HTMLDetailsElement) {
+      if (!isDrawerFacetDetails(el)) {
         el.open = false;
       }
     });
   });
 }
 
+ensureCatalogDrawerFacetsDefaultOpen();
 ensureCatalogFacetOutsideClose();
 
 document.addEventListener('DOMContentLoaded', initCatalogFilterAjax);

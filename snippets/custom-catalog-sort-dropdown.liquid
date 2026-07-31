@@ -91,8 +91,11 @@
   {%- else -%}
     <details
       class="custom-catalog__facet-dd custom-catalog__sort-dd{% if is_drawer_mode %} custom-catalog__facet-dd--drawer{% endif %}"
-      name="{% if is_drawer_mode %}catalog-drawer-facets{% else %}catalog-toolbar-facets{% endif %}"
+      {% unless is_drawer_mode %}name="catalog-toolbar-facets"{% endunless %}
       data-catalog-facet-dd
+      {% if is_drawer_mode %}
+        open
+      {% endif %}
     >
       <summary
         class="custom-catalog__facet-dd-summary custom-catalog__sort-dd-summary"

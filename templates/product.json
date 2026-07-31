@@ -68,6 +68,12 @@
             "padding-inline-end": 0
           },
           "blocks": {
+            "product_back_button": {
+              "type": "product-back-button",
+              "name": "Back to products button",
+              "settings": {},
+              "blocks": {}
+            },
             "group_icgrde": {
               "type": "group",
               "name": "Header",
@@ -254,13 +260,14 @@
               "blocks": {}
             }
           },
-          "block_order": [
-            "group_icgrde",
-            "divider_VJhene",
-            "variant_picker_R3rGDr",
-            "buy_buttons_eYQEYi",
-            "text_aEtTtq"
-          ]
+      "block_order": [
+        "product_back_button",
+        "group_icgrde",
+        "divider_VJhene",
+        "variant_picker_R3rGDr",
+        "buy_buttons_eYQEYi",
+        "text_aEtTtq"
+      ]
         },
         "f85554bb-d197-415c-9211-49062064a9c6": {
           "type": "shopify://apps/yotpo-product-reviews/blocks/star-rating/eb7dfd7d-db44-4334-bc49-c893b51b36cf",

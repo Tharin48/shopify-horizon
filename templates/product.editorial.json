@@ -70,6 +70,12 @@
             "padding-inline-end": 0
           },
           "blocks": {
+            "product_back_button_editorial": {
+              "type": "product-back-button",
+              "name": "Back to products button",
+              "settings": {},
+              "blocks": {}
+            },
             "product_breadcrumb_editorial": {
               "type": "_product-breadcrumb",
               "name": "Breadcrumb",
@@ -544,6 +550,7 @@
             }
           },
           "block_order": [
+            "product_back_button_editorial",
             "product_breadcrumb_editorial",
             "product_heading_stack_editorial",
             "text_7BEm3E",

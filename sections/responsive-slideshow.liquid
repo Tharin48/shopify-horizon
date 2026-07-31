@@ -1,0 +1,409 @@
+{% liquid
+  assign autoplay = false
+  if section.blocks.size > 1 and section.settings.display_mode == 'full_frame'
+    assign autoplay = section.settings.autoplay
+  endif
+
+  assign section_width_class = 'section--' | append: section.settings.section_width
+  if section.settings.section_width == 'custom'
+    assign section_width_class = 'section--page-width responsive-slideshow-section--custom-width'
+  endif
+  if section.settings.display_mode == 'with_hints'
+    assign section_width_class = 'section--page-width'
+    if section.settings.full_frame_on_mobile
+      assign section_width_class = section_width_class | append: ' section--mobile-full-width'
+    endif
+  endif
+
+  assign slideshow_class = 'slideshow--content-' | append: section.settings.content_position
+  if section.blocks.size == 1
+    assign slideshow_class = slideshow_class | append: ' slideshow--single-media'
+  endif
+  if section.settings.display_mode == 'with_hints'
+    assign slideshow_class = slideshow_class | append: ' slideshow--with-hints responsive-slideshow--with-hints'
+    if section.settings.full_frame_on_mobile
+      assign slideshow_class = slideshow_class | append: ' responsive-slideshow--mobile-full-frame'
+    else
+      assign slideshow_class = slideshow_class | append: ' responsive-slideshow--mobile-with-hints'
+    endif
+  endif
+
+  assign show_arrows = true
+  if section.settings.icons_style == 'none' or section.blocks.size <= 1
+    assign show_arrows = false
+  endif
+
+  assign rounded_slide_corners = false
+  if section.settings.display_mode == 'full_frame' and section.settings.section_width != 'full-width'
+    assign rounded_slide_corners = true
+  elsif section.settings.display_mode == 'with_hints' and section.settings.full_frame_on_mobile == false
+    assign rounded_slide_corners = true
+  endif
+%}
+
+{% if section.blocks.size > 1 %}
+  {% capture controls %}
+    {% render 'slideshow-controls',
+      style: section.settings.slideshow_controls_style,
+      autoplay: autoplay,
+      item_count: section.blocks.size,
+      show_arrows: false,
+      arrows_on_media: true,
+      controls_on_media: true,
+      pagination_position: 'center',
+      icon_style: section.settings.icons_style
+    %}
+  {% endcapture %}
+{% endif %}
+
+{% capture slides %}{% content_for 'blocks' %}{% endcapture %}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="responsive-slideshow-section slideshow-section spacing-style section {{ section_width_class }} color-{{ section.settings.color_scheme }} disable-section-top-offset{% unless section.settings.show_arrows_mobile %} responsive-slideshow-section--hide-mobile-arrows{% endunless %}"
+  style="{% render 'spacing-padding', settings: section.settings %}; --slideshow-gap: {{ section.settings.slideshow_gap }}px; --responsive-indicator-active: {{ section.settings.color_scheme.settings.primary_button_background }};{% if rounded_slide_corners %} --corner-radius: {{ section.settings.corner_radius }}px;{% endif %}{% if section.settings.display_mode == 'full_frame' and section.settings.section_width == 'custom' %} --page-content-width: {{ section.settings.custom_max_width }}px; --page-width: calc({{ section.settings.custom_max_width }}px + (var(--page-margin) * 2));{% endif %}"
+>
+  <h2 class="visually-hidden">{{ 'accessibility.slideshow' | t }}</h2>
+  {% render 'slideshow',
+    class: slideshow_class,
+    controls: controls,
+    show_arrows: show_arrows,
+    icon_style: section.settings.icons_style,
+    icon_shape: section.settings.icons_shape,
+    autoplay: autoplay,
+    autoplay_speed: section.settings.autoplay_speed,
+    slides: slides,
+    slide_count: section.blocks.size,
+    slide_size: section.settings.slide_height
+  %}
+</div>
+
+{% stylesheet %}
+  .responsive-slideshow-section {
+    slideshow-arrows .slideshow-control:first-of-type { margin-inline-start: var(--padding-xs); }
+    slideshow-arrows .slideshow-control:last-of-type { margin-inline-end: var(--padding-xs); }
+
+    slideshow-arrows {
+      mix-blend-mode: normal;
+    }
+
+    slideshow-arrows .slideshow-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--minimum-touch-target, 44px);
+      height: var(--minimum-touch-target, 44px);
+      padding: 0;
+      opacity: 1;
+      color: var(--color-primary-button-text);
+      background-color: var(--color-primary);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+    }
+
+    slideshow-arrows .slideshow-control:hover {
+      color: var(--color-primary-button-text);
+      background-color: var(--color-primary-hover, var(--color-primary));
+    }
+
+    slideshow-controls[controls-on-media]:has(.slideshow-controls__dots) {
+      justify-content: flex-start;
+    }
+
+    .slideshow-controls__dots {
+      gap: 0;
+      margin-inline: 0;
+      padding-inline: 48px;
+
+      button {
+        --dot-hit-min: 18px;
+        --color-active: var(--responsive-indicator-active);
+
+        min-height: var(--minimum-touch-target, 44px);
+        height: var(--minimum-touch-target, 44px);
+        animation: none !important;
+      }
+
+      button[aria-current='true']::after {
+        background: var(--responsive-indicator-active) !important;
+        box-shadow: none !important;
+      }
+    }
+
+    .responsive-slideshow--with-hints {
+      gap: var(--slideshow-gap, 0);
+      grid-column: 1 / -1;
+    }
+
+    .responsive-slideshow--with-hints slideshow-slides {
+      gap: var(--slideshow-gap, 0);
+    }
+
+    .responsive-slideshow--with-hints slideshow-slide {
+      overflow: hidden;
+      border-radius: var(--corner-radius, 0);
+    }
+
+    .responsive-slideshow--with-hints slideshow-arrows .slideshow-control {
+      transition: opacity 0.3s ease;
+    }
+
+    .slideshow--content-below-media slideshow-slide :is(.responsive-slide__media, .responsive-slide__content) {
+      position: static;
+    }
+
+    .slideshow--content-below-media .responsive-slide__media {
+      min-height: 100%;
+    }
+
+    slideshow-component.responsive-slideshow--with-hints:has(slideshow-slide:first-child:not([aria-hidden='true']))
+      > slideshow-container > slideshow-arrows .slideshow-control--previous,
+    slideshow-component.responsive-slideshow--with-hints:has(slideshow-slide:last-child:not([aria-hidden='true']))
+      > slideshow-container > slideshow-arrows .slideshow-control--next {
+      animation: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media screen and (max-width: 749px) {
+      slideshow-controls[controls-on-media]:has(.slideshow-controls__dots, .slideshow-controls__counter) {
+        position: static;
+        width: 100%;
+        min-height: var(--minimum-touch-target, 44px);
+        margin-block-start: 12px;
+        justify-content: flex-start;
+        align-self: auto;
+        color: var(--color-foreground);
+        mix-blend-mode: normal;
+        --color-foreground: var(--color-primary);
+        --color-foreground-rgb: var(--color-primary-rgb);
+      }
+
+      .slideshow-controls__dots {
+        padding-block: 0;
+        padding-inline: 10px;
+      }
+
+      &.responsive-slideshow-section--hide-mobile-arrows slideshow-arrows {
+        display: none;
+      }
+
+      &:not(.responsive-slideshow-section--hide-mobile-arrows)
+        slideshow-component:has(> slideshow-controls :is(.slideshow-controls__dots, .slideshow-controls__counter))
+        > slideshow-container
+        > slideshow-arrows {
+        inset: auto 10px calc(-44px - 12px) auto;
+        width: auto;
+        height: var(--minimum-touch-target, 44px);
+        gap: 6px;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      &:not(.responsive-slideshow-section--hide-mobile-arrows)
+        slideshow-component:has(> slideshow-controls :is(.slideshow-controls__dots, .slideshow-controls__counter))
+        > slideshow-container
+        > slideshow-arrows
+        .slideshow-control {
+        margin-inline: 0;
+      }
+
+      .responsive-slideshow--mobile-with-hints slideshow-slides { padding-inline: var(--page-margin); }
+      .responsive-slideshow--mobile-with-hints slideshow-slide { width: 96%; }
+      .responsive-slideshow--mobile-with-hints slideshow-slides { gap: min(var(--slideshow-gap, 0), 10px); }
+    }
+
+    @media screen and (min-width: 750px) {
+      .responsive-slideshow--with-hints slideshow-slides { padding-inline: var(--page-margin); }
+      .responsive-slideshow--with-hints slideshow-slide {
+        width: min(100%, calc(100vw - var(--page-margin) * 2));
+      }
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Responsive slideshow",
+  "class": "container-background-image",
+  "blocks": [{ "type": "_responsive-slide" }],
+  "disabled_on": { "groups": ["header", "footer"] },
+  "settings": [
+    {
+      "type": "select",
+      "id": "display_mode",
+      "label": "Layout",
+      "options": [
+        { "value": "full_frame", "label": "Full frame" },
+        { "value": "with_hints", "label": "With slide hints" }
+      ],
+      "default": "full_frame"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" },
+        { "value": "custom", "label": "Custom max width" }
+      ],
+      "default": "full-width",
+      "visible_if": "{{ section.settings.display_mode == 'full_frame' }}"
+    },
+    {
+      "type": "range",
+      "id": "custom_max_width",
+      "label": "Custom max width",
+      "min": 600,
+      "max": 2400,
+      "step": 20,
+      "unit": "px",
+      "default": 1600,
+      "visible_if": "{{ section.settings.display_mode == 'full_frame' and section.settings.section_width == 'custom' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_frame_on_mobile",
+      "label": "Full frame on mobile",
+      "default": false,
+      "visible_if": "{{ section.settings.display_mode == 'with_hints' }}"
+    },
+    {
+      "type": "range",
+      "id": "slideshow_gap",
+      "label": "Gap",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 12,
+      "visible_if": "{{ section.settings.display_mode == 'with_hints' }}"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.display_mode == 'with_hints' or section.settings.display_mode == 'full_frame' and section.settings.section_width != 'full-width' }}"
+    },
+    {
+      "type": "select",
+      "id": "slide_height",
+      "label": "Media height",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "Content position",
+      "options": [
+        { "value": "on-media", "label": "On media" },
+        { "value": "below-media", "label": "Below media" }
+      ],
+      "default": "on-media"
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "primary" },
+    { "type": "header", "content": "Navigation" },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "Icons",
+      "options": [
+        { "value": "arrow", "label": "Arrows" },
+        { "value": "chevron", "label": "Chevrons" },
+        { "value": "arrows_large", "label": "Large arrows" },
+        { "value": "chevron_large", "label": "Large chevrons" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "arrows_large"
+    },
+    {
+      "type": "select",
+      "id": "icons_shape",
+      "label": "Icon background",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "square", "label": "Square" }
+      ],
+      "default": "none",
+      "visible_if": "{{ section.settings.icons_style != 'none' }}"
+    },
+    {
+      "type": "select",
+      "id": "slideshow_controls_style",
+      "label": "Pagination",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "dots", "label": "Dots" },
+        { "value": "counter", "label": "Counter" }
+      ],
+      "default": "dots"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows_mobile",
+      "label": "Show arrows on mobile",
+      "default": false,
+      "visible_if": "{{ section.settings.icons_style != 'none' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "default": false,
+      "visible_if": "{{ section.settings.display_mode == 'full_frame' }}"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Speed",
+      "min": 3,
+      "max": 7,
+      "step": 1,
+      "unit": "s",
+      "default": 4,
+      "visible_if": "{{ section.settings.display_mode == 'full_frame' and section.settings.autoplay }}"
+    },
+    { "type": "header", "content": "Padding" },
+    { "type": "range", "id": "padding-block-start", "label": "Top", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 },
+    { "type": "range", "id": "padding-block-end", "label": "Bottom", "min": 0, "max": 100, "step": 1, "unit": "px", "default": 0 }
+  ],
+  "presets": [
+    {
+      "name": "Responsive slideshow",
+      "category": "Banners",
+      "blocks": {
+        "slide_1": {
+          "type": "_responsive-slide",
+          "settings": {
+            "desktop_heading": "Discover something new",
+            "desktop_text": "<p>Use separate imagery and content for every screen size.</p>",
+            "desktop_button_link": "shopify://collections/all"
+          }
+        },
+        "slide_2": {
+          "type": "_responsive-slide",
+          "settings": {
+            "desktop_heading": "Made for every screen",
+            "desktop_text": "<p>Configure desktop and mobile experiences independently.</p>",
+            "desktop_button_link": "shopify://collections/all"
+          }
+        }
+      },
+      "block_order": ["slide_1", "slide_2"]
+    }
+  ]
+}
+{% endschema %}

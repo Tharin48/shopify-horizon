@@ -169,9 +169,9 @@ function requestSnapshot(destinationUrl, sectionId) {
 function shouldAvoidPrefetch() {
   if (isLowPowerDevice()) return true;
 
-  const connection = /** @type {{ saveData?: boolean, effectiveType?: string } | undefined} */ (
-    navigator.connection
-  );
+  const connection = /** @type {Navigator & { connection?: { saveData?: boolean, effectiveType?: string } }} */ (
+    navigator
+  ).connection;
 
   return connection?.saveData === true || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g';
 }
@@ -337,6 +337,7 @@ function waitForLoopWidget(productSection, signal) {
       LOOP_READY_TIMEOUT
     );
     const handleAbort = () => finish(() => reject(new DOMException('Product switch aborted.', 'AbortError')));
+    /** @param {() => void} callback */
     const finish = (callback) => {
       if (settled) return;
       settled = true;
@@ -390,6 +391,10 @@ function withTimeout(promise, duration, signal) {
 
   return new Promise((resolve, reject) => {
     let settled = false;
+    /**
+     * @param {(value?: any) => void} callback
+     * @param {any} value
+     */
     const finish = (callback, value) => {
       if (settled) return;
       settled = true;
@@ -615,6 +620,15 @@ if (initialized) {
 
     const currentUrl = normalizeProductUrl(getCurrentProductSection()?.dataset.productUrl || '');
     if (destinationUrl === currentUrl) return;
+
+    // History entries without our `ajaxProduct` flag (e.g. a collection or
+    // search results page the customer navigated here from) are never a
+    // product-format switch. Navigate immediately instead of attempting - and
+    // failing - to fetch/parse a product AJAX snapshot from that URL first.
+    if (!event.state?.ajaxProduct) {
+      window.location.assign(destinationUrl);
+      return;
+    }
 
     void switchProduct(destinationUrl, { pushHistory: false, restoreFocus: false });
   });
