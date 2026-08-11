@@ -8,18 +8,20 @@
  * ------------------------------------------------------------
  */
 {
-  "markets": {
-    "sri-lanka": {
-      "parent": "@default"
-    },
-    "india": {
-      "parent": "@default"
-    },
-    "chile": {
-      "parent": "@default"
-    },
-    "middle-east": {
-      "parent": "@default"
+  "context": {
+    "market": "middle-east"
+  },
+  "parent": "footer-group.json",
+  "sections": {
+    "custom_footer_QEeBXD": {
+      "settings": {},
+      "blocks": {
+        "menu_column_FFPEzU": {
+          "settings": {
+            "menu": "our-policies-me"
+          }
+        }
+      }
     }
   }
 }

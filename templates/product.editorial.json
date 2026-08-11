@@ -73,7 +73,9 @@
             "product_back_button_editorial": {
               "type": "product-back-button",
               "name": "Back to products button",
-              "settings": {},
+              "settings": {
+                "collection": ""
+              },
               "blocks": {}
             },
             "product_breadcrumb_editorial": {
@@ -133,9 +135,14 @@
                 "padding-inline-end": 0
               },
               "blocks": {
+                "judge_me_reviews_preview_badge_BiRmKG": {
+                  "type": "shopify://apps/judge-me-reviews/blocks/preview_badge/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+                  "settings": {}
+                },
                 "product_rating_editorial": {
                   "type": "_product-rating-summary",
                   "name": "Rating",
+                  "disabled": true,
                   "settings": {
                     "integration_mode": "yotpo_star_rating_widget",
                     "yotpo_widget_instance_id": "824555",
@@ -184,6 +191,7 @@
                 }
               },
               "block_order": [
+                "judge_me_reviews_preview_badge_BiRmKG",
                 "product_rating_editorial",
                 "product_title_eYVzTU"
               ]
@@ -734,11 +742,56 @@
     },
     "custom_liquid_mNMFK6": {
       "type": "custom-liquid",
-      "name": "t:names.custom_liquid",
+      "disabled": true,
+      "name": "YOTPO Reviews",
       "settings": {
         "custom_liquid": "<div class=\"yotpo-widget-instance\" data-yotpo-instance-id=\"234945\" data-yotpo-product-id=\"{{product.id}}\" data-yotpo-name=\"{{ product.title | escape }}\" data-yotpo-url=\"{{ shop.url }}{{ product.url }}\" data-yotpo-image-url=\"{{ product.featured_image | product_img_url: \"large\" | prepend: \"https:\" | replace: '?', '%3F' | replace: '&','%26'}}\" data-yotpo-price=\"{{ product.price | divided_by: 100.00 }}\" data-yotpo-currency=\"{{ shop.currency }}\" data-yotpo-description=\"{{ product.description | escape }}\"></div>",
         "color_scheme": "scheme-49b72516-7267-49d9-a65d-7bcdce35bb81",
         "section_width": "page-width",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "1785729292b9aee8f3": {
+      "type": "_blocks",
+      "blocks": {
+        "judge_me_reviews_review_widget_TQaegX": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "sample_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
+          }
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_TQaegX"
+      ],
+      "settings": {
+        "content_direction": "row",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "center",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
         "padding-block-start": 0,
         "padding-block-end": 0
       }
@@ -750,6 +803,7 @@
     "section_JyTyxe",
     "tea_origin_map_ewBtD4",
     "custom_blog_recipes_B8B4a8",
-    "custom_liquid_mNMFK6"
+    "custom_liquid_mNMFK6",
+    "1785729292b9aee8f3"
   ]
 }

@@ -188,7 +188,8 @@
       {% if show_review %}
         {% if card_product != blank %}
           <div class="teamakers-pick__rating">
-            {% render 'yotpo-rating-mount', product: card_product, instance_id: '824555', lazy: true %}
+            {% comment %} {% render 'yotpo-rating-mount', product: card_product, instance_id: '824555', lazy: true %} {% endcomment %}
+            {% render 'judgeme-rating-amount', product: card_product, lazy: true %}
           </div>
         {% endif %}
       {% endif %}

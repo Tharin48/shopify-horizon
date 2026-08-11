@@ -8,18 +8,20 @@
  * ------------------------------------------------------------
  */
 {
-  "markets": {
-    "sri-lanka": {
-      "parent": "@default"
-    },
-    "india": {
-      "parent": "@default"
-    },
-    "chile": {
-      "parent": "@default"
-    },
-    "middle-east": {
-      "parent": "@default"
+  "context": {
+    "market": "middle-east"
+  },
+  "parent": "header-group.json",
+  "sections": {
+    "header_announcements_9jGBFp": {
+      "settings": {},
+      "blocks": {
+        "announcement_BxgCk9": {
+          "settings": {
+            "text": "FREE SHIPPING OVER $120"
+          }
+        }
+      }
     }
   }
 }
