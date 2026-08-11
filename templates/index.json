@@ -228,7 +228,7 @@
           "name": "Icon button",
           "settings": {
             "label": "Explore More",
-            "link": "shopify://collections/all",
+            "link": "shopify://collections/all-products",
             "open_in_new_tab": false,
             "font_size": 16,
             "padding_vertical": 12,
@@ -1818,7 +1818,7 @@
           "type": "_responsive-slide",
           "name": "Paradise",
           "settings": {
-            "image": "shopify://shop_images/Paradise-earl-gray.webp",
+            "image": "shopify://shop_images/Paradise_collection_with_lifestyle.png",
             "desktop_image_position": "center center",
             "mobile_image_position": "center center",
             "toggle_overlay": false,
@@ -1865,7 +1865,7 @@
           "type": "_responsive-slide",
           "name": "EFT",
           "settings": {
-            "image": "shopify://shop_images/Exquisitely_Flavoured_Tea_-_Lifestyle_Image_-_20_string_tag_tea_bags_-_Passionfruit_Pomegranate_Honeysuckle_-_001_-_Large_113b3a71-f004-40b4-a061-407bf2e09338.jpg",
+            "image": "shopify://shop_images/Untitled_design_54_9748b4b2-0062-43d9-b4b2-20e1e54d2086.png",
             "desktop_image_position": "center center",
             "mobile_image_position": "center top",
             "toggle_overlay": false,

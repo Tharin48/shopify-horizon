@@ -13,12 +13,6 @@
   },
   "parent": "page.policy-shipping.json",
   "sections": {
-    "shipping_availability": {
-      "settings": {
-        "global_notice": "<ul><li>Free shipping is available for orders over USD $120.</li><li>Local customs authorities may impose duties, taxes, or inspection charges.</li><li>These charges are not included in the tea price.</li><li>Certain Middle Eastern destinations may incur an additional Elevated Risk Shipping Surcharge due to carrier security and operational requirements. This surcharge is determined by the shipping carrier and may vary without prior notice.</li><li>Please contact your nearest agent with your airway bill number.</li><li>Refunds may exclude charges already paid to authorities.</li></ul>"
-      },
-      "blocks": {}
-    },
     "policy_shell": {
       "settings": {},
       "blocks": {
@@ -26,8 +20,19 @@
           "settings": {
             "intro": "<p>We offer free international shipping on all orders over USD $120. Shipping availability depends on courier coverage in your delivery location.</p>"
           }
+        },
+        "shipping_tab": {
+          "settings": {
+            "page": "shipping-and-delivery-me"
+          }
         }
       }
+    },
+    "shipping_availability": {
+      "settings": {
+        "global_notice": "<ul><li>Free shipping is available for orders over USD $120.</li><li>Local customs authorities may impose duties, taxes, or inspection charges.</li><li>These charges are not included in the tea price.</li><li>Certain Middle Eastern destinations may incur an additional Elevated Risk Shipping Surcharge due to carrier security and operational requirements. This surcharge is determined by the shipping carrier and may vary without prior notice.</li><li>Please contact your nearest agent with your airway bill number.</li><li>Refunds may exclude charges already paid to authorities.</li></ul>"
+      },
+      "blocks": {}
     }
   }
 }

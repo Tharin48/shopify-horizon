@@ -180,7 +180,7 @@
         "show_tea_club_button": false,
         "tea_club_label": "Tea Club",
         "tea_club_link": "",
-        "show_wishlist": false,
+        "show_wishlist": true,
         "wishlist_label": "Wishlist",
         "wishlist_link": "",
         "show_localization": true,

@@ -96,13 +96,13 @@
       "custom-newsletter-popup": {
         "type": "custom-newsletter-popup",
         "settings": {
-          "enable_popup": false,
+          "enable_popup": true,
           "popup_visibility": "homepage_only",
           "enable_desktop": true,
           "enable_mobile": true,
           "delay_seconds": 25,
           "display_frequency": "session",
-          "frequency_days": 1,
+          "frequency_days": 7,
           "heading": "Enjoy 10% Off Your First Order",
           "description": "Join the Dilmah community for exclusive offers, tea stories, and early access to new collections.",
           "email_placeholder": "Enter your email",
@@ -173,11 +173,6 @@
         "disabled": false,
         "settings": {}
       },
-      "pagefly-page-builder": {
-        "type": "shopify://apps/pagefly-page-builder/blocks/app-embed/83e179f7-59a0-4589-8c66-c0dddf959200",
-        "disabled": false,
-        "settings": {}
-      },
       "yoast-seo-metatags": {
         "type": "shopify://apps/yoast-seo-seo-for-everyone/blocks/metatags/7c777011-bc88-4743-a24e-64336e1e5b46",
         "disabled": false,
@@ -188,8 +183,18 @@
         "disabled": false,
         "settings": {}
       },
-      "7570552984445421165": {
-        "type": "shopify://apps/yotpo-product-reviews/blocks/settings/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+      "7559105968087542595": {
+        "type": "shopify://apps/multifeeds/blocks/gad_embed/f3e7ca1d-2d5a-45a7-97dd-2fd45843acef",
+        "disabled": false,
+        "settings": {}
+      },
+      "16936614187718193802": {
+        "type": "shopify://apps/multifeeds/blocks/app_embed/f3e7ca1d-2d5a-45a7-97dd-2fd45843acef",
+        "disabled": false,
+        "settings": {}
+      },
+      "2153490007123654574": {
+        "type": "shopify://apps/consentmo-gdpr/blocks/gdpr_cookie_consent/4fbe573f-a377-4fea-9801-3ee0858cae41",
         "disabled": true,
         "settings": {}
       }

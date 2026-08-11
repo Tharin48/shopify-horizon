@@ -9,29 +9,19 @@
  */
 {
   "context": {
-    "market": "india"
+    "market": "middle-east"
   },
-  "parent": "page.policy-shipping.json",
+  "parent": "page.policy-privacy.json",
   "sections": {
     "policy_shell": {
       "settings": {},
       "blocks": {
-        "page_heading": {
-          "settings": {
-            "intro": "{{ page.content }}"
-          }
-        },
         "shipping_tab": {
           "settings": {
-            "page": "shipping-and-delivery-in"
+            "page": "shipping-and-delivery-me"
           }
         }
       }
-    },
-    "shipping_availability": {
-      "disabled": true,
-      "settings": {},
-      "blocks": {}
     }
   }
 }

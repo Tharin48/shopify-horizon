@@ -9,29 +9,19 @@
  */
 {
   "context": {
-    "market": "india"
+    "market": "sri-lanka"
   },
-  "parent": "page.policy-shipping.json",
+  "parent": "page.policy-faq.json",
   "sections": {
     "policy_shell": {
-      "settings": {},
       "blocks": {
-        "page_heading": {
+        "terms_tab": {
           "settings": {
-            "intro": "{{ page.content }}"
-          }
-        },
-        "shipping_tab": {
-          "settings": {
-            "page": "shipping-and-delivery-in"
+            "page": "shipping-and-delivery-lk"
           }
         }
-      }
-    },
-    "shipping_availability": {
-      "disabled": true,
-      "settings": {},
-      "blocks": {}
+      },
+      "settings": {}
     }
   }
 }

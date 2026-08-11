@@ -13,20 +13,24 @@
   },
   "parent": "page.policy-shipping.json",
   "sections": {
-    "shipping_availability": {
-      "disabled": true,
-      "settings": {},
-      "blocks": {}
-    },
     "policy_shell": {
-      "settings": {},
       "blocks": {
+        "shipping_tab": {
+          "settings": {
+            "page": "shipping-and-delivery-lk"
+          }
+        },
         "page_heading": {
           "settings": {
             "intro": "<p></p>{{ page.content }}"
           }
         }
-      }
+      },
+      "settings": {}
+    },
+    "shipping_availability": {
+      "disabled": true,
+      "settings": {}
     }
   }
 }

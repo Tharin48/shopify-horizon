@@ -20,6 +20,9 @@
     },
     "middle-east": {
       "parent": "@default"
+    },
+    "united-states": {
+      "parent": "@default"
     }
   }
 }
