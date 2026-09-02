@@ -18,7 +18,8 @@
       "blocks": {
         "announcement_BxgCk9": {
           "settings": {
-            "text": "FREE SHIPPING OVER $120"
+            "text": "FREE SHIPPING OVER $120",
+            "shipping_minimum_value": 120
           }
         }
       }

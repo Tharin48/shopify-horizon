@@ -9,19 +9,16 @@
  */
 {
   "markets": {
-    "sri-lanka": {
-      "parent": "@default"
-    },
     "india": {
       "parent": "@default"
     },
-    "chile": {
+    "sri-lanka": {
       "parent": "@default"
     },
     "middle-east": {
       "parent": "@default"
     },
-    "united-states": {
+    "chile": {
       "parent": "@default"
     }
   }

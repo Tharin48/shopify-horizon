@@ -285,6 +285,7 @@ class ProductFormComponent extends Component {
     } else {
       await this.#fetchAndUpdateCartQuantity();
     }
+    console.log("cart updated");
   };
 
   /** @param {Event} event */

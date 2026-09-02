@@ -17,6 +17,11 @@
         "announcement_BxgCk9": {
           "type": "_announcement",
           "settings": {
+            "enable_shipping_progress_bar": true,
+            "shipping_progress_text": "FREE SHIPPING FROM $ __value__",
+            "shipping_minimum_value": 75,
+            "shipping_progress_text_how_far": "You are __value__ away from free shipping",
+            "shipping_progress_text_eligible": "You are eligible for free shipping",
             "text": "FREE SHIPPING OVER $75",
             "link": "",
             "font": "var(--font-subheading--family)",

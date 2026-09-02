@@ -1,0 +1,1393 @@
+{{ 'tea-event-banner.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign desktop_image = section.settings.desktop_image
+  assign mobile_image = section.settings.mobile_image
+  assign image_alt = section.settings.image_alt | default: section.settings.main_title | escape
+
+  assign main_title = section.settings.main_title | default: 'Tea Around the Clock'
+  assign supporting_title = section.settings.supporting_title | default: 'A Morning to Evening Tea Routine'
+  assign description = section.settings.description
+  assign local_time_note = section.settings.local_time_note | default: 'Displayed in your local time'
+  assign cta_label = section.settings.cta_label | default: 'Add to Calendar'
+  assign live_cta_label = section.settings.live_cta_label | default: 'Join Now Live'
+  assign post_event_cta_label = section.settings.post_event_cta_label | default: 'Watch replay'
+
+  assign event_start = section.settings.event_start | default: '2026-09-04T00:30:00Z'
+  assign event_end = section.settings.event_end | default: '2026-09-04T08:30:00Z'
+  assign event_location = section.settings.event_location
+  assign event_url = section.settings.event_url
+  assign calendar_description = section.settings.calendar_description | default: description
+
+  assign event_phase = 'upcoming'
+  if event_url != blank
+    assign event_now = 'now' | date: '%s' | plus: 0
+    assign event_start_epoch = event_start | date: '%s' | plus: 0
+    assign event_end_epoch = event_end | date: '%s' | plus: 0
+    if event_now >= event_start_epoch and event_now <= event_end_epoch
+      assign event_phase = 'live'
+    elsif event_now > event_end_epoch and post_event_cta_label != blank
+      assign event_phase = 'ended'
+    endif
+  endif
+
+  assign ics_uid = 'tea-around-the-clock-2026-09-04@' | append: shop.permanent_domain
+  assign ics_filename = 'tea-around-the-clock.ics'
+
+  assign ics_start = event_start | date: '%Y%m%dT%H%M%SZ'
+  assign ics_end = event_end | date: '%Y%m%dT%H%M%SZ'
+  assign ics_stamp = 'now' | date: '%Y%m%dT%H%M%SZ'
+
+  assign ics_summary = main_title | replace: ',', '\,'
+  assign ics_description = calendar_description | strip_html | replace: ',', '\,'
+  assign ics_location = event_location | replace: ',', '\,'
+
+  assign menu_id = 'TeaEventCalendarMenu-' | append: section.id
+  assign fallback_id = 'TeaEventCalendarFallback-' | append: section.id
+-%}
+
+{%- capture ics_body -%}
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Shopify Horizon//Tea Event Banner//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:{{ ics_uid }}
+DTSTAMP:{{ ics_stamp }}
+DTSTART:{{ ics_start }}
+DTEND:{{ ics_end }}
+SUMMARY:{{ ics_summary }}
+{%- if ics_description != blank -%}
+DESCRIPTION:{{ ics_description }}
+{%- endif -%}
+{%- if ics_location != blank -%}
+LOCATION:{{ ics_location }}
+{%- endif -%}
+{%- if event_url != blank -%}
+URL:{{ event_url }}
+{%- endif -%}
+END:VEVENT
+END:VCALENDAR
+{%- endcapture -%}
+
+{%- liquid
+  assign ics_href = 'data:text/calendar;charset=utf-8,' | append: ics_body | strip | url_encode
+
+  assign bg_type = section.settings.background_type | default: 'solid'
+
+  case section.settings.title_font_family
+    when 'subheading'
+      assign title_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign title_font_family = 'var(--font-accent--family)'
+    when 'body'
+      assign title_font_family = 'var(--font-body--family)'
+    else
+      assign title_font_family = 'var(--font-heading--family)'
+  endcase
+
+  case section.settings.supporting_title_font_family
+    when 'heading'
+      assign supporting_title_font_family = 'var(--font-heading--family)'
+    when 'subheading'
+      assign supporting_title_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign supporting_title_font_family = 'var(--font-accent--family)'
+    else
+      assign supporting_title_font_family = 'var(--font-body--family)'
+  endcase
+
+  case section.settings.description_font_family
+    when 'heading'
+      assign description_font_family = 'var(--font-heading--family)'
+    when 'subheading'
+      assign description_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign description_font_family = 'var(--font-accent--family)'
+    else
+      assign description_font_family = 'var(--font-body--family)'
+  endcase
+
+  case section.settings.meta_font_family
+    when 'heading'
+      assign meta_font_family = 'var(--font-heading--family)'
+    when 'subheading'
+      assign meta_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign meta_font_family = 'var(--font-accent--family)'
+    else
+      assign meta_font_family = 'var(--font-body--family)'
+  endcase
+
+  case section.settings.cta_font_family
+    when 'heading'
+      assign cta_font_family = 'var(--font-heading--family)'
+    when 'subheading'
+      assign cta_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign cta_font_family = 'var(--font-accent--family)'
+    else
+      assign cta_font_family = 'var(--font-body--family)'
+  endcase
+
+  assign section_height_mode = section.settings.section_height_mode | default: 'auto'
+
+  case section.settings.section_vertical_alignment
+    when 'top'
+      assign section_vertical_alignment = 'start'
+    when 'bottom'
+      assign section_vertical_alignment = 'end'
+    else
+      assign section_vertical_alignment = 'center'
+  endcase
+
+  if section_height_mode == 'auto'
+    assign section_height_desktop_css = 'auto'
+    assign section_height_mobile_css = 'auto'
+  else
+    if section.settings.section_height_desktop > 0
+      assign section_height_desktop_css = section.settings.section_height_desktop | append: 'px'
+    else
+      assign section_height_desktop_css = 'auto'
+    endif
+
+    if section.settings.section_height_mobile > 0
+      assign section_height_mobile_css = section.settings.section_height_mobile | append: 'px'
+    else
+      assign section_height_mobile_css = 'auto'
+    endif
+  endif
+
+  case section.settings.person_image_h_align_desktop
+    when 'center'
+      assign person_h_align_desktop = 'center'
+    when 'right'
+      assign person_h_align_desktop = 'flex-end'
+    else
+      assign person_h_align_desktop = 'flex-start'
+  endcase
+
+  case section.settings.person_image_v_align_desktop
+    when 'top'
+      assign person_v_align_desktop = 'flex-start'
+    when 'center'
+      assign person_v_align_desktop = 'center'
+    else
+      assign person_v_align_desktop = 'flex-end'
+  endcase
+
+  case section.settings.person_image_h_align_mobile
+    when 'center'
+      assign person_h_align_mobile = 'center'
+    when 'right'
+      assign person_h_align_mobile = 'flex-end'
+    else
+      assign person_h_align_mobile = 'flex-start'
+  endcase
+
+  case section.settings.person_image_v_align_mobile
+    when 'top'
+      assign person_v_align_mobile = 'flex-start'
+    when 'center'
+      assign person_v_align_mobile = 'center'
+    else
+      assign person_v_align_mobile = 'flex-end'
+  endcase
+
+  assign person_scale_desktop = section.settings.person_image_scale_desktop | default: 100 | divided_by: 100.0
+  assign person_scale_mobile = section.settings.person_image_scale_mobile | default: 90 | divided_by: 100.0
+
+  case section.settings.person_image_h_align_desktop
+    when 'center'
+      assign person_origin_x_desktop = 'center'
+    when 'right'
+      assign person_origin_x_desktop = 'right'
+    else
+      assign person_origin_x_desktop = 'left'
+  endcase
+
+  case section.settings.person_image_v_align_desktop
+    when 'top'
+      assign person_origin_y_desktop = 'top'
+    when 'center'
+      assign person_origin_y_desktop = 'center'
+    else
+      assign person_origin_y_desktop = 'bottom'
+  endcase
+
+  case section.settings.person_image_h_align_mobile
+    when 'center'
+      assign person_origin_x_mobile = 'center'
+    when 'right'
+      assign person_origin_x_mobile = 'right'
+    else
+      assign person_origin_x_mobile = 'left'
+  endcase
+
+  case section.settings.person_image_v_align_mobile
+    when 'top'
+      assign person_origin_y_mobile = 'top'
+    when 'center'
+      assign person_origin_y_mobile = 'center'
+    else
+      assign person_origin_y_mobile = 'bottom'
+  endcase
+-%}
+
+<section
+  id="TeaEventBanner-{{ section.id }}"
+  class="tea-event-banner tea-event-banner--bg-{{ bg_type }} tea-event-banner--height-{{ section_height_mode }} tea-event-banner--event-{{ event_phase }}{% if section.settings.reverse_layout == 'image_right' %} tea-event-banner--reversed{% endif %}"
+  data-tea-event-banner
+  data-event-title="{{ main_title | escape }}"
+  data-event-description="{{ calendar_description | strip_html | escape }}"
+  data-event-location="{{ event_location | escape }}"
+  data-event-url="{{ event_url | escape }}"
+  data-event-start="{{ event_start | escape }}"
+  data-event-end="{{ event_end | escape }}"
+  data-event-uid="{{ ics_uid | escape }}"
+  data-ics-filename="{{ ics_filename | escape }}"
+  data-live-cta-label="{{ live_cta_label | escape }}"
+  data-post-event-cta-label="{{ post_event_cta_label | escape }}"
+  data-local-time-note="{{ local_time_note | escape }}"
+  style="
+    --tea-event-banner-bg: {{ section.settings.background_color }};
+    --tea-event-banner-gradient-start: {{ section.settings.gradient_color_start }};
+    --tea-event-banner-gradient-end: {{ section.settings.gradient_color_end }};
+    --tea-event-banner-gradient-angle: {{ section.settings.gradient_angle }}deg;
+    --tea-event-banner-bg-overlay: {{ section.settings.background_overlay_color }};
+    --tea-event-banner-bg-overlay-opacity: {{ section.settings.background_overlay_opacity | divided_by: 100.0 }};
+    --tea-event-banner-bg-size: {{ section.settings.background_image_size }};
+    --tea-event-banner-bg-position: {{ section.settings.background_image_position }};
+    --tea-event-banner-accent-purple: {{ section.settings.accent_purple }};
+    --tea-event-banner-accent-orange: {{ section.settings.accent_orange }};
+    --tea-event-banner-padding-top: {{ section.settings.padding_top }}px;
+    --tea-event-banner-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --tea-event-banner-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --tea-event-banner-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --tea-event-banner-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --tea-event-banner-padding-left-desktop: {{ section.settings.padding_left_desktop }}px;
+    --tea-event-banner-padding-right-desktop: {{ section.settings.padding_right_desktop }}px;
+    --tea-event-banner-height-desktop: {{ section_height_desktop_css }};
+    --tea-event-banner-height-mobile: {{ section_height_mobile_css }};
+    --tea-event-banner-vertical-align: {{ section_vertical_alignment }};
+    --tea-event-banner-person-h-align-mobile: {{ person_h_align_mobile }};
+    --tea-event-banner-person-v-align-mobile: {{ person_v_align_mobile }};
+    --tea-event-banner-person-h-align-desktop: {{ person_h_align_desktop }};
+    --tea-event-banner-person-v-align-desktop: {{ person_v_align_desktop }};
+    --tea-event-banner-person-scale-mobile: {{ person_scale_mobile }};
+    --tea-event-banner-person-scale-desktop: {{ person_scale_desktop }};
+    --tea-event-banner-person-offset-x-mobile: {{ section.settings.person_image_offset_x_mobile }}px;
+    --tea-event-banner-person-offset-y-mobile: {{ section.settings.person_image_offset_y_mobile }}px;
+    --tea-event-banner-person-offset-x-desktop: {{ section.settings.person_image_offset_x_desktop }}px;
+    --tea-event-banner-person-offset-y-desktop: {{ section.settings.person_image_offset_y_desktop }}px;
+    --tea-event-banner-person-origin-mobile: {{ person_origin_x_mobile }} {{ person_origin_y_mobile }};
+    --tea-event-banner-person-origin-desktop: {{ person_origin_x_desktop }} {{ person_origin_y_desktop }};
+    --tea-event-banner-image-position-desktop: {{ section.settings.desktop_image_position }};
+    --tea-event-banner-image-position-mobile: {{ section.settings.mobile_image_position }};
+    --tea-event-banner-title-font-family: {{ title_font_family }};
+    --tea-event-banner-title-size-desktop: {{ section.settings.title_font_size_desktop }}px;
+    --tea-event-banner-title-size-mobile: {{ section.settings.title_font_size_mobile }}px;
+    --tea-event-banner-title-weight: {{ section.settings.title_font_weight }};
+    --tea-event-banner-title-color: {{ section.settings.title_color }};
+    --tea-event-banner-title-line-height: {{ section.settings.title_line_height | divided_by: 100.0 }};
+    --tea-event-banner-supporting-font-family: {{ supporting_title_font_family }};
+    --tea-event-banner-supporting-size-desktop: {{ section.settings.supporting_title_font_size_desktop }}px;
+    --tea-event-banner-supporting-size-mobile: {{ section.settings.supporting_title_font_size_mobile }}px;
+    --tea-event-banner-supporting-weight: {{ section.settings.supporting_title_font_weight }};
+    --tea-event-banner-supporting-color: {{ section.settings.supporting_title_color }};
+    --tea-event-banner-supporting-line-height: {{ section.settings.supporting_title_line_height | divided_by: 100.0 }};
+    --tea-event-banner-description-font-family: {{ description_font_family }};
+    --tea-event-banner-description-size-desktop: {{ section.settings.description_font_size_desktop }}px;
+    --tea-event-banner-description-size-mobile: {{ section.settings.description_font_size_mobile }}px;
+    --tea-event-banner-description-weight: {{ section.settings.description_font_weight }};
+    --tea-event-banner-description-color: {{ section.settings.description_color }};
+    --tea-event-banner-description-line-height: {{ section.settings.description_line_height | divided_by: 100.0 }};
+    --tea-event-banner-meta-font-family: {{ meta_font_family }};
+    --tea-event-banner-meta-size-desktop: {{ section.settings.meta_font_size_desktop }}px;
+    --tea-event-banner-meta-size-mobile: {{ section.settings.meta_font_size_mobile }}px;
+    --tea-event-banner-meta-weight: {{ section.settings.meta_font_weight }};
+    --tea-event-banner-meta-color: {{ section.settings.meta_color }};
+    --tea-event-banner-meta-line-height: {{ section.settings.meta_line_height | divided_by: 100.0 }};
+    --tea-event-banner-cta-font-family: {{ cta_font_family }};
+    --tea-event-banner-cta-size-desktop: {{ section.settings.cta_font_size_desktop }}px;
+    --tea-event-banner-cta-size-mobile: {{ section.settings.cta_font_size_mobile }}px;
+    --tea-event-banner-cta-weight: {{ section.settings.cta_font_weight }};
+    --tea-event-banner-cta-color: {{ section.settings.cta_text_color }};
+    --tea-event-banner-cta-line-height: {{ section.settings.cta_line_height | divided_by: 100.0 }};
+  "
+  {{ section.shopify_attributes }}
+>
+  {%- if bg_type == 'image' and section.settings.section_background_image != blank -%}
+    <div class="tea-event-banner__background" aria-hidden="true">
+      <picture>
+        {%- if section.settings.section_background_mobile_image != blank -%}
+          <source
+            media="(max-width: 749px)"
+            srcset="
+              {{ section.settings.section_background_mobile_image | image_url: width: 768 }} 768w,
+              {{ section.settings.section_background_mobile_image | image_url: width: 1200 }} 1200w
+            "
+            sizes="100vw"
+          >
+        {%- endif -%}
+        {{
+          section.settings.section_background_image
+          | image_url: width: 3200
+          | image_tag:
+            loading: 'lazy',
+            widths: '768,1200,1600,2000,2400,3200',
+            sizes: '100vw',
+            class: 'tea-event-banner__background-image',
+            alt: ''
+        }}
+      </picture>
+      <span class="tea-event-banner__background-overlay"></span>
+    </div>
+  {%- endif -%}
+
+  <div class="tea-event-banner__inner">
+    <div class="tea-event-banner__media">
+      {%- if desktop_image != blank or mobile_image != blank -%}
+        <div class="tea-event-banner__image-shell">
+          <picture>
+            {%- if mobile_image != blank -%}
+              <source
+                media="(max-width: 749px)"
+                srcset="
+                  {{ mobile_image | image_url: width: 480 }} 480w,
+                  {{ mobile_image | image_url: width: 720 }} 720w,
+                  {{ mobile_image | image_url: width: 960 }} 960w
+                "
+                sizes="100vw"
+              >
+            {%- endif -%}
+            {%- if desktop_image != blank -%}
+              {{
+                desktop_image
+                | image_url: width: 1600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '480,720,960,1200,1400,1600',
+                  sizes: '(min-width: 750px) 45vw, 100vw',
+                  class: 'tea-event-banner__image',
+                  alt: image_alt
+              }}
+            {%- elsif mobile_image != blank -%}
+              {{
+                mobile_image
+                | image_url: width: 1600
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '480,720,960,1200,1400,1600',
+                  sizes: '100vw',
+                  class: 'tea-event-banner__image',
+                  alt: image_alt
+              }}
+            {%- endif -%}
+          </picture>
+        </div>
+      {%- else -%}
+        <div class="tea-event-banner__image-shell">
+          <img
+            src="{{ 'tea-event-banner-default.png' | asset_url }}"
+            class="tea-event-banner__image"
+            alt="{{ image_alt }}"
+            loading="lazy"
+            width="800"
+            height="900"
+          >
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="tea-event-banner__content">
+      <h2 class="tea-event-banner__title">{{ main_title | escape }}</h2>
+
+      {%- if supporting_title != blank -%}
+        <p class="tea-event-banner__supporting-title">{{ supporting_title | escape }}</p>
+      {%- endif -%}
+
+      {%- if description != blank -%}
+        <div class="tea-event-banner__description rte">
+          {{ description }}
+        </div>
+      {%- endif -%}
+
+      <hr class="tea-event-banner__divider" aria-hidden="true">
+
+      {%- if event_start != blank -%}
+        <div class="tea-event-banner__meta" data-tea-event-meta>
+          <span class="tea-event-banner__meta-item">
+            <span class="tea-event-banner__meta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                <path d="M7 3V5M17 3V5M4 9H20M6 5H18C19.1046 5 20 5.89543 20 7V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V7C4 5.89543 4.89543 5 6 5Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-tea-event-display-date aria-live="polite"></span>
+          </span>
+
+          <span class="tea-event-banner__meta-separator" aria-hidden="true"></span>
+
+          <span class="tea-event-banner__meta-item">
+            <span class="tea-event-banner__meta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                <path d="M12 8V12L15 14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span data-tea-event-display-time aria-live="polite"></span>
+          </span>
+        </div>
+      {%- endif -%}
+
+      <hr class="tea-event-banner__gradient-divider" aria-hidden="true">
+
+      {%- if event_start != blank and local_time_note != blank -%}
+        <small class="tea-event-banner__local-time-note" data-tea-event-local-time-note>{{ local_time_note | escape }}</small>
+      {%- endif -%}
+
+      <div class="tea-event-banner__cta-wrap">
+        <div
+          class="tea-event-banner__cta-calendar"
+          data-tea-event-calendar-controls
+          {% if event_phase != 'upcoming' %}hidden{% endif %}
+        >
+          <a
+            id="{{ fallback_id }}"
+            class="tea-event-banner__cta-fallback"
+            href="{{ ics_href }}"
+            download="{{ ics_filename }}"
+          >
+            <span class="tea-event-banner__cta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                <path d="M7 3V5M17 3V5M4 9H20M6 5H18C19.1046 5 20 5.89543 20 7V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V7C4 5.89543 4.89543 5 6 5Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>{{ cta_label | escape }}</span>
+          </a>
+
+          <button
+            type="button"
+            class="tea-event-banner__cta"
+            data-tea-event-calendar-trigger
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="{{ menu_id }}"
+          >
+            <span class="tea-event-banner__cta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                <path d="M7 3V5M17 3V5M4 9H20M6 5H18C19.1046 5 20 5.89543 20 7V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V7C4 5.89543 4.89543 5 6 5Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>{{ cta_label | escape }}</span>
+          </button>
+
+          <div
+            class="tea-event-banner__calendar-backdrop"
+            data-tea-event-calendar-backdrop
+            hidden
+            aria-hidden="true"
+            aria-label="{{ section.settings.calendar_menu_label | default: 'Add event to calendar' | escape }}"
+          ></div>
+
+          <div
+            id="{{ menu_id }}"
+            class="tea-event-banner__calendar-menu"
+            data-tea-event-calendar-menu
+            role="menu"
+            aria-label="{{ section.settings.calendar_menu_label | default: 'Add event to calendar' | escape }}"
+            hidden
+          ></div>
+        </div>
+
+        {%- if event_url != blank -%}
+          <a
+            class="tea-event-banner__cta tea-event-banner__cta-live"
+            data-tea-event-live-link
+            href="{{ event_url | escape }}"
+            {% if event_phase == 'upcoming' %}hidden{% endif %}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="tea-event-banner__cta-icon tea-event-banner__cta-icon--live" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="1.75"/>
+              </svg>
+            </span>
+            <span data-tea-event-live-label>
+              {%- if event_phase == 'ended' -%}
+                {{ post_event_cta_label | escape }}
+              {%- else -%}
+                {{ live_cta_label | escape }}
+              {%- endif -%}
+            </span>
+          </a>
+        {%- endif -%}
+      </div>
+
+      <noscript>
+        <p class="tea-event-banner__noscript-note">
+          <a href="{{ ics_href }}" download="{{ ics_filename }}">{{ section.settings.noscript_cta_label | default: 'Download calendar file (.ics)' | escape }}</a>
+        </p>
+      </noscript>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'tea-event-calendar.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Tea event banner",
+  "tag": "section",
+  "class": "section-wrapper section--full-width",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "desktop_image",
+      "label": "Desktop image"
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": "Mobile image"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "Image alt text",
+      "default": "Tea master pouring tea for the Tea Around the Clock event"
+    },
+    {
+      "type": "select",
+      "id": "reverse_layout",
+      "label": "Layout direction",
+      "default": "image_left",
+      "options": [
+        { "value": "image_left", "label": "Image left, content right" },
+        { "value": "image_right", "label": "Image right, content left" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "person_image_scale_desktop",
+      "label": "Person image size (desktop)",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "person_image_scale_mobile",
+      "label": "Person image size (mobile)",
+      "min": 40,
+      "max": 120,
+      "step": 5,
+      "unit": "%",
+      "default": 90
+    },
+    {
+      "type": "select",
+      "id": "person_image_h_align_desktop",
+      "label": "Person image horizontal align (desktop)",
+      "default": "left",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "person_image_v_align_desktop",
+      "label": "Person image vertical align (desktop)",
+      "default": "bottom",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "person_image_h_align_mobile",
+      "label": "Person image horizontal align (mobile)",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "person_image_v_align_mobile",
+      "label": "Person image vertical align (mobile)",
+      "default": "bottom",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "person_image_offset_x_desktop",
+      "label": "Person image offset X (desktop)",
+      "min": -100,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "person_image_offset_y_desktop",
+      "label": "Person image offset Y (desktop)",
+      "min": -100,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "person_image_offset_x_mobile",
+      "label": "Person image offset X (mobile)",
+      "min": -80,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "person_image_offset_y_mobile",
+      "label": "Person image offset Y (mobile)",
+      "min": -80,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "desktop_image_position",
+      "label": "Person image focal point (desktop)",
+      "default": "left bottom",
+      "options": [
+        { "value": "left top", "label": "Left top" },
+        { "value": "left center", "label": "Left center" },
+        { "value": "left bottom", "label": "Left bottom" },
+        { "value": "center top", "label": "Center top" },
+        { "value": "center center", "label": "Center center" },
+        { "value": "center bottom", "label": "Center bottom" },
+        { "value": "right top", "label": "Right top" },
+        { "value": "right center", "label": "Right center" },
+        { "value": "right bottom", "label": "Right bottom" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_image_position",
+      "label": "Person image focal point (mobile)",
+      "default": "center bottom",
+      "options": [
+        { "value": "left top", "label": "Left top" },
+        { "value": "left center", "label": "Left center" },
+        { "value": "left bottom", "label": "Left bottom" },
+        { "value": "center top", "label": "Center top" },
+        { "value": "center center", "label": "Center center" },
+        { "value": "center bottom", "label": "Center bottom" },
+        { "value": "right top", "label": "Right top" },
+        { "value": "right center", "label": "Right center" },
+        { "value": "right bottom", "label": "Right bottom" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "main_title",
+      "label": "Main title",
+      "default": "Tea Around the Clock"
+    },
+    {
+      "type": "text",
+      "id": "supporting_title",
+      "label": "Supporting title",
+      "default": "A Morning to Evening Tea Routine"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>From the first energizing cup of the morning to a calming lavender evening ritual, discover how orthodox teas complement every hour. Join Dilmah's master blenders for a curated digital journey through the art of tea-pairing and clock-work mindfulness.</p>"
+    },
+    {
+      "type": "text",
+      "id": "local_time_note",
+      "label": "Local time note",
+      "default": "Displayed in your local time",
+      "info": "Supporting label shown below the event date and time."
+    },
+    {
+      "type": "header",
+      "content": "Calendar event data"
+    },
+    {
+      "type": "text",
+      "id": "event_start",
+      "label": "Event start (UTC ISO 8601)",
+      "default": "2026-09-04T00:30:00Z",
+      "info": "Canonical UTC instant. Official start: September 4, 2026 at 6:00 AM Asia/Colombo (UTC+05:30)."
+    },
+    {
+      "type": "text",
+      "id": "event_end",
+      "label": "Event end (UTC ISO 8601)",
+      "default": "2026-09-04T08:30:00Z",
+      "info": "Canonical UTC instant. Default preserves the 8-hour event duration from the approved schedule."
+    },
+    {
+      "type": "text",
+      "id": "event_location",
+      "label": "Event location"
+    },
+    {
+      "type": "url",
+      "id": "event_url",
+      "label": "Livestream or event URL"
+    },
+    {
+      "type": "textarea",
+      "id": "calendar_description",
+      "label": "Calendar event description",
+      "default": "From the first energizing cup of the morning to a calming lavender evening ritual, discover how orthodox teas complement every hour. Join Dilmah's master blenders for a curated digital journey through the art of tea-pairing and clock-work mindfulness."
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "CTA label",
+      "default": "Add to Calendar"
+    },
+    {
+      "type": "text",
+      "id": "live_cta_label",
+      "label": "Live event CTA label",
+      "default": "Join Now Live",
+      "info": "Shown during the event when a livestream URL is set."
+    },
+    {
+      "type": "text",
+      "id": "post_event_cta_label",
+      "label": "After event CTA label",
+      "default": "Watch replay",
+      "info": "Shown after the event ends. Leave blank to show Add to Calendar again."
+    },
+    {
+      "type": "text",
+      "id": "calendar_menu_label",
+      "label": "Calendar menu label",
+      "default": "Add event to calendar"
+    },
+    {
+      "type": "text",
+      "id": "noscript_cta_label",
+      "label": "No-JavaScript fallback label",
+      "default": "Download calendar file (.ics)"
+    },
+    {
+      "type": "header",
+      "content": "Section background"
+    },
+    {
+      "type": "select",
+      "id": "background_type",
+      "label": "Background type",
+      "default": "solid",
+      "options": [
+        { "value": "solid", "label": "Solid color" },
+        { "value": "gradient", "label": "Gradient" },
+        { "value": "image", "label": "Image" }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Solid background color",
+      "default": "#ffffff",
+      "visible_if": "{{ section.settings.background_type == 'solid' or section.settings.background_type == 'image' }}"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_start",
+      "label": "Gradient start color",
+      "default": "#ffffff",
+      "visible_if": "{{ section.settings.background_type == 'gradient' }}"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_end",
+      "label": "Gradient end color",
+      "default": "#f7f2fb",
+      "visible_if": "{{ section.settings.background_type == 'gradient' }}"
+    },
+    {
+      "type": "range",
+      "id": "gradient_angle",
+      "label": "Gradient angle",
+      "min": 0,
+      "max": 360,
+      "step": 15,
+      "unit": "deg",
+      "default": 90,
+      "visible_if": "{{ section.settings.background_type == 'gradient' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "section_background_image",
+      "label": "Background image (desktop)",
+      "visible_if": "{{ section.settings.background_type == 'image' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "section_background_mobile_image",
+      "label": "Background image (mobile)",
+      "visible_if": "{{ section.settings.background_type == 'image' }}"
+    },
+    {
+      "type": "select",
+      "id": "background_image_size",
+      "label": "Background image size",
+      "default": "cover",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" }
+      ],
+      "visible_if": "{{ section.settings.background_type == 'image' }}"
+    },
+    {
+      "type": "select",
+      "id": "background_image_position",
+      "label": "Background image position",
+      "default": "center center",
+      "options": [
+        { "value": "left top", "label": "Left top" },
+        { "value": "left center", "label": "Left center" },
+        { "value": "left bottom", "label": "Left bottom" },
+        { "value": "center top", "label": "Center top" },
+        { "value": "center center", "label": "Center center" },
+        { "value": "center bottom", "label": "Center bottom" },
+        { "value": "right top", "label": "Right top" },
+        { "value": "right center", "label": "Right center" },
+        { "value": "right bottom", "label": "Right bottom" }
+      ],
+      "visible_if": "{{ section.settings.background_type == 'image' }}"
+    },
+    {
+      "type": "color",
+      "id": "background_overlay_color",
+      "label": "Background overlay color",
+      "default": "#ffffff",
+      "visible_if": "{{ section.settings.background_type == 'image' }}"
+    },
+    {
+      "type": "range",
+      "id": "background_overlay_opacity",
+      "label": "Background overlay opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 0,
+      "visible_if": "{{ section.settings.background_type == 'image' }}"
+    },
+    {
+      "type": "header",
+      "content": "Accent colors"
+    },
+    {
+      "type": "color",
+      "id": "accent_purple",
+      "label": "Accent purple",
+      "default": "#9d31eb"
+    },
+    {
+      "type": "color",
+      "id": "accent_orange",
+      "label": "Accent orange",
+      "default": "#ff6b35"
+    },
+    {
+      "type": "header",
+      "content": "Main title typography"
+    },
+    {
+      "type": "select",
+      "id": "title_font_family",
+      "label": "Font family",
+      "default": "heading",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 1,
+      "unit": "px",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "title_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "select",
+      "id": "title_font_weight",
+      "label": "Font weight",
+      "default": "700",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "title_line_height",
+      "label": "Line height",
+      "min": 100,
+      "max": 160,
+      "step": 2,
+      "default": 108
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "header",
+      "content": "Supporting title typography"
+    },
+    {
+      "type": "select",
+      "id": "supporting_title_font_family",
+      "label": "Font family",
+      "default": "body",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "supporting_title_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 12,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "supporting_title_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "supporting_title_font_weight",
+      "label": "Font weight",
+      "default": "600",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "supporting_title_line_height",
+      "label": "Line height",
+      "min": 100,
+      "max": 180,
+      "step": 2,
+      "default": 134
+    },
+    {
+      "type": "color",
+      "id": "supporting_title_color",
+      "label": "Color",
+      "default": "#9d31eb"
+    },
+    {
+      "type": "header",
+      "content": "Description typography"
+    },
+    {
+      "type": "select",
+      "id": "description_font_family",
+      "label": "Font family",
+      "default": "body",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "description_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "description_font_weight",
+      "label": "Font weight",
+      "default": "400",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "description_line_height",
+      "label": "Line height",
+      "min": 120,
+      "max": 200,
+      "step": 2,
+      "default": 166
+    },
+    {
+      "type": "color",
+      "id": "description_color",
+      "label": "Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Date & time typography"
+    },
+    {
+      "type": "select",
+      "id": "meta_font_family",
+      "label": "Font family",
+      "default": "body",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "meta_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "meta_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "meta_font_weight",
+      "label": "Font weight",
+      "default": "700",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "meta_line_height",
+      "label": "Line height",
+      "min": 100,
+      "max": 180,
+      "step": 2,
+      "default": 130
+    },
+    {
+      "type": "color",
+      "id": "meta_color",
+      "label": "Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "header",
+      "content": "CTA typography"
+    },
+    {
+      "type": "select",
+      "id": "cta_font_family",
+      "label": "Font family",
+      "default": "body",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "cta_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "cta_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "cta_font_weight",
+      "label": "Font weight",
+      "default": "600",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "cta_line_height",
+      "label": "Line height",
+      "min": 100,
+      "max": 160,
+      "step": 2,
+      "default": 120
+    },
+    {
+      "type": "color",
+      "id": "cta_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Section height"
+    },
+    {
+      "type": "select",
+      "id": "section_height_mode",
+      "label": "Height mode",
+      "default": "fixed",
+      "options": [
+        { "value": "auto", "label": "Auto (content height)" },
+        { "value": "min", "label": "Minimum height" },
+        { "value": "fixed", "label": "Fixed height" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "section_height_desktop",
+      "label": "Section height (desktop)",
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "default": 600,
+      "info": "Applies to the full section on screens 750px and wider. Set to 0 to fall back to content height.",
+      "visible_if": "{{ section.settings.section_height_mode != 'auto' }}"
+    },
+    {
+      "type": "range",
+      "id": "section_height_mobile",
+      "label": "Section height (mobile)",
+      "min": 0,
+      "max": 900,
+      "step": 10,
+      "unit": "px",
+      "default": 0,
+      "info": "Applies to the full section below 750px. Set to 0 for automatic height based on content.",
+      "visible_if": "{{ section.settings.section_height_mode != 'auto' }}"
+    },
+    {
+      "type": "select",
+      "id": "section_vertical_alignment",
+      "label": "Content vertical alignment",
+      "default": "center",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "center", "label": "Center" },
+        { "value": "bottom", "label": "Bottom" }
+      ],
+      "visible_if": "{{ section.settings.section_height_mode != 'auto' }}"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Horizontal padding (mobile)",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_left_desktop",
+      "label": "Left padding (desktop)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_right_desktop",
+      "label": "Right padding (desktop)",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tea event banner",
+      "settings": {
+        "section_height_mode": "fixed",
+        "section_height_desktop": 600,
+        "section_height_mobile": 0,
+        "padding_top": 32,
+        "padding_bottom": 32,
+        "padding_top_mobile": 24,
+        "padding_bottom_mobile": 24,
+        "person_image_scale_desktop": 100,
+        "person_image_v_align_desktop": "bottom",
+        "person_image_h_align_desktop": "left"
+      }
+    }
+  ]
+}
+{% endschema %}
