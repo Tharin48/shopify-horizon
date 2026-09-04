@@ -45,6 +45,11 @@
       this.sectionTop = 0;
       this.viewportHeight = 0;
       this.frame = 0;
+      this.animationFrame = 0;
+      this.targetTranslate = 0;
+      this.currentTranslate = 0;
+      this.translateDifference = 0;
+      this.lastJourneyProgress = 0;
       this.destroyed = false;
       this.activeStoryId = null;
       this.scrollActiveCharacterId = null;
@@ -133,7 +138,9 @@
     setMotionMode() {
       window.removeEventListener('scroll', this.onScroll);
       cancelAnimationFrame(this.frame);
+      cancelAnimationFrame(this.animationFrame);
       this.frame = 0;
+      this.animationFrame = 0;
 
       if (this.motionQuery.matches) {
         this.root.classList.remove(
@@ -150,6 +157,9 @@
         this.root.style.setProperty('--c26-finale-opacity', '1');
         this.root.style.setProperty('--c26-character-opacity', '1');
         this.world.style.transform = '';
+        this.targetTranslate = 0;
+        this.currentTranslate = 0;
+        this.translateDifference = 0;
         this.characters.forEach((character) => {
           character.style.setProperty('--c26-depth-offset', '0px');
         });
@@ -205,7 +215,7 @@
       } else {
         this.sectionTop = window.scrollY + rect.top;
       }
-      this.update();
+      this.update(true);
     }
 
     onResize() {
@@ -232,7 +242,7 @@
       });
     }
 
-    update() {
+    update(immediate = false) {
       if (this.destroyed || this.motionQuery.matches) return;
 
       const scrollOffset = Math.max(0, window.scrollY - this.sectionTop);
@@ -241,11 +251,7 @@
       const panoramaProgress = layoutReady
         ? clamp(Math.min(scrollOffset, this.finaleStartDistance) / this.horizontalTravelDistance)
         : 0;
-      const rawTranslate = this.maxTranslate * panoramaProgress;
-      const pixelRatio = window.devicePixelRatio || 1;
-      const translate = window.innerWidth < 750
-        ? Math.round(rawTranslate * pixelRatio) / pixelRatio
-        : rawTranslate;
+      const translate = this.maxTranslate * panoramaProgress;
       const postCharacterScroll = layoutReady ? Math.max(0, scrollOffset - this.finaleStartDistance) : 0;
       const finaleGapDistance = window.innerWidth < 750
         ? this.mobileFinaleGapDistance
@@ -271,7 +277,17 @@
       const isLeftCopyFading = layoutReady && journeyProgress > leftCopyFadeStart && journeyProgress < leftCopyFadeEnd;
       const isLeftCopyHidden = layoutReady && journeyProgress >= leftCopyFadeEnd;
 
-      this.world.style.transform = `translate3d(${-translate}px, 0, 0)`;
+      this.targetTranslate = translate;
+      this.lastJourneyProgress = journeyProgress;
+      if (window.innerWidth < 750 && !immediate) {
+        this.startSmoothRender();
+      } else {
+        cancelAnimationFrame(this.animationFrame);
+        this.animationFrame = 0;
+        this.currentTranslate = this.targetTranslate;
+        this.translateDifference = 0;
+        this.world.style.transform = `translate3d(${-this.currentTranslate}px, 0, 0)`;
+      }
       this.root.style.setProperty('--c26-progress', journeyProgress.toFixed(4));
       this.root.style.setProperty('--c26-left-copy-opacity', leftCopyOpacity.toFixed(3));
       this.root.style.setProperty('--c26-finale-opacity', finaleProgress.toFixed(3));
@@ -289,15 +305,7 @@
         this.finale.setAttribute('aria-hidden', isFinaleVisible ? 'false' : 'true');
       }
 
-      if (this.debugElement) {
-        this.debugElement.value = [
-          `progress ${journeyProgress.toFixed(3)}`,
-          `viewport ${this.viewport.clientWidth}×${this.viewportHeight}`,
-          `section top ${Math.round(this.sectionTop)} height ${Math.round(this.root.offsetHeight)}`,
-          'timeline native-sticky',
-          `ScrollTriggers 0 · controllers ${instances.size}`,
-        ].join('\n');
-      }
+      this.renderDebug();
 
       this.updateScrollActiveCharacter(journeyProgress, !isFinaleVisible);
 
@@ -308,6 +316,50 @@
           character.style.setProperty('--c26-depth-offset', `${offset.toFixed(2)}px`);
         });
       }
+    }
+
+    startSmoothRender() {
+      if (this.animationFrame) return;
+      this.animationFrame = requestAnimationFrame(() => this.renderSmoothScroll());
+    }
+
+    renderSmoothScroll() {
+      if (this.destroyed || this.motionQuery.matches) {
+        this.animationFrame = 0;
+        return;
+      }
+
+      this.translateDifference = this.targetTranslate - this.currentTranslate;
+
+      if (Math.abs(this.translateDifference) <= 0.1) {
+        this.currentTranslate = this.targetTranslate;
+        this.translateDifference = 0;
+        this.world.style.transform = `translate3d(${-this.currentTranslate}px, 0, 0)`;
+        this.animationFrame = 0;
+        this.renderDebug();
+        return;
+      }
+
+      this.currentTranslate += this.translateDifference * 0.16;
+      this.world.style.transform = `translate3d(${-this.currentTranslate}px, 0, 0)`;
+      this.renderDebug();
+      this.animationFrame = requestAnimationFrame(() => this.renderSmoothScroll());
+    }
+
+    renderDebug() {
+      if (!this.debugElement) return;
+      this.debugElement.value = [
+        `scrollY ${Math.round(window.scrollY)}`,
+        `progress ${this.lastJourneyProgress.toFixed(3)}`,
+        `target ${this.targetTranslate.toFixed(2)}`,
+        `current ${this.currentTranslate.toFixed(2)}`,
+        `difference ${this.translateDifference.toFixed(2)}`,
+        `viewport width ${this.viewport.clientWidth}`,
+        `stable height ${this.stableViewportHeight}`,
+        `world width ${this.world.scrollWidth}`,
+        `RAF running ${this.animationFrame !== 0}`,
+        `controllers ${instances.size} · ScrollTriggers 0`,
+      ].join('\n');
     }
 
     updateScrollActiveCharacter(progress, enabled) {
@@ -656,6 +708,7 @@
     destroy() {
       this.destroyed = true;
       cancelAnimationFrame(this.frame);
+      cancelAnimationFrame(this.animationFrame);
       cancelAnimationFrame(this.resizeFrame);
       window.clearTimeout(this.resizeTimer);
       window.clearTimeout(this.drawerCloseTimer);

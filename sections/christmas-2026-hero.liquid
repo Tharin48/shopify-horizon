@@ -84,16 +84,17 @@
         <div class="c26-hero__background" aria-hidden="true">
           {% if desktop_background != blank %}
             <picture>
-              {% if mobile_background != blank %}
+              {% if mobile_panorama != blank %}
                 <source
                   media="(max-width: 749px)"
                   srcset="
-                    {{ mobile_background | image_url: width: 900 }} 900w,
-                    {{ mobile_background | image_url: width: 1400 }} 1400w,
-                    {{ mobile_background | image_url: width: 2000 }} 2000w,
-                    {{ mobile_background | image_url: width: 3200 }} 3200w
+                    {{ mobile_panorama | image_url: width: 900 }} 900w,
+                    {{ mobile_panorama | image_url: width: 1400 }} 1400w,
+                    {{ mobile_panorama | image_url: width: 2000 }} 2000w,
+                    {{ mobile_panorama | image_url: width: 2600 }} 2600w,
+                    {{ mobile_panorama | image_url: width: 3200 }} 3200w
                   "
-                  sizes="max(100vw, {{ mobile_panorama_height_width }}svh)"
+                  sizes="max(100vw, {{ mobile_panorama_height_width }}lvh)"
                 >
               {% endif %}
               <img

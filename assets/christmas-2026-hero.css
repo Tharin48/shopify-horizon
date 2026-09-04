@@ -105,6 +105,10 @@
   text-wrap: balance;
 }
 
+.c26-hero.is-enhanced .c26-hero__intro {
+  transition: none;
+}
+
 .c26-hero__intro--center {
   left: 50vw;
   text-align: center;
@@ -412,10 +416,18 @@
     height: var(--c26-app-height, 100svh);
   }
 
+  .c26-hero__world {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: auto;
+  }
+
   .c26-character__art,
   .c26-character__trigger:hover .c26-character__art,
   .c26-character__trigger:focus-visible .c26-character__art,
   .c26-character.is-scroll-active .c26-character__art {
+    transform: translate3d(0, 0, 0) scale(1);
+    transition: none;
     filter: none;
   }
 
@@ -471,6 +483,9 @@
     width: max-content;
     max-width: calc(100vw - 40px);
     font-size: 0.66rem;
+    background: rgba(4, 30, 31, 0.88);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .c26-hero__scroll-label--desktop {
