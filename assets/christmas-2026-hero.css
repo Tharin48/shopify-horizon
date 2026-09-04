@@ -327,6 +327,10 @@
   display: none;
 }
 
+.c26-hero__swipe-arrows {
+  display: none;
+}
+
 .c26-hero__scroll-line {
   position: relative;
   display: block;
@@ -371,7 +375,8 @@
   transform-origin: left center;
 }
 
-.c26-hero__ios-continue {
+.c26-hero__ios-continue,
+.c26-hero__ios-skip {
   display: none;
 }
 
@@ -403,6 +408,11 @@
 @keyframes c26-scroll-cue-glow {
   0%, 100% { box-shadow: 0 10px 30px rgba(2, 18, 19, 0.24), 0 0 0 rgba(213, 173, 34, 0); }
   50% { box-shadow: 0 14px 34px rgba(2, 18, 19, 0.3), 0 0 22px rgba(213, 173, 34, 0.28); }
+}
+
+@keyframes c26-swipe-arrows {
+  0%, 100% { opacity: 0.55; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(4px); }
 }
 
 @media screen and (max-width: 749px) {
@@ -453,6 +463,15 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+    touch-action: pan-x pan-y;
+  }
+
+  .c26-hero.is-ios-swipe-mode.is-swipe-gate-active:not(.is-swipe-complete)
+    .c26-hero__viewport {
+    touch-action: pan-x;
+  }
+
+  .c26-hero.is-ios-swipe-mode.is-swipe-complete .c26-hero__viewport {
     touch-action: pan-x pan-y;
   }
 
@@ -553,6 +572,62 @@
     display: inline;
   }
 
+  .c26-hero.is-ios-swipe-mode .c26-hero__scroll-cue {
+    bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+    animation: none;
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__swipe-arrows {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.9rem;
+    animation: c26-swipe-arrows 1.4s ease-in-out infinite;
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__intro {
+    pointer-events: none;
+  }
+
+  .c26-hero.is-ios-swipe-mode.has-progress:not(.is-swipe-complete) .c26-hero__scroll-cue {
+    opacity: 0.76;
+    visibility: visible;
+    transform: translateX(-50%) scale(0.92);
+  }
+
+  .c26-hero.is-ios-swipe-mode.is-swipe-complete .c26-hero__scroll-cue {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .c26-hero.is-ios-swipe-mode:not(.is-swipe-complete) .c26-hero__ios-skip {
+    position: absolute;
+    z-index: 11;
+    bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    display: inline-flex;
+    min-height: 40px;
+    padding: 8px 14px;
+    align-items: center;
+    justify-content: center;
+    color: var(--c26-text-color, #fffaf0);
+    font: 600 0.7rem/1.2 var(--font-body--family, sans-serif);
+    letter-spacing: 0.04em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    white-space: nowrap;
+    background: rgba(4, 30, 31, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+    cursor: pointer;
+    transform: translateX(-50%);
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__ios-skip:focus-visible {
+    outline: 3px solid var(--c26-accent-color, #d5ad22);
+    outline-offset: 3px;
+  }
+
   .c26-hero.is-ios-swipe-mode .c26-hero__ios-continue {
     position: absolute;
     z-index: 10;
@@ -577,7 +652,7 @@
     transition: opacity 220ms ease, visibility 220ms ease, transform 220ms ease;
   }
 
-  .c26-hero.is-ios-swipe-mode.is-at-end .c26-hero__ios-continue {
+  .c26-hero.is-ios-swipe-mode.is-swipe-complete .c26-hero__ios-continue {
     opacity: 1;
     visibility: visible;
     transform: translate3d(-50%, 0, 0);
@@ -605,6 +680,15 @@
 
   .c26-hero__ios-continue {
     transition: none !important;
+  }
+
+  .c26-hero__swipe-arrows {
+    animation: none !important;
+  }
+
+  .c26-hero.is-ios-swipe-mode.is-swipe-gate-active:not(.is-swipe-complete)
+    .c26-hero__viewport {
+    touch-action: pan-x pan-y;
   }
 
   .c26-hero.is-reduced-motion .c26-hero__viewport {

@@ -20,6 +20,8 @@
       this.viewport = root.querySelector('[data-c26-viewport]');
       this.world = root.querySelector('[data-c26-world]');
       this.progressBar = root.querySelector('[data-c26-progress]');
+      this.iosContinueCue = root.querySelector('[data-c26-ios-continue]');
+      this.iosSkipButton = root.querySelector('[data-c26-ios-skip]');
       this.leftCopy = root.querySelector('.c26-hero__intro');
       this.finale = root.querySelector('[data-c26-finale]');
       this.characters = [...root.querySelectorAll('[data-c26-character]')];
@@ -64,11 +66,14 @@
       this.debugEnabled = new URLSearchParams(window.location.search).get('c26_debug') === '1';
       this.debugElement = null;
       this.useNativeHorizontalScroll = isIOSDevice() && window.innerWidth < 750;
+      this.iosSwipeCompleted = false;
+      this.iosSwipeGateObserver = null;
       this.lastDrawerTrigger = null;
       this.drawerPlacement = null;
 
       this.onScroll = this.onScroll.bind(this);
       this.onNativeHorizontalScroll = this.onNativeHorizontalScroll.bind(this);
+      this.onIOSSkip = this.onIOSSkip.bind(this);
       this.onResize = this.onResize.bind(this);
       this.onMotionChange = this.onMotionChange.bind(this);
       this.onCharacterSelect = this.onCharacterSelect.bind(this);
@@ -94,6 +99,7 @@
       this.drawerPrevButton?.addEventListener('click', this.onDrawerPrev);
       this.drawerNextButton?.addEventListener('click', this.onDrawerNext);
       this.drawer?.addEventListener('submit', this.onQuickAddSubmit);
+      this.iosSkipButton?.addEventListener('click', this.onIOSSkip);
       document.addEventListener('shopify:block:select', this.onThemeBlockSelect);
       this.motionQuery.addEventListener('change', this.onMotionChange);
       window.addEventListener('resize', this.onResize, { passive: true });
@@ -162,6 +168,7 @@
     setMotionMode() {
       window.removeEventListener('scroll', this.onScroll);
       this.viewport.removeEventListener('scroll', this.onNativeHorizontalScroll);
+      this.disconnectIOSSwipeGate();
       cancelAnimationFrame(this.frame);
       cancelAnimationFrame(this.animationFrame);
       this.frame = 0;
@@ -173,10 +180,13 @@
       if (this.useNativeHorizontalScroll) {
         this.root.classList.remove('is-enhanced', 'is-reduced-motion', 'is-finale-visible');
         this.root.classList.add('is-ios-swipe-mode');
+        this.root.classList.toggle('is-swipe-complete', this.iosSwipeCompleted);
+        this.iosContinueCue?.setAttribute('aria-hidden', this.iosSwipeCompleted ? 'false' : 'true');
         this.root.style.removeProperty('--c26-scroll-height');
         this.world.style.removeProperty('transform');
         this.viewport.addEventListener('scroll', this.onNativeHorizontalScroll, { passive: true });
         this.refresh();
+        this.setupIOSSwipeGate();
         return;
       }
 
@@ -210,6 +220,7 @@
       this.root.classList.remove('is-reduced-motion');
 
       this.root.classList.remove('is-ios-swipe-mode');
+      this.root.classList.remove('is-swipe-gate-active', 'is-swipe-complete');
       this.root.classList.add('is-enhanced');
       window.addEventListener('scroll', this.onScroll, { passive: true });
       this.refresh();
@@ -303,12 +314,65 @@
       });
     }
 
+    setupIOSSwipeGate() {
+      this.disconnectIOSSwipeGate();
+
+      if (
+        !this.useNativeHorizontalScroll ||
+        this.iosSwipeCompleted ||
+        this.motionQuery.matches ||
+        !('IntersectionObserver' in window)
+      ) return;
+
+      const updateGate = () => {
+        if (this.destroyed || this.iosSwipeCompleted || !this.useNativeHorizontalScroll) {
+          this.root.classList.remove('is-swipe-gate-active');
+          return;
+        }
+
+        const rect = this.viewport.getBoundingClientRect();
+        const visibleHeight = Math.max(
+          0,
+          Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0)
+        );
+        const referenceHeight = Math.max(1, Math.min(rect.height, window.innerHeight));
+        this.root.classList.toggle('is-swipe-gate-active', visibleHeight / referenceHeight >= 0.85);
+      };
+
+      this.iosSwipeGateObserver = new IntersectionObserver(updateGate, {
+        threshold: [0, 0.5, 0.75, 0.85, 1],
+      });
+      this.iosSwipeGateObserver.observe(this.viewport);
+      updateGate();
+    }
+
+    disconnectIOSSwipeGate() {
+      this.iosSwipeGateObserver?.disconnect();
+      this.iosSwipeGateObserver = null;
+      this.root.classList.remove('is-swipe-gate-active');
+    }
+
+    completeIOSSwipe() {
+      if (!this.useNativeHorizontalScroll || this.iosSwipeCompleted) return;
+
+      this.iosSwipeCompleted = true;
+      this.root.classList.add('is-swipe-complete');
+      this.root.classList.remove('is-swipe-gate-active');
+      this.iosContinueCue?.setAttribute('aria-hidden', 'false');
+      this.disconnectIOSSwipeGate();
+    }
+
+    onIOSSkip() {
+      if (!this.useNativeHorizontalScroll) return;
+      this.completeIOSSwipe();
+      this.viewport.focus({ preventScroll: true });
+    }
+
     updateNativeHorizontalProgress() {
       if (!this.useNativeHorizontalScroll) return;
 
       const maxScroll = Math.max(0, this.viewport.scrollWidth - this.viewport.clientWidth);
       const progress = maxScroll > 0 ? clamp(this.viewport.scrollLeft / maxScroll) : 0;
-      const isAtEnd = progress >= 0.97;
       const leftCopyFadeStart = 0.14;
       const leftCopyFadeEnd = 0.24;
       const leftCopyOpacity = progress <= leftCopyFadeStart
@@ -324,11 +388,12 @@
       this.root.style.setProperty('--c26-left-copy-opacity', leftCopyOpacity.toFixed(3));
       this.root.style.setProperty('--c26-finale-opacity', '0');
       this.root.style.setProperty('--c26-character-opacity', '1');
-      this.root.classList.toggle('has-progress', progress > 0.02);
+      this.root.classList.toggle('has-progress', progress > 0.03);
       this.root.classList.toggle('is-left-copy-fading', progress > leftCopyFadeStart && !isLeftCopyHidden);
       this.root.classList.toggle('is-left-copy-hidden', isLeftCopyHidden);
-      this.root.classList.toggle('is-at-end', isAtEnd);
       this.root.classList.remove('is-finale-visible');
+
+      if (maxScroll <= 1 || progress >= 0.97) this.completeIOSSwipe();
 
       if (this.leftCopy) this.leftCopy.setAttribute('aria-hidden', isLeftCopyHidden ? 'true' : 'false');
       if (this.finale) this.finale.setAttribute('aria-hidden', 'true');
@@ -825,6 +890,7 @@
       window.clearTimeout(this.drawerCloseTimer);
       this.unlockStoryScroll();
       this.restoreDrawerPlacement();
+      this.disconnectIOSSwipeGate();
       window.removeEventListener('scroll', this.onScroll);
       this.viewport.removeEventListener('scroll', this.onNativeHorizontalScroll);
       window.removeEventListener('resize', this.onResize);
@@ -839,6 +905,7 @@
       this.drawerPrevButton?.removeEventListener('click', this.onDrawerPrev);
       this.drawerNextButton?.removeEventListener('click', this.onDrawerNext);
       this.drawer?.removeEventListener('submit', this.onQuickAddSubmit);
+      this.iosSkipButton?.removeEventListener('click', this.onIOSSkip);
       this.debugElement?.remove();
       this.setCharacterExpanded(null);
       this.setScrollActiveCharacter(null);
@@ -851,7 +918,7 @@
         'is-finale-visible'
       );
       this.applyPanoramaPosition(0);
-      this.root.classList.remove('is-ios-swipe-mode', 'is-at-end');
+      this.root.classList.remove('is-ios-swipe-mode', 'is-swipe-gate-active', 'is-swipe-complete');
     }
   }
 

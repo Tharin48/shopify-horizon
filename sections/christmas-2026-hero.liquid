@@ -330,6 +330,7 @@
         <div class="c26-hero__scroll-cue" aria-hidden="true">
           <span class="c26-hero__scroll-label c26-hero__scroll-label--desktop">{{ section.settings.scroll_label | escape }}</span>
           <span class="c26-hero__scroll-label c26-hero__scroll-label--mobile">{{ section.settings.mobile_scroll_label | default: section.settings.scroll_label | escape }}</span>
+          <span class="c26-hero__swipe-arrows" aria-hidden="true"><span>&larr;</span><span>&rarr;</span></span>
           <span class="c26-hero__scroll-line"></span>
         </div>
       {% endif %}
@@ -338,10 +339,14 @@
         <span data-c26-progress></span>
       </div>
 
-      <div class="c26-hero__ios-continue" aria-hidden="true">
+      <div class="c26-hero__ios-continue" data-c26-ios-continue role="status" aria-live="polite" aria-hidden="true">
         <span>{{ section.settings.ios_continue_label | default: 'Continue' | escape }}</span>
         <span aria-hidden="true">&#8595;</span>
       </div>
+
+      <button class="c26-hero__ios-skip" type="button" data-c26-ios-skip>
+        {{ section.settings.ios_skip_label | default: 'Skip / Continue ↓' | escape }}
+      </button>
   </div>
 
   <div
@@ -788,13 +793,19 @@
       "type": "text",
       "id": "mobile_scroll_label",
       "label": "Mobile swipe prompt",
-      "default": "Swipe left or right to explore"
+      "default": "Swipe to meet the Kindness Gang"
     },
     {
       "type": "text",
       "id": "ios_continue_label",
       "label": "iPhone end prompt",
       "default": "Continue"
+    },
+    {
+      "type": "text",
+      "id": "ios_skip_label",
+      "label": "iPhone skip prompt",
+      "default": "Skip / Continue ↓"
     },
     {
       "type": "text",
