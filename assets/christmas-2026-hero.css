@@ -17,6 +17,7 @@
 }
 
 .c26-hero__sticky {
+  position: relative;
   width: 100%;
   min-height: 100svh;
 }
@@ -46,6 +47,21 @@
 .c26-hero.is-enhanced .c26-hero__viewport {
   overflow: hidden;
   touch-action: pan-y;
+}
+
+.c26-hero.is-enhanced.is-ios-scroll-mode .c26-hero__viewport {
+  overflow-x: scroll;
+  overflow-y: hidden;
+  overscroll-behavior-x: none;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.c26-hero.is-ios-scroll-mode .c26-hero__world {
+  transform: none !important;
+  will-change: auto;
 }
 
 .c26-hero__world {

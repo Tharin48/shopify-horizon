@@ -64,6 +64,8 @@
   data-finale-gap-distance="{{ section.settings.finale_gap_distance }}"
   data-mobile-finale-gap-distance="{{ section.settings.mobile_finale_gap_distance }}"
   data-mobile-panorama-aspect-ratio="{{ mobile_panorama.aspect_ratio | default: 3.064 }}"
+  data-mobile-panorama-source-width="{{ mobile_panorama.width }}"
+  data-mobile-panorama-source-height="{{ mobile_panorama.height }}"
   data-drawer-chapter-prefix="{{ section.settings.drawer_chapter_prefix | escape }}"
   aria-label="{{ section_label | escape }}"
   style="
@@ -207,6 +209,7 @@
           {% endfor %}
         </div>
       </div>
+    </div>
 
       <div class="c26-hero__intro c26-hero__intro--{{ section.settings.content_alignment }}">
         {% if section.settings.eyebrow != blank %}
@@ -334,7 +337,6 @@
       <div class="c26-hero__progress" aria-hidden="true">
         <span data-c26-progress></span>
       </div>
-    </div>
   </div>
 
   <div

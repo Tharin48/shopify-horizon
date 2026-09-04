@@ -8,6 +8,9 @@
 
   const instances = new Map();
   const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
+  const isIOSDevice = () =>
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const FOCUSABLE = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
   class ChristmasHero {
@@ -39,6 +42,8 @@
       this.finaleGapDistance = Number(root.dataset.finaleGapDistance || 10) / 100;
       this.mobileFinaleGapDistance = Number(root.dataset.mobileFinaleGapDistance || 0) / 100;
       this.mobilePanoramaAspectRatio = Number(root.dataset.mobilePanoramaAspectRatio || 3.064);
+      this.mobilePanoramaSourceWidth = Number(root.dataset.mobilePanoramaSourceWidth || 0);
+      this.mobilePanoramaSourceHeight = Number(root.dataset.mobilePanoramaSourceHeight || 0);
       this.maxTranslate = 0;
       this.horizontalTravelDistance = 0;
       this.finaleStartDistance = 0;
@@ -58,6 +63,7 @@
       this.resizeTimer = 0;
       this.debugEnabled = new URLSearchParams(window.location.search).get('c26_debug') === '1';
       this.debugElement = null;
+      this.useNativeHorizontalScroll = isIOSDevice() && window.innerWidth < 750;
       this.lastDrawerTrigger = null;
       this.drawerPlacement = null;
 
@@ -96,6 +102,7 @@
       });
 
       this.setStableViewportHeight();
+      this.updateHorizontalRenderMode();
       this.setupDebugMode();
       this.setMotionMode();
     }
@@ -135,6 +142,23 @@
       this.root.append(this.debugElement);
     }
 
+    updateHorizontalRenderMode() {
+      this.useNativeHorizontalScroll = isIOSDevice() && window.innerWidth < 750;
+      this.root.classList.toggle('is-ios-scroll-mode', this.useNativeHorizontalScroll);
+      this.applyPanoramaPosition(this.currentTranslate);
+    }
+
+    applyPanoramaPosition(position) {
+      if (this.useNativeHorizontalScroll) {
+        this.world.style.removeProperty('transform');
+        this.viewport.scrollLeft = position;
+        return;
+      }
+
+      if (this.viewport.scrollLeft !== 0) this.viewport.scrollLeft = 0;
+      this.world.style.transform = `translate3d(${-position}px, 0, 0)`;
+    }
+
     setMotionMode() {
       window.removeEventListener('scroll', this.onScroll);
       cancelAnimationFrame(this.frame);
@@ -156,10 +180,10 @@
         this.root.style.setProperty('--c26-left-copy-opacity', '1');
         this.root.style.setProperty('--c26-finale-opacity', '1');
         this.root.style.setProperty('--c26-character-opacity', '1');
-        this.world.style.transform = '';
         this.targetTranslate = 0;
         this.currentTranslate = 0;
         this.translateDifference = 0;
+        this.applyPanoramaPosition(0);
         this.characters.forEach((character) => {
           character.style.setProperty('--c26-depth-offset', '0px');
         });
@@ -229,6 +253,7 @@
       window.clearTimeout(this.resizeTimer);
       this.resizeTimer = window.setTimeout(() => {
         this.setStableViewportHeight();
+        this.updateHorizontalRenderMode();
         cancelAnimationFrame(this.resizeFrame);
         this.resizeFrame = requestAnimationFrame(() => this.refresh());
       }, 180);
@@ -279,14 +304,20 @@
 
       this.targetTranslate = translate;
       this.lastJourneyProgress = journeyProgress;
-      if (window.innerWidth < 750 && !immediate) {
+      if (this.useNativeHorizontalScroll) {
+        cancelAnimationFrame(this.animationFrame);
+        this.animationFrame = 0;
+        this.currentTranslate = this.targetTranslate;
+        this.translateDifference = 0;
+        this.applyPanoramaPosition(this.currentTranslate);
+      } else if (window.innerWidth < 750 && !immediate) {
         this.startSmoothRender();
       } else {
         cancelAnimationFrame(this.animationFrame);
         this.animationFrame = 0;
         this.currentTranslate = this.targetTranslate;
         this.translateDifference = 0;
-        this.world.style.transform = `translate3d(${-this.currentTranslate}px, 0, 0)`;
+        this.applyPanoramaPosition(this.currentTranslate);
       }
       this.root.style.setProperty('--c26-progress', journeyProgress.toFixed(4));
       this.root.style.setProperty('--c26-left-copy-opacity', leftCopyOpacity.toFixed(3));
@@ -334,20 +365,21 @@
       if (Math.abs(this.translateDifference) <= 0.1) {
         this.currentTranslate = this.targetTranslate;
         this.translateDifference = 0;
-        this.world.style.transform = `translate3d(${-this.currentTranslate}px, 0, 0)`;
+        this.applyPanoramaPosition(this.currentTranslate);
         this.animationFrame = 0;
         this.renderDebug();
         return;
       }
 
       this.currentTranslate += this.translateDifference * 0.16;
-      this.world.style.transform = `translate3d(${-this.currentTranslate}px, 0, 0)`;
+      this.applyPanoramaPosition(this.currentTranslate);
       this.renderDebug();
       this.animationFrame = requestAnimationFrame(() => this.renderSmoothScroll());
     }
 
     renderDebug() {
       if (!this.debugElement) return;
+      const panoramaImage = this.world.querySelector('.c26-hero__background-image');
       this.debugElement.value = [
         `scrollY ${Math.round(window.scrollY)}`,
         `progress ${this.lastJourneyProgress.toFixed(3)}`,
@@ -357,6 +389,10 @@
         `viewport width ${this.viewport.clientWidth}`,
         `stable height ${this.stableViewportHeight}`,
         `world width ${this.world.scrollWidth}`,
+        `source ${this.mobilePanoramaSourceWidth}×${this.mobilePanoramaSourceHeight}`,
+        `decoded ${panoramaImage?.naturalWidth || 0}×${panoramaImage?.naturalHeight || 0}`,
+        `DPR ${window.devicePixelRatio || 1}`,
+        `render mode ${this.useNativeHorizontalScroll ? 'ios-scrollLeft' : 'transform'}`,
         `RAF running ${this.animationFrame !== 0}`,
         `controllers ${instances.size} · ScrollTriggers 0`,
       ].join('\n');
@@ -738,7 +774,8 @@
         'is-left-copy-fading',
         'is-finale-visible'
       );
-      this.world.style.transform = '';
+      this.applyPanoramaPosition(0);
+      this.root.classList.remove('is-ios-scroll-mode');
     }
   }
 
