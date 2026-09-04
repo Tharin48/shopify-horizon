@@ -1,0 +1,230 @@
+.tup-pre-match-ritual {
+  --tup-ritual-cream: #fffaf0;
+  --tup-ritual-white: #ffffff;
+  --tup-ritual-gold: #bc9407;
+  --tup-ritual-gold-deep: #ad8702;
+  --tup-ritual-teal: #007378;
+  --tup-ritual-ink: #222829;
+  --tup-ritual-muted: #6b7280;
+  --tup-ritual-border: #e5e5e5;
+  color: var(--tup-ritual-ink);
+}
+
+.tup-pre-match-ritual--cream {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(188, 148, 7, 0.08), transparent 28rem),
+    var(--tup-ritual-cream);
+}
+
+.tup-pre-match-ritual--white {
+  background:
+    radial-gradient(circle at 88% 16%, rgba(0, 115, 120, 0.06), transparent 26rem),
+    var(--tup-ritual-white);
+}
+
+.tup-pre-match-ritual__inner {
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: clamp(3.2rem, 6vw, 5.4rem) clamp(1.25rem, 5vw, 5.875rem);
+}
+
+.tup-pre-match-ritual__header {
+  margin: 0 auto;
+  max-width: 48rem;
+  text-align: center;
+}
+
+.tup-pre-match-ritual__eyebrow {
+  color: var(--tup-ritual-gold-deep);
+  font-size: var(--tup-ritual-eyebrow-size, 12px);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+}
+
+.tup-pre-match-ritual__title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: var(--tup-ritual-title-size, 72px);
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  margin: 0;
+}
+
+.tup-pre-match-ritual__subtitle {
+  color: var(--tup-ritual-muted);
+  font-size: var(--tup-ritual-subtitle-size, 17px);
+  line-height: 1.65;
+  margin: 1.1rem auto 0;
+  max-width: 40rem;
+}
+
+.tup-pre-match-ritual__grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: clamp(2rem, 4vw, 3rem) auto 0;
+  max-width: 62rem;
+}
+
+.tup-pre-match-ritual__card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--tup-ritual-border);
+  border-radius: 1rem;
+  box-shadow: 0 12px 34px rgba(34, 40, 41, 0.045);
+  display: flex;
+  flex-direction: column;
+  min-height: 13.5rem;
+  padding: 1.1rem;
+  position: relative;
+}
+
+.tup-pre-match-ritual__card::after {
+  background: linear-gradient(90deg, var(--tup-ritual-gold), rgba(0, 115, 120, 0.35));
+  border-radius: 999px;
+  bottom: 1rem;
+  content: '';
+  height: 2px;
+  left: 1.1rem;
+  opacity: 0.42;
+  position: absolute;
+  right: 1.1rem;
+}
+
+.tup-pre-match-ritual__icon {
+  align-items: center;
+  background: rgba(188, 148, 7, 0.1);
+  border: 1px solid rgba(188, 148, 7, 0.24);
+  border-radius: 999px;
+  color: var(--tup-ritual-gold-deep);
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 700;
+  height: 2rem;
+  justify-content: center;
+  letter-spacing: 0.08em;
+  min-width: 2rem;
+  padding: 0 0.65rem;
+  width: fit-content;
+}
+
+.tup-pre-match-ritual__icon svg {
+  display: block;
+  height: var(--tup-ritual-icon-size, 18px);
+  width: var(--tup-ritual-icon-size, 18px);
+}
+
+.tup-pre-match-ritual__icon svg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.45;
+}
+
+.tup-pre-match-ritual__card-content {
+  display: grid;
+  grid-template-rows: auto minmax(2.6rem, auto) minmax(2.25rem, auto) 1fr;
+  padding-bottom: 0.9rem;
+  padding-top: 1rem;
+}
+
+.tup-pre-match-ritual__step {
+  color: var(--tup-ritual-teal);
+  font-size: var(--tup-ritual-step-size, 12px);
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  margin: 0 0 0.55rem;
+  text-transform: uppercase;
+}
+
+.tup-pre-match-ritual__card-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: var(--tup-ritual-card-title-size, 22px);
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  margin: 0 0 0.55rem;
+}
+
+.tup-pre-match-ritual__value {
+  color: var(--tup-ritual-gold-deep);
+  font-size: var(--tup-ritual-value-size, 13px);
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 0.55rem;
+}
+
+.tup-pre-match-ritual__description {
+  color: var(--tup-ritual-muted);
+  font-size: var(--tup-ritual-description-size, 13px);
+  line-height: 1.48;
+  margin: 0;
+}
+
+.tup-pre-match-ritual__cta-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+.tup-pre-match-ritual__cta {
+  align-items: center;
+  background: var(--tup-ritual-gold);
+  border-radius: 999px;
+  box-shadow: 0 14px 34px rgba(188, 148, 7, 0.2);
+  color: #fff;
+  display: inline-flex;
+  font-size: var(--tup-ritual-cta-size, 15px);
+  font-weight: 700;
+  justify-content: center;
+  min-height: 3.4rem;
+  min-width: 13rem;
+  padding: 0.9rem 1.6rem;
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.tup-pre-match-ritual__cta:hover,
+.tup-pre-match-ritual__cta:focus-visible {
+  background: var(--tup-ritual-gold-deep);
+  box-shadow: 0 18px 42px rgba(173, 135, 2, 0.26);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+@media screen and (max-width: 1099px) {
+  .tup-pre-match-ritual__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tup-pre-match-ritual__card {
+    min-height: 12.5rem;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .tup-pre-match-ritual__inner {
+    padding: 3.4rem 1rem;
+  }
+
+  .tup-pre-match-ritual__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tup-pre-match-ritual__card {
+    min-height: 0;
+  }
+
+  .tup-pre-match-ritual__card-content {
+    grid-template-rows: auto;
+  }
+
+  .tup-pre-match-ritual__cta,
+  .tup-pre-match-ritual__cta-wrap {
+    width: 100%;
+  }
+}

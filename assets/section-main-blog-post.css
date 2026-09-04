@@ -1,0 +1,279 @@
+.editorial-article {
+  --article-accent: #b88900;
+  --article-ink: #24221f;
+  --article-muted: #706c65;
+  --article-line: rgb(36 34 31 / 0.12);
+  --article-soft: #f7f4ed;
+  overflow: clip;
+}
+
+.editorial-article .section-content-wrapper {
+  gap: 0;
+  max-width: 100%;
+  padding-inline: clamp(1rem, 4vw, 4rem);
+}
+
+.editorial-article__header {
+  margin: 0 auto;
+  max-width: 62rem;
+  padding: clamp(2.5rem, 7vw, 6.5rem) 0 clamp(2rem, 5vw, 4rem);
+  position: relative;
+  text-align: center;
+}
+
+.editorial-article__header::before {
+  background: var(--article-accent);
+  content: '';
+  height: 3px;
+  left: 50%;
+  position: absolute;
+  top: clamp(1.5rem, 4vw, 3.5rem);
+  transform: translateX(-50%);
+  width: 3.5rem;
+}
+
+.editorial-article__blog-link {
+  align-items: center;
+  color: var(--article-accent);
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 700;
+  gap: 0.45rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 1.35rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.editorial-article__blog-link:hover {
+  color: var(--article-ink);
+}
+
+.editorial-article__header h1 {
+  color: var(--article-ink);
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-size: clamp(2.35rem, 5.5vw, 5.2rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.editorial-article__header .blog-post-details {
+  color: var(--article-muted);
+  font-size: 0.78rem;
+  justify-content: center;
+  letter-spacing: 0.08em;
+  padding-top: 1.35rem !important;
+  text-transform: uppercase;
+}
+
+.editorial-article__reading-time {
+  color: var(--article-muted);
+  font-size: 0.78rem;
+  margin: 0.45rem 0 0;
+}
+
+.editorial-article__hero {
+  margin: 0 auto clamp(3rem, 7vw, 6.5rem);
+  max-width: 92rem;
+  position: relative;
+  width: 100%;
+}
+
+.editorial-article__hero::before {
+  background: var(--article-soft);
+  border-radius: 2rem;
+  content: '';
+  inset: clamp(1rem, 3vw, 2.5rem) -1.5rem -1.5rem;
+  position: absolute;
+}
+
+.editorial-article__hero .blog-post-featured-image {
+  border-radius: clamp(0.9rem, 2vw, 1.6rem);
+  box-shadow: 0 1.5rem 4rem rgb(33 28 18 / 0.13);
+  overflow: hidden;
+  position: relative;
+}
+
+.editorial-article__hero .blog-post-featured-image__image {
+  max-height: min(72vh, 54rem);
+  object-fit: cover;
+}
+
+.editorial-article__body {
+  margin: 0 auto;
+  max-width: 48rem;
+  width: 100%;
+}
+
+.editorial-article .blog-post-content {
+  color: var(--article-ink);
+  font-size: clamp(1rem, 0.35vw + 0.92rem, 1.125rem);
+  line-height: 1.82;
+  max-width: none;
+}
+
+.editorial-article .blog-post-content > rte-formatter > *:first-child {
+  margin-top: 0;
+}
+
+.editorial-article .blog-post-content p {
+  margin-block: 0 1.45em;
+}
+
+.editorial-article .blog-post-content h2,
+.editorial-article .blog-post-content h3,
+.editorial-article .blog-post-content h4 {
+  color: var(--article-ink);
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.editorial-article .blog-post-content h2 {
+  border-top: 1px solid var(--article-line);
+  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  margin: 3.2rem 0 1.1rem;
+  padding-top: 2.4rem;
+}
+
+.editorial-article .blog-post-content h3 {
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  margin: 2.5rem 0 0.8rem;
+}
+
+.editorial-article .blog-post-content h4 {
+  font-size: 1.15rem;
+  margin: 2rem 0 0.65rem;
+}
+
+.editorial-article .blog-post-content a {
+  color: var(--article-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.editorial-article .blog-post-content :is(ul, ol) {
+  margin: 0 0 1.8rem;
+  padding-left: 1.35rem;
+}
+
+.editorial-article .blog-post-content li {
+  margin-bottom: 0.55rem;
+  padding-left: 0.35rem;
+}
+
+.editorial-article .blog-post-content li::marker {
+  color: var(--article-accent);
+}
+
+.editorial-article .blog-post-content blockquote {
+  border-left: 3px solid var(--article-accent);
+  color: var(--article-ink);
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  line-height: 1.4;
+  margin: 3rem 0;
+  padding: 0.3rem 0 0.3rem clamp(1.25rem, 3vw, 2.25rem);
+}
+
+.editorial-article .blog-post-content img {
+  border-radius: 1rem;
+  box-shadow: 0 1rem 2.5rem rgb(33 28 18 / 0.1);
+  height: auto;
+  margin: 2.5rem auto;
+}
+
+.editorial-article .blog-post-content table {
+  border-collapse: collapse;
+  display: block;
+  margin: 2rem 0;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.editorial-article .blog-post-content :is(th, td) {
+  border-bottom: 1px solid var(--article-line);
+  padding: 0.8rem 1rem;
+  text-align: left;
+}
+
+.editorial-article__comments {
+  background: var(--article-soft);
+  border: 1px solid var(--article-line);
+  border-radius: 1.25rem;
+  margin-top: clamp(4rem, 8vw, 7rem);
+  max-width: 52rem;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.editorial-article__comments > h2,
+.editorial-article__comments .blog-post-comments__form-container > h2 {
+  color: var(--article-ink);
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-weight: 500;
+}
+
+.editorial-article .blog-post-comment {
+  background: #fff;
+  border: 1px solid var(--article-line);
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+}
+
+.editorial-article .blog-post-comments__form-input {
+  background: #fff;
+  border: 1px solid var(--article-line);
+  border-radius: 0.65rem;
+}
+
+.editorial-article .blog-post-comments__form-submit {
+  background: var(--article-ink);
+  border-radius: 999px;
+  color: #fff;
+  min-height: 3rem;
+  padding-inline: 1.6rem;
+}
+
+.editorial-article .blog-post-comments__form-submit:hover {
+  background: var(--article-accent);
+}
+
+@media (max-width: 749px) {
+  .editorial-article .section-content-wrapper {
+    padding-inline: 1rem;
+  }
+
+  .editorial-article__header {
+    padding-top: 3.5rem;
+  }
+
+  .editorial-article__header h1 {
+    font-size: clamp(2.25rem, 12vw, 3.7rem);
+  }
+
+  .editorial-article__hero {
+    margin-bottom: 3.5rem;
+  }
+
+  .editorial-article__hero::before {
+    inset: 0.75rem -0.35rem -0.75rem;
+  }
+
+  .editorial-article__hero .blog-post-featured-image__image {
+    aspect-ratio: 4 / 3;
+  }
+
+  .editorial-article .blog-post-content {
+    line-height: 1.72;
+  }
+
+  .editorial-article__comments {
+    border-radius: 1rem;
+    padding: 1.25rem;
+  }
+}

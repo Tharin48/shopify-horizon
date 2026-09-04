@@ -1,0 +1,23 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "context": {
+    "market": "sri-lanka"
+  },
+  "parent": "collection.json",
+  "sections": {
+    "reusable_collection_catalog_aDCHBP": {
+      "settings": {
+        "tea_type_metaobject_order": "Black Tea,\nOolong Tea\nGreen Tea\nWhite Tea\nFlavored Tea\nCaffeine Free\nHerbal Infusion Tea"
+      },
+      "blocks": {}
+    }
+  }
+}

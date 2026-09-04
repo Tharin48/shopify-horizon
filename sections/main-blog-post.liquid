@@ -1,7 +1,7 @@
-
+{{ 'section-main-blog-post.css' | asset_url | stylesheet_tag }}
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
-<div class="section color-{{ section.settings.color_scheme }}">
+<article class="section color-{{ section.settings.color_scheme }} editorial-article">
   <div
     class="
       spacing-style
@@ -15,21 +15,40 @@
       {% render 'spacing-style', settings: section.settings %}
     "
   >
-    <header>
+    <header class="editorial-article__header">
+      <a class="editorial-article__blog-link" href="{{ blog.url }}">
+        <span aria-hidden="true">←</span>
+        {{ blog.title | escape }}
+      </a>
+
       {%- content_for 'block', id: 'blog-post-title', type: 'text' %}
       {%- content_for 'block', id: 'blog-post-details', type: '_blog-post-info-text' %}
+
+      {%- liquid
+        assign article_words = article.content | strip_html | split: ' ' | size
+        assign reading_minutes = article_words | divided_by: 200
+        if reading_minutes < 1
+          assign reading_minutes = 1
+        endif
+      -%}
+      <p class="editorial-article__reading-time">{{ reading_minutes }} min read</p>
     </header>
 
     {%- if article.image -%}
-      {%- content_for 'block', id: 'blog-post-image', type: '_blog-post-featured-image' %}
+      <div class="editorial-article__hero">
+        {%- content_for 'block', id: 'blog-post-image', type: '_blog-post-featured-image' %}
+      </div>
     {%- endif -%}
-    {%- content_for 'block', id: 'blog-post-content', type: '_blog-post-content' %}
+
+    <div class="editorial-article__body">
+      {%- content_for 'block', id: 'blog-post-content', type: '_blog-post-content' %}
+    </div>
 
     {% comment %} Dynamic area for @app blocks only, at the bottom {% endcomment %}
     {% content_for 'blocks' %}
 
     {% if blog.comments_enabled? %}
-      <div class="blog-post-comments-container">
+      <div class="blog-post-comments-container editorial-article__comments">
         <h2 class="h3">{{- 'blogs.article.comments_heading' | t: count: article.comments_count -}}</h2>
 
         <div class="blog-post-comments">
@@ -57,7 +76,7 @@
       </div>
     {% endif %}
   </div>
-</div>
+</article>
 
 <script type="application/ld+json">
   {{ article | structured_data }}

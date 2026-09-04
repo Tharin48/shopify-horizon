@@ -1,0 +1,100 @@
+{% doc %}
+  Accessible "Back to products" link for product pages.
+
+  Server-rendered fallback href (works with JavaScript disabled):
+    1. The `collection` param, when supplied.
+    2. The product's own first collection (`product.collections.first`).
+    3. `/collections/all`.
+
+  `assets/horizon-collection-return.js` progressively enhances this link:
+  it prefers `history.back()` when the previous same-origin history entry is
+  a collection/search page, otherwise it rewrites `href` to the last known
+  collection/search URL (with filters + sort intact) stored in a namespaced
+  sessionStorage key. The link always keeps a valid `href`, so it degrades
+  gracefully without JavaScript.
+
+  @param {object} [product] - Product object. Defaults to `closest.product`.
+  @param {object} [collection] - Optional collection to link back to.
+  @param {string} [class] - Additional CSS classes on the wrapping element.
+
+  @example
+    {% render 'product-back-link', product: closest.product %}
+{% enddoc %}
+
+{% liquid
+  assign back_product = product | default: closest.product
+  assign back_collection = collection
+  if back_collection == blank and back_product != blank and back_product.collections.size > 0
+    assign back_collection = back_product.collections.first
+  endif
+
+  assign back_href = routes.all_products_collection_url | default: '/collections/all'
+  if back_collection != blank
+    assign back_href = back_collection.url
+  endif
+
+  assign extra_class = class | default: ''
+%}
+
+<a
+  href="{{ back_href }}"
+  class="product-back-link {{ extra_class }}"
+  data-product-back-link
+  aria-label="{{ 'products.product.back_to_products' | t }}"
+>
+  <span class="svg-wrapper product-back-link__icon" aria-hidden="true">
+    {{ 'icon-chevron-left.svg' | inline_asset_content }}
+  </span>
+  <span class="product-back-link__label product-back-link__label--desktop">
+    {{- 'products.product.back_to_products' | t -}}
+  </span>
+  <span class="product-back-link__label product-back-link__label--mobile" aria-hidden="true">
+    {{- 'actions.back' | t -}}
+  </span>
+</a>
+
+{% stylesheet %}
+  .product-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.5rem 0.25rem;
+    margin-inline-start: -0.25rem;
+    color: var(--product-breadcrumb-current, rgb(var(--color-foreground-rgb)));
+    font-family: var(--font-body--family);
+    font-size: 0.875rem;
+    line-height: 1.2;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+
+  .product-back-link:hover {
+    text-decoration: underline;
+  }
+
+  .product-back-link:focus-visible {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  .product-back-link__icon svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .product-back-link__label--mobile {
+    display: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-back-link__label--desktop {
+      display: none;
+    }
+
+    .product-back-link__label--mobile {
+      display: inline;
+    }
+  }
+{% endstylesheet %}

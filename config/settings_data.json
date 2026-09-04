@@ -9,6 +9,12 @@
  */
 {
   "current": {
+    "tea_format_1_image": "<svg width=\"120\" height=\"120\" viewbox=\"0 0 120 120\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"> <rect x=\"1.87293\" y=\"1.87293\" width=\"116.122\" height=\"116.122\" rx=\"58.061\" stroke=\"#E5E5E5\" stroke-width=\"3.74587\"></rect> <g clip-path=\"url(#clip0_1_18)\"> <path d=\"M67.4282 80.5392V58.5838C67.4284 58.244 67.3362 57.9106 67.1613 57.6192L62.3549 49.6077C62.1884 49.3306 61.953 49.1012 61.6715 48.942C61.3901 48.7829 61.0722 48.6992 60.7489 48.6993H47.8865C47.5632 48.6992 47.2453 48.7829 46.9639 48.942C46.6824 49.1012 46.447 49.3306 46.2805 49.6077L41.474 57.6192C41.2992 57.9106 41.207 58.244 41.2072 58.5838V80.5392C41.2072 81.036 41.4045 81.5124 41.7557 81.8636C42.107 82.2148 42.5834 82.4122 43.0801 82.4122H65.5553C66.052 82.4122 66.5284 82.2148 66.8797 81.8636C67.2309 81.5124 67.4282 81.036 67.4282 80.5392Z\" stroke=\"#E5E5E5\" stroke-width=\"3.74587\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path> <path d=\"M82.4113 69.3053C80.9211 69.3053 79.4919 68.7133 78.4382 67.6596C77.3844 66.6058 76.7924 65.1767 76.7924 63.6865V44.9571C76.7924 41.9767 75.6085 39.1184 73.501 37.011C71.3936 34.9035 68.5352 33.7195 65.5548 33.7195C62.5744 33.7195 59.7161 34.9035 57.6087 37.011C55.5012 39.1184 54.3172 41.9767 54.3172 44.9571V61.8135\" stroke=\"#E5E5E5\" stroke-width=\"3.74587\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></path> </g> <defs> <clippath id=\"clip0_1_18\"> <rect width=\"59.9339\" height=\"59.9339\" fill=\"white\" transform=\"translate(29.9669 29.9669)\"></rect> </clippath> </defs> </svg>",
+    "tea_format_1_text": "Tea Bag",
+    "tea_format_2_image": "<svg width=\"128\" height=\"128\" viewbox=\"0 0 128 128\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"> <rect x=\"1.98999\" y=\"1.98999\" width=\"123.38\" height=\"123.38\" rx=\"61.6898\" stroke=\"#E5E5E5\" stroke-width=\"3.97999\"></rect> <path d=\"M37.1444 87.5597C37.1444 79.5994 42.0533 73.3373 50.6241 71.6391C57.0455 70.3654 63.6791 66.3322 66.3326 63.6788M61.025 84.9062C56.3656 84.9204 51.8712 83.1828 48.433 80.0383C44.9948 76.8938 42.864 72.5719 42.4632 67.9299C42.0625 63.2878 43.421 58.6647 46.2694 54.9775C49.1178 51.2902 53.248 48.8081 57.8408 48.0235C72.9656 45.1047 76.9458 43.7249 82.2527 37.1444C84.9062 42.4513 87.5597 48.2358 87.5597 58.3719C87.5597 72.9658 74.8761 84.9062 61.025 84.9062Z\" stroke=\"#E5E5E5\" stroke-width=\"3.97999\" stroke-linecap=\"round\"></path> </svg>",
+    "tea_format_2_text": "Loose Leaf",
+    "tea_format_3_image": "<svg width=\"128\" height=\"128\" viewbox=\"0 0 128 128\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"> <rect x=\"1.98999\" y=\"1.98999\" width=\"123.38\" height=\"123.38\" rx=\"61.6898\" stroke=\"#E5E5E5\" stroke-width=\"3.97999\"></rect> <path d=\"M39.7999 63.6798C39.7999 57.3464 42.3158 51.2725 46.7941 46.7941C51.2725 42.3158 57.3464 39.7999 63.6798 39.7999C70.3557 39.825 76.7634 42.4299 81.5632 47.07L87.5597 53.0665M74.2931 53.0665H87.5597V39.7999M87.5597 63.6798C87.5597 70.0131 85.0438 76.0871 80.5654 80.5654C76.0871 85.0438 70.0131 87.5597 63.6798 87.5597C57.0039 87.5346 50.5961 84.9296 45.7964 80.2896L39.7999 74.2931M39.7999 87.5597V74.2931H53.0665\" stroke=\"#E5E5E5\" stroke-width=\"3.97999\" stroke-linecap=\"round\"></path> </svg>",
+    "tea_format_3_text": "Refill",
     "logo": "shopify://shop_images/Dilmah_Logo_Updated_f018c266-74e9-4381-a86f-0102e73bac7c.jpg",
     "logo_inverse": "shopify://shop_images/logo_0ffcf6b7-677e-4d89-aefc-c6aa32fe38d1.png",
     "logo_height": 36,
@@ -16,8 +22,8 @@
     "favicon": "shopify://shop_images/logo_0ffcf6b7-677e-4d89-aefc-c6aa32fe38d1.png",
     "type_body_font": "inter_n4",
     "type_subheading_font": "inter_n4",
-    "type_heading_font": "gelasio_n4",
-    "type_accent_font": "gelasio_n4",
+    "type_heading_font": "playfair_display_n4",
+    "type_accent_font": "playfair_display_n4",
     "type_size_paragraph": "14",
     "type_line_height_paragraph": "body-loose",
     "type_font_h1": "heading",
@@ -46,7 +52,8 @@
     "type_line_height_h6": "display-loose",
     "page_width": "narrow",
     "page_transition_enabled": false,
-    "transition_to_main_product": true,
+    "transition_to_main_product": false,
+    "add_to_cart_animation": false,
     "card_hover_effect": "none",
     "badge_position": "top-right",
     "badge_corner_radius": 100,
@@ -89,13 +96,13 @@
       "custom-newsletter-popup": {
         "type": "custom-newsletter-popup",
         "settings": {
-          "enable_popup": true,
+          "enable_popup": false,
           "popup_visibility": "homepage_only",
           "enable_desktop": true,
           "enable_mobile": true,
           "delay_seconds": 25,
           "display_frequency": "session",
-          "frequency_days": 1,
+          "frequency_days": 7,
           "heading": "Enjoy 10% Off Your First Order",
           "description": "Join the Dilmah community for exclusive offers, tea stories, and early access to new collections.",
           "email_placeholder": "Enter your email",
@@ -127,11 +134,6 @@
           "mobile_side_margin": 16,
           "mobile_bottom_margin": 46
         }
-      },
-      "yoast-seo-metatags": {
-        "type": "shopify://apps/yoast-seo-seo-for-everyone/blocks/metatags/7c777011-bc88-4743-a24e-64336e1e5b46",
-        "disabled": false,
-        "settings": {}
       },
       "10482958812443994587": {
         "type": "shopify://apps/bik/blocks/bikScripts/4ee0506d-3abc-448e-9d32-1ea2950714ec",
@@ -166,13 +168,33 @@
           "aiod_dev_api_call": ""
         }
       },
-      "7570552984445421165": {
-        "type": "shopify://apps/yotpo-product-reviews/blocks/settings/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+      "2567389343055140935": {
+        "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
         "disabled": false,
         "settings": {}
       },
-      "2567389343055140935": {
-        "type": "shopify://apps/microsoft-clarity/blocks/clarity_js/31c3d126-8116-4b4a-8ba1-baeda7c4aeea",
+      "yoast-seo-metatags": {
+        "type": "shopify://apps/yoast-seo-seo-for-everyone/blocks/metatags/7c777011-bc88-4743-a24e-64336e1e5b46",
+        "disabled": false,
+        "settings": {}
+      },
+      "14060646107696862457": {
+        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {}
+      },
+      "7559105968087542595": {
+        "type": "shopify://apps/multifeeds/blocks/gad_embed/f3e7ca1d-2d5a-45a7-97dd-2fd45843acef",
+        "disabled": false,
+        "settings": {}
+      },
+      "16936614187718193802": {
+        "type": "shopify://apps/multifeeds/blocks/app_embed/f3e7ca1d-2d5a-45a7-97dd-2fd45843acef",
+        "disabled": false,
+        "settings": {}
+      },
+      "2153490007123654574": {
+        "type": "shopify://apps/consentmo-gdpr/blocks/gdpr_cookie_consent/4fbe573f-a377-4fea-9801-3ee0858cae41",
         "disabled": false,
         "settings": {}
       }

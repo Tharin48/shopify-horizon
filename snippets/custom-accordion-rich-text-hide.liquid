@@ -1,0 +1,33 @@
+{%- doc -%}
+  Outputs "1" when the parent accordion row should be omitted on the storefront:
+  the selected product rich text metafield has no content.
+
+  Theme editor preview keeps the row visible.
+
+  @param {object} rich_text_block - The _custom-accordion-rich-text block
+  @param {object} [product_resource] - Resolved product (template product or closest.product)
+{%- enddoc -%}
+{%- liquid
+  assign product = product_resource | default: product
+  assign metafield_key = rich_text_block.settings.metafield_key | default: ''
+  assign hide_accordion_row = false
+
+  if request.design_mode or request.visual_preview_mode
+    assign hide_accordion_row = false
+  elsif product == blank
+    assign hide_accordion_row = true
+  else
+    assign rich_mf = blank
+    case metafield_key
+      when 'ingredients_storage_information'
+        assign rich_mf = product.metafields.custom.ingredients_storage_information
+      when 'shipping_info'
+        assign rich_mf = product.metafields.custom.shipping_info
+    endcase
+
+    if rich_mf == blank or rich_mf.value == blank
+      assign hide_accordion_row = true
+    endif
+  endif
+-%}
+{%- if hide_accordion_row -%}1{%- endif -%}

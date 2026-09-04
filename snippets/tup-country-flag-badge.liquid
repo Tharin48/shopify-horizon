@@ -1,0 +1,193 @@
+{%- liquid
+  assign badge_product = product_resource | default: product
+  assign badge_position = position | default: 'bottom-right'
+  assign country_codes = badge_product.metafields.custom.tup_country_codes.value
+  assign country_code_values = country_codes
+
+  if country_code_values == blank and badge_product.metafields.custom.tup_country_codes != blank
+    assign country_code_values = badge_product.metafields.custom.tup_country_codes | split: ','
+  endif
+-%}
+
+{%- capture flag_items -%}
+  {%- for raw_country_code in country_code_values -%}
+    {%- liquid
+      assign country_code = raw_country_code | remove: '[' | remove: ']' | remove: '"' | strip | upcase
+      assign flag_path = ''
+
+      case country_code
+        when 'MEX'
+          assign flag_path = 'mx'
+        when 'RSA'
+          assign flag_path = 'za'
+        when 'KOR'
+          assign flag_path = 'kr'
+        when 'CZE'
+          assign flag_path = 'cz'
+        when 'CAN'
+          assign flag_path = 'ca'
+        when 'BIH'
+          assign flag_path = 'ba'
+        when 'QAT'
+          assign flag_path = 'qa'
+        when 'SUI'
+          assign flag_path = 'ch'
+        when 'BRA'
+          assign flag_path = 'br'
+        when 'MAR'
+          assign flag_path = 'ma'
+        when 'HAI'
+          assign flag_path = 'ht'
+        when 'SCO'
+          assign flag_path = 'gb-sct'
+        when 'USA'
+          assign flag_path = 'us'
+        when 'PAR'
+          assign flag_path = 'py'
+        when 'AUS'
+          assign flag_path = 'au'
+        when 'TUR'
+          assign flag_path = 'tr'
+        when 'GER'
+          assign flag_path = 'de'
+        when 'CUW'
+          assign flag_path = 'cw'
+        when 'CIV'
+          assign flag_path = 'ci'
+        when 'ECU'
+          assign flag_path = 'ec'
+        when 'NED'
+          assign flag_path = 'nl'
+        when 'JPN'
+          assign flag_path = 'jp'
+        when 'SWE'
+          assign flag_path = 'se'
+        when 'TUN'
+          assign flag_path = 'tn'
+        when 'BEL'
+          assign flag_path = 'be'
+        when 'EGY'
+          assign flag_path = 'eg'
+        when 'CHI'
+          assign flag_path = 'cl'
+        when 'DEN'
+          assign flag_path = 'dk'
+        when 'COL'
+          assign flag_path = 'co'
+        when 'IRN'
+          assign flag_path = 'ir'
+        when 'KSA'
+          assign flag_path = 'sa'
+        when 'URU'
+          assign flag_path = 'uy'
+        when 'FRA'
+          assign flag_path = 'fr'
+        when 'SEN'
+          assign flag_path = 'sn'
+        when 'IRQ'
+          assign flag_path = 'iq'
+        when 'NOR'
+          assign flag_path = 'no'
+        when 'ARG'
+          assign flag_path = 'ar'
+        when 'ALG'
+          assign flag_path = 'dz'
+        when 'AUT'
+          assign flag_path = 'at'
+        when 'JOR'
+          assign flag_path = 'jo'
+        when 'POR'
+          assign flag_path = 'pt'
+        when 'COD'
+          assign flag_path = 'cd'
+        when 'UZB'
+          assign flag_path = 'uz'
+        when 'ENG'
+          assign flag_path = 'gb-eng'
+        when 'CRO'
+          assign flag_path = 'hr'
+        when 'GHA'
+          assign flag_path = 'gh'
+        when 'PAN'
+          assign flag_path = 'pa'
+      endcase
+    -%}
+
+    {%- if flag_path != blank -%}
+      <span
+        class="tup-country-flag-badge__item"
+        data-tup-country-code="{{ country_code | escape }}"
+        aria-label="{{ country_code | escape }} country flag"
+      >
+        <img
+          src="https://flagcdn.com/w80/{{ flag_path }}.png"
+          alt=""
+          width="36"
+          height="36"
+          loading="lazy"
+        >
+      </span>
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- if flag_items != blank -%}
+  <span
+    class="tup-country-flag-badge tup-country-flag-badge--{{ badge_position }}"
+    aria-label="Product country flags"
+  >
+    {{ flag_items }}
+  </span>
+{%- endif -%}
+
+{% stylesheet %}
+  .tup-country-flag-badge {
+    align-items: center;
+    display: inline-flex;
+    gap: 4px;
+    justify-content: center;
+    pointer-events: none;
+    position: absolute;
+    z-index: 6;
+  }
+
+  .tup-country-flag-badge--bottom-right {
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .tup-country-flag-badge--bottom-left {
+    bottom: 12px;
+    left: 12px;
+  }
+
+  .tup-country-flag-badge__item {
+    align-items: center;
+    background: #fff;
+    border: 1px solid rgba(188, 148, 7, 0.2);
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+    display: inline-flex;
+    height: 36px;
+    justify-content: center;
+    overflow: hidden;
+    padding: 3px;
+    width: 36px;
+  }
+
+  .tup-country-flag-badge__item img {
+    border-radius: 999px;
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .product-media,
+  .product-media-container,
+  .card-gallery,
+  .teamakers-pick__image-wrap,
+  .tup-country-flag-badge-host {
+    position: relative;
+  }
+{% endstylesheet %}

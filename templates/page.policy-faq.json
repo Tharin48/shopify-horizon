@@ -49,7 +49,7 @@
         "terms_tab": {
           "type": "page_tab",
           "settings": {
-            "page": "copy-of-shipping-and-delivery-lk",
+            "page": "shipping-and-delivery-lk",
             "label": "Shipping & Delivery Policy",
             "icon": "document"
           }

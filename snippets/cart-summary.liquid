@@ -15,7 +15,7 @@
           class="cart-totals__original-value cart-secondary-typography"
           data-testid="cart-subtotal-value"
         >
-          {{- cart.items_subtotal_price | money -}}
+          {%- render 'custom-inr-money', amount: cart.items_subtotal_price -%}
         </span>
       </span>
       <ul
@@ -30,7 +30,7 @@
               {{ discount.title | escape }}
             </span>
             <span class="cart-discounts__value cart-secondary-typography"
-              >-{{ discount.total_allocated_amount | money -}}
+              >-{%- render 'custom-inr-money', amount: discount.total_allocated_amount -%}
             </span>
           </li>
         {%- endfor -%}
@@ -219,13 +219,9 @@
     </div>
   {% endif %}
 
-  {%- liquid
-    if settings.currency_code_enabled_cart_total
-      assign total_price = cart.total_price | money_with_currency
-    else
-      assign total_price = cart.total_price | money
-    endif
-  -%}
+  {%- capture total_price -%}{%- render 'custom-inr-money', amount: cart.total_price, with_currency: settings.currency_code_enabled_cart_total -%}{%- endcapture -%}
+
+  <div class="ecom-shipping"><span></span></div>
 
   <div class="cart-totals__container{% if settings.show_installments %} cart-totals__container--has-installments{% endif %}">
     <span
@@ -255,6 +251,7 @@
       {% render 'tax-info', has_discounts_enabled: settings.show_add_discount_code %}
     </div>
   </div>
+
 </div>
 
 <div class="cart__ctas">
@@ -355,6 +352,12 @@
     &.cart-totals__container--has-installments {
       row-gap: var(--gap-xs);
     }
+  }
+
+  .cart-drawer__summary .ecom-shipping {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 10px;
+    row-gap: var(--gap-xs);
   }
 
   .cart-totals__original-container:empty {

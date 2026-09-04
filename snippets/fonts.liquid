@@ -2,7 +2,7 @@
 {%- liquid
   assign body_font_url = ''
   assign heading_font_url = ''
-  assign body_font_priority = 'auto'
+  assign body_font_priority = 'high'
   assign heading_font_priority = 'high'
 
   unless settings.type_body_font.system?
@@ -13,10 +13,6 @@
     assign heading_font_url = settings.type_heading_font | font_url
   endunless
 
-  if heading_font_url == blank and body_font_url != blank
-    assign body_font_priority = 'high'
-  endif
-
 -%}
 
 {%- comment -%}
@@ -25,6 +21,13 @@
   but skipping their preload shortens the critical chain and avoids extra
   connection pressure when merchants choose several custom families.
 {%- endcomment -%}
+
+{%- comment -%}
+  Preconnect to Yotpo CDN origins so the lazy widget hydration incurs minimal
+  connection overhead when yotpo-lazy.js fires near the viewport.
+{%- endcomment -%}
+<link rel="preconnect" href="https://staticw2.yotpo.com" crossorigin>
+<link rel="preconnect" href="https://cdn-widgetsrepository.yotpo.com" crossorigin>
 
 {%- if body_font_url != blank -%}
   <link

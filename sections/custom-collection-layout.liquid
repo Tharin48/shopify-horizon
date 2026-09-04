@@ -460,14 +460,9 @@
 
     {%- comment -%}
       3) Tea-format pills + toolbar: sticky below header (see .custom-catalog__filters-sticky).
-      4) Product grid in data-catalog-results-region — infinite scroll matches main-collection (results-list + PaginatedList).
+      4) Product grid in data-catalog-results-region — page size is controlled by the section setting.
     {%- endcomment -%}
-    {%- liquid
-      assign catalog_products_per_page = 24
-      if section.settings.enable_infinite_scroll == false
-        assign catalog_products_per_page = section.settings.products_per_page
-      endif
-    -%}
+    {%- assign catalog_products_per_page = section.settings.products_per_page | default: 16 -%}
     {% paginate collection.products by catalog_products_per_page %}
       <div class="custom-catalog__filters-sticky">
         <div data-catalog-pills-region>
@@ -844,7 +839,7 @@
           >
             <dialog
               ref="dialog"
-              class="custom-catalog__mobile-filters-drawer dialog-modal drawer dialog-drawer"
+              class="custom-catalog__mobile-filters-drawer dialog-modal drawer dialog-drawer dialog-drawer--right"
               scroll-lock
               aria-labelledby="{{ catalog_filters_drawer_heading_id }}"
             >
@@ -1055,9 +1050,9 @@
             {%- if section.settings.enable_infinite_scroll -%}
               <span ref="viewMoreNext"></span>
             {%- elsif paginate.pages > 1 -%}
-              <nav class="custom-catalog__pagination" aria-label="{{ section.settings.pagination_aria_label | escape }}">
-                {{- paginate | default_pagination -}}
-              </nav>
+              <div class="custom-catalog__pagination">
+                {%- render 'pagination-controls', paginate: paginate -%}
+              </div>
             {%- endif -%}
           </results-list>
         {%- endif -%}
@@ -1156,7 +1151,7 @@
         "type": "checkbox",
         "id": "enable_infinite_scroll",
         "label": "Auto-load more products on scroll",
-        "default": true,
+        "default": false,
         "info": "Matches default collection behavior: loads the next page as the customer scrolls. When off, uses numbered pagination at the bottom."
       }, {
         "type": "range",
@@ -1165,7 +1160,7 @@
         "min": 8,
         "max": 48,
         "step": 4,
-        "default": 24,
+        "default": 16,
         "visible_if": "{{ section.settings.enable_infinite_scroll == false }}"
       }, {
         "type": "header",

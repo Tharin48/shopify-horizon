@@ -45,6 +45,11 @@
     padding-block-end: var(--padding-sm);
   }
 
+  /* Accordion panels should use full row width, not body measure (32.5em) */
+  .custom-accordion .details-content .text-block > * {
+    max-inline-size: 100%;
+  }
+
   /* Plus-only: hide caret (arrow); _accordion-row still outputs both icons */
   .custom-accordion--plus-only .details__header .svg-wrapper.icon-caret {
     display: none !important;

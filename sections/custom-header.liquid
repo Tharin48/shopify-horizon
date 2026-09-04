@@ -4,6 +4,20 @@
     assign is_home = true
   endif
 
+  assign is_transparent_default = false
+  if template.name == 'page' and section.settings.enable_transparent_default_header
+    if template.suffix == 'christmas-2026' or page.metafields.custom.transparent_default_header.value == true
+      assign is_transparent_default = true
+    endif
+  endif
+
+  assign header_variant = 'default'
+  if is_home
+    assign header_variant = 'homepage'
+  elsif is_transparent_default
+    assign header_variant = 'transparent-default'
+  endif
+
   assign tr_r = section.settings.transparent_text_color | color_extract: 'red'
   assign tr_g = section.settings.transparent_text_color | color_extract: 'green'
   assign tr_b = section.settings.transparent_text_color | color_extract: 'blue'
@@ -21,6 +35,8 @@
 
   assign may_transparent = false
   if is_home and section.settings.enable_homepage_transparent_header
+    assign may_transparent = true
+  elsif is_transparent_default
     assign may_transparent = true
   endif
 
@@ -113,6 +129,7 @@
   data-custom-header
   data-section-id="{{ section.id }}"
   data-is-homepage="{% if is_home %}true{% else %}false{% endif %}"
+  data-header-variant="{{ header_variant }}"
   data-may-transparent="{% if may_transparent %}true{% else %}false{% endif %}"
   data-header-state="{{ initial_state }}"
   data-mobile-nav-open="false"
@@ -168,7 +185,8 @@
     horizon_menu_stripped: custom_header_mega_stripped,
     mobile_drawer_html: custom_header_mobile_drawer,
     mobile_drawer_stripped: custom_header_mobile_drawer_stripped,
-    is_home: is_home
+    is_home: is_home,
+    is_transparent_default: is_transparent_default
   %}
 </header>
 
@@ -552,9 +570,9 @@
     color: inherit;
   }
 
-  /* Transparent homepage: hide search on desktop only (mobile shows full-width pill like design) */
+  /* Homepage only: hide the search icon while its full-width visual search bar is present. */
   @media screen and (min-width: 750px) {
-    .custom-header[data-header-state='transparent'] .custom-header__search-slot {
+    .custom-header[data-header-variant='homepage'][data-header-state='transparent'] .custom-header__search-slot {
       display: none !important;
     }
   }
@@ -2073,6 +2091,13 @@
       "id": "enable_homepage_transparent_header",
       "label": "t:settings.enable_homepage_transparent_header",
       "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_transparent_default_header",
+      "label": "Enable transparent header on selected pages",
+      "info": "Uses the page metafield custom.transparent_default_header. The desktop search bar is hidden, while the desktop search icon and mobile search bar remain available.",
+      "default": true
     },
     {
       "type": "range",

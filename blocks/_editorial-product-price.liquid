@@ -43,7 +43,7 @@
 -%}
 
 <product-price
-  class="editorial-product-price text-block {{ text_block_classes }} text-{{ block_settings.alignment }} {{ block_settings.type_preset | default: 'paragraph' }} spacing-style"
+  class="editorial-product-price text-block {{ text_block_classes }} text-{{ block_settings.alignment }} {{ block_settings.type_preset | default: 'paragraph' }} spacing-style {% if product.metafields.ecom.bundle_product_id != blank %} ecom-custom-aiod-bundle-hide {% endif %}"
   data-block-id="{{ block.id }}"
   data-product-id="{{ product_resource.id }}"
   style="

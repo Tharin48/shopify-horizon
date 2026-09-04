@@ -2,22 +2,6 @@ import { DialogComponent, DialogOpenEvent, DialogCloseEvent } from '@theme/dialo
 import { CartAddEvent } from '@theme/events';
 import { isMobileBreakpoint } from '@theme/utilities';
 
-const TEMP_CART_DEBUG_PREFIX = '[TEMP CART DEBUG]';
-
-const shouldLogTempCartDebug = () => {
-  if (typeof window === 'undefined' || typeof document === 'undefined') return false;
-  return Boolean(window.__HORIZON_TEMP_CART_DEBUG__ || document.querySelector('[data-catalog-ajax]'));
-};
-
-/**
- * @param {...unknown} args
- * @returns {void}
- */
-function logTempCartDebug(...args) {
-  if (!shouldLogTempCartDebug()) return;
-  console.debug(TEMP_CART_DEBUG_PREFIX, ...args);
-}
-
 /**
  * A custom element that manages a cart drawer.
  *
@@ -39,9 +23,6 @@ class CartDrawerComponent extends DialogComponent {
 
   connectedCallback() {
     super.connectedCallback();
-    logTempCartDebug('cart drawer init', {
-      autoOpen: this.hasAttribute('auto-open'),
-    });
     document.addEventListener(CartAddEvent.eventName, this.#handleCartAdd);
     this.addEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
     this.addEventListener(DialogOpenEvent.eventName, this.#handleHistoryOpen);
@@ -100,15 +81,6 @@ class CartDrawerComponent extends DialogComponent {
       /** @type {{ resource?: { item_count?: number }; sourceId?: string; data?: { source?: string; itemCount?: number; sections?: unknown } }} */ (
         'detail' in event ? event.detail : undefined
       ) || {};
-    logTempCartDebug('cart drawer open trigger', {
-      source: detail.data?.source || null,
-      sourceId: detail.sourceId || null,
-      itemCount: detail.data?.itemCount || null,
-      hasSections: Boolean(detail.data?.sections),
-      autoOpen: this.hasAttribute('auto-open'),
-      isMobile: isMobileBreakpoint(),
-    });
-
     if (this.hasAttribute('auto-open') && !detail.data?.didError) {
       this.#scheduleAutoOpen();
     }
@@ -133,10 +105,6 @@ class CartDrawerComponent extends DialogComponent {
 
         if (this.refs.dialog?.open) return;
 
-        logTempCartDebug('cart drawer showDialog call', {
-          source: 'cart:add event',
-          delayed: true,
-        });
         this.showDialog();
       });
     });
@@ -154,9 +122,6 @@ class CartDrawerComponent extends DialogComponent {
   }
 
   open() {
-    logTempCartDebug('cart drawer showDialog call', {
-      source: 'header cart trigger',
-    });
     this.showDialog();
 
     /**
@@ -191,11 +156,6 @@ class CartDrawerComponent extends DialogComponent {
     const summaryHeight = summary.getBoundingClientRect().height;
     const ratio = summaryHeight / drawerHeight;
     dialog.setAttribute('cart-summary-sticky', ratio > this.#summaryThreshold ? 'false' : 'true');
-    logTempCartDebug('cart drawer sticky state updated', {
-      drawerHeight,
-      summaryHeight,
-      ratio,
-    });
   }
 }
 

@@ -18,7 +18,9 @@
       "blocks": {
         "announcement_BxgCk9": {
           "settings": {
-            "text": "FREE SHIPPING OVER RS 5,000"
+            "shipping_progress_text": "FREE SHIPPING FROM LKR __value__",
+            "text": "FREE SHIPPING OVER RS 5,000",
+            "shipping_minimum_value": 5000
           }
         }
       }

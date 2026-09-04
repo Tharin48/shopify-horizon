@@ -1,0 +1,70 @@
+{%- doc -%}
+  Horizontal list product card for Christmas 2026 character story drawer.
+
+  @param {product} product - Product to render
+  @param {string} [card_id] - Unique id prefix for form controls
+{%- enddoc -%}
+
+{%- if product != blank -%}
+  {%- liquid
+    assign card_image = product.featured_media.preview_image
+    if card_image == blank and product.featured_image
+      assign card_image = product.featured_image
+    endif
+    assign card_variant = product.selected_or_first_available_variant
+    assign card_uid = card_id | default: product.id
+    assign form_id = 'C26StoryQuickAdd-' | append: card_uid
+    assign image_alt = product.featured_media.alt | default: product.title
+  -%}
+
+  <div class="c26-story-product-card">
+    <a class="c26-story-product-card__main" href="{{ product.url }}">
+      <span class="c26-story-product-card__media">
+        {%- if card_image != blank -%}
+          {{
+            card_image
+            | image_url: width: 240
+            | image_tag:
+              widths: '120, 160, 240',
+              sizes: '88px',
+              loading: 'lazy',
+              alt: image_alt
+          }}
+        {%- else -%}
+          <span class="c26-story-product-card__placeholder" aria-hidden="true"></span>
+        {%- endif -%}
+      </span>
+
+      <span class="c26-story-product-card__info">
+        <span class="c26-story-product-card__title">{{ product.title | escape }}</span>
+        <span class="c26-story-product-card__price">
+          {% render 'price', product_resource: product, hide_compare_at_price: true %}
+        </span>
+      </span>
+    </a>
+
+    <div class="c26-story-product-card__actions">
+      {%- if card_variant != blank and product.available -%}
+        <form id="{{ form_id }}" class="c26-story-quick-add-form" data-c26-quick-add method="post" action="{{ routes.cart_add_url }}">
+          <input type="hidden" name="id" value="{{ card_variant.id }}">
+          <input type="hidden" name="quantity" value="1">
+          <button
+            type="submit"
+            class="c26-story-product-card__cart"
+            aria-label="{{ 'products.product.add_to_cart' | t }}: {{ product.title | escape }}"
+          >
+            <span class="c26-story-product-card__cart-icon" aria-hidden="true">
+              {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+            </span>
+          </button>
+        </form>
+      {%- else -%}
+        <button type="button" class="c26-story-product-card__cart" disabled aria-label="{{ 'products.product.sold_out' | t }}">
+          <span class="c26-story-product-card__cart-icon" aria-hidden="true">
+            {{- 'icon-add-to-cart.svg' | inline_asset_content -}}
+          </span>
+        </button>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

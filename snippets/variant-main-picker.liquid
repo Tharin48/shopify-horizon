@@ -9,7 +9,25 @@
 
 {% assign block_settings = block.settings %}
 
-{% unless product_resource.has_only_default_variant %}
+{%- liquid
+  assign tea_format_enabled = block_settings.tea_format_enabled
+  if tea_format_enabled == nil
+    assign tea_format_enabled = true
+  endif
+
+  assign tea_format_collection = product_resource.metafields.custom.tea_format_collection.value
+  assign tea_products = tea_format_collection.tea_products.value
+  assign valid_tea_products_count = 0
+  if tea_format_enabled and tea_format_collection != blank
+    for tea_product in tea_products
+      if tea_product.id != blank and tea_product.url != blank and tea_product.published_at != blank
+        assign valid_tea_products_count = valid_tea_products_count | plus: 1
+      endif
+    endfor
+  endif
+-%}
+
+{% if product_resource.has_only_default_variant == false or valid_tea_products_count > 1 %}
   {% liquid
     assign button_background_brightness = section.settings.color_scheme.settings.foreground | color_brightness
     if button_background_brightness < 105
@@ -34,8 +52,19 @@
       data-shopify-visual-preview
     {% endif %}
   >
-    <form class="variant-picker__form">
-      {%- for product_option in product_resource.options_with_values -%}
+    {%- if valid_tea_products_count > 1 -%}
+      {% render 'tea-format-selector',
+        product_resource: product_resource,
+        tea_format_collection: tea_format_collection,
+        tea_products: tea_products,
+        valid_tea_products_count: valid_tea_products_count,
+        block: block
+      %}
+    {%- endif -%}
+
+    {%- unless product_resource.has_only_default_variant -%}
+      <form class="variant-picker__form">
+        {%- for product_option in product_resource.options_with_values -%}
         {%- liquid
           assign swatch_count = product_option.values | map: 'swatch' | compact | size
           assign variant_style = block_settings.variant_style
@@ -215,14 +244,15 @@
             </div>
           </div>
         {%- endif -%}
-      {%- endfor -%}
+        {%- endfor -%}
 
-      <script type="application/json">
-        {{ product_resource.selected_or_first_available_variant | json }}
-      </script>
-    </form>
+        <script type="application/json">
+          {{ product_resource.selected_or_first_available_variant | json }}
+        </script>
+      </form>
+    {%- endunless -%}
   </variant-picker>
-{% endunless %}
+{% endif %}
 
 {% stylesheet %}
   /* Variant picker container styles - unique to main variant picker */
@@ -308,5 +338,9 @@
   .variant-picker--right .variant-option {
     text-align: right;
     justify-content: right;
+  }
+
+  .variant-picker .tea-format-selector {
+    margin-block: var(--padding-sm) var(--padding-md);
   }
 {% endstylesheet %}

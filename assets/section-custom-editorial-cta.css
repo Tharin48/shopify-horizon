@@ -1,0 +1,93 @@
+/* Extracted from sections/custom-editorial-cta.liquid {%% stylesheet %%} block. Loaded presence-based via stylesheet_tag. */
+  .custom-editorial-cta {
+    background: var(--custom-editorial-cta-background);
+  }
+
+  .custom-editorial-cta__inner {
+    max-width: var(--custom-editorial-cta-max-width);
+    margin: 0 auto;
+    padding:
+      var(--custom-editorial-cta-padding-top-mobile)
+      16px
+      var(--custom-editorial-cta-padding-bottom-mobile);
+  }
+
+  .custom-editorial-cta__card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--custom-editorial-cta-radius);
+    background: var(--custom-editorial-cta-card-background);
+    text-align: center;
+  }
+
+  .custom-editorial-cta__pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  .custom-editorial-cta__pattern img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .custom-editorial-cta__content {
+    position: relative;
+    z-index: 1;
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .custom-editorial-cta__heading {
+    margin: 0;
+  }
+
+  .custom-editorial-cta__text {
+    margin-top: 1rem;
+    color: rgb(var(--color-foreground-rgb) / 0.8);
+  }
+
+  .custom-editorial-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .custom-editorial-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+
+  .custom-editorial-cta__button--primary {
+    background: var(--custom-editorial-cta-accent);
+    color: #ffffff;
+  }
+
+  .custom-editorial-cta__button--secondary {
+    border: 1px solid var(--custom-editorial-cta-accent);
+    color: var(--custom-editorial-cta-accent);
+  }
+
+  @media screen and (min-width: 750px) {
+    .custom-editorial-cta__inner {
+      padding:
+        var(--custom-editorial-cta-padding-top)
+        48px
+        var(--custom-editorial-cta-padding-bottom);
+    }
+
+    .custom-editorial-cta__content {
+      padding: 3rem 4rem;
+    }
+  }

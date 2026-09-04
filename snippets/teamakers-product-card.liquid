@@ -22,6 +22,7 @@
   assign quick_add_mode = quick_add_mode | default: 'legacy'
   assign use_horizon_quick_add = false
   assign quick_add_section_id = section_id | default: 'custom-catalog'
+  assign image_sizes = image_sizes | default: '(min-width: 1200px) 300px, (min-width: 750px) 50vw, 100vw'
   assign card_link_url = card_product.url
   assign has_horizon_quick_add = false
   assign has_horizon_mobile_quick_add = false
@@ -71,7 +72,12 @@
   endif
 %}
 
-<article class="teamakers-pick__card">
+<article
+  class="teamakers-pick__card"
+  {% if is_placeholder == false and card_product != blank %}
+    aria-label="{{ card_product.title | escape }}"
+  {% endif %}
+>
   {% if is_placeholder == false and card_product != blank %}
     {% if use_horizon_quick_add %}
       <product-card
@@ -80,7 +86,7 @@
       >
     {% endif %}
     <div
-      class="teamakers-pick__image-wrap{% if secondary_media != blank %} teamakers-pick__image-wrap--has-secondary{% endif %}"
+      class="teamakers-pick__image-wrap tup-country-flag-badge-host{% if secondary_media != blank %} teamakers-pick__image-wrap--has-secondary{% endif %}"
       {% if use_horizon_quick_add %}
         style="
           --quick-add-display: {% if has_horizon_quick_add %}flex{% else %}none{% endif %};
@@ -136,6 +142,7 @@
           {% endif %}
         </span>
       </a>
+      {% render 'tup-country-flag-badge', product_resource: card_product, position: 'bottom-left' %}
 
       {% if has_horizon_quick_add %}
         {% render 'quick-add',
@@ -181,21 +188,16 @@
       {% if show_review %}
         {% if card_product != blank %}
           <div class="teamakers-pick__rating">
-            <div
-              class="yotpo-widget-instance"
-              data-yotpo-instance-id="824555"
-              data-yotpo-product-id="{{ card_product.id }}"
-              data-yotpo-cart-product-id="{{ card_product.id }}"
-              data-yotpo-section-id="{{ template.name }}"
-            ></div>
+            {% comment %} {% render 'yotpo-rating-mount', product: card_product, instance_id: '824555', lazy: true %} {% endcomment %}
+            {% render 'judgeme-rating-amount', product: card_product, lazy: true %}
           </div>
         {% endif %}
       {% endif %}
 
       <p class="teamakers-pick__price">
-        {{ card_product.price | money }}
+        {%- render 'custom-inr-money', amount: card_product.price -%}
         {% if card_product.compare_at_price > card_product.price %}
-          <s class="teamakers-pick__compare">{{ card_product.compare_at_price | money }}</s>
+          <s class="teamakers-pick__compare">{%- render 'custom-inr-money', amount: card_product.compare_at_price -%}</s>
         {% endif %}
       </p>
     </div>
@@ -213,7 +215,7 @@
           <span class="teamakers-pick__rating-count">(0)</span>
         </p>
       {% endif %}
-      <p class="teamakers-pick__price">{{ 5000 | money }}</p>
+      <p class="teamakers-pick__price">{%- render 'custom-inr-money', amount: 5000 -%}</p>
     </div>
   {% endif %}
 </article>

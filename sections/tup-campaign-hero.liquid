@@ -1,0 +1,472 @@
+{{ 'tup-campaign-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tup-worldcup-shared.js' | asset_url }}" defer></script>
+<script src="{{ 'tup-campaign-hero.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign bundle_product = section.settings.bundle_product
+  assign bundle_variant = bundle_product.selected_or_first_available_variant
+  assign bundle_display_image = section.settings.bundle_image_override | default: bundle_product.featured_image
+  assign bundle_display_title = section.settings.bundle_title_override | strip | default: bundle_product.title
+  assign bundle_description = section.settings.bundle_description_override | strip
+  assign bundle_display_price = section.settings.bundle_price_override | strip
+
+  if bundle_description == blank and bundle_product != blank
+    assign bundle_description = bundle_product.description | strip_html | strip | truncate: 145
+  endif
+
+  if bundle_display_price == blank and bundle_variant != blank
+    assign bundle_display_price = bundle_variant.price | money
+  endif
+
+  assign bundle_cta_label = section.settings.bundle_button_label | strip | default: 'Add to cart'
+  assign bundle_sold_out_label = section.settings.bundle_sold_out_label | strip | default: 'Sold out'
+  assign bundle_image_alt = bundle_display_image.alt | default: bundle_display_title | default: bundle_product.title
+-%}
+
+<section
+  id="tup-campaign-hero-{{ section.id }}"
+  class="tup-campaign-hero"
+  data-tup-campaign-hero
+  style="
+    --tup-section-max-width: {{ section.settings.section_max_width }}px;
+    --tup-heading-font-size-desktop: {{ section.settings.heading_font_size_desktop }}px;
+    --tup-heading-font-size-mobile: {{ section.settings.heading_font_size_mobile }}px;
+    --tup-description-font-size: {{ section.settings.description_font_size }}px;
+    --tup-bundle-badge-font-size: {{ section.settings.bundle_badge_font_size }}px;
+    --tup-product-title-font-size: {{ section.settings.product_title_font_size }}px;
+    --tup-product-description-font-size: {{ section.settings.product_description_font_size }}px;
+    --tup-price-font-size: {{ section.settings.price_font_size }}px;
+    --tup-button-font-size: {{ section.settings.button_font_size }}px;
+    --tup-match-score-font-size: {{ section.settings.match_score_font_size }}px;
+    --tup-left-decorative-image-width: {{ section.settings.left_decorative_image_width }}px;
+    --tup-left-decorative-image-x: {{ section.settings.left_decorative_image_x }}px;
+    --tup-left-decorative-image-y: {{ section.settings.left_decorative_image_y }}px;
+    --tup-left-decorative-image-opacity: {{ section.settings.left_decorative_image_opacity | divided_by: 100.0 }};
+  "
+  {% if bundle_variant %}
+    data-bundle-variant-id="{{ bundle_variant.id }}"
+  {% endif %}
+  {{ section.shopify_attributes }}
+>
+  <div class="tup-campaign-hero__inner">
+    <div class="tup-campaign-hero__watermark" aria-hidden="true">FIFA 2026</div>
+    {%- if section.settings.left_decorative_image != blank -%}
+      <div class="tup-campaign-hero__left-decorative" aria-hidden="true">
+        {{
+          section.settings.left_decorative_image
+          | image_url: width: 900
+          | image_tag:
+            class: 'tup-campaign-hero__left-decorative-image',
+            loading: 'eager',
+            widths: '240, 360, 520, 720, 900',
+            sizes: '(min-width: 990px) 28vw, 60vw',
+            alt: ''
+        }}
+      </div>
+    {%- endif -%}
+
+    <div class="tup-campaign-hero__left">
+      {%- if section.settings.campaign_badge != blank -%}
+        <div class="tup-campaign-hero__eyebrow">{{ section.settings.campaign_badge }}</div>
+      {%- endif -%}
+
+      <h1 class="tup-campaign-hero__title">
+        <span class="tup-campaign-hero__title-line">{{ section.settings.heading_line_1 }}</span>
+        <span class="tup-campaign-hero__title-line tup-campaign-hero__title-line--accent">
+          {{- section.settings.heading_line_2 -}}
+        </span>
+      </h1>
+
+      {%- if section.settings.description != blank -%}
+        <div class="tup-campaign-hero__description">
+          {{ section.settings.description | escape | newline_to_br }}
+        </div>
+      {%- endif -%}
+
+      <div class="tup-scoreboard">
+        <div class="tup-scoreboard__heading">
+          <span class="tup-scoreboard__title">Score Board</span>
+          <span
+            class="tup-match-card__status"
+            data-match-status
+            data-status="loading"
+          >
+            Loading
+          </span>
+        </div>
+
+        <div class="tup-scoreboard__viewport" data-match-slider tabindex="0" aria-label="Match results slider">
+          <div class="tup-scoreboard__track" data-match-track>
+            <article class="tup-match-card tup-match-card--skeleton" aria-label="Loading match result">
+              <div class="tup-match-card__top">
+                <span class="tup-skeleton tup-skeleton--line"></span>
+                <span class="tup-skeleton tup-skeleton--line tup-skeleton--short"></span>
+              </div>
+              <div class="tup-match-card__meta">
+                <span class="tup-skeleton tup-skeleton--line tup-skeleton--center"></span>
+              </div>
+              <div class="tup-match-card__body">
+                <div class="tup-match-card__team">
+                  <span class="tup-skeleton tup-skeleton--crest"></span>
+                  <span class="tup-skeleton tup-skeleton--line tup-skeleton--short"></span>
+                </div>
+                <div class="tup-skeleton tup-skeleton--score"></div>
+                <div class="tup-match-card__team">
+                  <span class="tup-skeleton tup-skeleton--crest"></span>
+                  <span class="tup-skeleton tup-skeleton--line tup-skeleton--short"></span>
+                </div>
+              </div>
+              <div class="tup-match-card__footer">
+                <span class="tup-skeleton tup-skeleton--line tup-skeleton--center"></span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tup-campaign-hero__bundle">
+      <div class="tup-campaign-hero__product-image-wrap">
+        {%- if bundle_display_image -%}
+          {{
+            bundle_display_image
+            | image_url: width: 760
+            | image_tag:
+              class: 'tup-campaign-hero__product-image',
+              loading: 'eager',
+              widths: '360, 520, 760, 1040',
+              sizes: '(min-width: 990px) 24vw, 90vw',
+              alt: bundle_image_alt
+          }}
+        {%- else -%}
+          <div class="tup-campaign-hero__product-placeholder">
+            Select the campaign bundle
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="tup-campaign-hero__bundle-content">
+        {%- if section.settings.bundle_badge != blank -%}
+          <div class="tup-campaign-hero__bundle-badge">{{ section.settings.bundle_badge }}</div>
+        {%- endif -%}
+
+        {%- if bundle_product != blank -%}
+          {%- if bundle_display_title != blank -%}
+            <h2 class="tup-campaign-hero__product-title">{{ bundle_display_title }}</h2>
+          {%- endif -%}
+
+          {%- if bundle_description != blank -%}
+            <p class="tup-campaign-hero__product-description">{{ bundle_description }}</p>
+          {%- endif -%}
+
+          {%- if bundle_display_price != blank -%}
+            <div class="tup-campaign-hero__price">
+              {{ bundle_display_price }}
+            </div>
+          {%- endif -%}
+
+          <button
+            type="button"
+            class="tup-campaign-hero__button"
+            data-tup-add-to-cart
+            {% unless bundle_variant.available %}
+              disabled
+            {% endunless %}
+          >
+            {%- if bundle_variant.available -%}
+              {{ bundle_cta_label }}
+            {%- else -%}
+              {{ bundle_sold_out_label }}
+            {%- endif -%}
+          </button>
+          <p class="tup-campaign-hero__message" data-tup-cart-message role="status"></p>
+        {%- else -%}
+          <h2 class="tup-campaign-hero__product-title">The T-Series Match-Day Selection</h2>
+          <p class="tup-campaign-hero__empty">
+            Choose the fixed campaign bundle product in this section's settings. Customers will not choose
+            individual products here.
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-tup-match-rewards>
+    [
+      {%- liquid
+        assign rendered_reward_count = 0
+
+        for reward in metaobjects.tup_match_reward.values
+          assign reward_active = reward.active.value
+          assign reward_team_a = reward.team_a_code.value | default: reward.team_a_code | strip | upcase
+          assign reward_team_b = reward.team_b_code.value | default: reward.team_b_code | strip | upcase
+          assign reward_discount_code = reward.discount_code.value | default: reward.discount_code | strip
+          assign reward_text = reward.reward_text | metafield_tag | strip_html | strip
+          assign reward_expiry_text = reward.expiry_text.value | default: reward.expiry_text | strip
+          assign reward_sort_order = reward.sort_order.value | default: reward.sort_order | default: 0
+
+          if reward_active == true and reward_team_a != blank and reward_team_b != blank and reward_discount_code != blank
+            if rendered_reward_count > 0
+              echo ','
+            endif
+
+            echo '{'
+            echo '"teamA":'
+            echo reward_team_a | json
+            echo ',"teamB":'
+            echo reward_team_b | json
+            echo ',"discountCode":'
+            echo reward_discount_code | json
+            echo ',"rewardText":'
+            echo reward_text | json
+            echo ',"expiryText":'
+            echo reward_expiry_text | json
+            echo ',"active":true'
+            echo ',"sortOrder":'
+            echo reward_sort_order | json
+            echo '}'
+
+            assign rendered_reward_count = rendered_reward_count | plus: 1
+          endif
+        endfor
+      -%}
+    ]
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "T Up campaign hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "campaign_badge",
+      "label": "Campaign badge",
+      "default": "FIFA World Cup 2026"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "Heading line 1",
+      "default": "Your Team."
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2",
+      "label": "Heading line 2",
+      "default": "Your Blend."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Choose the team you're supporting and discover the Dilmah T-Series blend made for your match-day ritual."
+    },
+    {
+      "type": "product",
+      "id": "bundle_product",
+      "label": "Bundle product"
+    },
+    {
+      "type": "image_picker",
+      "id": "bundle_image_override",
+      "label": "Bundle image override",
+      "info": "Optional. Replaces the selected product image visually only."
+    },
+    {
+      "type": "text",
+      "id": "bundle_badge",
+      "label": "Bundle badge",
+      "default": "Campaign Offer"
+    },
+    {
+      "type": "text",
+      "id": "bundle_title_override",
+      "label": "Bundle title override",
+      "info": "Optional. Replaces the selected product title visually only."
+    },
+    {
+      "type": "textarea",
+      "id": "bundle_description_override",
+      "label": "Bundle description override"
+    },
+    {
+      "type": "text",
+      "id": "bundle_price_override",
+      "label": "Bundle price override",
+      "info": "Optional display text only. Add to Cart still uses the selected bundle product variant."
+    },
+    {
+      "type": "text",
+      "id": "bundle_button_label",
+      "label": "Bundle button label",
+      "default": "Add to cart"
+    },
+    {
+      "type": "text",
+      "id": "bundle_sold_out_label",
+      "label": "Bundle sold out label",
+      "default": "Sold out"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_decorative_image",
+      "label": "Left decorative image",
+      "info": "Optional image from theme editor. Displays behind the left hero content."
+    },
+    {
+      "type": "range",
+      "id": "left_decorative_image_width",
+      "label": "Left decorative image width",
+      "min": 80,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 220
+    },
+    {
+      "type": "range",
+      "id": "left_decorative_image_x",
+      "label": "Left decorative image horizontal position",
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": -180
+    },
+    {
+      "type": "range",
+      "id": "left_decorative_image_y",
+      "label": "Left decorative image vertical position",
+      "min": -200,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "left_decorative_image_opacity",
+      "label": "Left decorative image opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Section max width",
+      "min": 1000,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_desktop",
+      "label": "Heading font size desktop",
+      "min": 12,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_mobile",
+      "label": "Heading font size mobile",
+      "min": 12,
+      "max": 88,
+      "step": 1,
+      "unit": "px",
+      "default": 46
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "label": "Description font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "bundle_badge_font_size",
+      "label": "Bundle badge font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "product_title_font_size",
+      "label": "Bundle title font size",
+      "min": 12,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "product_description_font_size",
+      "label": "Bundle description font size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "price_font_size",
+      "label": "Price font size",
+      "min": 12,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Add to cart font size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "match_score_font_size",
+      "label": "Match score font size",
+      "min": 12,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 38
+    }
+  ],
+  "presets": [
+    {
+      "name": "T Up campaign hero"
+    }
+  ]
+}
+{% endschema %}

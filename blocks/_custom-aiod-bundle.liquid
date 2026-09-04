@@ -1,0 +1,14 @@
+{%- if product.metafields.ecom.bundle_product_id != blank -%}
+<div class="aiod-bundle-custom-wrapper">
+    <div class="aiod-bundle-discount-wrap" data-offer_id="{{ product.metafields.ecom.bundle_product_id }}"></div>
+</div>
+{% endif %}
+
+{% schema %}
+{
+    "name": "Custom AIOD",
+    "tag": null,
+    "settings": [],
+    "presets": [{"name": "Custom AIOD"}]
+}
+{% endschema %}

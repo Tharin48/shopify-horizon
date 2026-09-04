@@ -1,0 +1,41 @@
+{% doc %}
+  Accessible "Back to products" control for product pages.
+
+  Renders a semantic link (works without JavaScript) whose fallback href is
+  the selected collection, else the product's own first collection, else
+  `/collections/all`. `assets/horizon-collection-return.js` progressively
+  enhances the destination to prefer returning to the exact collection/search
+  URL (with filters and sorting) the customer came from.
+
+  @example
+    {% content_for 'block', type: 'product-back-button', id: 'back-button' %}
+{% enddoc %}
+
+<div class="product-back-button" {{ block.shopify_attributes }}>
+  {% render 'product-back-link', product: closest.product, collection: block.settings.collection %}
+</div>
+
+{% schema %}
+{
+  "name": "Back to products button",
+  "tag": null,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Accessible back link. Falls back to the chosen collection, then the product's own collection, then All products. JavaScript upgrades this to return to the exact filtered/sorted collection or search results the customer came from."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Fallback collection",
+      "info": "Optional. Used only when the customer's return path can't be determined."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Back to products button",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

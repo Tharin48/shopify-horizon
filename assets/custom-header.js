@@ -329,8 +329,7 @@
 
   function topState(root) {
     var mayTransparent = root.dataset.mayTransparent === 'true';
-    var isHome = root.dataset.isHomepage === 'true';
-    return mayTransparent && isHome ? 'transparent' : 'solid';
+    return mayTransparent ? 'transparent' : 'solid';
   }
 
   function visibleScrollState(root) {
@@ -1018,11 +1017,25 @@
       .replace(/"/g, '&quot;');
   }
 
-  function chFmtMoney(cents) {
-    if (cents == null) { return ''; }
-    var n = (cents / 100).toFixed(2);
+  function chFmtMoneyAmount(amount) {
+    var n = Number(amount);
+    if (!isFinite(n)) { return ''; }
+    var display = n.toFixed(2);
     var cur = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || '';
-    return cur ? n + '\u00a0' + cur : n;
+    if (window.__customInrMoney && cur === 'INR') {
+      return '\u20b9' + display;
+    }
+    return cur ? display + '\u00a0' + cur : display;
+  }
+
+  function chFmtMoneyMinorUnits(cents) {
+    if (cents == null) { return ''; }
+    return chFmtMoneyAmount(Number(cents) / 100);
+  }
+
+  function chFmtMoneyMajorUnits(amount) {
+    if (amount == null) { return ''; }
+    return chFmtMoneyAmount(amount);
   }
 
   function chImgResize(url, w) {
@@ -1264,7 +1277,7 @@
         html += '<p class="ch-search-section__title">Recently viewed</p>';
         html += '<ul class="ch-search-products">';
         viewed.slice(0, 4).forEach(function (p) {
-          html += productCard(p.title, p.image, p.url, p.price ? chFmtMoney(p.price) : '');
+          html += productCard(p.title, p.image, p.url, p.price ? chFmtMoneyMinorUnits(p.price) : '');
         });
         html += '</ul></div>';
       }
@@ -1303,7 +1316,7 @@
         html += '<ul class="ch-search-products">';
         products.slice(0, 4).forEach(function (p) {
           var img = p.featured_image ? chImgResize(p.featured_image.url, 130) : '';
-          html += productCard(p.title, img, p.url, chFmtMoney(p.price_min));
+          html += productCard(p.title, img, p.url, chFmtMoneyMajorUnits(p.price_min));
         });
         html += '</ul></div>';
       }

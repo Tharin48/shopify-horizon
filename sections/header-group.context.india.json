@@ -18,6 +18,8 @@
       "blocks": {
         "announcement_BxgCk9": {
           "settings": {
+            "shipping_progress_text": "FREE SHIPPING FROM ₹ __value__",
+            "shipping_minimum_value": 5000,
             "text": "FREE SHIPPING OVER ₹ 5,000"
           }
         }

@@ -6,4 +6,18 @@ store = "dilmahtea-srilanka.myshopify.com"
 
 [environments.nz]
 store = "dilmah-nz.myshopify.com"
-theme = "154145030282"
+
+[environments.eu]
+store = "dilmah-eu.myshopify.com"
+
+[environments.chile]
+store = "dilmah-chile.myshopify.com"
+
+[environments.southafrica]
+store = "dilmah-sa.myshopify.com"
+
+[environments.singapore]
+store = "dilmah-sg.myshopify.com"
+
+[environments.bahrain]
+store = "dilmah-tea-bahrain.myshopify.com"

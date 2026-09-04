@@ -4,11 +4,7 @@
   assign product = closest.product
   assign block_settings = block.settings
 
-  if settings.currency_code_enabled_product_cards
-    assign price_min = product.price_min | money_with_currency
-  else
-    assign price_min = product.price_min | money
-  endif
+  assign use_currency_for_card = settings.currency_code_enabled_product_cards
 
   if product.price_varies
     assign price_from_text = 'content.price_from' | t: price: '__PRICE__'
@@ -25,6 +21,8 @@
     endif
   endif
 %}
+
+{%- capture price_min -%}{%- render 'custom-inr-money', amount: product.price_min, with_currency: use_currency_for_card -%}{%- endcapture -%}
 
 <product-price
   class="text-right {{ block_settings.type_preset | default: 'h6' }} spacing-style"

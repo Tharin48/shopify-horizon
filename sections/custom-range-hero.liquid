@@ -1,0 +1,589 @@
+{%- liquid
+  assign hero_image = section.settings.hero_image
+  assign hero_mobile_image = section.settings.hero_mobile_image
+  assign heading = section.settings.heading | default: page.title
+  assign intro = section.settings.intro
+  assign tab_blocks = section.blocks | where: 'type', 'tab'
+-%}
+
+<section
+  class="custom-range-hero section-wrapper"
+  data-range-tabs-root
+  style="
+    --range-hero-background: {{ section.settings.background_color }};
+    --range-hero-text: {{ section.settings.text_color }};
+    --range-hero-accent: {{ section.settings.accent_color }};
+    --range-hero-overlay: {{ section.settings.overlay_color }};
+    --range-hero-max-width: {{ section.settings.max_width }}px;
+    --range-hero-height: {{ section.settings.hero_height }}px;
+    --range-hero-height-mobile: {{ section.settings.hero_height_mobile }}px;
+    --range-hero-padding-top: {{ section.settings.padding_top }}px;
+    --range-hero-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --range-hero-padding-inline: {{ section.settings.padding_inline }}px;
+    --range-hero-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --range-hero-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+    --range-hero-padding-inline-mobile: {{ section.settings.padding_inline_mobile }}px;
+    --range-hero-tab-overlap: {{ section.settings.tab_overlap }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="custom-range-hero__inner">
+    <div class="custom-range-hero__media">
+      {%- if hero_image != blank -%}
+        <picture>
+          {%- if hero_mobile_image != blank -%}
+            <source
+              media="(max-width: 749px)"
+              srcset="
+                {{ hero_mobile_image | image_url: width: 640 }} 640w,
+                {{ hero_mobile_image | image_url: width: 960 }} 960w,
+                {{ hero_mobile_image | image_url: width: 1280 }} 1280w
+              "
+              sizes="100vw"
+            >
+          {%- endif -%}
+          {{
+            hero_image
+            | image_url: width: 2400
+            | image_tag:
+              class: 'custom-range-hero__image',
+              loading: 'eager',
+              widths: '800,1200,1600,2000,2400',
+              sizes: '100vw',
+              alt: hero_image.alt | default: heading
+          }}
+        </picture>
+      {%- else -%}
+        <div class="custom-range-hero__image-placeholder">
+          Select a hero image for the Range page.
+        </div>
+      {%- endif -%}
+
+      <div class="custom-range-hero__overlay"></div>
+
+      <div class="custom-range-hero__content">
+        <div class="custom-range-hero__content-inner">
+          {%- if section.settings.show_breadcrumb -%}
+            {% render 'custom-breadcrumb',
+              page: page,
+              show_home: true,
+              home_label: section.settings.home_label,
+              separator_style: 'slash'
+            %}
+          {%- endif -%}
+
+          <div class="custom-range-hero__copy">
+            {%- if heading != blank -%}
+              <h1 class="custom-range-hero__heading">{{ heading | escape }}</h1>
+            {%- endif -%}
+
+            {%- if intro != blank -%}
+              <p class="custom-range-hero__intro">{{ intro | escape }}</p>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-range-hero__tabs-shell">
+      <div class="custom-range-hero__tabs-inner">
+        <div class="custom-range-hero__tabs-scroll">
+          <ul class="custom-range-hero__tabs" role="list">
+            {%- for block in tab_blocks -%}
+              {%- assign is_active = block.settings.is_active -%}
+              <li class="custom-range-hero__tab-item" {{ block.shopify_attributes }}>
+                {%- if block.settings.target_key != blank -%}
+                  <button
+                    class="custom-range-hero__tab{% if is_active %} is-active{% endif %}"
+                    type="button"
+                    data-range-tab-target="{{ block.settings.target_key | escape }}"
+                    data-range-tab-default="{% if is_active %}true{% else %}false{% endif %}"
+                    {% if is_active %}aria-pressed="true"{% else %}aria-pressed="false"{% endif %}
+                  >
+                    {{ block.settings.label | escape }}
+                  </button>
+                {%- elsif block.settings.link != blank -%}
+                  <a
+                    class="custom-range-hero__tab{% if is_active %} is-active{% endif %}"
+                    href="{{ block.settings.link }}"
+                    {% if is_active %}aria-current="page"{% endif %}
+                  >
+                    {{ block.settings.label | escape }}
+                  </a>
+                {%- else -%}
+                  <button
+                    class="custom-range-hero__tab{% if is_active %} is-active{% endif %}"
+                    type="button"
+                    {% if is_active %}aria-pressed="true"{% else %}aria-pressed="false"{% endif %}
+                  >
+                    {{ block.settings.label | escape }}
+                  </button>
+                {%- endif -%}
+              </li>
+            {%- else -%}
+              {%- if request.design_mode -%}
+                <li class="custom-range-hero__tab-empty">Add tab blocks for each tea range.</li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="{{ 'custom-range-tabs.js' | asset_url }}" defer></script>
+
+{% stylesheet %}
+  .custom-range-hero {
+    background: var(--range-hero-background);
+    color: var(--range-hero-text);
+  }
+
+  .custom-range-hero__inner {
+    padding: var(--range-hero-padding-top) var(--range-hero-padding-inline) var(--range-hero-padding-bottom);
+  }
+
+  .custom-range-hero__media {
+    min-height: var(--range-hero-height);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .custom-range-hero__media picture,
+  .custom-range-hero__image {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+
+  .custom-range-hero__image {
+    inset: 0;
+    object-fit: cover;
+    position: absolute;
+  }
+
+  .custom-range-hero__overlay {
+    background: linear-gradient(90deg, rgb(255 255 255 / 0.8) 0%, rgb(255 255 255 / 0.56) 25%, rgb(255 255 255 / 0.16) 58%, rgb(255 255 255 / 0) 78%);
+    inset: 0;
+    position: absolute;
+  }
+
+  .custom-range-hero__content {
+    box-sizing: border-box;
+    min-height: var(--range-hero-height);
+    padding: 1.25rem 0 calc(var(--range-hero-tab-overlap) + 2rem);
+    position: relative;
+    z-index: 1;
+  }
+
+  .custom-range-hero__content-inner,
+  .custom-range-hero__tabs-inner {
+    box-sizing: border-box;
+    margin: 0 auto;
+    max-width: var(--range-hero-max-width);
+    padding-inline: 1.5rem;
+    width: 100%;
+  }
+
+  .custom-range-hero__content-inner {
+    align-items: center;
+    display: flex;
+    min-height: calc(var(--range-hero-height) - 1.25rem - (var(--range-hero-tab-overlap) + 2rem));
+    position: relative;
+  }
+
+  .custom-range-hero .custom-policy-page__breadcrumb {
+    color: #2b2a28;
+    font-size: 0.6875rem;
+    left: 1.5rem;
+    line-height: 1;
+    position: absolute;
+    top: 0;
+    margin-bottom: 0;
+    width: auto;
+  }
+
+  .custom-range-hero .custom-policy-page__breadcrumb-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .custom-range-hero .custom-policy-page__breadcrumb-item {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.3rem;
+  }
+
+  .custom-range-hero .custom-policy-page__breadcrumb[data-separator-style='slash'] .custom-policy-page__breadcrumb-item:not(:last-child)::after {
+    color: #2b2a28;
+  }
+
+  .custom-range-hero .custom-policy-page__breadcrumb a {
+    color: var(--range-hero-accent);
+    text-decoration: none;
+  }
+
+  .custom-range-hero .custom-policy-page__breadcrumb [aria-current='page'] {
+    color: #2b2a28;
+  }
+
+  .custom-range-hero__copy {
+    max-width: 28rem;
+  }
+
+  .custom-range-hero__heading {
+    color: var(--range-hero-accent);
+    font-size: clamp(2rem, 3vw, 3.5rem);
+    line-height: 1.08;
+    margin: 0;
+  }
+
+  .custom-range-hero__intro {
+    line-height: 1.6;
+    margin: 1rem 0 0;
+    max-width: 24rem;
+  }
+
+  .custom-range-hero__tabs-shell {
+    margin-top: calc(var(--range-hero-tab-overlap) * -1);
+    position: relative;
+    z-index: 2;
+  }
+
+  .custom-range-hero__tabs-scroll {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .custom-range-hero__tabs-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-range-hero__tabs {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    min-width: max-content;
+    padding: 0 0 0.25rem;
+  }
+
+  .custom-range-hero__tab-item {
+    flex: 0 0 auto;
+  }
+
+  .custom-range-hero__tab,
+  .custom-range-hero__tab-empty {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid rgb(43 42 40 / 0.12);
+    border-radius: 999px;
+    color: #2b2a28;
+    display: inline-flex;
+    font: inherit;
+    justify-content: center;
+    min-height: 3rem;
+    min-width: 8.5rem;
+    padding: 0.875rem 1.5rem;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .custom-range-hero__tab {
+    cursor: pointer;
+  }
+
+  .custom-range-hero__tab.is-active,
+  .custom-range-hero__tab:hover,
+  .custom-range-hero__tab:focus-visible {
+    border-color: var(--range-hero-accent);
+    color: var(--range-hero-accent);
+    outline: none;
+  }
+
+  .custom-range-hero__image-placeholder {
+    align-items: center;
+    background: #f7f0e6;
+    color: rgb(43 42 40 / 0.72);
+    display: flex;
+    justify-content: center;
+    min-height: var(--range-hero-height);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  @media screen and (max-width: 749px) {
+    .custom-range-hero__inner {
+      padding: var(--range-hero-padding-top-mobile) var(--range-hero-padding-inline-mobile) var(--range-hero-padding-bottom-mobile);
+    }
+
+    .custom-range-hero__media {
+      min-height: var(--range-hero-height-mobile);
+    }
+
+    .custom-range-hero__content {
+      min-height: var(--range-hero-height-mobile);
+      padding: 1rem 0 calc(var(--range-hero-tab-overlap) + 1.5rem);
+    }
+
+    .custom-range-hero__content-inner,
+    .custom-range-hero__tabs-inner {
+      padding-inline: 1rem;
+    }
+
+    .custom-range-hero__content-inner {
+      min-height: calc(var(--range-hero-height-mobile) - 1rem - (var(--range-hero-tab-overlap) + 1.5rem));
+    }
+
+    .custom-range-hero .custom-policy-page__breadcrumb {
+      left: 1rem;
+    }
+
+    .custom-range-hero__heading {
+      font-size: clamp(1.9rem, 8vw, 2.5rem);
+    }
+
+    .custom-range-hero__intro {
+      font-size: 0.95rem;
+      max-width: 18rem;
+    }
+
+    .custom-range-hero__tabs {
+      justify-content: flex-start;
+    }
+
+    .custom-range-hero__tab,
+    .custom-range-hero__tab-empty {
+      min-width: 7.5rem;
+      padding-inline: 1.2rem;
+    }
+
+    .custom-range-hero__image-placeholder {
+      min-height: var(--range-hero-height-mobile);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Range Hero",
+  "tag": "section",
+  "class": "section-wrapper",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "home_label",
+      "label": "Home label",
+      "default": "Shop"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Explore Our Tea Range"
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro",
+      "default": "Discover our curated selection across luxury, wellness, and origin categories, crafted with the spirit of Ceylon."
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_mobile_image",
+      "label": "Hero mobile image"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#fffdf8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#2b2a28"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#b08a2f"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 1200,
+      "max": 1920,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "range",
+      "id": "hero_height",
+      "label": "Hero height",
+      "min": 320,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 470
+    },
+    {
+      "type": "range",
+      "id": "hero_height_mobile",
+      "label": "Hero height mobile",
+      "min": 260,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 360
+    },
+    {
+      "type": "range",
+      "id": "tab_overlap",
+      "label": "Tab overlap",
+      "min": 12,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_inline",
+      "label": "Padding inline",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Padding top mobile",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Padding bottom mobile",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Padding inline mobile",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Luxury tea"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "target_key",
+          "label": "Target section key",
+          "info": "Use the same key on the matching range section to filter without navigating."
+        },
+        {
+          "type": "checkbox",
+          "id": "is_active",
+          "label": "Active tab",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Range Hero",
+      "blocks": [
+        {
+          "type": "tab"
+        },
+        {
+          "type": "tab"
+        },
+        {
+          "type": "tab"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

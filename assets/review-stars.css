@@ -1,0 +1,42 @@
+:root {
+  --review-star-color: #ffa000;
+  --review-star-color-rgb: 255 160 0;
+  --jdgm-star-color: var(--review-star-color) !important;
+  --jdgm-snippet-star-color: var(--review-star-color) !important;
+}
+
+/* Judge.me preview badges, review widgets, and carousels. */
+.jdgm-star {
+  color: var(--review-star-color) !important;
+}
+
+/* Rating-distribution bars in the Judge.me review summary. */
+.jdgm-histogram .jdgm-histogram__bar-content,
+.jdgm-histogram .jdgm-histogram__bar::after {
+  background-color: var(--review-star-color) !important;
+}
+
+/* Judge.me stores its own primary color; use the active theme scheme for this CTA. */
+.jdgm-widget .jdgm-write-rev-link {
+  color: var(--color-primary-button-text) !important;
+  border-color: var(--color-primary-button-border) !important;
+  background-color: var(--color-primary-button-background) !important;
+}
+
+.jdgm-widget .jdgm-write-rev-link:hover,
+.jdgm-widget .jdgm-write-rev-link:focus-visible {
+  color: var(--color-primary-button-hover-text) !important;
+  border-color: var(--color-primary-button-hover-border) !important;
+  background-color: var(--color-primary-button-hover-background) !important;
+}
+
+/* Horizon's native product-rating block. Keep counts in their configured color. */
+.rating-wrapper .rating {
+  --star-fill-color: var(--review-star-color);
+  --star-fill-color-rgb: var(--review-star-color-rgb);
+}
+
+/* Static product-card stars shown when no product is selected in the editor. */
+.teamakers-pick__rating-stars {
+  color: var(--review-star-color) !important;
+}

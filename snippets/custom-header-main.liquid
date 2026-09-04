@@ -9,6 +9,7 @@
   @param {string} [mobile_drawer_html] - Captured output from menu theme block mobile variant
   @param {string} [mobile_drawer_stripped] - Same capture after strip; avoids whitespace-only mobile drawer slot
   @param {boolean} [is_home] - True on the index template; drives homepage-only search typing
+  @param {boolean} [is_transparent_default] - True for selected pages using the transparent-default header variant
 {% enddoc %}
 
 {% liquid
@@ -79,33 +80,17 @@
 
           <div class="custom-header__logo-row">
             <div class="custom-header__logo">
-              {%- if request.page_type == 'index' -%}
-                <h1 class="custom-header__logo-heading">
-                  <a href="{{ routes.root_url }}" class="custom-header__logo-link">
-                    {%- if settings.logo != blank -%}
-                      {{
-                        settings.logo
-                        | image_url: width: 144
-                        | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
-                      }}
-                    {%- else -%}
-                      <span class="custom-header__logo-text">{{ shop.name }}</span>
-                    {%- endif -%}
-                  </a>
-                </h1>
-              {%- else -%}
-                <a href="{{ routes.root_url }}" class="custom-header__logo-link">
-                  {%- if settings.logo != blank -%}
-                    {{
-                      settings.logo
-                      | image_url: width: 144
-                      | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
-                    }}
-                  {%- else -%}
-                    <span class="custom-header__logo-text">{{ shop.name }}</span>
-                  {%- endif -%}
-                </a>
-              {%- endif -%}
+              <a href="{{ routes.root_url }}" class="custom-header__logo-link">
+                {%- if settings.logo != blank -%}
+                  {{
+                    settings.logo
+                    | image_url: width: 144
+                    | image_tag: class: 'custom-header__logo-img', alt: logo_alt, loading: 'eager'
+                  }}
+                {%- else -%}
+                  <span class="custom-header__logo-text">{{ shop.name }}</span>
+                {%- endif -%}
+              </a>
             </div>
           </div>
         </div>
@@ -137,7 +122,7 @@
         {% endif %}
       </div>
 
-      {%- if section.settings.show_desktop_search_bar -%}
+      {%- if section.settings.show_desktop_search_bar and is_transparent_default != true -%}
         {%- assign desktop_search_placeholder = section.settings.desktop_search_placeholder | strip -%}
         {%- if desktop_search_placeholder == blank -%}
           {%- assign desktop_search_placeholder = 'Search...' -%}

@@ -1,0 +1,1163 @@
+{{ 'christmas-2026-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'christmas-2026-hero.js' | asset_url }}" defer="defer"></script>
+
+{% liquid
+  assign desktop_background = section.settings.background_image
+  assign mobile_background = section.settings.mobile_background_image
+  assign mobile_panorama = mobile_background | default: desktop_background
+  assign desktop_panorama_height_width = desktop_background.aspect_ratio | default: 3.064 | times: 100
+  assign mobile_panorama_height_width = mobile_panorama.aspect_ratio | default: 3.064 | times: 100
+  assign section_label = section.settings.accessibility_label | default: section.settings.heading
+
+  case section.settings.drawer_title_font_family
+    when 'subheading'
+      assign drawer_title_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign drawer_title_font_family = 'var(--font-accent--family)'
+    when 'body'
+      assign drawer_title_font_family = 'var(--font-body--family)'
+    else
+      assign drawer_title_font_family = 'var(--font-heading--family)'
+  endcase
+
+  case section.settings.drawer_tagline_font_family
+    when 'heading'
+      assign drawer_tagline_font_family = 'var(--font-heading--family)'
+    when 'subheading'
+      assign drawer_tagline_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign drawer_tagline_font_family = 'var(--font-accent--family)'
+    else
+      assign drawer_tagline_font_family = 'var(--font-body--family)'
+  endcase
+
+  case section.settings.drawer_body_font_family
+    when 'heading'
+      assign drawer_body_font_family = 'var(--font-heading--family)'
+    when 'subheading'
+      assign drawer_body_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign drawer_body_font_family = 'var(--font-accent--family)'
+    else
+      assign drawer_body_font_family = 'var(--font-body--family)'
+  endcase
+
+  case section.settings.drawer_accent_font_family
+    when 'heading'
+      assign drawer_accent_font_family = 'var(--font-heading--family)'
+    when 'subheading'
+      assign drawer_accent_font_family = 'var(--font-subheading--family)'
+    when 'accent'
+      assign drawer_accent_font_family = 'var(--font-accent--family)'
+    else
+      assign drawer_accent_font_family = 'var(--font-body--family)'
+  endcase
+%}
+
+<section
+  id="ChristmasHero-{{ section.id }}"
+  class="c26-hero color-{{ section.settings.color_scheme }}"
+  data-christmas-hero
+  data-section-id="{{ section.id }}"
+  data-scroll-distance="{{ section.settings.scroll_distance }}"
+  data-end-hold-distance="{{ section.settings.end_hold_distance }}"
+  data-finale-gap-distance="{{ section.settings.finale_gap_distance }}"
+  data-mobile-finale-gap-distance="{{ section.settings.mobile_finale_gap_distance }}"
+  data-mobile-panorama-aspect-ratio="{{ mobile_panorama.aspect_ratio | default: 3.064 }}"
+  data-mobile-panorama-source-width="{{ mobile_panorama.width }}"
+  data-mobile-panorama-source-height="{{ mobile_panorama.height }}"
+  data-drawer-chapter-prefix="{{ section.settings.drawer_chapter_prefix | escape }}"
+  aria-label="{{ section_label | escape }}"
+  style="
+    --c26-scene-width-desktop: {% if desktop_background != blank %}max(100vw, {{ desktop_panorama_height_width }}svh){% else %}{{ section.settings.desktop_world_width }}vw{% endif %};
+    --c26-scene-width-mobile: {% if mobile_panorama != blank %}max(100vw, {{ mobile_panorama_height_width }}svh){% else %}{{ section.settings.mobile_world_width }}vw{% endif %};
+    --c26-overlay-opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    --c26-text-color: {{ section.settings.text_color }};
+    --c26-accent-color: {{ section.settings.accent_color }};
+    --c26-intro-heading-size-desktop: {{ section.settings.heading_font_size_desktop }}px;
+    --c26-intro-heading-size-mobile: {{ section.settings.heading_font_size_mobile }}px;
+    --c26-intro-body-size-desktop: {{ section.settings.body_font_size_desktop }}px;
+    --c26-intro-body-size-mobile: {{ section.settings.body_font_size_mobile }}px;
+  "
+>
+  <div class="c26-hero__sticky" data-c26-sticky>
+    <div class="c26-hero__viewport" data-c26-viewport tabindex="-1">
+      <div class="c26-hero__world" data-c26-world>
+        <div class="c26-hero__background" aria-hidden="true">
+          {% if desktop_background != blank %}
+            <picture>
+              {% if mobile_panorama != blank %}
+                <source
+                  media="(max-width: 749px)"
+                  srcset="
+                    {{ mobile_panorama | image_url: width: 900 }} 900w,
+                    {{ mobile_panorama | image_url: width: 1400 }} 1400w,
+                    {{ mobile_panorama | image_url: width: 2000 }} 2000w,
+                    {{ mobile_panorama | image_url: width: 2600 }} 2600w,
+                    {{ mobile_panorama | image_url: width: 3200 }} 3200w
+                  "
+                  sizes="max(100vw, {{ mobile_panorama_height_width }}lvh)"
+                >
+              {% endif %}
+              <img
+                class="c26-hero__background-image"
+                src="{{ desktop_background | image_url: width: 2400 }}"
+                srcset="
+                  {{ desktop_background | image_url: width: 1600 }} 1600w,
+                  {{ desktop_background | image_url: width: 2400 }} 2400w,
+                  {{ desktop_background | image_url: width: 3200 }} 3200w,
+                  {{ desktop_background | image_url: width: 4800 }} 4800w
+                "
+                sizes="(max-width: 749px) max(100vw, {{ mobile_panorama_height_width }}svh), max(100vw, {{ desktop_panorama_height_width }}svh)"
+                width="{{ desktop_background.width }}"
+                height="{{ desktop_background.height }}"
+                alt=""
+                loading="eager"
+                fetchpriority="high"
+              >
+            </picture>
+          {% else %}
+            <div class="c26-hero__background-placeholder"></div>
+          {% endif %}
+        </div>
+
+        <div class="c26-hero__wash" aria-hidden="true"></div>
+
+        <div class="c26-hero__characters" aria-label="{{ section.settings.characters_label | escape }}">
+          {% for block in section.blocks %}
+            {% liquid
+              assign character_image = block.settings.image
+              assign mobile_character_image = block.settings.mobile_image
+              assign character_alt = block.settings.accessible_label | default: block.settings.name
+              assign character_mobile_x = block.settings.mobile_x_position
+              assign character_mobile_width = block.settings.mobile_width | times: section.settings.mobile_character_scale | divided_by: 100
+              assign character_mobile_y = block.settings.mobile_y_position | plus: section.settings.mobile_character_y_offset
+              if section.settings.auto_distribute_mobile_characters
+                assign mobile_character_divisor = section.blocks.size | minus: 1
+                if mobile_character_divisor > 0
+                  assign mobile_character_step = 35.0 | divided_by: mobile_character_divisor
+                  assign character_mobile_x = mobile_character_step | times: forloop.index0 | plus: 30
+                else
+                  assign character_mobile_x = 50
+                endif
+              endif
+            %}
+            <div
+              class="c26-character"
+              data-c26-character
+              data-character-id="{{ block.id }}"
+              data-character-name="{{ block.settings.name | escape }}"
+              {{ block.shopify_attributes }}
+              style="
+                --c26-character-x: {{ block.settings.x_position }}%;
+                --c26-character-x-mobile: {{ character_mobile_x }}%;
+                --c26-character-y: {{ block.settings.y_position }}%;
+                --c26-character-y-mobile: {{ character_mobile_y }}%;
+                --c26-character-width: {{ block.settings.desktop_width }}px;
+                --c26-character-width-mobile: {{ character_mobile_width }}px;
+                --c26-character-depth: {{ block.settings.depth }};
+              "
+            >
+              <button
+                class="c26-character__trigger"
+                type="button"
+                data-c26-character-trigger
+                aria-haspopup="dialog"
+                aria-expanded="false"
+                aria-controls="C26StoryDrawer-{{ section.id }}"
+                aria-label="{{ character_alt | escape }}"
+              >
+                <span class="c26-character__label">
+                  <strong>{{ block.settings.name | escape }}</strong>
+                  {% if block.settings.cta_label != blank %}
+                    <span>{{ block.settings.cta_label | escape }}</span>
+                  {% endif %}
+                </span>
+                <span class="c26-character__art" aria-hidden="true">
+                  {% if character_image != blank %}
+                    <picture>
+                      {% if mobile_character_image != blank %}
+                        <source
+                          media="(max-width: 749px)"
+                          srcset="
+                            {{ mobile_character_image | image_url: width: 320 }} 320w,
+                            {{ mobile_character_image | image_url: width: 520 }} 520w
+                          "
+                          sizes="{{ block.settings.mobile_width }}px"
+                        >
+                      {% endif %}
+                      <img
+                        src="{{ character_image | image_url: width: 600 }}"
+                        srcset="
+                          {{ character_image | image_url: width: 300 }} 300w,
+                          {{ character_image | image_url: width: 450 }} 450w,
+                          {{ character_image | image_url: width: 600 }} 600w
+                        "
+                        sizes="(max-width: 749px) {{ block.settings.mobile_width }}px, {{ block.settings.desktop_width }}px"
+                        width="{{ character_image.width }}"
+                        height="{{ character_image.height }}"
+                        alt=""
+                        {% if forloop.index <= 2 %}loading="eager"{% else %}loading="lazy"{% endif %}
+                      >
+                    </picture>
+                  {% else %}
+                    <span class="c26-character__placeholder">{{ block.settings.name | slice: 0 }}</span>
+                  {% endif %}
+                </span>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+      <div class="c26-hero__intro c26-hero__intro--{{ section.settings.content_alignment }}">
+        {% if section.settings.eyebrow != blank %}
+          <p class="c26-hero__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {% endif %}
+        {% if section.settings.heading != blank %}
+          <h1 class="c26-hero__heading">{{ section.settings.heading | escape | newline_to_br }}</h1>
+        {% endif %}
+        {% if section.settings.body != blank %}
+          <div class="c26-hero__body rte">{{ section.settings.body }}</div>
+        {% endif %}
+      </div>
+
+      {% if section.settings.end_heading != blank %}
+        <div class="c26-finale" data-c26-finale aria-hidden="true">
+          <div class="c26-finale__card">
+            {% if section.settings.end_gift_left != blank or section.settings.end_gift_front != blank or section.settings.end_image != blank or section.settings.end_gift_right != blank %}
+              <div class="c26-finale__media" role="img" aria-label="{{ section.settings.end_image_alt | escape }}">
+                <span class="c26-finale__gift-shadow" aria-hidden="true"></span>
+                {% if section.settings.end_gift_left != blank %}
+                  {{
+                    section.settings.end_gift_left
+                    | image_url: width: 600
+                    | image_tag:
+                      widths: '180, 300, 450, 600',
+                      sizes: '(max-width: 749px) 30vw, 170px',
+                      loading: 'lazy',
+                      class: 'c26-finale__gift c26-finale__gift--left',
+                      alt: ''
+                  }}
+                {% endif %}
+                {% if section.settings.end_gift_front != blank %}
+                  {{
+                    section.settings.end_gift_front
+                    | image_url: width: 600
+                    | image_tag:
+                      widths: '180, 300, 450, 600',
+                      sizes: '(max-width: 749px) 28vw, 160px',
+                      loading: 'lazy',
+                      class: 'c26-finale__gift c26-finale__gift--front',
+                      alt: ''
+                  }}
+                {% endif %}
+                {% if section.settings.end_image != blank %}
+                  {{
+                    section.settings.end_image
+                    | image_url: width: 700
+                    | image_tag:
+                      widths: '220, 360, 520, 700',
+                      sizes: '(max-width: 749px) 36vw, 200px',
+                      loading: 'lazy',
+                      class: 'c26-finale__gift c26-finale__gift--main',
+                      alt: ''
+                  }}
+                {% endif %}
+                {% if section.settings.end_gift_right != blank %}
+                  {{
+                    section.settings.end_gift_right
+                    | image_url: width: 600
+                    | image_tag:
+                      widths: '180, 300, 450, 600',
+                      sizes: '(max-width: 749px) 28vw, 160px',
+                      loading: 'lazy',
+                      class: 'c26-finale__gift c26-finale__gift--right',
+                      alt: ''
+                  }}
+                {% endif %}
+              </div>
+            {% endif %}
+            {% if section.settings.end_eyebrow != blank %}
+              <p class="c26-finale__eyebrow">{{ section.settings.end_eyebrow | escape }}</p>
+            {% endif %}
+            <h2 class="c26-finale__heading">{{ section.settings.end_heading | escape }}</h2>
+            {% if section.settings.end_subheading != blank %}
+              <p class="c26-finale__subheading">{{ section.settings.end_subheading | escape | newline_to_br }}</p>
+            {% endif %}
+            {% if section.settings.end_body != blank %}
+              <div class="c26-finale__body rte">{{ section.settings.end_body }}</div>
+            {% endif %}
+            {% if section.settings.end_closing != blank %}
+              <p class="c26-finale__closing">{{ section.settings.end_closing | escape }}</p>
+            {% endif %}
+            {%- liquid
+              assign finale_has_primary_action = false
+              assign finale_has_secondary_action = false
+              if section.settings.primary_button_label != blank and section.settings.primary_button_link != blank
+                assign finale_has_primary_action = true
+              endif
+              if section.settings.secondary_button_label != blank and section.settings.secondary_button_link != blank
+                assign finale_has_secondary_action = true
+              endif
+            -%}
+            {% if finale_has_primary_action or finale_has_secondary_action %}
+              <div class="c26-finale__actions">
+                {% if finale_has_primary_action %}
+                  <a class="c26-finale__button c26-finale__button--primary" href="{{ section.settings.primary_button_link }}">
+                    {{ section.settings.primary_button_label | escape }}
+                  </a>
+                {% endif %}
+                {% if finale_has_secondary_action %}
+                  <a class="c26-finale__button c26-finale__button--secondary" href="{{ section.settings.secondary_button_link }}">
+                    {{ section.settings.secondary_button_label | escape }}
+                  </a>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="c26-finale__continue-cue" aria-hidden="true">
+                <span class="c26-finale__mouse"><span></span></span>
+                <span class="c26-finale__continue-label">{{ section.settings.end_scroll_label | default: 'Scroll down' | escape }}</span>
+                <span class="c26-finale__continue-arrow"></span>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if section.settings.scroll_label != blank %}
+        <div class="c26-hero__scroll-cue" aria-hidden="true">
+          <span class="c26-hero__scroll-label c26-hero__scroll-label--desktop">{{ section.settings.scroll_label | escape }}</span>
+          <span class="c26-hero__scroll-label c26-hero__scroll-label--mobile">{{ section.settings.mobile_scroll_label | default: section.settings.scroll_label | escape }}</span>
+          <span class="c26-hero__scroll-line"></span>
+        </div>
+      {% endif %}
+
+      <div class="c26-hero__progress" aria-hidden="true">
+        <span data-c26-progress></span>
+      </div>
+  </div>
+
+  <div
+    id="C26StoryDrawer-{{ section.id }}"
+    class="c26-story-drawer color-{{ section.settings.color_scheme }}"
+    data-c26-story-drawer
+    aria-hidden="true"
+    hidden
+    style="
+      --c26-drawer-panel-width: {{ section.settings.drawer_panel_width }}px;
+      --c26-drawer-panel-bg: {{ section.settings.drawer_panel_background }};
+      --c26-drawer-text: {{ section.settings.drawer_text_color }};
+      --c26-drawer-body: {{ section.settings.drawer_body_color }};
+      --c26-drawer-accent: {{ section.settings.drawer_accent_color }};
+      --c26-drawer-muted: {{ section.settings.drawer_muted_color }};
+      --c26-drawer-border: {{ section.settings.drawer_border_color }};
+      --c26-drawer-footer-btn-bg: {{ section.settings.drawer_footer_button_background }};
+      --c26-drawer-footer-btn-text: {{ section.settings.drawer_footer_button_text }};
+      --c26-drawer-spotlight-title-color: {{ section.settings.drawer_spotlight_title_color }};
+      --c26-drawer-title-font-family: {{ drawer_title_font_family }};
+      --c26-drawer-title-size-desktop: {{ section.settings.drawer_title_font_size_desktop }}px;
+      --c26-drawer-title-size-mobile: {{ section.settings.drawer_title_font_size_mobile }}px;
+      --c26-drawer-title-weight: {{ section.settings.drawer_title_font_weight }};
+      --c26-drawer-tagline-font-family: {{ drawer_tagline_font_family }};
+      --c26-drawer-tagline-size-desktop: {{ section.settings.drawer_tagline_font_size_desktop }}px;
+      --c26-drawer-tagline-size-mobile: {{ section.settings.drawer_tagline_font_size_mobile }}px;
+      --c26-drawer-tagline-weight: {{ section.settings.drawer_tagline_font_weight }};
+      --c26-drawer-tagline-color: {{ section.settings.drawer_tagline_color }};
+      --c26-drawer-body-font-family: {{ drawer_body_font_family }};
+      --c26-drawer-body-size-desktop: {{ section.settings.drawer_body_font_size_desktop }}px;
+      --c26-drawer-body-size-mobile: {{ section.settings.drawer_body_font_size_mobile }}px;
+      --c26-drawer-body-weight: {{ section.settings.drawer_body_font_weight }};
+      --c26-drawer-accent-font-family: {{ drawer_accent_font_family }};
+      --c26-drawer-accent-size-desktop: {{ section.settings.drawer_accent_font_size_desktop }}px;
+      --c26-drawer-accent-size-mobile: {{ section.settings.drawer_accent_font_size_mobile }}px;
+      --c26-drawer-accent-weight: {{ section.settings.drawer_accent_font_weight }};
+      --c26-drawer-accent-color: {{ section.settings.drawer_accent_text_color }};
+    "
+  >
+    <button class="c26-story-drawer__backdrop" type="button" data-c26-drawer-close aria-label="Close story"></button>
+
+    <div class="c26-story-drawer__dialog" data-c26-drawer-dialog role="dialog" aria-modal="true" aria-label="Character story">
+      <div class="c26-story-drawer__spotlight">
+        {% for block in section.blocks %}
+          {% liquid
+            assign spotlight_image = block.settings.drawer_image | default: block.settings.image
+            assign spotlight_label = block.settings.spotlight_label
+            if spotlight_label == blank
+              assign spotlight_label = 'Meet ' | append: block.settings.name
+            endif
+            assign spotlight_tagline = block.settings.spotlight_tagline | default: block.settings.role
+          %}
+          <div class="c26-story-drawer__spotlight-character" data-c26-spotlight="{{ block.id }}" hidden>
+            <div class="c26-story-drawer__spotlight-inner">
+              <div class="c26-story-drawer__spotlight-copy">
+                <p class="c26-story-drawer__spotlight-label" aria-hidden="true">{{ spotlight_label | escape }}</p>
+                {% if spotlight_tagline != blank %}
+                  <p class="c26-story-drawer__spotlight-tagline">{{ spotlight_tagline | escape }}</p>
+                {% endif %}
+              </div>
+              {% if spotlight_image != blank %}
+                <div class="c26-story-drawer__spotlight-art">
+                  {{
+                    spotlight_image
+                    | image_url: width: 1200
+                    | image_tag:
+                      widths: '480, 720, 900, 1200',
+                      sizes: 'min(52vw, 620px)',
+                      loading: 'lazy',
+                      alt: ''
+                  }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <aside class="c26-story-drawer__panel color-{{ section.settings.color_scheme }}">
+        <div class="c26-story-drawer__header">
+          <div class="c26-story-drawer__header-meta">
+            <span class="c26-story-drawer__header-label">{{ section.settings.drawer_eyebrow | escape }}</span>
+            <span class="c26-story-drawer__header-chapter" data-c26-drawer-chapter hidden></span>
+          </div>
+          <button class="c26-story-drawer__close" type="button" data-c26-drawer-close aria-label="Close story">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="c26-story-drawer__content">
+          {% for block in section.blocks %}
+            {% liquid
+              assign drawer_image = block.settings.drawer_image | default: block.settings.image
+              assign drawer_alt = block.settings.accessible_label | default: block.settings.name
+              assign drawer_title_id = 'C26StoryTitle-' | append: block.id
+              assign spotlight_label = block.settings.spotlight_label
+              if spotlight_label == blank
+                assign spotlight_label = 'Meet ' | append: block.settings.name
+              endif
+              assign spotlight_tagline = block.settings.spotlight_tagline | default: block.settings.role
+              assign real_heading = block.settings.real_heading | default: block.settings.impact_heading
+              assign real_story = block.settings.real_story | default: block.settings.impact_text
+              assign product_one = block.settings.product_1
+              assign product_two = block.settings.product_2
+              assign has_products = false
+              if product_one != blank or product_two != blank
+                assign has_products = true
+              endif
+            %}
+            <article
+              class="c26-story-drawer__story"
+              data-c26-story-panel="{{ block.id }}"
+              aria-labelledby="{{ drawer_title_id }}"
+              hidden
+            >
+              <h2 id="{{ drawer_title_id }}" class="visually-hidden">{{ spotlight_label | escape }}</h2>
+
+              <div class="c26-story-drawer__mobile-intro">
+                {% if drawer_image != blank %}
+                  <div class="c26-story-drawer__mobile-art">
+                    {{
+                      drawer_image
+                      | image_url: width: 900
+                      | image_tag:
+                        widths: '320, 480, 640, 900',
+                        sizes: '100vw',
+                        loading: 'lazy',
+                        alt: drawer_alt
+                    }}
+                  </div>
+                {% endif %}
+                <div class="c26-story-drawer__mobile-copy">
+                  <p class="c26-story-drawer__mobile-title" aria-hidden="true">{{ spotlight_label | escape }}</p>
+                  {% if spotlight_tagline != blank %}
+                    <p class="c26-story-drawer__mobile-tagline">{{ spotlight_tagline | escape }}</p>
+                  {% endif %}
+                  {% if block.settings.story != blank %}
+                    <div class="c26-story-drawer__text rte">{{ block.settings.story }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="c26-story-drawer__panel-body">
+                {% if block.settings.story != blank %}
+                  <div class="c26-story-drawer__desktop-story">
+                    <div class="c26-story-drawer__text rte">{{ block.settings.story }}</div>
+                  </div>
+                {% endif %}
+
+                {% if real_heading != blank or real_story != blank %}
+                  <section class="c26-story-drawer__real" aria-labelledby="C26RealHeading-{{ block.id }}">
+                    {% if real_heading != blank %}
+                      <h3 id="C26RealHeading-{{ block.id }}" class="c26-story-drawer__real-heading">{{ real_heading | escape }}</h3>
+                    {% endif %}
+                    {% if real_story != blank %}
+                      <div class="c26-story-drawer__real-text rte">{{ real_story }}</div>
+                    {% endif %}
+                  </section>
+                {% endif %}
+
+                {% if block.settings.organization_1_text != blank or block.settings.organization_1_logo != blank or block.settings.organization_2_text != blank or block.settings.organization_2_logo != blank %}
+                  <section class="c26-story-drawer__organizations" aria-label="Related organizations">
+                    {% for organization_index in (1..2) %}
+                      {% liquid
+                        if organization_index == 1
+                          assign organization_text = block.settings.organization_1_text
+                          assign organization_logo = block.settings.organization_1_logo
+                          assign organization_link = block.settings.organization_1_link
+                          assign organization_link_label = block.settings.organization_1_link_label
+                        else
+                          assign organization_text = block.settings.organization_2_text
+                          assign organization_logo = block.settings.organization_2_logo
+                          assign organization_link = block.settings.organization_2_link
+                          assign organization_link_label = block.settings.organization_2_link_label
+                        endif
+                      %}
+                      {% if organization_text != blank or organization_logo != blank %}
+                        {% if organization_link != blank %}<a class="c26-story-drawer__organization" href="{{ organization_link }}">{% else %}<div class="c26-story-drawer__organization">{% endif %}
+                          {% if organization_text != blank %}
+                            <span class="c26-story-drawer__organization-text">{{ organization_text | escape }}</span>
+                          {% endif %}
+                          {% if organization_logo != blank %}
+                            {{
+                              organization_logo
+                              | image_url: width: 360
+                              | image_tag:
+                                widths: '120, 180, 240, 360',
+                                sizes: '140px',
+                                loading: 'lazy',
+                                class: 'c26-story-drawer__organization-logo',
+                                alt: organization_link_label
+                            }}
+                          {% endif %}
+                          {% if organization_link != blank and organization_link_label != blank %}
+                            <span class="c26-story-drawer__organization-link">{{ organization_link_label | escape }} <span aria-hidden="true">→</span></span>
+                          {% endif %}
+                        {% if organization_link != blank %}</a>{% else %}</div>{% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </section>
+                {% endif %}
+
+                {% if block.settings.cta_heading != blank or has_products or block.settings.cta_footnote != blank %}
+                  <section class="c26-story-drawer__shop" aria-labelledby="C26ShopHeading-{{ block.id }}">
+                    {% if block.settings.cta_heading != blank %}
+                      <div id="C26ShopHeading-{{ block.id }}" class="c26-story-drawer__cta-heading rte">{{ block.settings.cta_heading }}</div>
+                    {% endif %}
+                    {% if has_products %}
+                      <div class="c26-story-drawer__products">
+                        {% if product_one != blank %}
+                          {% assign product_one_card_id = block.id | append: '-p1' %}
+                          {% render 'c26-story-product-card', product: product_one, card_id: product_one_card_id %}
+                        {% endif %}
+                        {% if product_two != blank %}
+                          {% assign product_two_card_id = block.id | append: '-p2' %}
+                          {% render 'c26-story-product-card', product: product_two, card_id: product_two_card_id %}
+                        {% endif %}
+                      </div>
+                    {% elsif block.settings.link != blank and block.settings.drawer_button_label != blank %}
+                      <a class="c26-story-drawer__button" href="{{ block.settings.link }}">
+                        {{- block.settings.drawer_button_label | escape -}}
+                      </a>
+                    {% endif %}
+                    {% if block.settings.cta_footnote != blank %}
+                      <p class="c26-story-drawer__cta-footnote">{{ block.settings.cta_footnote | escape }}</p>
+                    {% endif %}
+                  </section>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        <footer class="c26-story-drawer__footer" data-c26-drawer-footer>
+          <div class="c26-story-drawer__footer-nav-group">
+            <button type="button" class="c26-story-drawer__footer-nav c26-story-drawer__footer-nav--prev" data-c26-drawer-prev hidden>
+              <span class="c26-story-drawer__footer-nav-icon" aria-hidden="true">&larr;</span>
+              <span class="visually-hidden" data-c26-drawer-prev-label></span>
+            </button>
+            <button type="button" class="c26-story-drawer__footer-nav c26-story-drawer__footer-nav--next" data-c26-drawer-next hidden>
+              <span class="c26-story-drawer__footer-nav-icon" aria-hidden="true">&rarr;</span>
+              <span class="visually-hidden" data-c26-drawer-next-label></span>
+            </button>
+          </div>
+          {% if section.settings.drawer_footer_map_label != blank %}
+            <a class="c26-story-drawer__footer-map" href="{{ section.settings.drawer_footer_map_link | default: '#' }}">
+              {{- section.settings.drawer_footer_map_label | escape -}}
+            </a>
+          {% endif %}
+        </footer>
+      </aside>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Christmas 2026 hero",
+  "tag": "section",
+  "class": "section-christmas-2026-hero",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "accessibility_label",
+      "label": "Section accessibility label",
+      "default": "A Christmas full of kindness"
+    },
+    { "type": "image_picker", "id": "background_image", "label": "Panoramic background" },
+    { "type": "image_picker", "id": "mobile_background_image", "label": "Mobile panoramic background" },
+    {
+      "type": "range",
+      "id": "desktop_world_width",
+      "min": 160,
+      "max": 400,
+      "step": 10,
+      "unit": "%",
+      "label": "Desktop panorama width",
+      "default": 240
+    },
+    {
+      "type": "range",
+      "id": "mobile_world_width",
+      "min": 220,
+      "max": 600,
+      "step": 10,
+      "unit": "%",
+      "label": "Mobile panorama width",
+      "default": 360
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_distribute_mobile_characters",
+      "label": "Automatically space characters on mobile",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "mobile_character_scale",
+      "label": "Mobile character scale",
+      "min": 80,
+      "max": 130,
+      "step": 5,
+      "unit": "%",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "mobile_character_y_offset",
+      "label": "Mobile character vertical offset",
+      "min": -10,
+      "max": 15,
+      "step": 1,
+      "unit": "%",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "scroll_distance",
+      "min": 70,
+      "max": 160,
+      "step": 5,
+      "unit": "%",
+      "label": "Scroll distance",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "end_hold_distance",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "%",
+      "label": "Pause after final card is visible",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "finale_gap_distance",
+      "min": 0,
+      "max": 30,
+      "step": 5,
+      "unit": "%",
+      "label": "Gap after last character",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "mobile_finale_gap_distance",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "%",
+      "label": "Mobile gap after last character",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "label": "Background overlay",
+      "default": 25
+    },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "scheme-1" },
+    { "type": "color", "id": "text_color", "label": "Hero text", "default": "#fffaf0" },
+    { "type": "color", "id": "accent_color", "label": "Accent", "default": "#d5ad22" },
+    { "type": "header", "content": "Left side copy" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "MEET THE KINDNESS GANG"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body",
+      "default": "<p>They’re cute. They’re curious. Some are considerably better behaved than others.</p><p>And every one of them is inspired by real people, animals and acts of kindness made possible through Dilmah.</p>"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    { "type": "header", "content": "Left side typography" },
+    {
+      "type": "range",
+      "id": "heading_font_size_desktop",
+      "label": "Heading font size (desktop)",
+      "min": 24,
+      "max": 120,
+      "step": 1,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size_mobile",
+      "label": "Heading font size (mobile)",
+      "min": 20,
+      "max": 72,
+      "step": 1,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "body_font_size_desktop",
+      "label": "Body font size (desktop)",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "body_font_size_mobile",
+      "label": "Body font size (mobile)",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "text",
+      "id": "scroll_label",
+      "label": "Scroll prompt",
+      "default": "Scroll to meet the Kindness Gang"
+    },
+    {
+      "type": "text",
+      "id": "mobile_scroll_label",
+      "label": "Mobile swipe prompt",
+      "default": "Swipe left or right to explore"
+    },
+    {
+      "type": "text",
+      "id": "characters_label",
+      "label": "Characters accessibility label",
+      "default": "Meet the Kindness Gang"
+    },
+    {
+      "type": "text",
+      "id": "drawer_eyebrow",
+      "label": "Story drawer eyebrow",
+      "default": "Meet the Kindness Gang"
+    },
+    {
+      "type": "text",
+      "id": "drawer_chapter_prefix",
+      "label": "Chapter label prefix",
+      "default": "Chapter"
+    },
+    {
+      "type": "text",
+      "id": "drawer_footer_map_label",
+      "label": "Footer map button label",
+      "info": "Optional centre button in the drawer footer."
+    },
+    { "type": "url", "id": "drawer_footer_map_link", "label": "Footer map button link" },
+    { "type": "header", "content": "Story drawer layout" },
+    {
+      "type": "range",
+      "id": "drawer_panel_width",
+      "label": "Panel width (desktop)",
+      "min": 480,
+      "max": 720,
+      "step": 10,
+      "unit": "px",
+      "default": 580
+    },
+    { "type": "header", "content": "Story drawer colors" },
+    { "type": "color", "id": "drawer_panel_background", "label": "Panel background", "default": "#ffffff" },
+    { "type": "color", "id": "drawer_text_color", "label": "Panel text", "default": "#222829" },
+    { "type": "color", "id": "drawer_body_color", "label": "Body text", "default": "#222829" },
+    { "type": "color", "id": "drawer_accent_color", "label": "Accent (focus, nav icons)", "default": "#bc9407" },
+    { "type": "color", "id": "drawer_muted_color", "label": "Muted text", "default": "#333333" },
+    { "type": "color", "id": "drawer_border_color", "label": "Borders", "default": "#e5e5e5" },
+    { "type": "color", "id": "drawer_footer_button_background", "label": "Footer map button background", "default": "#bc9407" },
+    { "type": "color", "id": "drawer_footer_button_text", "label": "Footer map button text", "default": "#ffffff" },
+    { "type": "color", "id": "drawer_spotlight_title_color", "label": "Spotlight title (desktop left)", "default": "#fffaf0" },
+    { "type": "header", "content": "Drawer title typography" },
+    { "type": "paragraph", "content": "Spotlight title and mobile character name." },
+    {
+      "type": "select",
+      "id": "drawer_title_font_family",
+      "label": "Font family",
+      "default": "heading",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "drawer_title_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 18,
+      "max": 56,
+      "step": 1,
+      "unit": "px",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "drawer_title_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 16,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "select",
+      "id": "drawer_title_font_weight",
+      "label": "Font weight",
+      "default": "700",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    { "type": "header", "content": "Drawer tagline typography" },
+    {
+      "type": "select",
+      "id": "drawer_tagline_font_family",
+      "label": "Font family",
+      "default": "heading",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "drawer_tagline_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "drawer_tagline_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "drawer_tagline_font_weight",
+      "label": "Font weight",
+      "default": "500",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    { "type": "color", "id": "drawer_tagline_color", "label": "Color", "default": "#bc9407" },
+    { "type": "header", "content": "Drawer body typography" },
+    { "type": "paragraph", "content": "Story paragraphs and real-story body copy." },
+    {
+      "type": "select",
+      "id": "drawer_body_font_family",
+      "label": "Font family",
+      "default": "body",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "drawer_body_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "drawer_body_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "select",
+      "id": "drawer_body_font_weight",
+      "label": "Font weight",
+      "default": "400",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    { "type": "header", "content": "Drawer accent typography" },
+    { "type": "paragraph", "content": "Header label, section headings, and CTA heading." },
+    {
+      "type": "select",
+      "id": "drawer_accent_font_family",
+      "label": "Font family",
+      "default": "heading",
+      "options": [
+        { "value": "heading", "label": "Theme heading" },
+        { "value": "body", "label": "Theme body" },
+        { "value": "subheading", "label": "Theme subheading" },
+        { "value": "accent", "label": "Theme accent" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "drawer_accent_font_size_desktop",
+      "label": "Font size (desktop)",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "drawer_accent_font_size_mobile",
+      "label": "Font size (mobile)",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "drawer_accent_font_weight",
+      "label": "Font weight",
+      "default": "700",
+      "options": [
+        { "value": "400", "label": "Regular (400)" },
+        { "value": "500", "label": "Medium (500)" },
+        { "value": "600", "label": "Semibold (600)" },
+        { "value": "700", "label": "Bold (700)" }
+      ]
+    },
+    { "type": "color", "id": "drawer_accent_text_color", "label": "Color", "default": "#bc9407" },
+    { "type": "header", "content": "End message" },
+    { "type": "image_picker", "id": "end_gift_left", "label": "Gift image 1 — left" },
+    { "type": "image_picker", "id": "end_gift_front", "label": "Gift image 2 — front left" },
+    { "type": "image_picker", "id": "end_image", "label": "Gift image 3 — centre (largest)" },
+    { "type": "image_picker", "id": "end_gift_right", "label": "Gift image 4 — right" },
+    { "type": "text", "id": "end_image_alt", "label": "Gift group alt text", "default": "Dilmah Christmas gift collection" },
+    { "type": "text", "id": "end_eyebrow", "label": "End eyebrow", "default": "The Really Good Bit" },
+    { "type": "text", "id": "end_heading", "label": "End heading", "default": "You thought you were giving someone really good tea." },
+    { "type": "textarea", "id": "end_subheading", "label": "End subheading", "default": "You are.\nBut that’s only half the story." },
+    {
+      "type": "richtext",
+      "id": "end_body",
+      "label": "End message",
+      "default": "<p>A minimum of 15% of Dilmah’s pre-tax profits is dedicated to helping people through the MJF Charitable Foundation and protecting nature through Dilmah Conservation.</p><p>So behind your Christmas gift are young people finding opportunity, women building livelihoods, wildlife being protected, forests being restored and orphaned baby elephants getting another chance at life in the wild.</p><p>That’s quite a lot of kindness to fit under one Christmas tree. But that is just the way we like it.</p>"
+    },
+    { "type": "text", "id": "end_closing", "label": "Optional closing line" },
+    { "type": "text", "id": "primary_button_label", "label": "Primary button label", "default": "Shop Christmas Gifts" },
+    { "type": "url", "id": "primary_button_link", "label": "Primary button link" },
+    { "type": "text", "id": "secondary_button_label", "label": "Secondary button label", "default": "Find Your Gift Match" },
+    { "type": "url", "id": "secondary_button_link", "label": "Secondary button link" },
+    { "type": "text", "id": "end_scroll_label", "label": "Scroll cue label when buttons have no links", "default": "Scroll down" }
+  ],
+  "blocks": [
+    {
+      "type": "character",
+      "name": "Character",
+      "limit": 12,
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name", "default": "Dilly" },
+        { "type": "text", "id": "accessible_label", "label": "Accessible label" },
+        { "type": "text", "id": "cta_label", "label": "Hover label", "default": "Meet them →" },
+        { "type": "image_picker", "id": "image", "label": "Character image" },
+        { "type": "image_picker", "id": "mobile_image", "label": "Mobile character image" },
+        { "type": "image_picker", "id": "drawer_image", "label": "Story drawer image" },
+        { "type": "text", "id": "spotlight_label", "label": "Drawer spotlight label" },
+        { "type": "text", "id": "spotlight_tagline", "label": "Drawer spotlight tagline" },
+        { "type": "text", "id": "role", "label": "Character role" },
+        { "type": "richtext", "id": "story", "label": "Character story" },
+        { "type": "text", "id": "real_heading", "label": "Real story heading" },
+        { "type": "richtext", "id": "real_story", "label": "Real story" },
+        { "type": "text", "id": "impact_heading", "label": "Impact heading (legacy fallback)" },
+        { "type": "richtext", "id": "impact_text", "label": "Impact description (legacy fallback)" },
+        { "type": "header", "content": "Organization 1 (optional)" },
+        { "type": "text", "id": "organization_1_text", "label": "Small text" },
+        { "type": "image_picker", "id": "organization_1_logo", "label": "Logo" },
+        { "type": "url", "id": "organization_1_link", "label": "Link" },
+        { "type": "text", "id": "organization_1_link_label", "label": "Link label" },
+        { "type": "header", "content": "Organization 2 (optional)" },
+        { "type": "text", "id": "organization_2_text", "label": "Small text" },
+        { "type": "image_picker", "id": "organization_2_logo", "label": "Logo" },
+        { "type": "url", "id": "organization_2_link", "label": "Link" },
+        { "type": "text", "id": "organization_2_link_label", "label": "Link label" },
+        { "type": "richtext", "id": "cta_heading", "label": "Shop CTA heading" },
+        { "type": "product", "id": "product_1", "label": "Featured product 1" },
+        { "type": "product", "id": "product_2", "label": "Featured product 2" },
+        { "type": "text", "id": "cta_footnote", "label": "Shop CTA footnote" },
+        { "type": "url", "id": "link", "label": "Story button link" },
+        { "type": "text", "id": "drawer_button_label", "label": "Story button label", "default": "Explore their story" },
+        {
+          "type": "range",
+          "id": "x_position",
+          "min": 5,
+          "max": 95,
+          "step": 1,
+          "unit": "%",
+          "label": "Horizontal position",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "mobile_x_position",
+          "label": "Mobile horizontal position",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y_position",
+          "min": 10,
+          "max": 90,
+          "step": 1,
+          "unit": "%",
+          "label": "Desktop vertical position",
+          "default": 58
+        },
+        {
+          "type": "range",
+          "id": "mobile_y_position",
+          "min": 10,
+          "max": 90,
+          "step": 1,
+          "unit": "%",
+          "label": "Mobile vertical position",
+          "default": 60
+        },
+        {
+          "type": "range",
+          "id": "desktop_width",
+          "min": 80,
+          "max": 420,
+          "step": 10,
+          "unit": "px",
+          "label": "Desktop character width",
+          "default": 220
+        },
+        {
+          "type": "range",
+          "id": "mobile_width",
+          "min": 60,
+          "max": 260,
+          "step": 10,
+          "unit": "px",
+          "label": "Mobile character width",
+          "default": 150
+        },
+        {
+          "type": "range",
+          "id": "depth",
+          "min": 0,
+          "max": 20,
+          "step": 1,
+          "label": "Parallax depth",
+          "default": 6
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Christmas 2026 hero",
+      "blocks": [
+        { "type": "character" },
+        { "type": "character" },
+        { "type": "character" },
+        { "type": "character" },
+        { "type": "character" },
+        { "type": "character" }
+      ]
+    }
+  ]
+}
+{% endschema %}

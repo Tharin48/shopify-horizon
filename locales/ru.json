@@ -1,12 +1,3 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin language editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "blocks": {
     "load_video": "Загрузить видео: {{ description }}",
@@ -88,7 +79,9 @@
     "price_filter_high": "Высокая цена",
     "product_button_named": "{{ product_title }}. {{ action }}",
     "promo_banner_image": "Рекламный баннер",
-    "slide_background_image": "Фон избранного слайда"
+    "slide_background_image": "Фон избранного слайда",
+    "category_explore_card": "View category",
+    "product_rating": "Product rating"
   },
   "actions": {
     "add_to_cart": "Добавить в корзину",
@@ -368,12 +361,14 @@
       "in_cart": "в корзине",
       "default_title": "Название по умолчанию",
       "sticky_add_to_cart": "Быстрое добавление в корзину",
-      "suited_for_editor_hint": "Connect product metafield custom.suited_for (choice list: morning, afternoon, evening, night) or legacy booleans to control which slots appear.",
-      "suited_for_editor_placeholder": "No suited times on this product yet — add custom.suited_for (or legacy booleans) in the admin. This placeholder only appears in the theme editor.",
+      "suited_for_editor_hint": "Connect product metafield custom.time_of_day (morning, afternoon, evening, night) to control which slots appear.",
+      "suited_for_editor_placeholder": "No time of day values on this product yet — add custom.time_of_day in the admin. This placeholder only appears in the theme editor.",
       "price_display_group": "Product pricing",
       "discount_percent_off": "({{ percent }}% Off)",
       "sticky_express_checkout": "Больше способов оплаты (Shop Pay или другие кошельки)",
-      "sticky_express_checkout_short": "Купить сейчас"
+      "sticky_express_checkout_short": "Купить сейчас",
+      "back_to_products": "Back to products",
+      "accordion_rich_text_editor_placeholder": "No rich text content on this product yet — add the selected product metafield in the admin. This placeholder only appears in the theme editor."
     }
   },
   "pagefly": {

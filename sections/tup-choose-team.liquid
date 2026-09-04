@@ -1,0 +1,496 @@
+{{ 'tup-choose-team.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tup-worldcup-shared.js' | asset_url }}" defer></script>
+<script src="{{ 'tup-choose-team.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign products_source = section.settings.products_collection.products
+-%}
+
+<section
+  id="tup-choose-team-{{ section.id }}"
+  class="tup-choose-team tup-choose-team--width-{{ section.settings.section_width }}"
+  data-tup-choose-team
+  style="
+    --tup-team-custom-width: {{ section.settings.section_max_width }}px;
+    --tup-team-padding-x: {{ section.settings.padding_x }}px;
+    --tup-team-padding-x-mobile: {{ section.settings.padding_x_mobile }}px;
+    --tup-team-eyebrow-size: {{ section.settings.campaign_label_font_size }}px;
+    --tup-team-title-size: {{ section.settings.section_title_font_size }}px;
+    --tup-team-description-size: {{ section.settings.description_font_size }}px;
+    --tup-team-tab-size: {{ section.settings.tab_font_size }}px;
+    --tup-team-card-name-size: {{ section.settings.team_card_name_font_size }}px;
+    --tup-team-card-meta-size: {{ section.settings.team_card_meta_font_size }}px;
+    --tup-team-card-badge-size: {{ section.settings.team_card_badge_font_size }}px;
+    --tup-team-blend-badge-size: {{ section.settings.blend_badge_font_size }}px;
+    --tup-team-product-title-size: {{ section.settings.product_title_font_size }}px;
+    --tup-team-story-size: {{ section.settings.product_story_font_size }}px;
+    --tup-team-price-size: {{ section.settings.product_price_font_size }}px;
+    --tup-team-button-size: {{ section.settings.button_font_size }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="tup-choose-team__inner">
+    <div class="tup-choose-team__header">
+      {%- if section.settings.campaign_label != blank -%}
+        <p class="tup-choose-team__eyebrow">{{ section.settings.campaign_label }}</p>
+      {%- endif -%}
+      <h2 class="tup-choose-team__title">{{ section.settings.section_title }}</h2>
+      {%- if section.settings.description != blank -%}
+        <p class="tup-choose-team__description">{{ section.settings.description }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="tup-choose-team__tabs" aria-label="Team filters">
+      <button class="tup-choose-team__tab is-active" type="button" data-team-filter-tab="today">Today's Teams</button>
+      <button class="tup-choose-team__tab" type="button" data-team-filter-tab="all">All Teams</button>
+    </div>
+
+    <div class="tup-choose-team__cards" aria-label="Choose your team">
+      {%- for index in (1..5) -%}
+        <div class="tup-team-card tup-team-card--skeleton" aria-hidden="true">
+          <span class="tup-team-skeleton tup-team-skeleton--flag"></span>
+          <span class="tup-team-skeleton tup-team-skeleton--badge"></span>
+          <span class="tup-team-skeleton tup-team-skeleton--name"></span>
+          <span class="tup-team-skeleton tup-team-skeleton--blend"></span>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="tup-choose-team__profile" data-product-profile>
+      <div class="tup-choose-team__image-panel">
+        <div class="tup-choose-team__product-skeleton" aria-hidden="true"></div>
+      </div>
+
+      <div class="tup-choose-team__content">
+        <p class="tup-choose-team__blend-badge" data-product-blend-badge>Loading blends</p>
+        <h3 class="tup-choose-team__product-title" data-product-title>Finding your match-day tea...</h3>
+        <div class="tup-choose-team__story" data-product-story></div>
+        <div class="tup-choose-team__tasting" data-tasting-profile hidden>
+          <p class="tup-choose-team__tasting-title">Match-day tasting profile</p>
+          <div class="tup-choose-team__tasting-row" data-profile-row="strength">
+            <div class="tup-choose-team__tasting-text">
+              <span>Strength</span>
+              <em data-profile-copy="strength"></em>
+            </div>
+            <span class="tup-choose-team__tasting-bar"><span data-profile-bar="strength"></span></span>
+          </div>
+          <div class="tup-choose-team__tasting-row" data-profile-row="aroma">
+            <div class="tup-choose-team__tasting-text">
+              <span>Aroma</span>
+              <em data-profile-copy="aroma"></em>
+            </div>
+            <span class="tup-choose-team__tasting-bar"><span data-profile-bar="aroma"></span></span>
+          </div>
+          <div class="tup-choose-team__tasting-row" data-profile-row="smoothness">
+            <div class="tup-choose-team__tasting-text">
+              <span>Smoothness</span>
+              <em data-profile-copy="smoothness"></em>
+            </div>
+            <span class="tup-choose-team__tasting-bar"><span data-profile-bar="smoothness"></span></span>
+          </div>
+        </div>
+        <p class="tup-choose-team__price" data-product-price></p>
+
+        <div class="tup-choose-team__actions">
+          <button
+            type="button"
+            class="tup-choose-team__add"
+            data-product-add-to-cart
+            disabled
+          >
+            Add to Cart
+          </button>
+          <a
+            class="tup-choose-team__view"
+            href="{{ routes.collections_url }}/t-series"
+            data-shop-url="{{ routes.collections_url }}/t-series"
+            data-product-link
+          >
+            View Product
+          </a>
+        </div>
+
+        <p class="tup-choose-team__message" data-product-message role="status"></p>
+      </div>
+    </div>
+  </div>
+
+  <script type="application/json" data-tup-products-json>
+    [
+      {%- for product in products_source limit: 50 -%}
+        {%- liquid
+          assign variant = product.selected_or_first_available_variant
+          assign country_codes = product.metafields.custom.tup_country_codes.value
+          assign blend_label = product.metafields.custom.tup_blend_label.value | default: product.metafields.custom.tup_blend_label
+          assign match_day_story = product.metafields.custom.tup_match_day_story.value | default: product.metafields.custom.tup_match_day_story
+          assign product_image = ''
+          if product.featured_image
+            assign product_image = product.featured_image | image_url: width: 860
+          endif
+        -%}
+        {
+          "id": {{ product.id | json }},
+          "variantId": {{ variant.id | json }},
+          "title": {{ product.title | json }},
+          "handle": {{ product.handle | json }},
+          "image": {{ product_image | json }},
+          "price": {{ variant.price | money | json }},
+          "url": {{ product.url | json }},
+          "available": {{ variant.available | json }},
+          "custom": {
+            "tup_country_codes": {{ country_codes | default: product.metafields.custom.tup_country_codes | json }},
+            "tup_blend_label": {{ blend_label | json }},
+            "tup_match_day_story": {{ match_day_story | json }}
+          }
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  </script>
+
+  <script type="application/json" data-tup-country-blends-json>
+    [
+      {%- liquid
+        assign has_mapping = false
+      -%}
+      {%- for entry in metaobjects.tup_country_blend.values -%}
+        {%- liquid
+          assign is_active = entry.active.value
+          assign country_code = entry.country_code.value | strip | upcase
+          assign assigned_product = entry.assigned_product.value
+          if is_active == false
+            continue
+          endif
+          if country_code == blank or assigned_product == blank
+            continue
+          endif
+
+          assign assigned_variant = assigned_product.selected_or_first_available_variant
+          if assigned_variant == blank and assigned_product.variants.size > 0
+            assign assigned_variant = assigned_product.variants.first
+          endif
+          assign variant_override = entry.variant_id.value
+          assign variant_id = variant_override.id | default: variant_override | default: assigned_variant.id
+          assign flag_image = ''
+          assign product_image = ''
+          if entry.flag_image.value != blank
+            assign flag_image = entry.flag_image.value | image_url: width: 160
+          endif
+          if assigned_product.featured_image
+            assign product_image = assigned_product.featured_image | image_url: width: 860
+          endif
+          assign assigned_product_exists = true
+          assign variant_exists = false
+          if variant_id != blank
+            assign variant_exists = true
+          endif
+          assign product_image_loaded = false
+          if product_image != blank
+            assign product_image_loaded = true
+          endif
+          assign product_price_loaded = false
+          if assigned_variant.price != blank
+            assign product_price_loaded = true
+          endif
+          assign product_title_loaded = false
+          if assigned_product.title != blank
+            assign product_title_loaded = true
+          endif
+          assign story_template_id = 'tup-story-' | append: country_code
+        -%}
+        {%- if has_mapping -%},{%- endif -%}
+        {
+          "active": {{ is_active | json }},
+          "countryName": {{ entry.country_name.value | json }},
+          "countryCode": {{ country_code | json }},
+          "apiTeamId": {{ entry.api_team_id.value | json }},
+          "apiTeamName": {{ entry.api_team_name.value | json }},
+          "flagImage": {{ flag_image | json }},
+          "assignedProductExists": {{ assigned_product_exists | json }},
+          "productId": {{ assigned_product.id | json }},
+          "variantExists": {{ variant_exists | json }},
+          "variantId": {{ variant_id | json }},
+          "productTitle": {{ assigned_product.title | json }},
+          "displayTitle": {{ entry.display_title.value | json }},
+          "productUrl": {{ assigned_product.url | json }},
+          "productImage": {{ product_image | json }},
+          "productImageLoaded": {{ product_image_loaded | json }},
+          "productPrice": {{ assigned_variant.price | money | json }},
+          "productPriceLoaded": {{ product_price_loaded | json }},
+          "productTitleLoaded": {{ product_title_loaded | json }},
+          "blendBadge": {{ entry.blend_badge.value | json }},
+          "strengthValue": {{ entry.strength_value.value | json }},
+          "strengthCopy": {{ entry.strength_copy.value | json }},
+          "aromaValue": {{ entry.aroma_value.value | json }},
+          "aromaCopy": {{ entry.aroma_copy.value | json }},
+          "smoothnessValue": {{ entry.smoothness_value.value | json }},
+          "smoothnessCopy": {{ entry.smoothness_copy.value | json }},
+          "storyTemplateId": {{ story_template_id | json }}
+        }
+        {%- liquid
+          assign has_mapping = true
+        -%}
+      {%- endfor -%}
+    ]
+  </script>
+
+  <script type="application/json" data-tup-country-blends-debug-json>
+    [
+      {%- for entry in metaobjects.tup_country_blend.values -%}
+        {%- liquid
+          assign debug_is_active = entry.active.value
+          assign debug_country_code = entry.country_code.value | strip | upcase
+          assign debug_assigned_product = entry.assigned_product.value
+          assign debug_skip_reason = ''
+          if debug_is_active == false
+            assign debug_skip_reason = 'active_false'
+          elsif debug_country_code == blank
+            assign debug_skip_reason = 'country_code_blank'
+          elsif debug_assigned_product == blank
+            assign debug_skip_reason = 'assigned_product_blank'
+          endif
+          assign debug_assigned_product_exists = false
+          if debug_assigned_product != blank
+            assign debug_assigned_product_exists = true
+          endif
+        -%}
+        {
+          "countryName": {{ entry.country_name.value | json }},
+          "countryCode": {{ debug_country_code | json }},
+          "active": {{ debug_is_active | json }},
+          "assignedProductExists": {{ debug_assigned_product_exists | json }},
+          "assignedProductTitle": {{ debug_assigned_product.title | json }},
+          "skipReason": {{ debug_skip_reason | json }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  </script>
+
+  <div class="tup-choose-team__story-templates" hidden>
+    {%- for entry in metaobjects.tup_country_blend.values -%}
+      {%- liquid
+        assign is_active = entry.active.value
+        assign country_code = entry.country_code.value | strip | upcase
+        assign assigned_product = entry.assigned_product.value
+        if is_active == false
+          continue
+        endif
+        if country_code == blank or assigned_product == blank
+          continue
+        endif
+      -%}
+      <template id="tup-story-{{ country_code | escape }}">
+        {{ entry.match_day_story | metafield_tag }}
+      </template>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "T Up choose team",
+  "settings": [
+    {
+      "type": "text",
+      "id": "campaign_label",
+      "label": "Campaign label",
+      "default": "FIFA World Cup 2026"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section title",
+      "default": "Choose Your Team"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Select the country you're supporting and discover the T-Series blend matched to their match-day character."
+    },
+    {
+      "type": "collection",
+      "id": "products_collection",
+      "label": "T-Series products collection"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Section width",
+      "default": "full",
+      "options": [
+        {
+          "value": "full",
+          "label": "Full width"
+        },
+        {
+          "value": "page",
+          "label": "Page width"
+        },
+        {
+          "value": "custom",
+          "label": "Custom max width"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "section_max_width",
+      "label": "Custom max width",
+      "min": 900,
+      "max": 1800,
+      "step": 20,
+      "unit": "px",
+      "default": 1440
+    },
+    {
+      "type": "range",
+      "id": "padding_x",
+      "label": "Horizontal padding",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_x_mobile",
+      "label": "Mobile horizontal padding",
+      "min": 0,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Text sizes"
+    },
+    {
+      "type": "range",
+      "id": "campaign_label_font_size",
+      "label": "Campaign label size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "section_title_font_size",
+      "label": "Section title size",
+      "min": 12,
+      "max": 84,
+      "step": 1,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "description_font_size",
+      "label": "Description size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "label": "Tab text size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "team_card_name_font_size",
+      "label": "Team card name size",
+      "min": 12,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "team_card_meta_font_size",
+      "label": "Team card code size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "team_card_badge_font_size",
+      "label": "Team card badge size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "blend_badge_font_size",
+      "label": "Blend badge size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "product_title_font_size",
+      "label": "Product title size",
+      "min": 12,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "product_story_font_size",
+      "label": "Product story size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "product_price_font_size",
+      "label": "Product price size",
+      "min": 12,
+      "max": 52,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "button_font_size",
+      "label": "Button text size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "T Up choose team"
+    }
+  ]
+}
+{% endschema %}

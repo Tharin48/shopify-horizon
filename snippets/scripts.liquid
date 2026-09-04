@@ -60,6 +60,14 @@
       src: "{{ 'variant-picker.js' | asset_url }}",
     },
     {
+      selector: '[data-tea-format-selector]',
+      src: "{{ 'tea-format-selector.js' | asset_url }}",
+    },
+    {
+      selector: 'results-list, [data-product-back-link]',
+      src: "{{ 'horizon-collection-return.js' | asset_url }}",
+    },
+    {
       selector: 'swatches-variant-picker-component',
       src: "{{ 'product-card.js' | asset_url }}",
     },
@@ -151,6 +159,10 @@
     {
       selector: 'volume-pricing-info',
       src: "{{ 'volume-pricing-info.js' | asset_url }}",
+    },
+    {
+      selector: '[data-yotpo-lazy]',
+      src: "{{ 'yotpo-lazy.js' | asset_url }}",
     },
   ];
 
@@ -379,6 +391,11 @@
 {% endif %}
 
 {% if template == 'product' or template.name == 'product' or request.page_type == 'product' %}
+   {{ 'loop-subscription-info.css' | asset_url | stylesheet_tag }}
+  <script
+    src="{{ 'loop-subscription-info.js' | asset_url }}"
+    defer
+  ></script>
   <script
     src="{{ 'sticky-add-to-cart.js' | asset_url }}"
     type="module"

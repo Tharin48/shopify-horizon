@@ -49,7 +49,7 @@
         "shipping_tab": {
           "type": "page_tab",
           "settings": {
-            "page": "copy-of-shipping-and-delivery-lk",
+            "page": "shipping-and-delivery-lk",
             "label": "Shipping & Delivery Policy",
             "icon": "truck"
           }
@@ -75,7 +75,7 @@
           "settings": {
             "heading_source": "custom",
             "custom_heading": "Shipping & Delivery",
-            "intro": "<p>We offer free international shipping on all orders over USD $49. Shipping availability depends on courier coverage in your delivery location.</p>"
+            "intro": "<p>We offer free international shipping on all orders over USD $75. Shipping availability depends on courier coverage in your delivery location.</p>"
           }
         }
       },
@@ -103,7 +103,7 @@
     "shipping_availability": {
       "type": "shipping-availability",
       "settings": {
-        "global_notice": "<ul><li>Free shipping is available for orders over USD $49.</li><li>Local customs authorities may impose duties, taxes, or inspection charges.</li><li>These charges are not included in the tea price.</li><li>Please contact your nearest agent with your airway bill number.</li><li>Refunds may exclude charges already paid to authorities.</li></ul>",
+        "global_notice": "<ul><li>Free shipping is available for orders over USD $75.</li><li>Local customs authorities may impose duties, taxes, or inspection charges.</li><li>These charges are not included in the tea price.</li><li>Please contact your nearest agent with your airway bill number.</li><li>Refunds may exclude charges already paid to authorities.</li></ul>",
         "fallback_contact_email": "orders@dilmahtea.com",
         "search_label": "Check Shipping Availability",
         "search_placeholder": "Search your country",
