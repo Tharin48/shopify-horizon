@@ -337,6 +337,11 @@
       <div class="c26-hero__progress" aria-hidden="true">
         <span data-c26-progress></span>
       </div>
+
+      <div class="c26-hero__ios-continue" aria-hidden="true">
+        <span>{{ section.settings.ios_continue_label | default: 'Continue' | escape }}</span>
+        <span aria-hidden="true">&#8595;</span>
+      </div>
   </div>
 
   <div
@@ -784,6 +789,12 @@
       "id": "mobile_scroll_label",
       "label": "Mobile swipe prompt",
       "default": "Swipe left or right to explore"
+    },
+    {
+      "type": "text",
+      "id": "ios_continue_label",
+      "label": "iPhone end prompt",
+      "default": "Continue"
     },
     {
       "type": "text",

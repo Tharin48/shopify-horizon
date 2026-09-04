@@ -49,21 +49,6 @@
   touch-action: pan-y;
 }
 
-.c26-hero.is-enhanced.is-ios-scroll-mode .c26-hero__viewport {
-  overflow-x: scroll;
-  overflow-y: hidden;
-  overscroll-behavior-x: none;
-  scroll-behavior: auto;
-  scrollbar-width: none;
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
-}
-
-.c26-hero.is-ios-scroll-mode .c26-hero__world {
-  transform: none !important;
-  will-change: auto;
-}
-
 .c26-hero__world {
   position: relative;
   width: var(--c26-scene-width);
@@ -386,6 +371,10 @@
   transform-origin: left center;
 }
 
+.c26-hero__ios-continue {
+  display: none;
+}
+
 .c26-hero__debug {
   position: fixed;
   z-index: 9999;
@@ -426,6 +415,58 @@
   .c26-hero__viewport {
     height: var(--c26-app-height, 100svh);
     min-height: var(--c26-app-height, 100svh);
+  }
+
+  .c26-hero.is-ios-swipe-mode {
+    --c26-ios-header-compensation: 0px;
+    --c26-ios-stage-height: calc(
+      max(var(--c26-app-height, 100dvh), 100dvh) + var(--c26-ios-header-compensation)
+    );
+    height: auto !important;
+    min-height: 0;
+  }
+
+  body:has([data-custom-header][data-may-transparent='true'])
+    .content-for-layout
+    > .shopify-section:first-child
+    .c26-hero.is-ios-swipe-mode {
+    --c26-ios-header-compensation: calc(
+      var(--header-group-height, 0px) - var(--announcement-bar-height, 0px)
+    );
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__sticky {
+    position: relative;
+    top: auto;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__viewport {
+    position: relative;
+    width: 100%;
+    height: var(--c26-ios-stage-height);
+    min-height: var(--c26-ios-stage-height);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__world {
+    width: var(--c26-scene-width-mobile);
+    min-width: 100%;
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    transform: none !important;
+    will-change: auto;
   }
 
   .c26-hero.is-enhanced .c26-hero__sticky {
@@ -512,6 +553,36 @@
     display: inline;
   }
 
+  .c26-hero.is-ios-swipe-mode .c26-hero__ios-continue {
+    position: absolute;
+    z-index: 10;
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    display: inline-flex;
+    padding: 11px 17px;
+    align-items: center;
+    gap: 7px;
+    color: var(--c26-text-color, #fffaf0);
+    font: 700 0.72rem/1 var(--font-body--family, sans-serif);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    background: rgba(4, 30, 31, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    box-shadow: 0 10px 30px rgba(2, 18, 19, 0.3);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(-50%, 8px, 0);
+    transition: opacity 220ms ease, visibility 220ms ease, transform 220ms ease;
+  }
+
+  .c26-hero.is-ios-swipe-mode.is-at-end .c26-hero__ios-continue {
+    opacity: 1;
+    visibility: visible;
+    transform: translate3d(-50%, 0, 0);
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -530,6 +601,10 @@
 
   .c26-hero__scroll-cue {
     animation: none;
+  }
+
+  .c26-hero__ios-continue {
+    transition: none !important;
   }
 
   .c26-hero.is-reduced-motion .c26-hero__viewport {

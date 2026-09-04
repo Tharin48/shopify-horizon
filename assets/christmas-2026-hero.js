@@ -68,6 +68,7 @@
       this.drawerPlacement = null;
 
       this.onScroll = this.onScroll.bind(this);
+      this.onNativeHorizontalScroll = this.onNativeHorizontalScroll.bind(this);
       this.onResize = this.onResize.bind(this);
       this.onMotionChange = this.onMotionChange.bind(this);
       this.onCharacterSelect = this.onCharacterSelect.bind(this);
@@ -144,14 +145,13 @@
 
     updateHorizontalRenderMode() {
       this.useNativeHorizontalScroll = isIOSDevice() && window.innerWidth < 750;
-      this.root.classList.toggle('is-ios-scroll-mode', this.useNativeHorizontalScroll);
+      this.root.classList.toggle('is-ios-swipe-mode', this.useNativeHorizontalScroll);
       this.applyPanoramaPosition(this.currentTranslate);
     }
 
     applyPanoramaPosition(position) {
       if (this.useNativeHorizontalScroll) {
         this.world.style.removeProperty('transform');
-        this.viewport.scrollLeft = position;
         return;
       }
 
@@ -161,10 +161,24 @@
 
     setMotionMode() {
       window.removeEventListener('scroll', this.onScroll);
+      this.viewport.removeEventListener('scroll', this.onNativeHorizontalScroll);
       cancelAnimationFrame(this.frame);
       cancelAnimationFrame(this.animationFrame);
       this.frame = 0;
       this.animationFrame = 0;
+
+      // iPhone/iPad always use the browser's native horizontal scroller. Keep
+      // this branch ahead of reduced-motion so iOS is never put back into the
+      // tall, pinned cinematic layout.
+      if (this.useNativeHorizontalScroll) {
+        this.root.classList.remove('is-enhanced', 'is-reduced-motion', 'is-finale-visible');
+        this.root.classList.add('is-ios-swipe-mode');
+        this.root.style.removeProperty('--c26-scroll-height');
+        this.world.style.removeProperty('transform');
+        this.viewport.addEventListener('scroll', this.onNativeHorizontalScroll, { passive: true });
+        this.refresh();
+        return;
+      }
 
       if (this.motionQuery.matches) {
         this.root.classList.remove(
@@ -194,19 +208,27 @@
       }
 
       this.root.classList.remove('is-reduced-motion');
+
+      this.root.classList.remove('is-ios-swipe-mode');
       this.root.classList.add('is-enhanced');
       window.addEventListener('scroll', this.onScroll, { passive: true });
       this.refresh();
     }
 
     refresh() {
-      if (this.destroyed || this.motionQuery.matches) return;
+      if (this.destroyed || (this.motionQuery.matches && !this.useNativeHorizontalScroll)) return;
 
       this.viewportHeight = this.viewport.clientHeight || window.innerHeight;
       this.layoutViewportWidth = this.viewport.clientWidth;
       this.maxTranslate = Math.max(0, this.world.scrollWidth - this.viewport.clientWidth);
       this.horizontalTravelDistance = Math.max(1, this.maxTranslate * this.scrollDistance);
       this.finaleStartDistance = this.horizontalTravelDistance;
+
+      if (this.useNativeHorizontalScroll) {
+        this.root.style.removeProperty('--c26-scroll-height');
+        this.updateNativeHorizontalProgress();
+        return;
+      }
 
       if (window.innerWidth < 750 && this.characters.length) {
         const lastCharacter = this.characters[this.characters.length - 1];
@@ -246,16 +268,22 @@
       const isMobile = window.innerWidth < 750;
       const widthChanged = Math.abs(this.viewport.clientWidth - this.layoutViewportWidth) >= 2;
 
-      // Safari and Chrome emit height-only resize events while their browser UI
-      // collapses. The stage height must remain frozen during those events.
-      if (isMobile && this.layoutViewportWidth > 0 && !widthChanged) return;
+      // The cinematic controller keeps a frozen height while browser chrome
+      // collapses. The native iOS stage is not pinned, so it can safely refresh
+      // its height and must do so to avoid exposing the following section.
+      if (
+        isMobile &&
+        this.layoutViewportWidth > 0 &&
+        !widthChanged &&
+        !this.useNativeHorizontalScroll
+      ) return;
 
       window.clearTimeout(this.resizeTimer);
       this.resizeTimer = window.setTimeout(() => {
         this.setStableViewportHeight();
         this.updateHorizontalRenderMode();
         cancelAnimationFrame(this.resizeFrame);
-        this.resizeFrame = requestAnimationFrame(() => this.refresh());
+        this.resizeFrame = requestAnimationFrame(() => this.setMotionMode());
       }, 180);
     }
 
@@ -265,6 +293,48 @@
         this.frame = 0;
         this.update();
       });
+    }
+
+    onNativeHorizontalScroll() {
+      if (this.frame) return;
+      this.frame = requestAnimationFrame(() => {
+        this.frame = 0;
+        this.updateNativeHorizontalProgress();
+      });
+    }
+
+    updateNativeHorizontalProgress() {
+      if (!this.useNativeHorizontalScroll) return;
+
+      const maxScroll = Math.max(0, this.viewport.scrollWidth - this.viewport.clientWidth);
+      const progress = maxScroll > 0 ? clamp(this.viewport.scrollLeft / maxScroll) : 0;
+      const isAtEnd = progress >= 0.97;
+      const leftCopyFadeStart = 0.14;
+      const leftCopyFadeEnd = 0.24;
+      const leftCopyOpacity = progress <= leftCopyFadeStart
+        ? 1
+        : clamp(1 - (progress - leftCopyFadeStart) / (leftCopyFadeEnd - leftCopyFadeStart));
+      const isLeftCopyHidden = progress >= leftCopyFadeEnd;
+
+      this.targetTranslate = this.viewport.scrollLeft;
+      this.currentTranslate = this.viewport.scrollLeft;
+      this.translateDifference = 0;
+      this.lastJourneyProgress = progress;
+      this.root.style.setProperty('--c26-progress', progress.toFixed(4));
+      this.root.style.setProperty('--c26-left-copy-opacity', leftCopyOpacity.toFixed(3));
+      this.root.style.setProperty('--c26-finale-opacity', '0');
+      this.root.style.setProperty('--c26-character-opacity', '1');
+      this.root.classList.toggle('has-progress', progress > 0.02);
+      this.root.classList.toggle('is-left-copy-fading', progress > leftCopyFadeStart && !isLeftCopyHidden);
+      this.root.classList.toggle('is-left-copy-hidden', isLeftCopyHidden);
+      this.root.classList.toggle('is-at-end', isAtEnd);
+      this.root.classList.remove('is-finale-visible');
+
+      if (this.leftCopy) this.leftCopy.setAttribute('aria-hidden', isLeftCopyHidden ? 'true' : 'false');
+      if (this.finale) this.finale.setAttribute('aria-hidden', 'true');
+
+      this.updateScrollActiveCharacter(progress, true);
+      this.renderDebug();
     }
 
     update(immediate = false) {
@@ -392,7 +462,7 @@
         `source ${this.mobilePanoramaSourceWidth}×${this.mobilePanoramaSourceHeight}`,
         `decoded ${panoramaImage?.naturalWidth || 0}×${panoramaImage?.naturalHeight || 0}`,
         `DPR ${window.devicePixelRatio || 1}`,
-        `render mode ${this.useNativeHorizontalScroll ? 'ios-scrollLeft' : 'transform'}`,
+        `render mode ${this.useNativeHorizontalScroll ? 'ios-native-swipe' : 'transform'}`,
         `RAF running ${this.animationFrame !== 0}`,
         `controllers ${instances.size} · ScrollTriggers 0`,
       ].join('\n');
@@ -735,6 +805,11 @@
       );
       const progress = this.maxTranslate ? targetTranslate / this.maxTranslate : 0;
 
+      if (this.useNativeHorizontalScroll) {
+        this.viewport.scrollTo({ left: targetTranslate, behavior: 'smooth' });
+        return;
+      }
+
       window.scrollTo({
         top: this.sectionTop + progress * this.horizontalTravelDistance,
         behavior: 'smooth',
@@ -751,6 +826,7 @@
       this.unlockStoryScroll();
       this.restoreDrawerPlacement();
       window.removeEventListener('scroll', this.onScroll);
+      this.viewport.removeEventListener('scroll', this.onNativeHorizontalScroll);
       window.removeEventListener('resize', this.onResize);
       document.removeEventListener('shopify:block:select', this.onThemeBlockSelect);
       this.motionQuery.removeEventListener('change', this.onMotionChange);
@@ -775,7 +851,7 @@
         'is-finale-visible'
       );
       this.applyPanoramaPosition(0);
-      this.root.classList.remove('is-ios-scroll-mode');
+      this.root.classList.remove('is-ios-swipe-mode', 'is-at-end');
     }
   }
 
