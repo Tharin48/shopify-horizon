@@ -327,7 +327,7 @@
   display: none;
 }
 
-.c26-hero__swipe-arrows {
+.c26-swipe-hint {
   display: none;
 }
 
@@ -375,8 +375,7 @@
   transform-origin: left center;
 }
 
-.c26-hero__ios-continue,
-.c26-hero__ios-skip {
+.c26-hero__ios-continue {
   display: none;
 }
 
@@ -573,14 +572,28 @@
   }
 
   .c26-hero.is-ios-swipe-mode .c26-hero__scroll-cue {
-    bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+    opacity: var(--c26-swipe-cue-opacity, 1);
+    visibility: visible;
     animation: none;
   }
 
-  .c26-hero.is-ios-swipe-mode .c26-hero__swipe-arrows {
+  .c26-hero.is-ios-swipe-mode .c26-hero__scroll-label--mobile {
+    display: none;
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-hero__scroll-line {
+    display: none;
+  }
+
+  .c26-hero.is-ios-swipe-mode .c26-swipe-hint {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 7px;
+  }
+
+  .c26-swipe-hint__arrows {
+    display: inline-block;
     font-size: 0.9rem;
     animation: c26-swipe-arrows 1.4s ease-in-out infinite;
   }
@@ -589,43 +602,9 @@
     pointer-events: none;
   }
 
-  .c26-hero.is-ios-swipe-mode.has-progress:not(.is-swipe-complete) .c26-hero__scroll-cue {
-    opacity: 0.76;
-    visibility: visible;
-    transform: translateX(-50%) scale(0.92);
-  }
-
-  .c26-hero.is-ios-swipe-mode.is-swipe-complete .c26-hero__scroll-cue {
+  .c26-hero.is-ios-swipe-mode:is(.is-swipe-cue-hidden, .is-swipe-complete) .c26-hero__scroll-cue {
     opacity: 0;
     visibility: hidden;
-  }
-
-  .c26-hero.is-ios-swipe-mode:not(.is-swipe-complete) .c26-hero__ios-skip {
-    position: absolute;
-    z-index: 11;
-    bottom: calc(78px + env(safe-area-inset-bottom, 0px));
-    left: 50%;
-    display: inline-flex;
-    min-height: 40px;
-    padding: 8px 14px;
-    align-items: center;
-    justify-content: center;
-    color: var(--c26-text-color, #fffaf0);
-    font: 600 0.7rem/1.2 var(--font-body--family, sans-serif);
-    letter-spacing: 0.04em;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    white-space: nowrap;
-    background: rgba(4, 30, 31, 0.78);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 999px;
-    cursor: pointer;
-    transform: translateX(-50%);
-  }
-
-  .c26-hero.is-ios-swipe-mode .c26-hero__ios-skip:focus-visible {
-    outline: 3px solid var(--c26-accent-color, #d5ad22);
-    outline-offset: 3px;
   }
 
   .c26-hero.is-ios-swipe-mode .c26-hero__ios-continue {
@@ -682,7 +661,7 @@
     transition: none !important;
   }
 
-  .c26-hero__swipe-arrows {
+  .c26-swipe-hint__arrows {
     animation: none !important;
   }
 
@@ -712,6 +691,11 @@
   .c26-hero.is-reduced-motion .c26-finale__card {
     pointer-events: auto;
   }
+}
+
+html.c26-ios-panorama-locked,
+body.c26-ios-panorama-locked {
+  overscroll-behavior-y: none;
 }
 
 .c26-hero.is-left-copy-hidden .c26-hero__intro {
