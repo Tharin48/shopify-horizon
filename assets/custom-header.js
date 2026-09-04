@@ -329,8 +329,7 @@
 
   function topState(root) {
     var mayTransparent = root.dataset.mayTransparent === 'true';
-    var isHome = root.dataset.isHomepage === 'true';
-    return mayTransparent && isHome ? 'transparent' : 'solid';
+    return mayTransparent ? 'transparent' : 'solid';
   }
 
   function visibleScrollState(root) {

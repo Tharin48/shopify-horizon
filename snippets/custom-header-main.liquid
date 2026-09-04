@@ -9,6 +9,7 @@
   @param {string} [mobile_drawer_html] - Captured output from menu theme block mobile variant
   @param {string} [mobile_drawer_stripped] - Same capture after strip; avoids whitespace-only mobile drawer slot
   @param {boolean} [is_home] - True on the index template; drives homepage-only search typing
+  @param {boolean} [is_transparent_default] - True for selected pages using the transparent-default header variant
 {% enddoc %}
 
 {% liquid
@@ -121,7 +122,7 @@
         {% endif %}
       </div>
 
-      {%- if section.settings.show_desktop_search_bar -%}
+      {%- if section.settings.show_desktop_search_bar and is_transparent_default != true -%}
         {%- assign desktop_search_placeholder = section.settings.desktop_search_placeholder | strip -%}
         {%- if desktop_search_placeholder == blank -%}
           {%- assign desktop_search_placeholder = 'Search...' -%}

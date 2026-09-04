@@ -96,7 +96,7 @@
       "custom-newsletter-popup": {
         "type": "custom-newsletter-popup",
         "settings": {
-          "enable_popup": true,
+          "enable_popup": false,
           "popup_visibility": "homepage_only",
           "enable_desktop": true,
           "enable_mobile": true,

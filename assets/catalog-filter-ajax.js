@@ -59,6 +59,12 @@ class CatalogFilterAjax {
   /** @type {string} */
   #sectionId;
 
+  /** @type {boolean} */
+  #pageMode;
+
+  /** @type {string} */
+  #sourceUrl;
+
   /** @type {AbortController | null} */
   #inflight = null;
 
@@ -66,6 +72,8 @@ class CatalogFilterAjax {
   constructor(root) {
     this.#root = root;
     this.#sectionId = root.dataset.sectionId ?? '';
+    this.#pageMode = root.dataset.catalogPageMode === 'true';
+    this.#sourceUrl = root.dataset.catalogSourceUrl ?? '';
 
     if (this.#root.dataset.catalogAjaxInitialized === 'true') {
       return;
@@ -86,6 +94,13 @@ class CatalogFilterAjax {
 
     // Support browser back / forward navigation.
     window.addEventListener('popstate', (e) => this.#handlePopState(e));
+
+    // A page template can display collection products, but Shopify only resolves
+    // complete native facets in a collection-route request. Hydrate this page-only
+    // instance from that route without navigating away from the landing page.
+    if (this.#pageMode && this.#sourceUrl) {
+      this.#navigate(this.#sourceUrl, false, true);
+    }
   }
 
   /** @param {MouseEvent} e */
@@ -124,7 +139,7 @@ class CatalogFilterAjax {
   #handlePopState(e) {
     const url =
       /** @type {{ catalogFilterUrl?: string } | null} */ (e.state)?.catalogFilterUrl ??
-      location.href;
+      (this.#pageMode ? this.#sourceUrl : location.href);
 
     this.#navigate(url, false);
   }
@@ -135,8 +150,9 @@ class CatalogFilterAjax {
    *
    * @param {string} url
    * @param {boolean} push  – whether to push a new history entry
+   * @param {boolean} initial – whether this is the page-mode hydration request
    */
-  async #navigate(url, push) {
+  async #navigate(url, push, initial = false) {
     if (this.#inflight) {
       this.#inflight.abort();
     }
@@ -156,24 +172,37 @@ class CatalogFilterAjax {
         throw new Error(`Catalog filter fetch: HTTP ${res.status}`);
       }
 
-      const payload = /** @type {Record<string, string>} */ (await res.json());
-      const sectionHtml = payload[this.#sectionId];
+      let freshDoc;
+      if (this.#pageMode) {
+        const pageHtml = await res.text();
+        freshDoc = new DOMParser().parseFromString(pageHtml, 'text/html');
+      } else {
+        const payload = /** @type {Record<string, string>} */ (await res.json());
+        const sectionHtml = payload[this.#sectionId];
 
-      if (typeof sectionHtml !== 'string') {
-        throw new Error(`Section "${this.#sectionId}" not found in Sections API response`);
+        if (typeof sectionHtml !== 'string') {
+          throw new Error(`Section "${this.#sectionId}" not found in Sections API response`);
+        }
+
+        freshDoc = new DOMParser().parseFromString(sectionHtml, 'text/html');
       }
 
-      const freshDoc = new DOMParser().parseFromString(sectionHtml, 'text/html');
       this.#swapRegions(freshDoc);
       ensureDrawerFacetsOpen(this.#root);
       this.#restoreCatalogProductGridView();
 
       if (push) {
-        history.pushState({ catalogFilterUrl: url }, '', url);
+        // Page-mode filtering must not replace the campaign URL with a collection
+        // URL. The state still records the real collection request for back/forward.
+        history.pushState(
+          { catalogFilterUrl: url },
+          '',
+          this.#pageMode ? location.href : url
+        );
       }
 
       this.#announceCount();
-      this.#maybeScrollGridIntoView();
+      if (!initial) this.#maybeScrollGridIntoView();
     } catch (err) {
       // AbortError is expected when a newer request supersedes this one — ignore.
       if (/** @type {Error} */ (err).name === 'AbortError') return;
@@ -195,7 +224,9 @@ class CatalogFilterAjax {
    */
   #buildFetchUrl(url) {
     const u = new URL(url, location.origin);
-    u.searchParams.set('sections', this.#sectionId);
+    if (!this.#pageMode) {
+      u.searchParams.set('sections', this.#sectionId);
+    }
     return u.toString();
   }
 
@@ -206,9 +237,17 @@ class CatalogFilterAjax {
    * @param {Document} freshDoc
    */
   #swapRegions(freshDoc) {
+    const freshRoot = this.#pageMode
+      ? freshDoc.querySelector('[data-catalog-ajax]')
+      : freshDoc;
+
+    if (!freshRoot) {
+      throw new Error('Catalog root not found in collection response');
+    }
+
     for (const attr of SWAPPABLE_REGIONS) {
       const live = this.#root.querySelector(`[${attr}]`);
-      const fresh = freshDoc.querySelector(`[${attr}]`);
+      const fresh = freshRoot.querySelector(`[${attr}]`);
 
       if (live && fresh) {
         live.replaceWith(fresh.cloneNode(true));

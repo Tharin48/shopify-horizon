@@ -17,6 +17,14 @@
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 
 {%- liquid
+  assign catalog_collection = collection
+  if catalog_collection == blank
+    assign catalog_collection = section.settings.collection
+  endif
+  if catalog_collection == blank
+    assign catalog_collection = collections['all']
+  endif
+
   assign gap_m = section.settings.grid_gap_mobile
   assign gap_d = section.settings.grid_gap_desktop
   assign gap_t = gap_m | plus: gap_d | divided_by: 2
@@ -70,7 +78,7 @@
   assign got_tod = false
   assign got_av = false
 
-  for f in collection.filters
+  for f in catalog_collection.filters
     assign fl = f.label | downcase | strip
     assign pn = f.param_name | downcase
     unless got_or
@@ -211,7 +219,7 @@
 
   assign catalog_has_active_chips = false
   assign catalog_total_active_values = 0
-  for f in collection.filters
+  for f in catalog_collection.filters
     for av in f.active_values
       assign catalog_has_active_chips = true
       assign catalog_total_active_values = catalog_total_active_values | plus: 1
@@ -223,8 +231,8 @@
     assign catalog_show_pills_bar = true
   endif
 
-  assign catalog_clear_href = collection.url
-  assign catalog_sort_by = collection.sort_by | default: collection.default_sort_by
+  assign catalog_clear_href = catalog_collection.url
+  assign catalog_sort_by = catalog_collection.sort_by | default: catalog_collection.default_sort_by
   assign catalog_results_list_id = 'custom-catalog-results-' | append: section.id
   assign catalog_filters_drawer_id = 'custom-catalog-filters-drawer-' | append: section.id
   assign catalog_filters_drawer_heading_id = 'custom-catalog-filters-heading-' | append: section.id
@@ -256,6 +264,10 @@
   class="section page-width-wide color-{{ section.settings.color_scheme }} custom-catalog"
   data-catalog-ajax
   data-section-id="{{ section.id }}"
+  {% if request.page_type == 'page' %}
+    data-catalog-page-mode="true"
+    data-catalog-source-url="{{ catalog_collection.url }}"
+  {% endif %}
   style="
     --custom-catalog-padding-block-start: {{ section.settings.padding_top }}px;
     --custom-catalog-padding-block-end: {{ section.settings.padding_bottom }}px;
@@ -277,7 +289,7 @@
             <a href="{{ routes.root_url }}">{{ section.settings.breadcrumb_home_label | escape }}</a>
           </li>
           <li class="custom-catalog__breadcrumb-item">
-            <span class="custom-catalog__breadcrumb-current">{{ collection.title | escape }}</span>
+            <span class="custom-catalog__breadcrumb-current">{{ catalog_collection.title | escape }}</span>
           </li>
         </ol>
       </nav>
@@ -469,7 +481,7 @@
       4) Product grid in data-catalog-results-region — page size is controlled by the section setting.
     {%- endcomment -%}
     {%- assign catalog_products_per_page = section.settings.products_per_page | default: 16 -%}
-    {% paginate collection.products by catalog_products_per_page %}
+    {% paginate catalog_collection.products by catalog_products_per_page %}
       <div class="custom-catalog__filters-sticky">
         <div data-catalog-pills-region>
           {%- if catalog_show_pills_bar -%}
@@ -533,7 +545,7 @@
                     class="custom-catalog__chips"
                     role="list"
                     aria-label="{{ section.settings.active_filters_aria_label | escape }}">
-                    {%- for filter in collection.filters -%}
+                    {%- for filter in catalog_collection.filters -%}
                       {%- for active_value in filter.active_values -%}
                         <li role="listitem">
                           <a
@@ -561,7 +573,7 @@
               assign count_text = '0 products'
             else
               assign range_start = paginate.current_offset | plus: 1
-              assign range_end = paginate.current_offset | plus: collection.products.size
+              assign range_end = paginate.current_offset | plus: catalog_collection.products.size
               assign range_start = range_start | append: ''
               assign range_end = range_end | append: ''
               assign total_str = paginate.items | append: ''
@@ -682,7 +694,7 @@
                     </button>
                     {%- render 'custom-catalog-sort-dropdown'
                       , section_id: section.id
-                      , collection: collection
+                      , collection: catalog_collection
                       , catalog_sort_by: catalog_sort_by
                       , sort_label_prefix: section.settings.sort_label_prefix
                       , drawer_mode: false
@@ -830,7 +842,7 @@
                 <div class="custom-catalog__mobile-sort-sheet-body">
                   {%- render 'custom-catalog-sort-dropdown'
                     , section_id: section.id
-                    , collection: collection
+                    , collection: catalog_collection
                     , catalog_sort_by: catalog_sort_by
                     , sort_label_prefix: section.settings.sort_label_prefix
                     , drawer_mode: false
@@ -881,7 +893,7 @@
                               class="custom-catalog__chips"
                               role="list"
                               aria-label="{{ section.settings.active_filters_aria_label | escape }}">
-                              {%- for filter in collection.filters -%}
+                              {%- for filter in catalog_collection.filters -%}
                                 {%- for active_value in filter.active_values -%}
                                   <li role="listitem">
                                     <a
@@ -961,7 +973,7 @@
                       <div class="custom-catalog__mobile-filters-sort">
                         {%- render 'custom-catalog-sort-dropdown'
                           , section_id: section.id
-                          , collection: collection
+                          , collection: catalog_collection
                           , catalog_sort_by: catalog_sort_by
                           , sort_label_prefix: section.settings.sort_label_prefix
                           , drawer_mode: true
@@ -994,7 +1006,7 @@
         aria-atomic="true"></p>
 
       <div data-catalog-results-region>
-        {%- if collection.products.size == 0 -%}
+        {%- if catalog_collection.products.size == 0 -%}
           <p class="custom-catalog__empty">{{ section.settings.empty_collection_message | escape }}</p>
         {%- else -%}
           {%- liquid
@@ -1015,7 +1027,7 @@
               product-grid-view="default"
               data-last-page="{{ paginate.pages }}"
               data-catalog-product-grid>
-              {%- for product in collection.products -%}
+              {%- for product in catalog_collection.products -%}
                 <li
                   class="custom-catalog__grid-item"
                   role="listitem"
@@ -1076,10 +1088,16 @@
     "name": "Reusable catalog",
     "tag": "section",
     "class": "section-wrapper",
-    "enabled_on": {
-      "templates": ["collection"]
+    "disabled_on": {
+      "groups": ["header", "footer"]
     },
     "settings": [
+      {
+        "type": "collection",
+        "id": "collection",
+        "label": "Collection for page templates",
+        "info": "Used when this section is added to a page. Collection templates continue using the collection being viewed."
+      },
       {
         "type": "color_scheme",
         "id": "color_scheme",
